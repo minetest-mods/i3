@@ -1697,7 +1697,8 @@ local function get_inventory_mode(player, fs, data, full_height)
 	local name = player:get_player_name()
 
 	fs(fmt("model", 0.2, 0.2, 4, 5.4, "player_model",
-		player_props.mesh, concat(player_props.textures, ","), "0,-150", "false", "0,0"))
+		player_props.mesh or "character.b3d", concat(player_props.textures, ","),
+		"0,-150", "false", "0,0"))
 
 	local xoffset = __3d_armor and 0 or 4.5
 
@@ -2056,10 +2057,12 @@ local function init_data(player, name)
 		creative      = core.is_creative_enabled(name),
 	}
 
-	local data = pdata[name]
-	local fs = make_fs(player, data)
+	after(0, function()
+		local data = pdata[name]
+		local fs = make_fs(player, data)
 
-	player:set_inventory_formspec(fs)
+		player:set_inventory_formspec(fs)
+	end)
 end
 
 local function reset_data(data)
@@ -2101,15 +2104,13 @@ on_mods_loaded(function()
 end)
 
 on_joinplayer(function(player)
-	after(0, function()
-		local name = player:get_player_name()
-		init_data(player, name)
-		local data = pdata[name]
+	local name = player:get_player_name()
+	init_data(player, name)
+	local data = pdata[name]
 
-		if data.fs_version < MIN_FORMSPEC_VERSION then
-			outdated(name)
-		end
-	end)
+	if data.fs_version < MIN_FORMSPEC_VERSION then
+		outdated(name)
+	end
 end)
 
 on_receive_fields(function(player, formname, _f)
@@ -2397,7 +2398,7 @@ if progressive_mode then
 			local data = pdata[name]
 
 			local inv_items = get_inv_items(player)
-			local diff = array_diff(inv_items, data.inv_items)
+			local diff = array_diff(inv_items, data.inv_items or {})
 
 			if #diff > 0 then
 				data.inv_items = table_merge(diff, data.inv_items)
@@ -2439,8 +2440,8 @@ if progressive_mode then
 	on_joinplayer(function(player)
 		local name = player:get_player_name()
 		local data = pdata[name]
-
 		local meta = player:get_meta()
+
 		data.inv_items = dslz(meta:get_string "inv_items") or {}
 		data.known_recipes = dslz(meta:get_string "known_recipes") or 0
 
