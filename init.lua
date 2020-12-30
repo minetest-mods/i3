@@ -35,8 +35,6 @@ local get_craft_result = core.get_craft_result
 local translate = minetest.get_translated_string
 local on_joinplayer = core.register_on_joinplayer
 local get_all_recipes = core.get_all_craft_recipes
-local register_command = core.register_chatcommand
-local get_player_by_name = core.get_player_by_name
 local slz, dslz = core.serialize, core.deserialize
 local on_mods_loaded = core.register_on_mods_loaded
 local on_leaveplayer = core.register_on_leaveplayer
@@ -2479,66 +2477,3 @@ on_leaveplayer(function(player)
 	local name = player:get_player_name()
 	pdata[name] = nil
 end)
-
-function i3.show(name, item)
-	if not true_str(name) then
-		return err "i3.show(): player name missing"
-	end
-
-	local data = pdata[name]
-	local player = get_player_by_name(name)
-	local query_item = data.query_item
-
-	reset_data(data)
-
-	item = reg_items[item] and item or query_item
-	local recipes, usages = get_recipes(item, data, player)
-
-	if not recipes and not usages then
-		if not recipes_cache[item] and not usages_cache[item] then
-			return false, msg(name, sprintf("%s: %s",
-				S"No recipe or usage for this node", clr("#ff0", get_desc(item))))
-		end
-
-		return false, msg(name, sprintf("%s: %s",
-			S"You don't know a recipe or usage for this item", get_desc(item)))
-	end
-
-	data.query_item = item
-	data.recipes    = recipes
-	data.usages     = usages
-
-	show_fs(player, name)
-end
-
-register_command("craft", {
-	description = S"Show recipe(s) of the pointed node",
-	func = function(name)
-		local player = get_player_by_name(name)
-		local dir    = player:get_look_dir()
-		local ppos   = player:get_pos()
-		      ppos.y = ppos.y + 1.625
-
-		local node_name
-
-		for i = 1, 10 do
-			local look_at = vec_add(ppos, vec_mul(dir, i))
-			local node = core.get_node(look_at)
-
-			if node.name ~= "air" then
-				local def = reg_items[node.name]
-
-				if def then
-					node_name = node.name
-					break
-				end
-			end
-		end
-
-		if not node_name then
-			return false, msg(name, S"No node pointed")
-		end
-
-		return true, i3.show(name, node_name)
-	end,
-})
