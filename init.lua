@@ -2060,6 +2060,10 @@ local function init_data(player, name)
 	after(0, function()
 		local data = pdata[name]
 
+		if data.fs_version < MIN_FORMSPEC_VERSION then
+			return outdated(name)
+		end
+
 		if progressive_mode then
 			local items = get_filtered_items(player, data)
 			data.items_raw = items
