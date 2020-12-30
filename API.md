@@ -11,7 +11,7 @@ The width is automatically calculated depending where you place the commas. Look
 #### Registering a custom crafting type (example)
 
 ```Lua
-craftguide.register_craft_type("digging", {
+i3.register_craft_type("digging", {
 	description = "Digging",
 	icon = "default_tool_steelpick.png",
 })
@@ -20,7 +20,7 @@ craftguide.register_craft_type("digging", {
 #### Registering a custom crafting recipe (examples)
 
 ```Lua
-craftguide.register_craft({
+i3.register_craft({
 	type   = "digging",
 	result = "default:cobble 2",
 	items  = {"default:stone"},
@@ -28,7 +28,7 @@ craftguide.register_craft({
 ```
 
 ```Lua
-craftguide.register_craft({
+i3.register_craft({
 	result = "default:cobble 16",
 	items = {
 		"default:stone, default:stone, default:stone",
@@ -41,7 +41,7 @@ craftguide.register_craft({
 Recipes can be registered in a Minecraft-like way:
 
 ```Lua
-craftguide.register_craft({
+i3.register_craft({
 	grid = {
 		"X  #",
 		" ## ",
@@ -59,7 +59,7 @@ craftguide.register_craft({
 Multiples recipes can also be registered:
 
 ```Lua
-craftguide.register_craft({
+i3.register_craft({
 	{
 		result = "default:mese",
 		items = {
@@ -83,8 +83,8 @@ craftguide.register_craft({
 Recipes can be registered from a given URL containing a JSON file (HTTP support is required¹):
 
 ```Lua
-craftguide.register_craft({
-	url = "https://raw.githubusercontent.com/minetest-mods/craftguide/master/test.json"
+i3.register_craft({
+	url = "https://raw.githubusercontent.com/minetest-mods/i3/master/test.json"
 })
 ```
 
@@ -95,7 +95,7 @@ craftguide.register_craft({
 Recipe filters can be used to filter the recipes shown to players. Progressive
 mode is implemented as a recipe filter.
 
-#### `craftguide.add_recipe_filter(name, function(recipes, player))`
+#### `i3.add_recipe_filter(name, function(recipes, player))`
 
 Adds a recipe filter with the given name. The filter function should return the
 recipes to be displayed, given the available recipes and an `ObjectRef` to the
@@ -105,7 +105,7 @@ user. Each recipe is a table of the form returned by
 Example function to hide recipes for items from a mod called "secretstuff":
 
 ```lua
-craftguide.add_recipe_filter("Hide secretstuff", function(recipes)
+i3.add_recipe_filter("Hide secretstuff", function(recipes)
 	local filtered = {}
 	for _, recipe in ipairs(recipes) do
 		if recipe.output:sub(1,12) ~= "secretstuff:" then
@@ -117,15 +117,15 @@ craftguide.add_recipe_filter("Hide secretstuff", function(recipes)
 end)
 ```
 
-#### `craftguide.set_recipe_filter(name, function(recipe, player))`
+#### `i3.set_recipe_filter(name, function(recipe, player))`
 
 Removes all recipe filters and adds a new one.
 
-#### `craftguide.remove_recipe_filter(name)`
+#### `i3.remove_recipe_filter(name)`
 
 Removes the recipe filter with the given name.
 
-#### `craftguide.get_recipe_filters()`
+#### `i3.get_recipe_filters()`
 
 Returns a map of recipe filters, indexed by name.
 
@@ -146,7 +146,7 @@ Notes:
 - Filters can be combined.
 - The `groups` filter is currently implemented by default.
 
-#### `craftguide.add_search_filter(name, function(item, values))`
+#### `i3.add_search_filter(name, function(item, values))`
 
 Adds a search filter with the given name.
 The search function should return a boolean value (whether the given item should be listed or not).
@@ -154,7 +154,7 @@ The search function should return a boolean value (whether the given item should
 Example function to show items which contain at least a recipe of given width(s):
 
 ```lua
-craftguide.add_search_filter("widths", function(item, widths)
+i3.add_search_filter("widths", function(item, widths)
 	local has_width
 	local recipes = recipes_cache[item]
 
@@ -175,11 +175,11 @@ craftguide.add_search_filter("widths", function(item, widths)
 end)
 ```
 
-#### `craftguide.remove_search_filter(name)`
+#### `i3.remove_search_filter(name)`
 
 Removes the search filter with the given name.
 
-#### `craftguide.get_search_filters()`
+#### `i3.get_search_filters()`
 
 Returns a map of search filters, indexed by name.
 
@@ -187,7 +187,7 @@ Returns a map of search filters, indexed by name.
 
 ### Miscellaneous
 
-#### `craftguide.show(player_name, item, show_usages)`
+#### `i3.show(player_name, item, show_usages)`
 
 Opens the Crafting Guide with the current filter applied.
 
@@ -195,20 +195,20 @@ Opens the Crafting Guide with the current filter applied.
    * `item`: optional, string param. If set, this item is pre-selected. If the item does not exist or has no recipe, use the player's previous selection. By default, player's previous selection is used
    * `show_usages`: optional, boolean param. If true, show item usages.
 
-#### `craftguide.group_stereotypes`
+#### `i3.group_stereotypes`
 
 This is the table indexing the item groups by stereotypes.
 You can add a stereotype like so:
 
 ```Lua
-craftguide.group_stereotypes.radioactive = "mod:item"
+i3.group_stereotypes.radioactive = "mod:item"
 ```
 
-#### `craftguide.export_url`
+#### `i3.export_url`
 
 If set, the mod will export all the cached recipes and usages in a JSON format
 to the given URL (HTTP support is required¹).
 
 ---
 
-**¹** Add `craftguide` to the `secure.http_mods` or `secure.trusted_mods` setting in `minetest.conf`.
+**¹** Add `i3` to the `secure.http_mods` or `secure.trusted_mods` setting in `minetest.conf`.
