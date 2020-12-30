@@ -2059,8 +2059,14 @@ local function init_data(player, name)
 
 	after(0, function()
 		local data = pdata[name]
-		local fs = make_fs(player, data)
 
+		if progressive_mode then
+			local items = get_filtered_items(player, data)
+			data.items_raw = items
+			search(data)
+		end
+
+		local fs = make_fs(player, data)
 		player:set_inventory_formspec(fs)
 	end)
 end
@@ -2398,7 +2404,7 @@ if progressive_mode then
 			local data = pdata[name]
 
 			local inv_items = get_inv_items(player)
-			local diff = array_diff(inv_items, data.inv_items or {})
+			local diff = array_diff(inv_items, data.inv_items)
 
 			if #diff > 0 then
 				data.inv_items = table_merge(diff, data.inv_items)
