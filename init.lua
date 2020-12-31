@@ -1703,15 +1703,15 @@ local function get_inventory_mode(player, fs, data, full_height)
 	local xoffset = __3d_armor and 0 or 4.5
 
 	if __3d_armor then
-		fs(sprintf("scrollbaroptions[max=35]scrollbar[-1,0;0.3,3;vertical;scrbar_inv;%u]",
+		fs(sprintf("scrollbaroptions[max=30]scrollbar[-1,0;0.3,3;vertical;scrbar_inv;%u]",
 			data.scrbar_inv or 0))
-		fs("scroll_container[4.5,0;5.5,5.5;scrbar_inv;vertical]")
+		fs("scroll_container[4.5,0.2;5.5,5.5;scrbar_inv;vertical]")
 	end
 
 	fs("style_type[label;font=bold;font_size=+6]")
-	fs(fmt("label", xoffset, 0.4, ESC(name)))
+	fs(fmt("label", xoffset, 0.2, ESC(name)))
 	fs("style_type[label;font=normal;font_size=+0]")
-	fs(fmt("box", xoffset, 0.7, 5.5, 0.05, "#666"))
+	fs(fmt("box", xoffset, 0.5, 5.5, 0.05, "#666"))
 
 	fs("listcolors[#bababa50;#bababa99]")
 
@@ -1720,27 +1720,27 @@ local function get_inventory_mode(player, fs, data, full_height)
 	local hearts = (hp / 2) + half
 
 	for i = 1, hearts do
-		fs(fmt("image", xoffset + ((i - 1) * 0.4), 0.9, 0.4, 0.4,
+		fs(fmt("image", xoffset + ((i - 1) * 0.4), 0.7, 0.4, 0.4,
 			(half == 1 and i == floor(hearts)) and
 			"i3_heart_half.png" or "i3_heart.png"))
 	end
 
-	fs(sprintf("list[current_player;craft;%f,1.75;3,3;]", xoffset))
-	fs(fmt("image", xoffset + 3.64, 3.18, 0.7, 0.7, PNG.arrow))
-	fs(sprintf("list[current_player;craftpreview;%f,3;1,1;]", xoffset + 4.45))
+	fs(sprintf("list[current_player;craft;%f,1.45;3,3;]", xoffset))
+	fs(fmt("image", xoffset + 3.64, 2.88, 0.7, 0.7, PNG.arrow))
+	fs(sprintf("list[current_player;craftpreview;%f,2.7;1,1;]", xoffset + 4.45))
 	fs("listring[detached:i3_trash;main]")
-	fs(sprintf("list[detached:i3_trash;main;%f,4.25;1,1;]", xoffset + 4.45))
-	fs(fmt("image", xoffset + 4.45, 4.25, 1, 1, PNG.trash))
+	fs(sprintf("list[detached:i3_trash;main;%f,3.95;1,1;]", xoffset + 4.45))
+	fs(fmt("image", xoffset + 4.45, 3.95, 1, 1, PNG.trash))
 
 	if __3d_armor then
 		fs("style_type[label;font=bold;font_size=+2]")
-		fs(fmt("label", 0, 5.8, ES"Armor"))
+		fs(fmt("label", 0, 5.6, ES"Armor"))
 		fs("style_type[label;font=normal;font_size=+0]")
-		fs(fmt("box", 0, 6.1, 5.5, 0.05, "#666"))
-		fs(sprintf("list[detached:%s_armor;armor;0,6.4;3,2;]", name))
+		fs(fmt("box", 0, 5.9, 5.5, 0.05, "#666"))
+		fs(sprintf("list[detached:%s_armor;armor;0,6.2;3,2;]", name))
 
-		fs(fmt("label", 3.75, 7.35, sprintf("%s: %s", ES"Level", armor.def[name].level)))
-		fs(fmt("label", 3.75, 7.75, sprintf("%s: %s", ES"Heal", armor.def[name].heal)))
+		fs(fmt("label", 3.75, 7.15, sprintf("%s: %s", ES"Level", armor.def[name].level)))
+		fs(fmt("label", 3.75, 7.55, sprintf("%s: %s", ES"Heal", armor.def[name].heal)))
 
 		fs("scroll_container_end[]")
 	end
