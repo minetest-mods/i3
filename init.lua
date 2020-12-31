@@ -2138,7 +2138,7 @@ on_receive_fields(function(player, formname, _f)
 	if _f.quit or formname ~= "" then return false end
 	local name = player:get_player_name()
 	local data = pdata[name]
-	local sb_rcp, sb_usg = _f.scrbar_rcp, _f.scrbar_usg
+	local sb_rcp, sb_usg, sb_inv = _f.scrbar_rcp, _f.scrbar_usg, _f.scrbar_inv
 
 	if _f.cancel then
 		reset_data(data)
@@ -2223,8 +2223,8 @@ on_receive_fields(function(player, formname, _f)
 	elseif _f.sort_az or _f.sort_za then
 		sort_itemlist(player, _f.sort_az)
 
-	elseif _f.scrbar_inv then
-		data.scrbar_inv = tonumber(match(_f.scrbar_inv, "%d+"))
+	elseif sb_inv and sub(sb_inv, 1, 3) == "CHG" then
+		data.scrbar_inv = tonumber(match(sb_inv, "%d+"))
 		return true
 
 	elseif (sb_rcp and sub(sb_rcp, 1, 3) == "CHG") or (sb_usg and sub(sb_usg, 1, 3) == "CHG") then
