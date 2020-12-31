@@ -1,5 +1,8 @@
 # i3
 
+[![ContentDB](https://content.minetest.net/packages/jp/i3/shields/title/)](https://content.minetest.net/packages/jp/i3/) [![ContentDB](https://content.minetest.net/packages/jp/i3/shields/downloads/)](https://content.minetest.net/packages/jp/i3/)
+
+
 #### A tiling inventory for Minetest
 
 **`i3`** is a tiling inventory for Minetest with a modern UI using the latest technologies of the Minetest engine.
