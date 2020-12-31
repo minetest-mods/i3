@@ -140,7 +140,8 @@ local styles = sprintf([[
 	style[next_recipe;fgimg=%s;fgimg_hovered=%s]
 	style[prev_usage;fgimg=%s;fgimg_hovered=%s]
 	style[next_usage;fgimg=%s;fgimg_hovered=%s]
-	style[guide_mode,inv_mode;fgimg_hovered=%s;noclip=true;font_size=+0;content_offset=0;sound=i3_tab]
+	style[guide_mode,inv_mode;fgimg_hovered=%s;fgimg_middle=14;noclip=true;font_size=+0;
+	      content_offset=0;sound=i3_tab]
 	style[pagenum,no_item,no_rcp;border=false;font=bold;font_size=+2;content_offset=0]
 	style[craft_rcp,craft_usg;border=false;noclip=true;font_size=+0;sound=i3_craft;
 	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
