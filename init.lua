@@ -1096,6 +1096,7 @@ local function select_item(player, name, data, _f)
 			stack = sprintf("%s %s", item, stackmax)
 			get_stack(player, name, stack, clr("#ff0", sprintf("%u x %s", stackmax, item)))
 		end
+
 		return
 	end
 
@@ -1809,7 +1810,7 @@ local function show_fs(player, name)
 end
 
 local trash = core.create_detached_inventory("i3_trash", {
-	allow_put = function(inv, listname, index, stack, player)
+	allow_put = function(inv, listname, index, stack)
 		return stack:get_count()
 	end,
 	on_put = function(inv, listname)
@@ -1819,7 +1820,7 @@ local trash = core.create_detached_inventory("i3_trash", {
 
 trash:set_size("main", 1)
 
-core.register_on_player_inventory_action(function(player, action, inventory, info)
+core.register_on_player_inventory_action(function(player, action, inv, info)
 	if (info.from_list == "main"  and info.to_list == "craft") or
 	   (info.from_list == "craft" and info.to_list == "main") then
 		local name = player:get_player_name()
