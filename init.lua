@@ -140,7 +140,7 @@ local styles = sprintf([[
 	style[next_recipe;fgimg=%s;fgimg_hovered=%s]
 	style[prev_usage;fgimg=%s;fgimg_hovered=%s]
 	style[next_usage;fgimg=%s;fgimg_hovered=%s]
-	style[guide_mode,inv_mode;fgimg_hovered=%s;noclip=true;content_offset=0;sound=i3_tab]
+	style[guide_mode,inv_mode;fgimg_hovered=%s;noclip=true;font_size=+0;content_offset=0;sound=i3_tab]
 	style[pagenum,no_item,no_rcp;border=false;font=bold;font_size=+2;content_offset=0]
 	style[craft_rcp,craft_usg;border=false;noclip=true;font_size=+0;sound=i3_craft;
 	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
@@ -1721,8 +1721,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 
 	for i = 1, hearts do
 		fs(fmt("image", xoffset + ((i - 1) * 0.4), 0.7, 0.4, 0.4,
-			(half == 1 and i == floor(hearts)) and
-			"i3_heart_half.png" or "i3_heart.png"))
+			(half == 1 and i == floor(hearts)) and "i3_heart_half.png" or "i3_heart.png"))
 	end
 
 	fs(sprintf("list[current_player;craft;%f,1.45;3,3;]", xoffset))
