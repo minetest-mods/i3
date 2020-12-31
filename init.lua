@@ -1802,7 +1802,8 @@ local function make_fs(player, data)
 	return concat(fs)
 end
 
-local function show_fs(player, name)
+local function set_fs(player)
+	local name = player:get_player_name()
 	local data = pdata[name]
 	local fs = make_fs(player, data)
 
@@ -1813,8 +1814,9 @@ local trash = core.create_detached_inventory("i3_trash", {
 	allow_put = function(inv, listname, index, stack)
 		return stack:get_count()
 	end,
-	on_put = function(inv, listname)
+	on_put = function(inv, listname, index, stack, player)
 		inv:set_list(listname, {})
+		set_fs(player)
 	end,
 })
 
@@ -1824,22 +1826,12 @@ core.register_on_player_inventory_action(function(player, action, inv, info)
 	if (info.from_list == "main"  and info.to_list == "craft") or
 	   (info.from_list == "craft" and info.to_list == "main") or
 	   (info.from_list == "craftresult" and info.to_list == "main") then
-		local name = player:get_player_name()
-		local data = pdata[name]
-		local fs = make_fs(player, data)
-
-		player:set_inventory_formspec(fs)
+		set_fs(player)
 	end
 end)
 
 if rawget(_G, "armor") then
-	armor:register_on_update(function(player)
-		local name = player:get_player_name()
-		local data = pdata[name]
-		local fs = make_fs(player, data)
-
-		player:set_inventory_formspec(fs)
-	end)
+	armor:register_on_update(set_fs)
 end
 
 i3.register_craft_type("digging", {
@@ -2082,8 +2074,7 @@ local function init_data(player, name)
 			search(data)
 		end
 
-		local fs = make_fs(player, data)
-		player:set_inventory_formspec(fs)
+		set_fs(player)
 	end)
 end
 
@@ -2159,7 +2150,7 @@ on_receive_fields(function(player, formname, _f)
 	elseif _f.key_enter_field == "filter" or _f.search then
 		if _f.filter == "" then
 			reset_data(data)
-			return true, show_fs(player, name)
+			return true, set_fs(player)
 		end
 
 		local str = lower(_f.filter)
@@ -2238,7 +2229,7 @@ on_receive_fields(function(player, formname, _f)
 		select_item(player, name, data, _f)
 	end
 
-	return true, show_fs(player, name)
+	return true, set_fs(player)
 end)
 
 core.register_on_player_hpchange(function(player, hpchange)
@@ -2248,8 +2239,7 @@ core.register_on_player_hpchange(function(player, hpchange)
 
 	data.hp = min(hp_max, player:get_hp() + hpchange)
 
-	local fs = make_fs(player, data)
-	player:set_inventory_formspec(fs)
+	set_fs(player)
 end)
 
 if progressive_mode then
@@ -2434,8 +2424,7 @@ if progressive_mode then
 
 				data.items_raw = items
 				search(data)
-				local fs = make_fs(player, data)
-				player:set_inventory_formspec(fs)
+				set_fs(player)
 			end
 		end
 
