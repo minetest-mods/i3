@@ -2197,11 +2197,7 @@ on_receive_fields(function(player, formname, _f)
 		end
 
 	elseif _f.guide_mode or _f.inv_mode then
-		if _f.guide_mode then
-			data.inv_mode = nil
-		else
-			data.inv_mode = true
-		end
+		data.inv_mode = not _f.guide_mode
 
 	elseif _f.trash then
 		local inv = player:get_inventory()
