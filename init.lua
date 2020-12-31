@@ -1697,8 +1697,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 	local name = player:get_player_name()
 
 	fs(fmt("model", 0.2, 0.2, 4, 5.4, "player_model",
-		player_props.mesh or "character.b3d", concat(player_props.textures, ","),
-		"0,-150", "false", "0,0"))
+		player_props.mesh, concat(player_props.textures, ","), "0,-150", "false", "0,0"))
 
 	local xoffset = __3d_armor and 0 or 4.5
 
