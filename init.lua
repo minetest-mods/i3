@@ -2127,7 +2127,7 @@ on_joinplayer(function(player)
 end)
 
 on_receive_fields(function(player, formname, _f)
-	if _f.quit or formname ~= "" then return false end
+	if formname ~= "" then return false end
 	local name = player:get_player_name()
 	local data = pdata[name]
 	local sb_rcp, sb_usg, sb_inv = _f.scrbar_rcp, _f.scrbar_usg, _f.scrbar_inv
