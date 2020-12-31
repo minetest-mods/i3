@@ -1701,6 +1701,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 		player_props.mesh, concat(player_props.textures, ","), "0,-150", "false", "0,0"))
 
 	local xoffset = __3d_armor and 0 or 4.5
+	local yoffset = __3d_armor and 0 or 0.2
 
 	if __3d_armor then
 		fs(sprintf("scrollbaroptions[max=30]scrollbar[-1,0;0.3,3;vertical;scrbar_inv;%u]",
@@ -1709,9 +1710,9 @@ local function get_inventory_mode(player, fs, data, full_height)
 	end
 
 	fs("style_type[label;font=bold;font_size=+6]")
-	fs(fmt("label", xoffset, 0.2, ESC(name)))
+	fs(fmt("label", xoffset, yoffset + 0.2, ESC(name)))
 	fs("style_type[label;font=normal;font_size=+0]")
-	fs(fmt("box", xoffset, 0.5, 5.5, 0.05, "#666"))
+	fs(fmt("box", xoffset, yoffset + 0.5, 5.5, 0.05, "#666"))
 
 	fs("listcolors[#bababa50;#bababa99]")
 
@@ -1720,16 +1721,16 @@ local function get_inventory_mode(player, fs, data, full_height)
 	local hearts = (hp / 2) + half
 
 	for i = 1, hearts do
-		fs(fmt("image", xoffset + ((i - 1) * 0.4), 0.7, 0.4, 0.4,
+		fs(fmt("image", xoffset + ((i - 1) * 0.4), yoffset + 0.7, 0.4, 0.4,
 			(half == 1 and i == floor(hearts)) and "i3_heart_half.png" or "i3_heart.png"))
 	end
 
-	fs(sprintf("list[current_player;craft;%f,1.45;3,3;]", xoffset))
-	fs(fmt("image", xoffset + 3.64, 2.88, 0.7, 0.7, PNG.arrow))
-	fs(sprintf("list[current_player;craftpreview;%f,2.7;1,1;]", xoffset + 4.45))
+	fs(sprintf("list[current_player;craft;%f,%f;3,3;]", xoffset, yoffset + 1.45))
+	fs(fmt("image", xoffset + 3.64, yoffset + 2.88, 0.7, 0.7, PNG.arrow))
+	fs(sprintf("list[current_player;craftpreview;%f,%f;1,1;]", xoffset + 4.45, yoffset + 2.7))
 	fs("listring[detached:i3_trash;main]")
-	fs(sprintf("list[detached:i3_trash;main;%f,3.95;1,1;]", xoffset + 4.45))
-	fs(fmt("image", xoffset + 4.45, 3.95, 1, 1, PNG.trash))
+	fs(sprintf("list[detached:i3_trash;main;%f,%f;1,1;]", xoffset + 4.45, yoffset + 3.95))
+	fs(fmt("image", xoffset + 4.45, yoffset + 3.95, 1, 1, PNG.trash))
 
 	if __3d_armor then
 		fs("style_type[label;font=bold;font_size=+2]")
