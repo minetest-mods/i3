@@ -1822,7 +1822,8 @@ trash:set_size("main", 1)
 
 core.register_on_player_inventory_action(function(player, action, inv, info)
 	if (info.from_list == "main"  and info.to_list == "craft") or
-	   (info.from_list == "craft" and info.to_list == "main") then
+	   (info.from_list == "craft" and info.to_list == "main") or
+	   (info.from_list == "craftresult" and info.to_list == "main") then
 		local name = player:get_player_name()
 		local data = pdata[name]
 		local fs = make_fs(player, data)
