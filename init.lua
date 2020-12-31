@@ -1819,15 +1819,26 @@ local trash = core.create_detached_inventory("i3_trash", {
 
 trash:set_size("main", 1)
 
-core.register_on_player_inventory_action(function(player)
-	after(0, function()
+core.register_on_player_inventory_action(function(player, action, inventory, info)
+	if (info.from_list == "main"  and info.to_list == "craft") or
+	   (info.from_list == "craft" and info.to_list == "main") then
+		local name = player:get_player_name()
+		local data = pdata[name]
+		local fs = make_fs(player, data)
+
+		player:set_inventory_formspec(fs)
+	end
+end)
+
+if rawget(_G, "armor") then
+	armor:register_on_update(function(player)
 		local name = player:get_player_name()
 		local data = pdata[name]
 		local fs = make_fs(player, data)
 
 		player:set_inventory_formspec(fs)
 	end)
-end)
+end
 
 i3.register_craft_type("digging", {
 	description = ES"Digging",
