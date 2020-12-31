@@ -18,4 +18,4 @@ This mod also supports [`3d_armor`](https://github.com/minetest-mods/3d_armor) f
 
 Love this mod? Donations are appreciated: https://www.paypal.me/jpg84240
 
-![Preview](https://user-images.githubusercontent.com/7883281/103390081-c619b480-4b12-11eb-9993-c35787cc6b61.png)
+![Preview](https://user-images.githubusercontent.com/7883281/103390611-b2bc1880-4b15-11eb-92d2-296d0137f2a1.png)
