@@ -877,9 +877,10 @@ local function sort_itemlist(player, az)
 		local count = stack:get_count()
 		local empty = stack:is_empty()
 		local meta = stack:get_meta():to_table()
+		local wear = stack:get_wear() > 0
 
 		if not empty then
-			if next(meta.fields) then
+			if next(meta.fields) or wear then
 				stack_meta[#stack_meta + 1] = stack
 			else
 				new_inv[#new_inv + 1] = sprintf("%s %u", name, count)
@@ -912,9 +913,10 @@ local function compress_items(player)
 		local count = stack:get_count()
 		local empty = stack:is_empty()
 		local meta = stack:get_meta():to_table()
+		local wear = stack:get_wear() > 0
 
 		if not empty then
-			if next(meta.fields) then
+			if next(meta.fields) or wear then
 				stack_meta[#stack_meta + 1] = stack
 			else
 				new_inv[name] = new_inv[name] or 0
