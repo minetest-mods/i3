@@ -26,6 +26,7 @@ local after = core.after
 local clr = core.colorize
 local parse_json = core.parse_json
 local write_json = core.write_json
+
 local chat_send = core.chat_send_player
 local show_formspec = core.show_formspec
 local globalstep = core.register_globalstep
@@ -34,6 +35,7 @@ local get_players = core.get_connected_players
 local get_craft_result = core.get_craft_result
 local translate = minetest.get_translated_string
 local on_joinplayer = core.register_on_joinplayer
+local creative_enabled = core.is_creative_enabled
 local get_all_recipes = core.get_all_craft_recipes
 local slz, dslz = core.serialize, core.deserialize
 local on_mods_loaded = core.register_on_mods_loaded
@@ -1091,7 +1093,7 @@ local function select_item(player, name, data, _f)
 	item = reg_aliases[item] or item
 
 	if item == data.query_item then
-		if data.creative then
+		if creative_enabled(name) then
 			local stack = ItemStack(item)
 			local stackmax = stack:get_stack_max()
 			stack = sprintf("%s %s", item, stackmax)
@@ -1710,10 +1712,8 @@ local function get_inventory_mode(player, fs, data, full_height)
 		fs("scroll_container[4.5,0.2;5.5,5.5;scrbar_inv;vertical]")
 	end
 
-	fs("style_type[label;font=bold;font_size=+6]")
-	fs(fmt("label", xoffset, yoffset + 0.2, ESC(name)))
-	fs("style_type[label;font=normal;font_size=+0]")
-	fs(fmt("box", xoffset, yoffset + 0.5, 5.5, 0.05, "#666"))
+	fs("style_type[label;font=bold;font_size=+6]", fmt("label", xoffset, yoffset + 0.2, ESC(name)),
+	   "style_type[label;font=normal;font_size=+0]", fmt("box", xoffset, yoffset + 0.5, 5.5, 0.05, "#666"))
 
 	fs("listcolors[#bababa50;#bababa99]")
 
@@ -1726,22 +1726,21 @@ local function get_inventory_mode(player, fs, data, full_height)
 			(half == 1 and i == floor(hearts)) and "i3_heart_half.png" or "i3_heart.png"))
 	end
 
-	fs(sprintf("list[current_player;craft;%f,%f;3,3;]", xoffset, yoffset + 1.45))
-	fs(fmt("image", xoffset + 3.64, yoffset + 2.88, 0.7, 0.7, PNG.arrow))
-	fs(sprintf("list[current_player;craftpreview;%f,%f;1,1;]", xoffset + 4.45, yoffset + 2.7))
-	fs("listring[detached:i3_trash;main]")
-	fs(sprintf("list[detached:i3_trash;main;%f,%f;1,1;]", xoffset + 4.45, yoffset + 3.95))
-	fs(fmt("image", xoffset + 4.45, yoffset + 3.95, 1, 1, PNG.trash))
+	fs(sprintf("list[current_player;craft;%f,%f;3,3;]", xoffset, yoffset + 1.45),
+	   fmt("image", xoffset + 3.64, yoffset + 2.88, 0.7, 0.7, PNG.arrow),
+	   sprintf("list[current_player;craftpreview;%f,%f;1,1;]", xoffset + 4.45, yoffset + 2.7),
+	   "listring[detached:i3_trash;main]",
+	   sprintf("list[detached:i3_trash;main;%f,%f;1,1;]", xoffset + 4.45, yoffset + 3.95),
+	   fmt("image", xoffset + 4.45, yoffset + 3.95, 1, 1, PNG.trash))
 
 	if __3d_armor then
-		fs("style_type[label;font=bold;font_size=+2]")
-		fs(fmt("label", 0, 5.6, ES"Armor"))
-		fs("style_type[label;font=normal;font_size=+0]")
-		fs(fmt("box", 0, 5.9, 5.5, 0.05, "#666"))
-		fs(sprintf("list[detached:%s_armor;armor;0,6.2;3,2;]", name))
+		fs("style_type[label;font=bold;font_size=+2]", fmt("label", 0, 5.6, ES"Armor"),
+		   "style_type[label;font=normal;font_size=+0]",
+		   fmt("box", 0, 5.9, 5.5, 0.05, "#666"),
+		   sprintf("list[detached:%s_armor;armor;0,6.2;3,2;]", name))
 
-		fs(fmt("label", 3.75, 7.15, sprintf("%s: %s", ES"Level", armor.def[name].level)))
-		fs(fmt("label", 3.75, 7.55, sprintf("%s: %s", ES"Heal", armor.def[name].heal)))
+		fs(fmt("label", 3.75, 7.15, sprintf("%s: %s", ES"Level", armor.def[name].level)),
+		   fmt("label", 3.75, 7.55, sprintf("%s: %s", ES"Heal", armor.def[name].heal)))
 
 		fs("scroll_container_end[]")
 	end
@@ -1750,9 +1749,9 @@ local function get_inventory_mode(player, fs, data, full_height)
 		fs(fmt("image", i + 0.23 + (i * 0.25), 6.1, 1, 1, "i3_hb_bg.png"))
 	end
 
-	fs("listring[current_player;main]")
-	fs("list[current_player;main;0.23,6.1;8,1;]")
-	fs("list[current_player;main;0.23,7.4;8,3;8]")
+	fs("listring[current_player;main]",
+	   "list[current_player;main;0.23,6.1;8,1;]",
+	   "list[current_player;main;0.23,7.4;8,3;8]")
 
 	local i = 0
 	local btn = {
@@ -2059,7 +2058,6 @@ local function init_data(player, name)
 		inv_mode      = true,
 		lang_code     = get_lang_code(info),
 		fs_version    = get_formspec_version(info),
-		creative      = core.is_creative_enabled(name),
 	}
 
 	after(0, function()
@@ -2105,6 +2103,7 @@ on_mods_loaded(function()
 	local sfinv = rawget(_G, "sfinv")
 	if sfinv then
 		sfinv.enabled = false
+		function sfinv.set_player_inventory_formspec() return end
 	end
 
 	local unified_inventory = rawget(_G, "unified_inventory")
