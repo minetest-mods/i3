@@ -11,7 +11,7 @@ local replacements  = {fuel = {}}
 local toolrepair
 
 local progressive_mode = core.settings:get_bool "i3_progressive_mode"
-local __3d_armor
+local __3d_armor, __skinsdb
 
 local http = core.request_http_api()
 local singleplayer = core.is_singleplayer()
@@ -406,6 +406,16 @@ local function table_replace(t, val, new)
 		if v == val then
 			t[k] = new
 		end
+	end
+end
+
+local function save_meta(player, entries)
+	local meta = player:get_meta()
+	local name = player:get_player_name()
+	local data = pdata[name]
+
+	for _, entry in ipairs(entries) do
+		meta:set_string(entry, slz(data[entry]))
 	end
 end
 
@@ -1725,18 +1735,35 @@ end
 local function get_inventory_mode(player, fs, data, full_height)
 	fs(fmt("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10))
 
-	local player_props = player:get_properties()
+	for i = 0, 7 do
+		fs(fmt("image", i + 0.23 + (i * 0.25), 6.1, 1, 1, "i3_hb_bg.png"))
+	end
+
+	fs("listring[current_player;main]",
+	   "list[current_player;main;0.23,6.1;8,1;]",
+	   "list[current_player;main;0.23,7.4;8,3;8]")
+
+	local props = player:get_properties()
 	local name = player:get_player_name()
 
 	fs(fmt("model", 0.2, 0.2, 4, 5.4, "player_model",
-		player_props.mesh, concat(player_props.textures, ","), "0,-150", "false", "0,0"))
+		props.mesh, concat(props.textures, ","), "0,-150", "false", "0,0"))
 
-	local xoffset = __3d_armor and 0 or 4.5
-	local yoffset = __3d_armor and 0 or 0.2
+	local extras = __3d_armor or __skinsdb
+	local xoffset = extras and 0 or 4.5
+	local yoffset = extras and 0 or 0.2
 
-	if __3d_armor then
-		fs(sprintf("scrollbaroptions[max=30]scrollbar[-1,0;0.3,3;vertical;scrbar_inv;%u]",
-			data.scrbar_inv or 0))
+	if extras then
+		local max_val = 30
+
+		if __3d_armor and __skinsdb then
+			max_val = 50
+		elseif __skinsdb and not __3d_armor then
+			max_val = 15
+		end
+
+		fs(sprintf("scrollbaroptions[max=%u]scrollbar[-1,0;0.3,4;vertical;scrbar_inv;%u]",
+			max_val, data.scrbar_inv or 0))
 		fs("scroll_container[4.5,0.2;5.5,5.5;scrbar_inv;vertical]")
 	end
 
@@ -1761,25 +1788,40 @@ local function get_inventory_mode(player, fs, data, full_height)
 	   sprintf("list[detached:i3_trash;main;%f,%f;1,1;]", xoffset + 4.45, yoffset + 3.95),
 	   fmt("image", xoffset + 4.45, yoffset + 3.95, 1, 1, PNG.trash))
 
+	local yextra = 5.6
+
 	if __3d_armor then
-		fs("style_type[label;font=bold;font_size=+2]", fmt("label", 0, 5.6, ES"Armor"),
+		fs("style_type[label;font=bold;font_size=+2]", fmt("label", 0, yextra, ES"Armor"),
 		   "style_type[label;font=normal;font_size=+0]",
-		   fmt("box", 0, 5.9, 5.5, 0.05, "#666"),
-		   sprintf("list[detached:%s_armor;armor;0,6.2;3,2;]", name))
+		   fmt("box", 0, yextra + 0.3, 5.5, 0.05, "#666"),
+		   sprintf("list[detached:%s_armor;armor;0,%f;3,2;]", name, yextra + 0.6))
 
-		fs(fmt("label", 3.75, 7.15, sprintf("%s: %s", ES"Level", armor.def[name].level)),
-		   fmt("label", 3.75, 7.55, sprintf("%s: %s", ES"Heal", armor.def[name].heal)))
+		fs(fmt("label", 3.75, yextra + 1.55, sprintf("%s: %s", ES"Level", armor.def[name].level)),
+		   fmt("label", 3.75, yextra + 1.95, sprintf("%s: %s", ES"Heal", armor.def[name].heal)))
+	end
 
+	if __skinsdb then
+		local _skins = skins.get_skinlist_for_player(name)
+		local t = {}
+
+		for _, skin in ipairs(_skins) do
+			t[#t + 1] = skin.name
+		end
+
+		yextra = __3d_armor and (yextra + 3.45) or 5.65
+
+		fs("style_type[label;font=bold;font_size=+2]")
+		fs(fmt("label", 0, yextra, ES"Skins"))
+		fs("style_type[label;font=normal;font_size=+0]")
+		fs(fmt("box", 0, yextra + 0.35, 5.5, 0.05, "#666"))
+
+		fs(sprintf("dropdown[0,%f;3.55,0.6;skins;%s;%u;true]",
+			yextra + 0.55, concat(t, ","), data.skin_id or 1))
+	end
+
+	if extras then
 		fs("scroll_container_end[]")
 	end
-
-	for i = 0, 7 do
-		fs(fmt("image", i + 0.23 + (i * 0.25), 6.1, 1, 1, "i3_hb_bg.png"))
-	end
-
-	fs("listring[current_player;main]",
-	   "list[current_player;main;0.23,6.1;8,1;]",
-	   "list[current_player;main;0.23,7.4;8,3;8]")
 
 	local i = 0
 	local btn = {
@@ -2076,6 +2118,7 @@ end
 
 local function init_data(player, name)
 	local info = get_player_info(name)
+	local meta = player:get_meta()
 
 	pdata[name] = {
 		filter        = "",
@@ -2089,9 +2132,10 @@ local function init_data(player, name)
 		fs_version    = get_formspec_version(info),
 	}
 
-	after(0, function()
-		local data = pdata[name]
+	local data = pdata[name]
+	data.skin_id = tonum(dslz(meta:get_string "skin_id") or 1)
 
+	after(0, function()
 		if data.fs_version < MIN_FORMSPEC_VERSION then
 			return outdated(name)
 		end
@@ -2139,6 +2183,11 @@ on_mods_loaded(function()
 	if unified_inventory then
 		function unified_inventory.set_inventory_formspec() return end
 	end
+
+	local skins = rawget(_G, "skins")
+	if skins then
+		__skinsdb = true
+	end
 end)
 
 on_joinplayer(function(player)
@@ -2156,6 +2205,12 @@ on_receive_fields(function(player, formname, _f)
 	local name = player:get_player_name()
 	local data = pdata[name]
 	local sb_rcp, sb_usg, sb_inv = _f.scrbar_rcp, _f.scrbar_usg, _f.scrbar_inv
+
+	if _f.skins and data.skin_id ~= tonum(_f.skins) then
+		data.skin_id = tonum(_f.skins)
+		local _skins = skins.get_skinlist_for_player(name)
+		skins.set_player_skin(player, _skins[data.skin_id])
+	end
 
 	if _f.cancel then
 		reset_data(data)
@@ -2237,7 +2292,7 @@ on_receive_fields(function(player, formname, _f)
 		sort_itemlist(player, _f.sort_az)
 
 	elseif sb_inv and sub(sb_inv, 1, 3) == "CHG" then
-		data.scrbar_inv = tonumber(match(sb_inv, "%d+"))
+		data.scrbar_inv = tonum(match(sb_inv, "%d+"))
 		return true
 
 	elseif (sb_rcp and sub(sb_rcp, 1, 3) == "CHG") or (sb_usg and sub(sb_usg, 1, 3) == "CHG") then
@@ -2484,24 +2539,15 @@ if progressive_mode then
 
 	local to_save = {"inv_items", "known_recipes"}
 
-	local function save_meta(player)
-		local meta = player:get_meta()
-		local name = player:get_player_name()
-		local data = pdata[name]
-
-		for i = 1, #to_save do
-			local meta_name = to_save[i]
-			meta:set_string(meta_name, slz(data[meta_name]))
-		end
-	end
-
-	on_leaveplayer(save_meta)
+	on_leaveplayer(function(player)
+		save_meta(player, to_save)
+	end)
 
 	on_shutdown(function()
 		local players = get_players()
 		for i = 1, #players do
 			local player = players[i]
-			save_meta(player)
+			save_meta(player, to_save)
 		end
 	end)
 end
@@ -2509,4 +2555,14 @@ end
 on_leaveplayer(function(player)
 	local name = player:get_player_name()
 	pdata[name] = nil
+
+	save_meta(player, {"skin_id"})
+end)
+
+on_shutdown(function()
+	local players = get_players()
+	for i = 1, #players do
+		local player = players[i]
+		save_meta(player, {"skin_id"})
+	end
 end)

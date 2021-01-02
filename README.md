@@ -14,7 +14,7 @@ To enable it: `i3_progressive_mode = true` in `minetest.conf`.
 
 For developers, **`i3`** also has a [modding API](https://github.com/minetest-mods/i3/blob/master/API.md).
 
-This mod also supports [`3d_armor`](https://github.com/minetest-mods/3d_armor) for a nice player model preview.
+This mod supports [`3d_armor`](https://github.com/minetest-mods/3d_armor) and [`skinsdb`](https://github.com/minetest-mods/skinsdb).
 
 Love this mod? Donations are appreciated: https://www.paypal.me/jpg84240
 

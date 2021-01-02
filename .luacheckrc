@@ -5,6 +5,7 @@ read_globals = {
 	"minetest",
 	"default",
 	"armor",
+	"skins",
 	"vector",
 	"string",
 	"table",
