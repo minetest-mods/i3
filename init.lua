@@ -865,6 +865,24 @@ local function groups_to_items(groups, get_all)
 	return get_all and names or ""
 end
 
+local function __sort(inv, reverse)
+	sort(inv, function(a, b)
+		if type(a) ~= "string" then
+			a = a:get_name()
+		end
+
+		if type(b) ~= "string" then
+			b = b:get_name()
+		end
+
+		if reverse then
+			return a > b
+		end
+
+		return a < b
+	end)
+end
+
 local function sort_itemlist(player, az)
 	local inv = player:get_inventory()
 	local list = inv:get_list("main")
@@ -888,17 +906,17 @@ local function sort_itemlist(player, az)
 		end
 	end
 
+	for i = 1, #stack_meta do
+		new_inv[#new_inv + 1] = stack_meta[i]
+	end
+
 	if az then
-		sort(new_inv)
+		__sort(new_inv)
 	else
-		sort(new_inv, function(a, b) return a > b end)
+		__sort(new_inv, true)
 	end
 
 	inv:set_list("main", new_inv)
-
-	for i = 1, #stack_meta do
-		inv:set_stack("main", #new_inv + i, stack_meta[i])
-	end
 end
 
 local function compress_items(player)
@@ -936,12 +954,12 @@ local function compress_items(player)
 		end
 	end
 
-	sort(_new_inv)
-	inv:set_list("main", _new_inv)
-
 	for i = 1, #stack_meta do
-		inv:set_stack("main", #_new_inv + i, stack_meta[i])
+		_new_inv[#_new_inv + 1] = stack_meta[i]
 	end
+
+	__sort(_new_inv)
+	inv:set_list("main", _new_inv)
 end
 
 local function get_stack_max(inv, data, is_recipe, rcp)
