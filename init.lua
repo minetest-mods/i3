@@ -871,11 +871,11 @@ end
 
 local function __sort(inv, reverse)
 	sort(inv, function(a, b)
-		if type(a) ~= "string" then
+		if not is_str(a) then
 			a = a:get_name()
 		end
 
-		if type(b) ~= "string" then
+		if not is_str(b) then
 			b = b:get_name()
 		end
 
@@ -1859,6 +1859,7 @@ core.register_on_player_inventory_action(function(player, action, inv, info)
 end)
 
 if rawget(_G, "armor") then
+	__3d_armor = true
 	armor:register_on_update(set_fs)
 end
 
@@ -2137,10 +2138,6 @@ on_mods_loaded(function()
 	local unified_inventory = rawget(_G, "unified_inventory")
 	if unified_inventory then
 		function unified_inventory.set_inventory_formspec() return end
-	end
-
-	if rawget(_G, "armor") then
-		__3d_armor = true
 	end
 end)
 
