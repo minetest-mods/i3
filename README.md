@@ -6,7 +6,7 @@
 #### A tiling inventory for Minetest
 
 **`i3`** is a tiling inventory for Minetest 5.4+ with a modern UI using the latest technologies of the Minetest engine.
-It offers everything what [**`craftguide`**](https://github.com/minetest-mods/craftguide) can do, with an inventory on top of that.
+It supports everything what [**`craftguide`**](https://github.com/minetest-mods/craftguide) can do, with an inventory on top of that.
 
 This inventory features a **Progressive Mode**.
 This mode is a Terraria-like system that shows recipes you can craft from items you ever had in your inventory.
