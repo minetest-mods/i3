@@ -265,6 +265,10 @@ local function msg(name, str)
 	return chat_send(name, sprintf("[i3] %s", str))
 end
 
+local function is_num(x)
+	return type(x) == "number"
+end
+
 local function is_str(x)
 	return type(x) == "string"
 end
@@ -1111,6 +1115,7 @@ local function select_item(player, name, data, _f)
 	end
 
 	item = reg_aliases[item] or item
+	if not reg_items[item] then return end
 
 	if item == data.query_item then
 		if creative_enabled(name) then
@@ -1465,15 +1470,18 @@ local function get_model_fs(fs, data, def, model_alias)
 		local _name
 
 		if v.color then
-			local hex = sprintf("%02x", v.color)
+			if is_num(v.color) then
+				local hex = sprintf("%02x", v.color)
 
-			while #hex < 8 do
-				hex = "0" .. hex
+				while #hex < 8 do
+					hex = "0" .. hex
+				end
+
+				_name = sprintf("%s^[multiply:%s", v.name,
+					sprintf("#%s%s", sub(hex, 3), sub(hex, 1, 2)))
+			else
+				_name = sprintf("%s^[multiply:%s", v.name, v.color)
 			end
-
-			_name = sprintf("%s^[multiply:%s", v.name,
-				sprintf("#%s%s", sub(hex, 3), sub(hex, 1, 2)))
-
 		elseif v.animation then
 			_name = sprintf("%s^[verticalframe:%u:0", v.name, v.animation.aspect_h)
 		end
