@@ -1808,15 +1808,15 @@ local function get_inventory_mode(player, fs, data, full_height)
 			t[#t + 1] = skin.name
 		end
 
-		yextra = __3d_armor and (yextra + 3.45) or 5.65
+		yextra = __3d_armor and (yextra + 3.5) or 5.65
 
 		fs("style_type[label;font=bold;font_size=+2]")
 		fs(fmt("label", 0, yextra, ES"Skins"))
 		fs("style_type[label;font=normal;font_size=+0]")
-		fs(fmt("box", 0, yextra + 0.35, 5.5, 0.05, "#666"))
+		fs(fmt("box", 0, yextra + 0.3, 5.5, 0.05, "#666"))
 
 		fs(sprintf("dropdown[0,%f;3.55,0.6;skins;%s;%u;true]",
-			yextra + 0.55, concat(t, ","), data.skin_id or 1))
+			yextra + 0.6, concat(t, ","), data.skin_id or 1))
 	end
 
 	if extras then
