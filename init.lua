@@ -11,7 +11,7 @@ local replacements  = {fuel = {}}
 local toolrepair
 
 local progressive_mode = core.settings:get_bool "i3_progressive_mode"
-local __3d_armor, __skinsdb
+local __3darmor, __skinsdb
 
 local http = core.request_http_api()
 local singleplayer = core.is_singleplayer()
@@ -1749,16 +1749,16 @@ local function get_inventory_mode(player, fs, data, full_height)
 	fs(fmt("model", 0.2, 0.2, 4, 5.4, "player_model",
 		props.mesh, concat(props.textures, ","), "0,-150", "false", "0,0"))
 
-	local extras = __3d_armor or __skinsdb
+	local extras = __3darmor or __skinsdb
 	local xoffset = extras and 0 or 4.5
 	local yoffset = extras and 0 or 0.2
 
 	if extras then
 		local max_val = 30
 
-		if __3d_armor and __skinsdb then
+		if __3darmor and __skinsdb then
 			max_val = 50
-		elseif __skinsdb and not __3d_armor then
+		elseif __skinsdb and not __3darmor then
 			max_val = 15
 		end
 
@@ -1790,7 +1790,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 
 	local yextra = 5.6
 
-	if __3d_armor then
+	if __3darmor then
 		fs("style_type[label;font=bold;font_size=+2]", fmt("label", 0, yextra, ES"Armor"),
 		   "style_type[label;font=normal;font_size=+0]",
 		   fmt("box", 0, yextra + 0.3, 5.5, 0.05, "#666"),
@@ -1808,7 +1808,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 			t[#t + 1] = skin.name
 		end
 
-		yextra = __3d_armor and (yextra + 3.5) or 5.65
+		yextra = __3darmor and (yextra + 3.5) or 5.65
 
 		fs("style_type[label;font=bold;font_size=+2]")
 		fs(fmt("label", 0, yextra, ES"Skins"))
@@ -1901,8 +1901,20 @@ core.register_on_player_inventory_action(function(player, action, inv, info)
 end)
 
 if rawget(_G, "armor") then
-	__3d_armor = true
+	__3darmor = true
 	armor:register_on_update(set_fs)
+end
+
+if rawget(_G, "skins") then
+	__skinsdb = true
+
+	on_shutdown(function()
+		local players = get_players()
+		for i = 1, #players do
+			local player = players[i]
+			save_meta(player, {"skin_id"})
+		end
+	end)
 end
 
 i3.register_craft_type("digging", {
@@ -2182,11 +2194,6 @@ on_mods_loaded(function()
 	local unified_inventory = rawget(_G, "unified_inventory")
 	if unified_inventory then
 		function unified_inventory.set_inventory_formspec() return end
-	end
-
-	local skins = rawget(_G, "skins")
-	if skins then
-		__skinsdb = true
 	end
 end)
 
@@ -2553,16 +2560,10 @@ if progressive_mode then
 end
 
 on_leaveplayer(function(player)
-	local name = player:get_player_name()
-	pdata[name] = nil
-
-	save_meta(player, {"skin_id"})
-end)
-
-on_shutdown(function()
-	local players = get_players()
-	for i = 1, #players do
-		local player = players[i]
+	if __skinsdb then
 		save_meta(player, {"skin_id"})
 	end
+
+	local name = player:get_player_name()
+	pdata[name] = nil
 end)
