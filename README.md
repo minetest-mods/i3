@@ -2,9 +2,6 @@
 
 [![ContentDB](https://content.minetest.net/packages/jp/i3/shields/title/)](https://content.minetest.net/packages/jp/i3/) [![ContentDB](https://content.minetest.net/packages/jp/i3/shields/downloads/)](https://content.minetest.net/packages/jp/i3/)
 
-
-#### A tiling inventory for Minetest
-
 **`i3`** is a tiling inventory for Minetest 5.4+ with a modern UI using the latest technologies of the Minetest engine.
 It supports everything what [**`craftguide`**](https://github.com/minetest-mods/craftguide) can do, with an inventory on top of that.
 
@@ -16,6 +13,6 @@ For developers, **`i3`** also has a [modding API](https://github.com/minetest-mo
 
 This mod supports [`3d_armor`](https://github.com/minetest-mods/3d_armor) and [`skinsdb`](https://github.com/minetest-mods/skinsdb).
 
-Love this mod? Donations are appreciated: https://www.paypal.me/jpg84240
+**Demo video** on [YouTube](https://www.youtube.com/watch?v=fsZk_11pCN8)
 
 ![Preview](https://user-images.githubusercontent.com/7883281/103390611-b2bc1880-4b15-11eb-92d2-296d0137f2a1.png)
