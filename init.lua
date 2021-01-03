@@ -117,7 +117,7 @@ local fs_elements = {
 	tooltip = "tooltip[%f,%f;%f,%f;%s]",
 	item_image = "item_image[%f,%f;%f,%f;%s]",
 	bg9 = "background9[%f,%f;%f,%f;%s;false;%u]",
-	model = "model[%f,%f;%f,%f;%s;%s;%s;%s;%s;true;%s]",
+	model = "model[%f,%f;%f,%f;%s;%s;%s;%s;%s;%s;%s]",
 	image_button = "image_button[%f,%f;%f,%f;%s;%s;%s]",
 	animated_image = "animated_image[%f,%f;%f,%f;;%s;%u;%u]",
 	scrollbar = "scrollbar[%f,%f;%f,%f;horizontal;%s;%u]",
@@ -1505,7 +1505,8 @@ local function get_model_fs(fs, data, def, model_alias)
 
 	fs(fmt("model",
 		data.xoffset + 6.6, data.yoffset + 0.05, 1.3, 1.3, "",
-		def.mesh, concat(t, ","), "0,0", "true", model_alias and model_alias.frames or ""))
+		def.mesh, concat(t, ","), "0,0", "true", "true",
+		model_alias and model_alias.frames or ""))
 end
 
 local function get_header(fs, data)
@@ -1748,7 +1749,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 
 	--fs("style[player_model;bgcolor=black]")
 	fs(fmt("model", 0.2, 0.2, 4, 5.4, "player_model",
-		props.mesh, concat(props.textures, ","), "0,-150", "false", "0,0"))
+		props.mesh, concat(props.textures, ","), "-10,-150", "false", "false", "0,80"))
 
 	local extras = __3darmor or __skinsdb
 	local xoffset = extras and 0 or 4.5
@@ -1765,11 +1766,11 @@ local function get_inventory_mode(player, fs, data, full_height)
 
 		fs(sprintf([[
 			scrollbaroptions[arrows=hide;thumbsize=%u;max=%u]
-			scrollbar[9.7,0.2;0.3,5.5;vertical;scrbar_inv;%u]
+			scrollbar[9.67,0.2;0.3,5.5;vertical;scrbar_inv;%u]
 		]],
-		(max_val * 4) / 15, max_val, data.scrbar_inv or 0))
+		(max_val * 3) / 15, max_val, data.scrbar_inv or 0))
 
-		fs("scroll_container[4,0.2;5.5,5.5;scrbar_inv;vertical]")
+		fs("scroll_container[3.9,0.2;5.5,5.5;scrbar_inv;vertical]")
 	end
 
 	fs("style_type[label;font=bold;font_size=+6]", fmt("label", xoffset, yoffset + 0.2, ESC(name)),
