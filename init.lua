@@ -59,8 +59,8 @@ local sprintf, find, gmatch, match, sub, split, upper, lower =
 	string.sub, string.split, string.upper, string.lower
 
 local min, max, floor, ceil, abs = math.min, math.max, math.floor, math.ceil, math.abs
-local pairs, ipairs, next, type, setmetatable, tonum =
-	pairs, ipairs, next, type, setmetatable, tonumber
+local pairs, ipairs, next, type, setmetatable, tonum, unpack =
+	pairs, ipairs, next, type, setmetatable, tonumber, unpack
 
 local vec_add, vec_mul = vector.add, vector.multiply
 
@@ -100,7 +100,7 @@ local PNG = {
 	cancel_hover = "i3_cancel.png^\\[brighten",
 	search_hover = "i3_search.png^\\[brighten",
 	export_hover = "i3_export.png^\\[brighten",
-	trash_hover = "i3_trash.png^\\[brighten",
+	trash_hover = "i3_trash.png^\\[brighten^\\[colorize:#f00:100",
 	compress_hover = "i3_compress.png^\\[brighten",
 	sort_az_hover = "i3_sort.png^\\[brighten",
 	sort_za_hover = "i3_sort2.png^\\[brighten",
@@ -150,18 +150,18 @@ local styles = sprintf([[
 	      bgimg_pressed=i3_btn9_pressed.png;bgimg_middle=4,6]
 ]],
 PNG.slot,
-PNG.cancel, PNG.cancel_hover,
-PNG.search, PNG.search_hover,
-PNG.trash, PNG.trash_hover,
-PNG.sort_az, PNG.sort_az_hover,
-PNG.sort_za, PNG.sort_za_hover,
+PNG.cancel,   PNG.cancel_hover,
+PNG.search,   PNG.search_hover,
+PNG.trash,    PNG.trash_hover,
+PNG.sort_az,  PNG.sort_az_hover,
+PNG.sort_za,  PNG.sort_za_hover,
 PNG.compress, PNG.compress_hover,
-PNG.prev, PNG.prev_hover,
-PNG.next, PNG.next_hover,
-PNG.prev, PNG.prev_hover,
-PNG.next, PNG.next_hover,
-PNG.prev, PNG.prev_hover,
-PNG.next, PNG.next_hover,
+PNG.prev,     PNG.prev_hover,
+PNG.next,     PNG.next_hover,
+PNG.prev,     PNG.prev_hover,
+PNG.next,     PNG.next_hover,
+PNG.prev,     PNG.prev_hover,
+PNG.next,     PNG.next_hover,
 PNG.tab_hover)
 
 local function get_lang_code(info)
@@ -1737,12 +1737,12 @@ local function get_inventory_mode(player, fs, data, full_height)
 	fs(fmt("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10))
 
 	for i = 0, 7 do
-		fs(fmt("image", i + 0.235 + (i * 0.25), 6.1, 1, 1, "i3_hb_bg.png"))
+		fs(fmt("image", i + 0.234 + (i * 0.25), 6.1, 1, 1, "i3_hb_bg.png"))
 	end
 
 	fs("listring[current_player;main]",
-	   "list[current_player;main;0.235,6.1;8,1;]",
-	   "list[current_player;main;0.235,7.4;8,3;8]")
+	   "list[current_player;main;0.234,6.1;8,1;]",
+	   "list[current_player;main;0.234,7.4;8,3;8]")
 
 	local props = player:get_properties()
 	local name = player:get_player_name()
@@ -1829,18 +1829,19 @@ local function get_inventory_mode(player, fs, data, full_height)
 		fs("scroll_container_end[]")
 	end
 
-	local i = 0
 	local btn = {
-		trash = ES"Trash all items",
-		sort_az = ES"Sort items (A-Z)",
-		sort_za = ES"Sort items (Z-A)",
-		compress = ES"Compress items",
+		{"trash", ES"Trash all items"},
+		{"sort_az", ES"Sort items (A-Z)"},
+		{"sort_za", ES"Sort items (Z-A)"},
+		{"compress", ES"Compress items"},
 	}
 
-	for btn_name, tooltip in pairs(btn) do
-		fs(fmt("image_button", i + 4.02 - (i * 0.4),
+	for i, v in ipairs(btn) do
+		local btn_name, tooltip = unpack(v)
+
+		fs(fmt("image_button", i + 3.447 - (i * 0.4),
 			full_height - 0.6, 0.35, 0.35, "", btn_name, ""))
-		i = i + 1
+
 		fs(sprintf("tooltip[%s;%s]", btn_name, tooltip))
 	end
 end
