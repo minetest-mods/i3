@@ -1838,7 +1838,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 	}
 
 	for btn_name, tooltip in pairs(btn) do
-		fs(fmt("image_button", i + 4 - (i * 0.4),
+		fs(fmt("image_button", i + 4.02 - (i * 0.4),
 			full_height - 0.6, 0.35, 0.35, "", btn_name, ""))
 		i = i + 1
 		fs(sprintf("tooltip[%s;%s]", btn_name, tooltip))
