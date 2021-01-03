@@ -1746,6 +1746,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 	local props = player:get_properties()
 	local name = player:get_player_name()
 
+	--fs("style[player_model;bgcolor=black]")
 	fs(fmt("model", 0.2, 0.2, 4, 5.4, "player_model",
 		props.mesh, concat(props.textures, ","), "0,-150", "false", "0,0"))
 
@@ -1762,9 +1763,13 @@ local function get_inventory_mode(player, fs, data, full_height)
 			max_val = 15
 		end
 
-		fs(sprintf("scrollbaroptions[max=%u]scrollbar[-1,0;0.3,4;vertical;scrbar_inv;%u]",
-			max_val, data.scrbar_inv or 0))
-		fs("scroll_container[4.5,0.2;5.5,5.5;scrbar_inv;vertical]")
+		fs(sprintf([[
+			scrollbaroptions[arrows=hide;thumbsize=%u;max=%u]
+			scrollbar[9.7,0.2;0.3,5.5;vertical;scrbar_inv;%u]
+		]],
+		(max_val * 4) / 15, max_val, data.scrbar_inv or 0))
+
+		fs("scroll_container[4,0.2;5.5,5.5;scrbar_inv;vertical]")
 	end
 
 	fs("style_type[label;font=bold;font_size=+6]", fmt("label", xoffset, yoffset + 0.2, ESC(name)),
