@@ -1737,12 +1737,12 @@ local function get_inventory_mode(player, fs, data, full_height)
 	fs(fmt("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10))
 
 	for i = 0, 7 do
-		fs(fmt("image", i + 0.23 + (i * 0.25), 6.1, 1, 1, "i3_hb_bg.png"))
+		fs(fmt("image", i + 0.235 + (i * 0.25), 6.1, 1, 1, "i3_hb_bg.png"))
 	end
 
 	fs("listring[current_player;main]",
-	   "list[current_player;main;0.23,6.1;8,1;]",
-	   "list[current_player;main;0.23,7.4;8,3;8]")
+	   "list[current_player;main;0.235,6.1;8,1;]",
+	   "list[current_player;main;0.235,7.4;8,3;8]")
 
 	local props = player:get_properties()
 	local name = player:get_player_name()
@@ -1766,7 +1766,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 
 		fs(sprintf([[
 			scrollbaroptions[arrows=hide;thumbsize=%u;max=%u]
-			scrollbar[9.67,0.2;0.3,5.5;vertical;scrbar_inv;%u]
+			scrollbar[9.69,0.2;0.3,5.5;vertical;scrbar_inv;%u]
 		]],
 		(max_val * 3) / 15, max_val, data.scrbar_inv or 0))
 
