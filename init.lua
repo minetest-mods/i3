@@ -1748,7 +1748,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 	local name = player:get_player_name()
 
 	--fs("style[player_model;bgcolor=black]")
-	fs(fmt("model", 0.2, 0.2, 4, 5.4, "player_model",
+	fs(fmt("model", 0.2, 0.2, 4, 5.5, "player_model",
 		props.mesh, concat(props.textures, ","), "0,-150", "false", "false", "0,80"))
 
 	local extras = __3darmor or __skinsdb
