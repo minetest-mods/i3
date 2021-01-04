@@ -1740,7 +1740,8 @@ local function get_inventory_mode(player, fs, data, full_height)
 		fs(fmt("image", i + 0.234 + (i * 0.25), 6.1, 1, 1, "i3_hb_bg.png"))
 	end
 
-	fs("listring[current_player;main]",
+	fs("listcolors[#bababa50;#bababa99]",
+	   "listring[current_player;main]",
 	   "list[current_player;main;0.234,6.1;8,1;]",
 	   "list[current_player;main;0.234,7.4;8,3;8]")
 
@@ -1775,8 +1776,6 @@ local function get_inventory_mode(player, fs, data, full_height)
 
 	fs("style_type[label;font=bold;font_size=+6]", fmt("label", xoffset, yoffset + 0.2, ESC(name)),
 	   "style_type[label;font=normal;font_size=+0]", fmt("box", xoffset, yoffset + 0.5, 5.5, 0.05, "#666"))
-
-	fs("listcolors[#bababa50;#bababa99]")
 
 	local hp = data.hp or player:get_hp()
 	local half = ceil((hp / 2) % 1)
