@@ -1768,6 +1768,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 		fs(sprintf([[
 			scrollbaroptions[arrows=hide;thumbsize=%u;max=%u]
 			scrollbar[9.69,0.2;0.3,5.5;vertical;scrbar_inv;%u]
+			scrollbaroptions[arrows=default;thumbsize=0;max=1000]
 		]],
 		(max_val * 3) / 15, max_val, data.scrbar_inv or 0))
 
