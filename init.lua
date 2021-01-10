@@ -2333,8 +2333,9 @@ end)
 core.register_on_player_hpchange(function(player, hpchange)
 	local name = player:get_player_name()
 	local data = pdata[name]
-	local hp_max = player:get_properties().hp_max
+	if not data then return end
 
+	local hp_max = player:get_properties().hp_max
 	data.hp = min(hp_max, player:get_hp() + hpchange)
 
 	set_fs(player)
