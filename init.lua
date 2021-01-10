@@ -1858,9 +1858,10 @@ local function get_inventory_mode(player, fs, data, full_height)
 			yextra = yextra + 3.5
 		end
 
-		add_subtitle(fs, sprintf("%s: %u of %u (%.1f%%)", ES"Achievements",
-			awards_unlocked, award_list_nb, (awards_unlocked * 100) / award_list_nb),
-			yextra, "+2")
+		local percent = sprintf("%.1f%%", (awards_unlocked * 100) / award_list_nb):gsub(".0", "")
+
+		add_subtitle(fs, sprintf("%s: %u of %u (%s)", ES"Achievements",
+			awards_unlocked, award_list_nb, percent), yextra, "+2")
 
 		for i, award in ipairs(award_list) do
 			local y = yextra - 0.7 + i + (i * 0.3)
