@@ -11,7 +11,7 @@ local replacements  = {fuel = {}}
 local toolrepair
 
 local progressive_mode = core.settings:get_bool "i3_progressive_mode"
-local __3darmor, __skinsdb
+local __3darmor, __skinsdb, __awards
 
 local http = core.request_http_api()
 local singleplayer = core.is_singleplayer()
@@ -1733,6 +1733,11 @@ local function get_item_list(fs, data, full_height)
 	end
 end
 
+local function add_subtitle(fs, title, y)
+	fs("style_type[label;font=bold;font_size=+2]", fmt("label", 0, y, title),
+	   "style_type[label;font=normal;font_size=+0]", fmt("box", 0, y + 0.3, 5.5, 0.05, "#666"))
+end
+
 local function get_inventory_mode(player, fs, data, full_height)
 	fs(fmt("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10))
 
@@ -1760,9 +1765,10 @@ local function get_inventory_mode(player, fs, data, full_height)
 		fs(fmt("image", 0.7, 0.2, size, size * props.visual_size.y, props.textures[1]))
 	end
 
-	local extras = __3darmor or __skinsdb
+	local extras = __3darmor or __skinsdb or __awards
 	local xoffset = extras and 0 or 4.5
 	local yoffset = extras and 0 or 0.2
+	local award_list
 
 	if extras then
 		local max_val = 15
@@ -1773,6 +1779,11 @@ local function get_inventory_mode(player, fs, data, full_height)
 
 		if __skinsdb then
 			max_val = max_val + 20
+		end
+
+		if __awards then
+			award_list = awards.get_award_states(name)
+			max_val = max_val + (#award_list * 13.2)
 		end
 
 		fs(sprintf([[
@@ -1807,10 +1818,9 @@ local function get_inventory_mode(player, fs, data, full_height)
 	local yextra = 5.6
 
 	if __3darmor then
-		fs("style_type[label;font=bold;font_size=+2]", fmt("label", 0, yextra, ES"Armor"),
-		   "style_type[label;font=normal;font_size=+0]",
-		   fmt("box", 0, yextra + 0.3, 5.5, 0.05, "#666"),
-		   sprintf("list[detached:%s_armor;armor;0,%f;3,2;]", name, yextra + 0.6))
+		add_subtitle(fs, ES"Armor", yextra)
+
+		fs(sprintf("list[detached:%s_armor;armor;0,%f;3,2;]", name, yextra + 0.6))
 
 		fs(fmt("label", 3.75, yextra + 1.55, sprintf("%s: %s", ES"Level", armor.def[name].level)),
 		   fmt("label", 3.75, yextra + 1.95, sprintf("%s: %s", ES"Heal", armor.def[name].heal)))
@@ -1824,15 +1834,62 @@ local function get_inventory_mode(player, fs, data, full_height)
 			t[#t + 1] = skin.name
 		end
 
-		yextra = __3darmor and (yextra + 3.5) or 5.65
+		yextra = __3darmor and (yextra + 3.5) or yextra
 
-		fs("style_type[label;font=bold;font_size=+2]")
-		fs(fmt("label", 0, yextra, ES"Skins"))
-		fs("style_type[label;font=normal;font_size=+0]")
-		fs(fmt("box", 0, yextra + 0.3, 5.5, 0.05, "#666"))
+		add_subtitle(fs, ES"Skins", yextra)
 
 		fs(sprintf("dropdown[0,%f;3.55,0.6;skins;%s;%u;true]",
 			yextra + 0.6, concat(t, ","), data.skin_id or 1))
+	end
+
+	if __awards then
+		if (__3darmor and __skinsdb) or __skinsdb then
+			yextra = yextra + 1.8
+		elseif __3darmor then
+			yextra = yextra + 3.5
+		end
+
+		add_subtitle(fs, ES"Awards", yextra)
+
+		for i, award in ipairs(award_list) do
+			local y = yextra - 0.7 + i + (i * 0.3)
+			local def, progress = award.def, award.progress
+			local title, desc = def.title, def.description or ""
+			local icon_size = 1.1
+
+			if not award.unlocked and def.secret then
+				title = ES"Secret award"
+				desc = ES"Unlock this award to find out what it is."
+			end
+
+			local icon = def.icon or "awards_unknown.png"
+
+			if not award.unlocked then
+				icon = sprintf("%s^\\[colorize:#000:180", icon)
+			end
+
+			fs(fmt("image", 0, y + 0.01, icon_size, icon_size, icon))
+			fs(fmt("box", icon_size + 0.1, y, 4.3, icon_size, "#bababa25"))
+
+			if progress then
+				local current, target = progress.current, progress.target
+				local curr_bar = (current * 4.3) / target
+
+				fs(fmt("box", icon_size + 0.1, y + 0.8, 4.3, 0.3, "#101010"),
+				   fmt("box", icon_size + 0.1, y + 0.8, curr_bar, 0.3, "#9dc34c"),
+				   "style_type[label;font=normal;font_size=-2]",
+				    fmt("label", icon_size + 0.5, y + 0.97,
+					sprintf("%u / %u", current, target)))
+
+				y = y - 0.14
+			end
+
+			fs("style_type[label;font=bold;font_size=+1]",
+			   fmt("label", icon_size + 0.2, y + 0.4, title),
+			   "style_type[label;font=normal;font_size=-1]",
+			   fmt("label", icon_size + 0.2, y + 0.75, clr("#bbbbbb", desc)),
+			   "style_type[label;font=normal;font_size=+0]")
+		end
 	end
 
 	if extras then
@@ -1932,6 +1989,32 @@ if rawget(_G, "skins") then
 			save_meta(player, {"skin_id"})
 		end
 	end)
+end
+
+if rawget(_G, "awards") then
+	__awards = true
+
+	core.register_on_craft(function(_, player)
+		set_fs(player)
+	end)
+
+	core.register_on_dignode(function(_, _, player)
+		set_fs(player)
+	end)
+
+	core.register_on_placenode(function(_, _, player)
+		set_fs(player)
+	end)
+
+	core.register_on_chat_message(function(name, message)
+		local player = minetest.get_player_by_name(name)
+
+		if player:is_player() or sub(message, 1, 1) ~= "/" then
+			set_fs(player)
+		end
+	end)
+
+	core.register_on_dieplayer(set_fs)
 end
 
 i3.register_craft_type("digging", {

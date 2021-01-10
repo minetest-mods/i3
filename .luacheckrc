@@ -6,6 +6,7 @@ read_globals = {
 	"default",
 	"armor",
 	"skins",
+	"awards",
 	"vector",
 	"string",
 	"table",
