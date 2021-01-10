@@ -1733,8 +1733,8 @@ local function get_item_list(fs, data, full_height)
 	end
 end
 
-local function add_subtitle(fs, title, y)
-	fs("style_type[label;font=bold;font_size=+2]", fmt("label", 0, y, title),
+local function add_subtitle(fs, title, y, font_size)
+	fs(sprintf("style_type[label;font=bold;font_size=%s]", font_size), fmt("label", 0, y, title),
 	   "style_type[label;font=normal;font_size=+0]", fmt("box", 0, y + 0.3, 5.5, 0.05, "#666"))
 end
 
@@ -1768,7 +1768,9 @@ local function get_inventory_mode(player, fs, data, full_height)
 	local extras = __3darmor or __skinsdb or __awards
 	local xoffset = extras and 0 or 4.5
 	local yoffset = extras and 0 or 0.2
-	local award_list
+
+	local award_list, award_list_nb
+	local awards_unlocked = 0
 
 	if extras then
 		local max_val = 15
@@ -1783,7 +1785,15 @@ local function get_inventory_mode(player, fs, data, full_height)
 
 		if __awards then
 			award_list = awards.get_award_states(name)
-			max_val = max_val + (#award_list * 13.2)
+			award_list_nb = #award_list
+
+			for _, award in ipairs(award_list) do
+				if award.unlocked then
+					awards_unlocked = awards_unlocked + 1
+				end
+			end
+
+			max_val = max_val + (award_list_nb * 13.2)
 		end
 
 		fs(sprintf([[
@@ -1796,8 +1806,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 		fs("scroll_container[3.9,0.2;5.5,5.5;scrbar_inv;vertical]")
 	end
 
-	fs("style_type[label;font=bold;font_size=+6]", fmt("label", xoffset, yoffset + 0.2, ESC(name)),
-	   "style_type[label;font=normal;font_size=+0]", fmt("box", xoffset, yoffset + 0.5, 5.5, 0.05, "#666"))
+	add_subtitle(fs, ESC(name), yoffset + 0.2, "+6")
 
 	local hp = data.hp or player:get_hp()
 	local half = ceil((hp / 2) % 1)
@@ -1818,7 +1827,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 	local yextra = 5.6
 
 	if __3darmor then
-		add_subtitle(fs, ES"Armor", yextra)
+		add_subtitle(fs, ES"Armor", yextra, "+2")
 
 		fs(sprintf("list[detached:%s_armor;armor;0,%f;3,2;]", name, yextra + 0.6))
 
@@ -1836,7 +1845,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 
 		yextra = __3darmor and (yextra + 3.5) or yextra
 
-		add_subtitle(fs, ES"Skins", yextra)
+		add_subtitle(fs, ES"Skins", yextra, "+2")
 
 		fs(sprintf("dropdown[0,%f;3.55,0.6;skins;%s;%u;true]",
 			yextra + 0.6, concat(t, ","), data.skin_id or 1))
@@ -1849,7 +1858,9 @@ local function get_inventory_mode(player, fs, data, full_height)
 			yextra = yextra + 3.5
 		end
 
-		add_subtitle(fs, ES"Awards", yextra)
+		add_subtitle(fs, sprintf("%s: %u of %u (%.1f%%)", ES"Achievements",
+			awards_unlocked, award_list_nb, (awards_unlocked * 100) / award_list_nb),
+			yextra, "+2")
 
 		for i, award in ipairs(award_list) do
 			local y = yextra - 0.7 + i + (i * 0.3)
