@@ -2162,19 +2162,15 @@ local function init_data(player, name)
 	local data = pdata[name]
 	data.skin_id = tonum(dslz(meta:get_string "skin_id") or 1)
 
-	after(0, function()
-		if data.fs_version < MIN_FORMSPEC_VERSION then
-			return outdated(name)
-		end
+	if data.fs_version < MIN_FORMSPEC_VERSION then return end
 
-		if progressive_mode then
-			local items = get_filtered_items(player, data)
-			data.items_raw = items
-			search(data)
-		end
+	if progressive_mode then
+		local items = get_filtered_items(player, data)
+		data.items_raw = items
+		search(data)
+	end
 
-		set_fs(player)
-	end)
+	after(0, set_fs, player)
 end
 
 local function reset_data(data)
