@@ -1866,12 +1866,12 @@ local function get_inventory_mode(player, fs, data, full_height)
 		for i, award in ipairs(award_list) do
 			local y = yextra - 0.7 + i + (i * 0.3)
 			local def, progress = award.def, award.progress
-			local title, desc = def.title, def.description or ""
+			local title, desc = def.title, def.description:gsub("%.$", "") or ""
 			local icon_size = 1.1
 
 			if not award.unlocked and def.secret then
 				title = ES"Secret award"
-				desc = ES"Unlock this award to find out what it is."
+				desc = ES"Unlock this award to find out what it is"
 			end
 
 			local icon = def.icon or "awards_unknown.png"
