@@ -2009,7 +2009,7 @@ if rawget(_G, "awards") then
 	core.register_on_chat_message(function(name, message)
 		local player = minetest.get_player_by_name(name)
 
-		if player:is_player() or sub(message, 1, 1) ~= "/" then
+		if player:is_player() and sub(message, 1, 1) ~= "/" then
 			set_fs(player)
 		end
 	end)
