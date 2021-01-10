@@ -1757,7 +1757,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 		local anim = player:get_local_animation()
 		--fs("style[player_model;bgcolor=black]")
 
-		fs(fmt("model", 0.2, 0.2, 4, 5.5, "player_model",
+		fs(fmt("model", (__3darmor or __skinsdb) and 0.2 or 0, 0.2, 4, 5.5, "player_model",
 			props.mesh, concat(props.textures, ","), "0,-150", "false", "false",
 			sprintf("%u,%u", anim.x, anim.y)))
 	else
@@ -2007,7 +2007,7 @@ if rawget(_G, "awards") then
 	end)
 
 	core.register_on_chat_message(function(name, message)
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 
 		if player:is_player() and sub(message, 1, 1) ~= "/" then
 			set_fs(player)
