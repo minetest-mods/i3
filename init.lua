@@ -1747,10 +1747,13 @@ local function get_inventory_mode(player, fs, data, full_height)
 
 	local props = player:get_properties()
 	local name = player:get_player_name()
+	local anim = player:get_local_animation()
 
 	--fs("style[player_model;bgcolor=black]")
+
 	fs(fmt("model", 0.2, 0.2, 4, 5.5, "player_model",
-		props.mesh, concat(props.textures, ","), "0,-150", "false", "false", "0,80"))
+		props.mesh, concat(props.textures, ","), "0,-150", "false", "false",
+		sprintf("%u,%u", anim.x, anim.y)))
 
 	local extras = __3darmor or __skinsdb
 	local xoffset = extras and 0 or 4.5
