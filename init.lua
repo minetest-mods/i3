@@ -1765,12 +1765,14 @@ local function get_inventory_mode(player, fs, data, full_height)
 	local yoffset = extras and 0 or 0.2
 
 	if extras then
-		local max_val = 30
+		local max_val = 15
 
-		if __3darmor and __skinsdb then
-			max_val = 50
-		elseif __skinsdb and not __3darmor then
-			max_val = 15
+		if __3darmor then
+			max_val = max_val + 15
+		end
+
+		if __skinsdb then
+			max_val = max_val + 20
 		end
 
 		fs(sprintf([[
