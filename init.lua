@@ -1733,9 +1733,9 @@ local function get_item_list(fs, data, full_height)
 	end
 end
 
-local function add_subtitle(fs, title, y, font_size)
-	fs(sprintf("style_type[label;font=bold;font_size=%s]", font_size), fmt("label", 0, y, title),
-	   "style_type[label;font=normal;font_size=+0]", fmt("box", 0, y + 0.3, 5.5, 0.05, "#666"))
+local function add_subtitle(fs, title, x, y, font_size)
+	fs(sprintf("style_type[label;font=bold;font_size=%s]", font_size), fmt("label", x, y, title),
+	   "style_type[label;font=normal;font_size=+0]", fmt("box", x, y + 0.3, 5.5, 0.05, "#666"))
 end
 
 local function get_inventory_mode(player, fs, data, full_height)
@@ -1761,7 +1761,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 			props.mesh, concat(props.textures, ","), "0,-150", "false", "false",
 			sprintf("%u,%u", anim.x, anim.y)))
 	else
-		local size = 2.6
+		local size = 2.5
 		fs(fmt("image", 0.7, 0.2, size, size * props.visual_size.y, props.textures[1]))
 	end
 
@@ -1806,7 +1806,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 		fs("scroll_container[3.9,0.2;5.5,5.5;scrbar_inv;vertical]")
 	end
 
-	add_subtitle(fs, ESC(name), yoffset + 0.2, "+6")
+	add_subtitle(fs, ESC(name), xoffset, yoffset + 0.2, "+6")
 
 	local hp = data.hp or player:get_hp()
 	local half = ceil((hp / 2) % 1)
@@ -1827,7 +1827,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 	local yextra = 5.6
 
 	if __3darmor then
-		add_subtitle(fs, ES"Armor", yextra, "+2")
+		add_subtitle(fs, ES"Armor", 0, yextra, "+2")
 
 		fs(sprintf("list[detached:%s_armor;armor;0,%f;3,2;]", name, yextra + 0.6))
 
@@ -1845,7 +1845,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 
 		yextra = __3darmor and (yextra + 3.5) or yextra
 
-		add_subtitle(fs, ES"Skins", yextra, "+2")
+		add_subtitle(fs, ES"Skins", 0, yextra, "+2")
 
 		fs(sprintf("dropdown[0,%f;3.55,0.6;skins;%s;%u;true]",
 			yextra + 0.6, concat(t, ","), data.skin_id or 1))
@@ -1861,7 +1861,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 		local percent = sprintf("%.1f%%", (awards_unlocked * 100) / award_list_nb):gsub(".0", "")
 
 		add_subtitle(fs, sprintf("%s: %u of %u (%s)", ES"Achievements",
-			awards_unlocked, award_list_nb, percent), yextra, "+2")
+			awards_unlocked, award_list_nb, percent), 0, yextra, "+2")
 
 		for i, award in ipairs(award_list) do
 			local y = yextra - 0.7 + i + (i * 0.3)
