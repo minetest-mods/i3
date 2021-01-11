@@ -1769,10 +1769,10 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 
 		local box_len = 4.39
 
-		fs(fmt("image", 0, y + 0.01, icon_size, icon_size, icon))
-		fs(fmt("tooltip", 0, y + 0.01, icon_size, icon_size,
-			sprintf("%s\n%s", clr("#ff0", title), desc)))
-		fs(fmt("box", icon_size + 0.1, y, box_len, icon_size, "#bababa25"))
+		fs(fmt("image", 0, y + 0.01, icon_size, icon_size, icon),
+		   fmt("tooltip", 0, y + 0.01, icon_size, icon_size,
+			sprintf("%s\n%s", clr("#ff0", title), desc)),
+		   fmt("box", icon_size + 0.1, y, box_len, icon_size, "#bababa25"))
 
 		if progress then
 			local current, target = progress.current, progress.target
@@ -1781,7 +1781,7 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 			fs(fmt("box", icon_size + 0.1, y + 0.8, box_len, 0.3, "#101010"),
 			   fmt("box", icon_size + 0.1, y + 0.8, curr_bar, 0.3, "#9dc34c"),
 			   "style_type[label;font=normal;font_size=-2]",
-			    fmt("label", icon_size + 0.5, y + 0.97, sprintf("%u / %u", current, target)))
+			   fmt("label", icon_size + 0.5, y + 0.97, sprintf("%u / %u", current, target)))
 
 			y = y - 0.14
 		end
