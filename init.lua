@@ -1752,9 +1752,23 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 
 	for i, award in ipairs(award_list) do
 		local y = yextra - 0.7 + i + (i * 0.3)
+
 		local def, progress = award.def, award.progress
 		local title, desc = def.title, def.description:gsub("%.$", "") or ""
-		local icon_size = 1.1
+
+		local title_lim, _title = 26
+		local desc_lim, _desc = 39
+		local box_len, icon_size = 4.39, 1.1
+
+		if #title > title_lim then
+			_title = snip(title, title_lim)
+			fs(fmt("tooltip", icon_size + 0.2, y + 0.14, box_len, 0.24, title))
+		end
+
+		if #desc > desc_lim then
+			_desc = snip(desc, desc_lim)
+			fs(fmt("tooltip", icon_size + 0.2, y + 0.68, box_len, 0.26, desc))
+		end
 
 		if not award.unlocked and def.secret then
 			title = ES"Secret award"
@@ -1767,11 +1781,7 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 			icon = sprintf("%s^\\[colorize:#000:180", icon)
 		end
 
-		local box_len = 4.39
-
 		fs(fmt("image", 0, y + 0.01, icon_size, icon_size, icon),
-		   fmt("tooltip", 0, y + 0.01, icon_size, icon_size,
-			sprintf("%s\n%s", clr("#ff0", title), desc)),
 		   fmt("box", icon_size + 0.1, y, box_len, icon_size, "#bababa25"))
 
 		if progress then
@@ -1787,9 +1797,9 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 		end
 
 		fs("style_type[label;font=bold;font_size=+1]",
-		   fmt("label", icon_size + 0.2, y + 0.4, title),
+		   fmt("label", icon_size + 0.2, y + 0.4, _title or title),
 		   "style_type[label;font=normal;font_size=-1]",
-		   fmt("label", icon_size + 0.2, y + 0.75, clr("#bbbbbb", desc)),
+		   fmt("label", icon_size + 0.2, y + 0.75, clr("#bbbbbb", _desc or desc)),
 		   "style_type[label;font=normal;font_size=+0]")
 	end
 end
