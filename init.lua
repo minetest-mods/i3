@@ -1733,9 +1733,9 @@ local function get_item_list(fs, data, full_height)
 	end
 end
 
-local function add_subtitle(fs, title, x, y, font_size)
+local function add_subtitle(fs, title, x, y, ctn_len, font_size)
 	fs(sprintf("style_type[label;font=bold;font_size=%s]", font_size), fmt("label", x, y, title),
-	   "style_type[label;font=normal;font_size=+0]", fmt("box", x, y + 0.3, 5.5, 0.05, "#666"))
+	   "style_type[label;font=normal;font_size=+0]", fmt("box", x, y + 0.3, ctn_len, 0.05, "#666"))
 end
 
 local function get_inventory_mode(player, fs, data, full_height)
@@ -1766,6 +1766,8 @@ local function get_inventory_mode(player, fs, data, full_height)
 	end
 
 	local extras = __3darmor or __skinsdb or __awards
+
+	local ctn_len = 5.6
 	local xoffset = extras and 0 or 4.5
 	local yoffset = extras and 0 or 0.2
 
@@ -1803,10 +1805,10 @@ local function get_inventory_mode(player, fs, data, full_height)
 		]],
 		(max_val * 3) / 15, max_val, data.scrbar_inv or 0))
 
-		fs("scroll_container[3.9,0.2;5.5,5.5;scrbar_inv;vertical]")
+		fs(sprintf("scroll_container[3.9,0.2;%f,5.5;scrbar_inv;vertical]", ctn_len))
 	end
 
-	add_subtitle(fs, ESC(name), xoffset, yoffset + 0.2, "+6")
+	add_subtitle(fs, ESC(name), xoffset, yoffset + 0.2, ctn_len, "+6")
 
 	local hp = data.hp or player:get_hp()
 	local half = ceil((hp / 2) % 1)
@@ -1827,7 +1829,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 	local yextra = 5.6
 
 	if __3darmor then
-		add_subtitle(fs, ES"Armor", 0, yextra, "+2")
+		add_subtitle(fs, ES"Armor", 0, yextra, ctn_len, "+2")
 
 		fs(sprintf("list[detached:%s_armor;armor;0,%f;3,2;]", name, yextra + 0.6))
 
@@ -1845,7 +1847,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 
 		yextra = __3darmor and (yextra + 3.5) or yextra
 
-		add_subtitle(fs, ES"Skins", 0, yextra, "+2")
+		add_subtitle(fs, ES"Skins", 0, yextra, ctn_len, "+2")
 
 		fs(sprintf("dropdown[0,%f;3.55,0.6;skins;%s;%u;true]",
 			yextra + 0.6, concat(t, ","), data.skin_id or 1))
@@ -1861,7 +1863,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 		local percent = sprintf("%.1f%%", (awards_unlocked * 100) / award_list_nb):gsub(".0", "")
 
 		add_subtitle(fs, sprintf("%s: %u of %u (%s)", ES"Achievements",
-			awards_unlocked, award_list_nb, percent), 0, yextra, "+2")
+			awards_unlocked, award_list_nb, percent), 0, yextra, ctn_len, "+2")
 
 		for i, award in ipairs(award_list) do
 			local y = yextra - 0.7 + i + (i * 0.3)
@@ -1880,14 +1882,18 @@ local function get_inventory_mode(player, fs, data, full_height)
 				icon = sprintf("%s^\\[colorize:#000:180", icon)
 			end
 
+			local box_len = 4.39
+
 			fs(fmt("image", 0, y + 0.01, icon_size, icon_size, icon))
-			fs(fmt("box", icon_size + 0.1, y, 4.3, icon_size, "#bababa25"))
+			fs(fmt("tooltip", 0, y + 0.01, icon_size, icon_size,
+				sprintf("%s\n%s", clr("#ff0", title), desc)))
+			fs(fmt("box", icon_size + 0.1, y, box_len, icon_size, "#bababa25"))
 
 			if progress then
 				local current, target = progress.current, progress.target
-				local curr_bar = (current * 4.3) / target
+				local curr_bar = (current * box_len) / target
 
-				fs(fmt("box", icon_size + 0.1, y + 0.8, 4.3, 0.3, "#101010"),
+				fs(fmt("box", icon_size + 0.1, y + 0.8, box_len, 0.3, "#101010"),
 				   fmt("box", icon_size + 0.1, y + 0.8, curr_bar, 0.3, "#9dc34c"),
 				   "style_type[label;font=normal;font_size=-2]",
 				    fmt("label", icon_size + 0.5, y + 0.97,
