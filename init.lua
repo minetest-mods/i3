@@ -1754,7 +1754,8 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 		local y = yextra - 0.7 + i + (i * 0.3)
 
 		local def, progress = award.def, award.progress
-		local title, desc = def.title, def.description:gsub("%.$", "") or ""
+		local title = def.title
+		local desc = def.description and def.description:gsub("%.$", "") or ""
 
 		local title_lim, _title = 26
 		local desc_lim, _desc = 39
