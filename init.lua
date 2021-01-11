@@ -1738,6 +1738,113 @@ local function add_subtitle(fs, title, x, y, ctn_len, font_size)
 	   "style_type[label;font=normal;font_size=+0]", fmt("box", x, y + 0.3, ctn_len, 0.05, "#666"))
 end
 
+local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
+	if (__3darmor and __skinsdb) or __skinsdb then
+		yextra = yextra + 1.8
+	elseif __3darmor then
+		yextra = yextra + 3.5
+	end
+
+	local percent = sprintf("%.1f%%", (awards_unlocked * 100) / award_list_nb):gsub(".0", "")
+
+	add_subtitle(fs, sprintf("%s: %u of %u (%s)", ES"Achievements",
+		awards_unlocked, award_list_nb, percent), 0, yextra, ctn_len, "+2")
+
+	for i, award in ipairs(award_list) do
+		local y = yextra - 0.7 + i + (i * 0.3)
+		local def, progress = award.def, award.progress
+		local title, desc = def.title, def.description:gsub("%.$", "") or ""
+		local icon_size = 1.1
+
+		if not award.unlocked and def.secret then
+			title = ES"Secret award"
+			desc = ES"Unlock this award to find out what it is"
+		end
+
+		local icon = def.icon or "awards_unknown.png"
+
+		if not award.unlocked then
+			icon = sprintf("%s^\\[colorize:#000:180", icon)
+		end
+
+		local box_len = 4.39
+
+		fs(fmt("image", 0, y + 0.01, icon_size, icon_size, icon))
+		fs(fmt("tooltip", 0, y + 0.01, icon_size, icon_size,
+			sprintf("%s\n%s", clr("#ff0", title), desc)))
+		fs(fmt("box", icon_size + 0.1, y, box_len, icon_size, "#bababa25"))
+
+		if progress then
+			local current, target = progress.current, progress.target
+			local curr_bar = (current * box_len) / target
+
+			fs(fmt("box", icon_size + 0.1, y + 0.8, box_len, 0.3, "#101010"),
+			   fmt("box", icon_size + 0.1, y + 0.8, curr_bar, 0.3, "#9dc34c"),
+			   "style_type[label;font=normal;font_size=-2]",
+			    fmt("label", icon_size + 0.5, y + 0.97, sprintf("%u / %u", current, target)))
+
+			y = y - 0.14
+		end
+
+		fs("style_type[label;font=bold;font_size=+1]",
+		   fmt("label", icon_size + 0.2, y + 0.4, title),
+		   "style_type[label;font=normal;font_size=-1]",
+		   fmt("label", icon_size + 0.2, y + 0.75, clr("#bbbbbb", desc)),
+		   "style_type[label;font=normal;font_size=+0]")
+	end
+end
+
+local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, yextra,
+			       award_list, awards_unlocked, award_list_nb)
+	local name = player:get_player_name()
+	add_subtitle(fs, ESC(name), xoffset, yoffset + 0.2, ctn_len, "+6")
+
+	local hp = data.hp or player:get_hp()
+	local half = ceil((hp / 2) % 1)
+	local hearts = (hp / 2) + half
+
+	for i = 1, hearts do
+		fs(fmt("image", xoffset + ((i - 1) * 0.4), yoffset + 0.7, 0.4, 0.4,
+			(half == 1 and i == floor(hearts)) and "i3_heart_half.png" or "i3_heart.png"))
+	end
+
+	fs(sprintf("list[current_player;craft;%f,%f;3,3;]", xoffset, yoffset + 1.45),
+	   fmt("image", xoffset + 3.64, yoffset + 2.88, 0.7, 0.7, PNG.arrow),
+	   sprintf("list[current_player;craftpreview;%f,%f;1,1;]", xoffset + 4.45, yoffset + 2.7),
+	   "listring[detached:i3_trash;main]",
+	   sprintf("list[detached:i3_trash;main;%f,%f;1,1;]", xoffset + 4.45, yoffset + 3.95),
+	   fmt("image", xoffset + 4.45, yoffset + 3.95, 1, 1, PNG.trash))
+
+	if __3darmor then
+		add_subtitle(fs, ES"Armor", 0, yextra, ctn_len, "+2")
+
+		fs(sprintf("list[detached:%s_armor;armor;0,%f;3,2;]", name, yextra + 0.6))
+
+		fs(fmt("label", 3.75, yextra + 1.55, sprintf("%s: %s", ES"Level", armor.def[name].level)),
+		   fmt("label", 3.75, yextra + 1.95, sprintf("%s: %s", ES"Heal", armor.def[name].heal)))
+	end
+
+	if __skinsdb then
+		local _skins = skins.get_skinlist_for_player(name)
+		local t = {}
+
+		for _, skin in ipairs(_skins) do
+			t[#t + 1] = skin.name
+		end
+
+		yextra = __3darmor and (yextra + 3.5) or yextra
+
+		add_subtitle(fs, ES"Skins", 0, yextra, ctn_len, "+2")
+
+		fs(sprintf("dropdown[0,%f;3.55,0.6;skins;%s;%u;true]",
+			yextra + 0.6, concat(t, ","), data.skin_id or 1))
+	end
+
+	if __awards then
+		get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
+	end
+end
+
 local function get_inventory_mode(player, fs, data, full_height)
 	fs(fmt("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10))
 
@@ -1767,7 +1874,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 
 	local extras = __3darmor or __skinsdb or __awards
 
-	local ctn_len = 5.6
+	local ctn_len, yextra = 5.6, 5.6
 	local xoffset = extras and 0 or 4.5
 	local yoffset = extras and 0 or 0.2
 
@@ -1808,107 +1915,8 @@ local function get_inventory_mode(player, fs, data, full_height)
 		fs(sprintf("scroll_container[3.9,0.2;%f,5.5;scrbar_inv;vertical]", ctn_len))
 	end
 
-	add_subtitle(fs, ESC(name), xoffset, yoffset + 0.2, ctn_len, "+6")
-
-	local hp = data.hp or player:get_hp()
-	local half = ceil((hp / 2) % 1)
-	local hearts = (hp / 2) + half
-
-	for i = 1, hearts do
-		fs(fmt("image", xoffset + ((i - 1) * 0.4), yoffset + 0.7, 0.4, 0.4,
-			(half == 1 and i == floor(hearts)) and "i3_heart_half.png" or "i3_heart.png"))
-	end
-
-	fs(sprintf("list[current_player;craft;%f,%f;3,3;]", xoffset, yoffset + 1.45),
-	   fmt("image", xoffset + 3.64, yoffset + 2.88, 0.7, 0.7, PNG.arrow),
-	   sprintf("list[current_player;craftpreview;%f,%f;1,1;]", xoffset + 4.45, yoffset + 2.7),
-	   "listring[detached:i3_trash;main]",
-	   sprintf("list[detached:i3_trash;main;%f,%f;1,1;]", xoffset + 4.45, yoffset + 3.95),
-	   fmt("image", xoffset + 4.45, yoffset + 3.95, 1, 1, PNG.trash))
-
-	local yextra = 5.6
-
-	if __3darmor then
-		add_subtitle(fs, ES"Armor", 0, yextra, ctn_len, "+2")
-
-		fs(sprintf("list[detached:%s_armor;armor;0,%f;3,2;]", name, yextra + 0.6))
-
-		fs(fmt("label", 3.75, yextra + 1.55, sprintf("%s: %s", ES"Level", armor.def[name].level)),
-		   fmt("label", 3.75, yextra + 1.95, sprintf("%s: %s", ES"Heal", armor.def[name].heal)))
-	end
-
-	if __skinsdb then
-		local _skins = skins.get_skinlist_for_player(name)
-		local t = {}
-
-		for _, skin in ipairs(_skins) do
-			t[#t + 1] = skin.name
-		end
-
-		yextra = __3darmor and (yextra + 3.5) or yextra
-
-		add_subtitle(fs, ES"Skins", 0, yextra, ctn_len, "+2")
-
-		fs(sprintf("dropdown[0,%f;3.55,0.6;skins;%s;%u;true]",
-			yextra + 0.6, concat(t, ","), data.skin_id or 1))
-	end
-
-	if __awards then
-		if (__3darmor and __skinsdb) or __skinsdb then
-			yextra = yextra + 1.8
-		elseif __3darmor then
-			yextra = yextra + 3.5
-		end
-
-		local percent = sprintf("%.1f%%", (awards_unlocked * 100) / award_list_nb):gsub(".0", "")
-
-		add_subtitle(fs, sprintf("%s: %u of %u (%s)", ES"Achievements",
-			awards_unlocked, award_list_nb, percent), 0, yextra, ctn_len, "+2")
-
-		for i, award in ipairs(award_list) do
-			local y = yextra - 0.7 + i + (i * 0.3)
-			local def, progress = award.def, award.progress
-			local title, desc = def.title, def.description:gsub("%.$", "") or ""
-			local icon_size = 1.1
-
-			if not award.unlocked and def.secret then
-				title = ES"Secret award"
-				desc = ES"Unlock this award to find out what it is"
-			end
-
-			local icon = def.icon or "awards_unknown.png"
-
-			if not award.unlocked then
-				icon = sprintf("%s^\\[colorize:#000:180", icon)
-			end
-
-			local box_len = 4.39
-
-			fs(fmt("image", 0, y + 0.01, icon_size, icon_size, icon))
-			fs(fmt("tooltip", 0, y + 0.01, icon_size, icon_size,
-				sprintf("%s\n%s", clr("#ff0", title), desc)))
-			fs(fmt("box", icon_size + 0.1, y, box_len, icon_size, "#bababa25"))
-
-			if progress then
-				local current, target = progress.current, progress.target
-				local curr_bar = (current * box_len) / target
-
-				fs(fmt("box", icon_size + 0.1, y + 0.8, box_len, 0.3, "#101010"),
-				   fmt("box", icon_size + 0.1, y + 0.8, curr_bar, 0.3, "#9dc34c"),
-				   "style_type[label;font=normal;font_size=-2]",
-				    fmt("label", icon_size + 0.5, y + 0.97,
-					sprintf("%u / %u", current, target)))
-
-				y = y - 0.14
-			end
-
-			fs("style_type[label;font=bold;font_size=+1]",
-			   fmt("label", icon_size + 0.2, y + 0.4, title),
-			   "style_type[label;font=normal;font_size=-1]",
-			   fmt("label", icon_size + 0.2, y + 0.75, clr("#bbbbbb", desc)),
-			   "style_type[label;font=normal;font_size=+0]")
-		end
-	end
+	get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, yextra,
+			award_list, awards_unlocked, award_list_nb)
 
 	if extras then
 		fs("scroll_container_end[]")
