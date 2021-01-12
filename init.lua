@@ -1805,14 +1805,15 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 	end
 end
 
-local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, yextra,
-			       award_list, awards_unlocked, award_list_nb)
+local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, award_list, awards_unlocked,
+			       award_list_nb)
 	local name = player:get_player_name()
 	add_subtitle(fs, ESC(name), xoffset, yoffset + 0.2, ctn_len, "+6")
 
 	local hp = data.hp or player:get_hp()
 	local half = ceil((hp / 2) % 1)
 	local hearts = (hp / 2) + half
+	local yextra = 5.6
 
 	for i = 1, hearts do
 		fs(fmt("image", xoffset + ((i - 1) * 0.4), yoffset + 0.7, 0.4, 0.4,
@@ -1887,8 +1888,8 @@ local function get_inventory_mode(player, fs, data, full_height)
 
 	local extras = __3darmor or __skinsdb or __awards
 
-	local ctn_len, yextra = 5.6, 5.6
-	local xoffset = extras and 0 or 4.5
+	local ctn_len = extras and 5.6 or 5.45
+	local xoffset = extras and 0 or 4.4
 	local yoffset = extras and 0 or 0.2
 
 	local award_list, award_list_nb
@@ -1930,8 +1931,8 @@ local function get_inventory_mode(player, fs, data, full_height)
 		fs(sprintf("scroll_container[3.9,0.2;%f,5.5;scrbar_inv;vertical]", ctn_len))
 	end
 
-	get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, yextra,
-			award_list, awards_unlocked, award_list_nb)
+	get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, award_list, awards_unlocked,
+			award_list_nb)
 
 	if extras then
 		fs("scroll_container_end[]")
