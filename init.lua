@@ -1750,7 +1750,8 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 	add_subtitle(fs, sprintf("%s: %u of %u (%s)", ES"Achievements",
 		awards_unlocked, award_list_nb, percent), 0, yextra, ctn_len, "+2")
 
-	for i, award in ipairs(award_list) do
+	for i = 1, award_list_nb do
+		local award = award_list[i]
 		local y = yextra - 0.7 + i + (i * 0.3)
 
 		local def, progress = award.def, award.progress
@@ -1791,7 +1792,7 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 
 			fs(fmt("box", icon_size + 0.1, y + 0.8, box_len, 0.3, "#101010"),
 			   fmt("box", icon_size + 0.1, y + 0.8, curr_bar, 0.3, "#9dc34c"),
-			   "style_type[label;font=normal;font_size=-2]",
+			   "style_type[label;font_size=-2]",
 			   fmt("label", icon_size + 0.5, y + 0.97, sprintf("%u / %u", current, target)))
 
 			y = y - 0.14
@@ -1800,8 +1801,7 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 		fs("style_type[label;font=bold;font_size=+1]",
 		   fmt("label", icon_size + 0.2, y + 0.4, _title or title),
 		   "style_type[label;font=normal;font_size=-1]",
-		   fmt("label", icon_size + 0.2, y + 0.75, clr("#bbbbbb", _desc or desc)),
-		   "style_type[label;font=normal;font_size=+0]")
+		   fmt("label", icon_size + 0.2, y + 0.75, clr("#bbbbbb", _desc or desc)))
 	end
 end
 
@@ -1907,7 +1907,9 @@ local function get_inventory_mode(player, fs, data, full_height)
 			award_list = awards.get_award_states(name)
 			award_list_nb = #award_list
 
-			for _, award in ipairs(award_list) do
+			for i = 1, award_list_nb do
+				local award = award_list[i]
+
 				if award.unlocked then
 					awards_unlocked = awards_unlocked + 1
 				end
@@ -1951,6 +1953,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 end
 
 local function make_fs(player, data)
+	--local start = os.clock()
 	local fs = setmetatable({}, {
 		__call = function(t, ...)
 			t[#t + 1] = concat({...})
@@ -1980,6 +1983,7 @@ local function make_fs(player, data)
 		get_panels(player, fs, data)
 	end
 
+	--print("make_fs()", sprintf("%.2f ms", (os.clock() - start) * 1000))
 	return concat(fs)
 end
 
