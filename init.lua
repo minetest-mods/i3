@@ -1831,8 +1831,10 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, yext
 
 		fs(sprintf("list[detached:%s_armor;armor;0,%f;3,2;]", name, yextra + 0.6))
 
-		fs(fmt("label", 3.75, yextra + 1.55, sprintf("%s: %s", ES"Level", armor.def[name].level)),
-		   fmt("label", 3.75, yextra + 1.95, sprintf("%s: %s", ES"Heal", armor.def[name].heal)))
+		local armor_def = armor.def[name]
+
+		fs(fmt("label", 3.75, yextra + 1.55, sprintf("%s: %s", ES"Level", armor_def.level)),
+		   fmt("label", 3.75, yextra + 1.95, sprintf("%s: %s", ES"Heal", armor_def.heal)))
 	end
 
 	if __skinsdb then
