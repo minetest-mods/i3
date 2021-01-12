@@ -1962,7 +1962,6 @@ local function make_fs(player, data)
 
 	data.xoffset = ROWS + 1.2
 	local full_height = LINES + 1.73
-	local half_height = full_height / 2
 
 	fs(sprintf("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
 		MIN_FORMSPEC_VERSION, data.xoffset + (data.query_item and 8 or 0), full_height), styles)
@@ -1974,7 +1973,7 @@ local function make_fs(player, data)
 	fs(fmt("image_button", 5.15, full_height, 3, 0.5, "", "inv_mode", ES"Inventory"))
 
 	if data.inv_mode then
-		get_inventory_mode(player, fs, data, full_height, half_height)
+		get_inventory_mode(player, fs, data, full_height)
 	else
 		get_item_list(fs, data, full_height)
 	end
