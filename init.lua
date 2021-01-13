@@ -941,19 +941,20 @@ local function compress_items(player)
 	local inv = player:get_inventory()
 	local list = inv:get_list("main")
 	local size = inv:get_size("main")
-	local new_inv, _new_inv, stack_meta = {}, {}, {}
+	local new_inv, _new_inv, special = {}, {}, {}
 
 	for i = 1, size do
 		local stack = list[i]
 		local name = stack:get_name()
 		local count = stack:get_count()
+		local stackmax = stack:get_stack_max()
 		local empty = stack:is_empty()
 		local meta = stack:get_meta():to_table()
 		local wear = stack:get_wear() > 0
 
 		if not empty then
-			if next(meta.fields) or wear then
-				stack_meta[#stack_meta + 1] = stack
+			if next(meta.fields) or wear or count >= stackmax then
+				special[#special + 1] = stack
 			else
 				new_inv[name] = new_inv[name] or 0
 				new_inv[name] = new_inv[name] + count
@@ -972,8 +973,8 @@ local function compress_items(player)
 		end
 	end
 
-	for i = 1, #stack_meta do
-		_new_inv[#_new_inv + 1] = stack_meta[i]
+	for i = 1, #special do
+		_new_inv[#_new_inv + 1] = special[i]
 	end
 
 	__sort(_new_inv)
