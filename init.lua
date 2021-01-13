@@ -290,6 +290,10 @@ local function is_group(item)
 end
 
 local function fmt(elem, ...)
+	if not fs_elements[elem] then
+		return sprintf(elem, ...)
+	end
+
 	return sprintf(fs_elements[elem], ...)
 end
 
@@ -442,7 +446,7 @@ function i3.register_craft(def)
 
 	if true_str(def.url) then
 		if not http then
-			return err(sprintf([[i3.register_craft(): Unable to reach %s.
+			return err(fmt([[i3.register_craft(): Unable to reach %s.
 				No HTTP support for this mod: add it to the `secure.http_mods` or
 				`secure.trusted_mods` setting.]], def.url))
 		end
@@ -610,7 +614,7 @@ local function toupper(str)
 end
 
 local function snip(str, limit)
-	return #str > limit and sprintf("%s...", sub(str, 1, limit - 3)) or str
+	return #str > limit and fmt("%s...", sub(str, 1, limit - 3)) or str
 end
 
 local function get_desc(item, lang_code)
@@ -769,7 +773,7 @@ local function drop_table(name, drop)
 					i3.register_craft{
 						type   = rarity and "digging_chance" or "digging",
 						items  = {name},
-						output = sprintf("%s %u", dname, dcount),
+						output = fmt("%s %u", dname, dcount),
 						rarity = rarity,
 						tools  = di.tools,
 					}
@@ -915,7 +919,7 @@ local function sort_itemlist(player, az)
 			if next(meta.fields) or wear then
 				stack_meta[#stack_meta + 1] = stack
 			else
-				new_inv[#new_inv + 1] = sprintf("%s %u", name, count)
+				new_inv[#new_inv + 1] = fmt("%s %u", name, count)
 			end
 		end
 	end
@@ -963,7 +967,7 @@ local function compress_items(player)
 		local leftover = count
 
 		for _ = 1, iter do
-			_new_inv[#_new_inv + 1] = sprintf("%s %u", name, min(stackmax, leftover))
+			_new_inv[#_new_inv + 1] = fmt("%s %u", name, min(stackmax, leftover))
 			leftover = leftover - stackmax
 		end
 	end
@@ -1036,7 +1040,7 @@ local function get_stack(player, pname, stack, message)
 
 	if inv:room_for_item("main", stack) then
 		inv:add_item("main", stack)
-		msg(pname, sprintf("%s added in your inventory", message))
+		msg(pname, fmt("%s added in your inventory", message))
 	else
 		local dir     = player:get_look_dir()
 		local ppos    = player:get_pos()
@@ -1044,7 +1048,7 @@ local function get_stack(player, pname, stack, message)
 		local look_at = vec_add(ppos, vec_mul(dir, 1))
 
 		core.add_item(look_at, stack)
-		msg(pname, sprintf("%s spawned", message))
+		msg(pname, fmt("%s spawned", message))
 	end
 end
 
@@ -1054,7 +1058,7 @@ local function craft_stack(player, pname, data, craft_rcp)
 	local output = craft_rcp and data.recipes[data.rnum].output or data.usages[data.unum].output
 	output = ItemStack(output)
 	local stackname, stackcount, stackmax = output:get_name(), output:get_count(), output:get_stack_max()
-	local scrbar_val = data[sprintf("scrbar_%s", craft_rcp and "rcp" or "usg")] or 1
+	local scrbar_val = data[fmt("scrbar_%s", craft_rcp and "rcp" or "usg")] or 1
 
 	for name, count in pairs(data.export_counts[rcp_usg].rcp) do
 		local items = {[name] = count}
@@ -1079,7 +1083,7 @@ local function craft_stack(player, pname, data, craft_rcp)
 		end
 
 		for k, v in pairs(items) do
-			inv:remove_item("main", sprintf("%s %s", k, v * scrbar_val))
+			inv:remove_item("main", fmt("%s %s", k, v * scrbar_val))
 		end
 	end
 
@@ -1093,12 +1097,12 @@ local function craft_stack(player, pname, data, craft_rcp)
 		local message
 
 		if c > 1 then
-			message = clr("#ff0", sprintf("%s x %s", c, desc))
+			message = clr("#ff0", fmt("%s x %s", c, desc))
 		else
-			message = clr("#ff0", sprintf("%s", desc))
+			message = clr("#ff0", fmt("%s", desc))
 		end
 
-		local stack = ItemStack(sprintf("%s %s", stackname, c))
+		local stack = ItemStack(fmt("%s %s", stackname, c))
 		get_stack(player, pname, stack, message)
 		leftover = leftover - stackmax
 	end
@@ -1131,8 +1135,8 @@ local function select_item(player, name, data, _f)
 		if creative_enabled(name) then
 			local stack = ItemStack(item)
 			local stackmax = stack:get_stack_max()
-			stack = sprintf("%s %s", item, stackmax)
-			get_stack(player, name, stack, clr("#ff0", sprintf("%u x %s", stackmax, item)))
+			stack = fmt("%s %s", item, stackmax)
+			get_stack(player, name, stack, clr("#ff0", fmt("%u x %s", stackmax, item)))
 		end
 
 		return
@@ -1191,7 +1195,7 @@ local function get_tooltip(item, info)
 	end
 
 	local function add(str)
-		return sprintf("%s\n%s", tooltip, str)
+		return fmt("%s\n%s", tooltip, str)
 	end
 
 	if info.cooktime then
@@ -1232,8 +1236,7 @@ local function get_tooltip(item, info)
 
 		if several then
 			for i = 1, #info.tools do
-				names = sprintf("%s\t\t- %s\n",
-					names, clr("#ff0", get_desc(info.tools[i])))
+				names = fmt("%s\t\t- %s\n", names, clr("#ff0", get_desc(info.tools[i])))
 			end
 
 			tooltip = add(S("Only drop if using one of these tools: @1",
@@ -1244,7 +1247,7 @@ local function get_tooltip(item, info)
 		end
 	end
 
-	return sprintf("tooltip[%s;%s]", item, ESC(tooltip))
+	return fmt("tooltip[%s;%s]", item, ESC(tooltip))
 end
 
 local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_size, _btn_size)
@@ -1255,7 +1258,7 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 			     shapeless and "shapeless" or "furnace"
 
 		if not custom_recipe then
-			icon = sprintf("i3_%s.png^[resize:16x16", icon)
+			icon = fmt("i3_%s.png^[resize:16x16", icon)
 		end
 
 		local pos_x = right + btn_size + 0.42
@@ -1290,11 +1293,11 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 
 		fs(fmt("image", X, Y - 0.11, bt_s, bt_s, PNG.slot))
 
-		local _name = sprintf("_%s", name)
+		local _name = fmt("_%s", name)
 
 		fs(fmt("item_image_button",
 			X + 0.11, Y, ITEM_BTN_SIZE, ITEM_BTN_SIZE,
-			sprintf("%s %u", name, count * (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1)),
+			fmt("%s %u", name, count * (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1)),
 			_name, ""))
 
 		local def = reg_items[name]
@@ -1389,7 +1392,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 				end
 
 				if not added then
-					label = sprintf("%s%s\nR", label ~= "" and "\n" or "", label)
+					label = fmt("%s%s\nR", label ~= "" and "\n" or "", label)
 					replace.items[#replace.items + 1] = replacement[2]
 				end
 			end
@@ -1399,10 +1402,10 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 			fs(fmt("image", X, Y, btn_size, btn_size, PNG.slot))
 		end
 
-		local btn_name = groups and sprintf("group|%s|%s", groups[1], item) or item
+		local btn_name = groups and fmt("group|%s|%s", groups[1], item) or item
 
 		fs(fmt("item_image_button", X, Y, btn_size, btn_size,
-			sprintf("%s %u", item, is_recipe and data.scrbar_rcp or data.scrbar_usg or 1),
+			fmt("%s %u", item, is_recipe and data.scrbar_rcp or data.scrbar_usg or 1),
 			btn_name, label))
 
 		local def = reg_items[name]
@@ -1448,8 +1451,8 @@ local function get_rcp_lbl(fs, data, panel, rn, is_recipe)
 
 	if rn > 1 then
 		local btn_suffix = is_recipe and "recipe" or "usage"
-		local prev_name = sprintf("prev_%s", btn_suffix)
-		local next_name = sprintf("next_%s", btn_suffix)
+		local prev_name = fmt("prev_%s", btn_suffix)
+		local next_name = fmt("next_%s", btn_suffix)
 		local x_arrow = data.xoffset + 5.09
 		local y_arrow = data.yoffset + 3.2
 
@@ -1481,19 +1484,19 @@ local function get_model_fs(fs, data, def, model_alias)
 
 		if v.color then
 			if is_num(v.color) then
-				local hex = sprintf("%02x", v.color)
+				local hex = fmt("%02x", v.color)
 
 				while #hex < 8 do
 					hex = "0" .. hex
 				end
 
-				_name = sprintf("%s^[multiply:%s", v.name,
-					sprintf("#%s%s", sub(hex, 3), sub(hex, 1, 2)))
+				_name = fmt("%s^[multiply:%s", v.name,
+					fmt("#%s%s", sub(hex, 3), sub(hex, 1, 2)))
 			else
-				_name = sprintf("%s^[multiply:%s", v.name, v.color)
+				_name = fmt("%s^[multiply:%s", v.name, v.color)
 			end
 		elseif v.animation then
-			_name = sprintf("%s^[verticalframe:%u:0", v.name, v.animation.aspect_h)
+			_name = fmt("%s^[verticalframe:%u:0", v.name, v.animation.aspect_h)
 		end
 
 		t[#t + 1] = _name or v.name or v
@@ -1515,17 +1518,17 @@ local function get_header(fs, data)
 	local star_x, star_y, star_size = data.xoffset + 0.4, data.yoffset + 0.5, 0.4
 
 	if nfavs < MAX_FAVS or (nfavs == MAX_FAVS and fav) then
-		local fav_marked = sprintf("i3_fav%s.png", fav and "_off" or "")
+		local fav_marked = fmt("i3_fav%s.png", fav and "_off" or "")
 
-		fs(sprintf("style[fav;fgimg=%s;fgimg_hovered=%s;fgimg_pressed=%s]",
-			sprintf("i3_fav%s.png", fav and "" or "_off"), fav_marked, fav_marked),
+		fs(fmt("style[fav;fgimg=%s;fgimg_hovered=%s;fgimg_pressed=%s]",
+			fmt("i3_fav%s.png", fav and "" or "_off"), fav_marked, fav_marked),
 		   fmt("image_button", star_x, star_y, star_size, star_size, "", "fav", ""),
-		   sprintf("tooltip[fav;%s]", fav and ES"Unmark this item" or ES"Mark this item"))
+		   fmt("tooltip[fav;%s]", fav and ES"Unmark this item" or ES"Mark this item"))
 	else
-		fs(sprintf("style[nofav;fgimg=%s;fgimg_hovered=%s;fgimg_pressed=%s]",
+		fs(fmt("style[nofav;fgimg=%s;fgimg_hovered=%s;fgimg_pressed=%s]",
 			"i3_fav_off.png", PNG.cancel, PNG.cancel),
 		   fmt("image_button", star_x, star_y, star_size, star_size, "", "nofav", ""),
-		   sprintf("tooltip[nofav;%s]", ES"Cannot mark this item. Bookmark limit reached."))
+		   fmt("tooltip[nofav;%s]", ES"Cannot mark this item. Bookmark limit reached."))
 	end
 
 	local desc_lim, name_lim = 32, 34
@@ -1563,11 +1566,11 @@ local function get_export_fs(fs, data, panel, is_recipe, is_usage, max_stacks_rc
 	local name = is_recipe and "rcp" or "usg"
 	local show_export = (is_recipe and data.export_rcp) or (is_usage and data.export_usg)
 
-	fs(sprintf("style[export_%s;fgimg=%s;fgimg_hovered=%s]",
-		name, sprintf("%s", show_export and PNG.export_hover or PNG.export), PNG.export_hover),
+	fs(fmt("style[export_%s;fgimg=%s;fgimg_hovered=%s]",
+		name, fmt("%s", show_export and PNG.export_hover or PNG.export), PNG.export_hover),
 	   fmt("image_button",
-		data.xoffset + 7.35, data.yoffset + 0.2, 0.45, 0.45, "", sprintf("export_%s", name), ""),
-	   sprintf("tooltip[export_%s;%s]", name, ES"Quick crafting"))
+		data.xoffset + 7.35, data.yoffset + 0.2, 0.45, 0.45, "", fmt("export_%s", name), ""),
+	   fmt("tooltip[export_%s;%s]", name, ES"Quick crafting"))
 
 	if not show_export then return end
 
@@ -1584,13 +1587,11 @@ local function get_export_fs(fs, data, panel, is_recipe, is_usage, max_stacks_rc
 		end
 	end
 
-	fs(sprintf("style[scrbar_%s;noclip=true]", name),
-	   sprintf("scrollbaroptions[min=1;max=%u;smallstep=1]", craft_max),
-	   fmt("scrollbar",
-		data.xoffset + 8.1, data.yoffset, 3, 0.35, sprintf("scrbar_%s", name), stack_fs),
-	   fmt("button", data.xoffset + 8.1, data.yoffset + 0.4, 3, 0.7, sprintf("craft_%s", name),
-		sprintf("%s", sprintf(stack_fs > 1 and ES"Craft %u items" or ES"Craft %u item",
-			stack_fs))))
+	fs(fmt("style[scrbar_%s;noclip=true]", name),
+	   fmt("scrollbaroptions[min=1;max=%u;smallstep=1]", craft_max),
+	   fmt("scrollbar", data.xoffset + 8.1, data.yoffset, 3, 0.35, fmt("scrbar_%s", name), stack_fs),
+	   fmt("button", data.xoffset + 8.1, data.yoffset + 0.4, 3, 0.7, fmt("craft_%s", name),
+		fmt("%s", fmt(stack_fs > 1 and ES"Craft %u items" or ES"Craft %u item", stack_fs))))
 end
 
 local function get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
@@ -1626,8 +1627,7 @@ local function get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
 		get_rcp_lbl(fs, data, panel, rn, is_recipe)
 	else
 		local lbl = is_recipe and ES"No recipes" or ES"No usages"
-		fs(fmt("button",
-			data.xoffset + 0.1, data.yoffset + (panel.height / 2) - 0.5,
+		fs(fmt("button", data.xoffset + 0.1, data.yoffset + (panel.height / 2) - 0.5,
 			7.8, 1, "no_rcp", lbl))
 	end
 end
@@ -1685,7 +1685,7 @@ local function get_item_list(fs, data, full_height)
 	local filtered = data.filter ~= ""
 
 	fs("box[0.2,0.2;4.55,0.6;#bababa25]", "set_focus[filter]")
-	fs(sprintf("field[0.3,0.2;%f,0.6;filter;;%s]", filtered and 3.45 or 3.9, ESC(data.filter)))
+	fs(fmt("field[0.3,0.2;%f,0.6;filter;;%s]", filtered and 3.45 or 3.9, ESC(data.filter)))
 	fs("field_close_on_enter[filter;false]")
 
 	if filtered then
@@ -1699,9 +1699,8 @@ local function get_item_list(fs, data, full_height)
 
 	data.pagemax = max(1, ceil(#data.items / IPP))
 
-	fs(fmt("button",
-		data.xoffset - 2.4, 0.14, 1.88, 0.7, "pagenum",
-		sprintf("%s / %u", clr("#ff0", data.pagenum), data.pagemax)))
+	fs(fmt("button", data.xoffset - 2.4, 0.14, 1.88, 0.7, "pagenum",
+		fmt("%s / %u", clr("#ff0", data.pagenum), data.pagemax)))
 
 	if #data.items == 0 then
 		local lbl = ES"No item to show"
@@ -1729,12 +1728,12 @@ local function get_item_list(fs, data, full_height)
 			fs(fmt("image", X, Y, 1, 1, PNG.slot))
 		end
 
-		fs(fmt("item_image_button", X, Y, 1, 1, item, sprintf("%s_inv", item), ""))
+		fs(fmt("item_image_button", X, Y, 1, 1, item, fmt("%s_inv", item), ""))
 	end
 end
 
 local function add_subtitle(fs, title, x, y, ctn_len, font_size)
-	fs(sprintf("style_type[label;font=bold;font_size=%s]", font_size), fmt("label", x, y, title),
+	fs(fmt("style_type[label;font=bold;font_size=%s]", font_size), fmt("label", x, y, title),
 	   "style_type[label;font=normal;font_size=+0]", fmt("box", x, y + 0.3, ctn_len, 0.05, "#666"))
 end
 
@@ -1745,9 +1744,9 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 		yextra = yextra + 3.5
 	end
 
-	local percent = sprintf("%.1f%%", (awards_unlocked * 100) / award_list_nb):gsub(".0", "")
+	local percent = fmt("%.1f%%", (awards_unlocked * 100) / award_list_nb):gsub(".0", "")
 
-	add_subtitle(fs, sprintf("%s: %u of %u (%s)", ES"Achievements",
+	add_subtitle(fs, fmt("%s: %u of %u (%s)", ES"Achievements",
 		awards_unlocked, award_list_nb, percent), 0, yextra, ctn_len, "+2")
 
 	for i = 1, award_list_nb do
@@ -1780,7 +1779,7 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 		local icon = def.icon or "awards_unknown.png"
 
 		if not award.unlocked then
-			icon = sprintf("%s^\\[colorize:#000:180", icon)
+			icon = fmt("%s^\\[colorize:#000:180", icon)
 		end
 
 		fs(fmt("image", 0, y + 0.01, icon_size, icon_size, icon),
@@ -1793,7 +1792,7 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 			fs(fmt("box", icon_size + 0.1, y + 0.8, box_len, 0.3, "#101010"),
 			   fmt("box", icon_size + 0.1, y + 0.8, curr_bar, 0.3, "#9dc34c"),
 			   "style_type[label;font_size=-2]",
-			   fmt("label", icon_size + 0.5, y + 0.97, sprintf("%u / %u", current, target)))
+			   fmt("label", icon_size + 0.5, y + 0.97, fmt("%u / %u", current, target)))
 
 			y = y - 0.14
 		end
@@ -1820,22 +1819,22 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 			(half == 1 and i == floor(hearts)) and "i3_heart_half.png" or "i3_heart.png"))
 	end
 
-	fs(sprintf("list[current_player;craft;%f,%f;3,3;]", xoffset, yoffset + 1.45),
+	fs(fmt("list[current_player;craft;%f,%f;3,3;]", xoffset, yoffset + 1.45),
 	   fmt("image", xoffset + 3.64, yoffset + 2.88, 0.7, 0.7, PNG.arrow),
-	   sprintf("list[current_player;craftpreview;%f,%f;1,1;]", xoffset + 4.45, yoffset + 2.7),
+	   fmt("list[current_player;craftpreview;%f,%f;1,1;]", xoffset + 4.45, yoffset + 2.7),
 	   "listring[detached:i3_trash;main]",
-	   sprintf("list[detached:i3_trash;main;%f,%f;1,1;]", xoffset + 4.45, yoffset + 3.95),
+	   fmt("list[detached:i3_trash;main;%f,%f;1,1;]", xoffset + 4.45, yoffset + 3.95),
 	   fmt("image", xoffset + 4.45, yoffset + 3.95, 1, 1, PNG.trash))
 
 	if __3darmor then
 		add_subtitle(fs, ES"Armor", 0, yextra, ctn_len, "+2")
 
-		fs(sprintf("list[detached:%s_armor;armor;0,%f;3,2;]", name, yextra + 0.6))
+		fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", name, yextra + 0.6))
 
 		local armor_def = armor.def[name]
 
-		fs(fmt("label", 3.75, yextra + 1.55, sprintf("%s: %s", ES"Level", armor_def.level)),
-		   fmt("label", 3.75, yextra + 1.95, sprintf("%s: %s", ES"Heal", armor_def.heal)))
+		fs(fmt("label", 3.75, yextra + 1.55, fmt("%s: %s", ES"Level", armor_def.level)),
+		   fmt("label", 3.75, yextra + 1.95, fmt("%s: %s", ES"Heal", armor_def.heal)))
 	end
 
 	if __skinsdb then
@@ -1850,7 +1849,7 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 
 		add_subtitle(fs, ES"Skins", 0, yextra, ctn_len, "+2")
 
-		fs(sprintf("dropdown[0,%f;3.55,0.6;skins;%s;%u;true]",
+		fs(fmt("dropdown[0,%f;3.55,0.6;skins;%s;%u;true]",
 			yextra + 0.6, concat(t, ","), data.skin_id or 1))
 	end
 
@@ -1880,7 +1879,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 
 		fs(fmt("model", (__3darmor or __skinsdb) and 0.2 or 0, 0.2, 4, 5.5, "player_model",
 			props.mesh, concat(props.textures, ","), "0,-150", "false", "false",
-			sprintf("%u,%u", anim.x, anim.y)))
+			fmt("%u,%u", anim.x, anim.y)))
 	else
 		local size = 2.5
 		fs(fmt("image", 0.7, 0.2, size, size * props.visual_size.y, props.textures[1]))
@@ -1921,14 +1920,14 @@ local function get_inventory_mode(player, fs, data, full_height)
 			max_val = max_val + (award_list_nb * 13.2)
 		end
 
-		fs(sprintf([[
+		fs(fmt([[
 			scrollbaroptions[arrows=hide;thumbsize=%u;max=%u]
 			scrollbar[9.69,0.2;0.3,5.5;vertical;scrbar_inv;%u]
 			scrollbaroptions[arrows=default;thumbsize=0;max=1000]
 		]],
 		(max_val * 3) / 15, max_val, data.scrbar_inv or 0))
 
-		fs(sprintf("scroll_container[3.9,0.2;%f,5.5;scrbar_inv;vertical]", ctn_len))
+		fs(fmt("scroll_container[3.9,0.2;%f,5.5;scrbar_inv;vertical]", ctn_len))
 	end
 
 	get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, award_list, awards_unlocked,
@@ -1951,7 +1950,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 		fs(fmt("image_button", i + 3.447 - (i * 0.4),
 			full_height - 0.6, 0.35, 0.35, "", btn_name, ""))
 
-		fs(sprintf("tooltip[%s;%s]", btn_name, tooltip))
+		fs(fmt("tooltip[%s;%s]", btn_name, tooltip))
 	end
 end
 
@@ -1966,11 +1965,11 @@ local function make_fs(player, data)
 	data.xoffset = ROWS + 1.2
 	local full_height = LINES + 1.73
 
-	fs(sprintf("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
+	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
 		MIN_FORMSPEC_VERSION, data.xoffset + (data.query_item and 8 or 0), full_height), styles)
 
-	fs(sprintf("style[guide_mode;fgimg=%s]", data.inv_mode and PNG.tab or PNG.tab_hover))
-	fs(sprintf("style[inv_mode;fgimg=%s]", data.inv_mode and PNG.tab_hover or PNG.tab))
+	fs(fmt("style[guide_mode;fgimg=%s]", data.inv_mode and PNG.tab or PNG.tab_hover))
+	fs(fmt("style[inv_mode;fgimg=%s]", data.inv_mode and PNG.tab_hover or PNG.tab))
 
 	fs(fmt("image_button", 2.05, full_height, 3, 0.5, "", "guide_mode", ES"Crafting Guide"))
 	fs(fmt("image_button", 5.15, full_height, 3, 0.5, "", "inv_mode", ES"Inventory"))
@@ -1985,7 +1984,7 @@ local function make_fs(player, data)
 		get_panels(player, fs, data)
 	end
 
-	--print("make_fs()", sprintf("%.2f ms", (os.clock() - start) * 1000))
+	--print("make_fs()", fmt("%.2f ms", (os.clock() - start) * 1000))
 	return concat(fs)
 end
 
@@ -2097,7 +2096,7 @@ local function search(data)
 		local item = data.items_raw[i]
 		local def = reg_items[item]
 		local desc = lower(translate(data.lang_code, def and def.description)) or ""
-		local search_in = sprintf("%s %s", item, desc)
+		local search_in = fmt("%s %s", item, desc)
 		local to_add
 
 		if search_filter then
