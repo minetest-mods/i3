@@ -1983,7 +1983,7 @@ local function make_fs(player, data)
 		get_item_list(fs, data, full_height)
 	end
 
-	if not is_creative and data.query_item then
+	if data.query_item then
 		get_panels(player, fs, data)
 	end
 
@@ -2293,13 +2293,6 @@ local function init_data(player, name)
 	data.skin_id = tonum(dslz(meta:get_string "skin_id") or 1)
 
 	if data.fs_version < MIN_FORMSPEC_VERSION then return end
-
-	if progressive_mode then
-		data.inv_items = {}
-		local items = get_filtered_items(player, data)
-		data.items_raw = items
-		search(data)
-	end
 
 	after(0, set_fs, player)
 end
@@ -2676,11 +2669,15 @@ if progressive_mode then
 
 	on_joinplayer(function(player)
 		local name = player:get_player_name()
-		local data = pdata[name]
 		local meta = player:get_meta()
+		local data = pdata[name]
 
 		data.inv_items = dslz(meta:get_string "inv_items") or {}
 		data.known_recipes = dslz(meta:get_string "known_recipes") or 0
+
+		local items = get_filtered_items(player, data)
+		data.items_raw = items
+		search(data)
 
 		if singleplayer then
 			init_hud(player, data)
