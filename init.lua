@@ -2275,7 +2275,6 @@ end
 
 local function init_data(player, name)
 	local info = get_player_info(name)
-	local meta = player:get_meta()
 
 	pdata[name] = {
 		filter        = "",
@@ -2290,7 +2289,11 @@ local function init_data(player, name)
 	}
 
 	local data = pdata[name]
-	data.skin_id = tonum(dslz(meta:get_string "skin_id") or 1)
+
+	if __skinsdb then
+		local meta = player:get_meta()
+		data.skin_id = tonum(dslz(meta:get_string "skin_id") or 1)
+	end
 
 	if data.fs_version < MIN_FORMSPEC_VERSION then return end
 
