@@ -1828,7 +1828,7 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 	if __3darmor then
 		add_subtitle(fs, ES"Armor", 0, yextra, ctn_len, "+2")
 
-		fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", name, yextra + 0.6))
+		fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", ESC(name), yextra + 0.6))
 
 		local armor_def = armor.def[name]
 
@@ -1898,10 +1898,10 @@ local function get_inventory_mode(player, fs, data, full_height)
 
 		if __3darmor then
 			max_val = max_val + 15
-		end
 
-		if __skinsdb then
-			max_val = max_val + 20
+			if __skinsdb then
+				max_val = max_val + 20
+			end
 		end
 
 		if __awards then
