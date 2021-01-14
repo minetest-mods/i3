@@ -1132,17 +1132,15 @@ local function select_item(player, name, data, _f)
 	item = reg_aliases[item] or item
 	if not reg_items[item] then return end
 
-	if item == data.query_item then
-		if creative_enabled(name) then
-			local stack = ItemStack(item)
-			local stackmax = stack:get_stack_max()
-			stack = fmt("%s %s", item, stackmax)
-			get_stack(player, name, stack, clr("#ff0", fmt("%u x %s", stackmax, item)))
-		end
-
+	if creative_enabled(name) then
+		local stack = ItemStack(item)
+		local stackmax = stack:get_stack_max()
+		stack = fmt("%s %s", item, stackmax)
+		get_stack(player, name, stack, clr("#ff0", fmt("%u x %s", stackmax, item)))
 		return
 	end
 
+	if item == data.query_item then return end
 	local recipes, usages = get_recipes(item, data, player)
 
 	data.query_item = item
@@ -1966,13 +1964,17 @@ local function make_fs(player, data)
 	data.xoffset = ROWS + 1.2
 	local full_height = LINES + 1.73
 
+	local name = player:get_player_name()
+	local is_creative = creative_enabled(name)
+
 	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
 		MIN_FORMSPEC_VERSION, data.xoffset + (data.query_item and 8 or 0), full_height), styles)
 
 	fs(fmt("style[guide_mode;fgimg=%s]", data.inv_mode and PNG.tab or PNG.tab_hover))
 	fs(fmt("style[inv_mode;fgimg=%s]", data.inv_mode and PNG.tab_hover or PNG.tab))
 
-	fs(fmt("image_button", 2.05, full_height, 3, 0.5, "", "guide_mode", ES"Crafting Guide"))
+	fs(fmt("image_button", 2.05, full_height, 3, 0.5, "", "guide_mode",
+		is_creative and ES"Items" or ES"Crafting Guide"))
 	fs(fmt("image_button", 5.15, full_height, 3, 0.5, "", "inv_mode", ES"Inventory"))
 
 	if data.inv_mode then
@@ -1981,7 +1983,7 @@ local function make_fs(player, data)
 		get_item_list(fs, data, full_height)
 	end
 
-	if data.query_item then
+	if not is_creative and data.query_item then
 		get_panels(player, fs, data)
 	end
 
@@ -2293,6 +2295,7 @@ local function init_data(player, name)
 	if data.fs_version < MIN_FORMSPEC_VERSION then return end
 
 	if progressive_mode then
+		data.inv_items = {}
 		local items = get_filtered_items(player, data)
 		data.items_raw = items
 		search(data)
