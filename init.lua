@@ -1916,7 +1916,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 				end
 			end
 
-			max_val = max_val + (award_list_nb * 13.2)
+			max_val = max_val + (award_list_nb * (12.9 + ((__3darmor or __skinsdb) and 0.25 or 0)))
 		end
 
 		fs(fmt([[
