@@ -1888,7 +1888,7 @@ local function get_inventory_mode(player, fs, data, full_height)
 
 	local extras = __3darmor or __skinsdb or __awards
 
-	local ctn_len = extras and 5.6 or 5.45
+	local ctn_len = 5.6
 	local xoffset = extras and 0 or 4.4
 	local yoffset = extras and 0 or 0.2
 
@@ -1963,7 +1963,7 @@ local function make_fs(player, data)
 		end
 	})
 
-	data.xoffset = ROWS + 1.2
+	data.xoffset = ROWS + 1.23
 	local full_height = LINES + 1.73
 
 	local name = player:get_player_name()
@@ -1991,7 +1991,7 @@ local function make_fs(player, data)
 
 	--[[
 	local spacing = 0.2
-	for x = 0, data.xoffset - spacing, spacing do
+	for x = 0, data.xoffset, spacing do
 		fs(fmt("box", x, 0, 0.01, full_height, "#f00"))
 	end
 	for y = 0, full_height, spacing do
