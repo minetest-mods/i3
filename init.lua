@@ -1860,14 +1860,16 @@ end
 local function get_inventory_mode(player, fs, data, full_height)
 	fs(fmt("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10))
 
+	local inv_x = 0.234
+
 	for i = 0, 7 do
-		fs(fmt("image", i + 0.234 + (i * 0.25), 6.1, 1, 1, "i3_hb_bg.png"))
+		fs(fmt("image", i + inv_x + (i * 0.25), 6.1, 1, 1, "i3_hb_bg.png"))
 	end
 
 	fs("listcolors[#bababa50;#bababa99]",
 	   "listring[current_player;main]",
-	   "list[current_player;main;0.234,6.1;8,1;]",
-	   "list[current_player;main;0.234,7.4;8,3;8]")
+	   fmt("list[current_player;main;%f,6.1;8,1;]", inv_x),
+	   fmt("list[current_player;main;%f,7.4;8,3;8]", inv_x))
 
 	local props = player:get_properties()
 	local name = player:get_player_name()
@@ -1986,6 +1988,19 @@ local function make_fs(player, data)
 	if data.query_item then
 		get_panels(player, fs, data)
 	end
+
+	--[[
+	local spacing = 0.2
+	for x = 0, data.xoffset - spacing, spacing do
+		fs(fmt("box", x, 0, 0.01, full_height, "#f00"))
+	end
+	for y = 0, full_height, spacing do
+		fs(fmt("box", 0, y, data.xoffset, 0.01, "#f00"))
+	end
+
+	fs(fmt("box", data.xoffset / 2, 0, 0.01, full_height, "#ff0"))
+	fs(fmt("box", 0, full_height / 2, data.xoffset, 0.01, "#ff0"))
+	]]
 
 	--print("make_fs()", fmt("%.2f ms", (os.clock() - start) * 1000))
 	return concat(fs)
