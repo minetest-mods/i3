@@ -1958,6 +1958,18 @@ end
 local set_fs = i3.set_fs
 
 function i3.new_tab(def)
+	if not is_table(def) or not next(def) then
+		return err "i3.new_tab(): tab definition missing"
+	end
+
+	if not true_str(def.name) then
+		return err "i3.new_tab(): name missing"
+	end
+
+	if not true_str(def.description) then
+		return err "i3.new_tab(): description missing"
+	end
+
 	if #tabs < 6 then
 		tabs[#tabs + 1] = def
 	end
