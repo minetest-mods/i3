@@ -2328,6 +2328,7 @@ local trash = core.create_detached_inventory("i3_trash", {
 		inv:set_list(listname, {})
 
 		local name = player:get_player_name()
+
 		if not creative_enabled(name) then
 			set_fs(player)
 		end
@@ -2336,10 +2337,13 @@ local trash = core.create_detached_inventory("i3_trash", {
 
 trash:set_size("main", 1)
 
-core.register_on_player_inventory_action(function(player, action, inv, info)
-	if (info.from_list == "main"  and info.to_list == "craft") or
-	   (info.from_list == "craft" and info.to_list == "main") or
-	   (info.from_list == "craftresult" and info.to_list == "main") then
+core.register_on_player_inventory_action(function(player, _, _, info)
+	local name = player:get_player_name()
+
+	if not creative_enabled(name) and
+	  ((info.from_list == "main"  and info.to_list == "craft") or
+	   (info.from_list == "craft" and info.to_list == "main")  or
+	   (info.from_list == "craftresult" and info.to_list == "main")) then
 		set_fs(player)
 	end
 end)
