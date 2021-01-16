@@ -2326,7 +2326,11 @@ local trash = core.create_detached_inventory("i3_trash", {
 	end,
 	on_put = function(inv, listname, index, stack, player)
 		inv:set_list(listname, {})
-		set_fs(player)
+
+		local name = player:get_player_name()
+		if not creative_enabled(name) then
+			set_fs(player)
+		end
 	end,
 })
 
