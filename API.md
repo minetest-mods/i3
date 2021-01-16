@@ -220,14 +220,6 @@ Returns a map of search filters, indexed by name.
 
 ### Miscellaneous
 
-#### `i3.show(player_name, item, show_usages)`
-
-Opens the Crafting Guide with the current filter applied.
-
-   * `player_name`: string param.
-   * `item`: optional, string param. If set, this item is pre-selected. If the item does not exist or has no recipe, use the player's previous selection. By default, player's previous selection is used
-   * `show_usages`: optional, boolean param. If true, show item usages.
-
 #### `i3.group_stereotypes`
 
 This is the table indexing the item groups by stereotypes.
