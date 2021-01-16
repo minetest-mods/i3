@@ -8,7 +8,7 @@ Custom tabs can be added to the `i3` inventory as follow (example):
 i3.new_tab {
 	name = "stuff",
 	description = "Stuff",
-	image = "image.png", -- Optional, adds an image inside the tab
+	image = "image.png", -- Optional, adds an image next to the tab description
 
 	-- Determine if the tab is visible by a player, `false` or `nil` hide the tab
 	access = function(player, data)
