@@ -1826,10 +1826,15 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 	local hearts = (hp / 2) + half
 	local yextra = 5.6
 
-	for i = 1, hearts do
-		fs(fmt("image", xoffset + ((i - 1) * 0.4), yoffset + 0.7, 0.4, 0.4,
-			(half == 1 and i == floor(hearts)) and PNG.heart_half or
-				(damage_enabled and PNG.heart or PNG.heart_grey)))
+	for i = 1, 10 do
+		fs(fmt("image", xoffset + ((i - 1) * 0.4), yoffset + 0.7, 0.4, 0.4, PNG.heart_grey))
+	end
+
+	if damage_enabled then
+		for i = 1, hearts do
+			fs(fmt("image", xoffset + ((i - 1) * 0.4), yoffset + 0.7, 0.4, 0.4,
+				(half == 1 and i == floor(hearts)) and PNG.heart_half or PNG.heart))
+		end
 	end
 
 	fs(fmt("list[current_player;craft;%f,%f;3,3;]", xoffset, yoffset + 1.45),
