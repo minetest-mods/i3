@@ -13,6 +13,7 @@ local toolrepair
 local tabs = {}
 
 local progressive_mode = core.settings:get_bool "i3_progressive_mode"
+local damage_enabled = core.settings:get_bool "enable_damage"
 local __3darmor, __skinsdb, __awards
 
 local http = core.request_http_api()
@@ -82,6 +83,9 @@ local PNG = {
 	bg = "i3_bg.png",
 	bg_full = "i3_bg_full.png",
 	search = "i3_search.png",
+	heart = "i3_heart.png",
+	heart_half = "i3_heart_half.png",
+	heart_grey = "i3_heart_grey.png",
 	prev = "i3_next.png^\\[transformFX",
 	next = "i3_next.png",
 	arrow = "i3_arrow.png",
@@ -1817,14 +1821,15 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 	local name = player:get_player_name()
 	add_subtitle(fs, ESC(name), xoffset, yoffset + 0.2, ctn_len, "+6")
 
-	local hp = data.hp or player:get_hp()
+	local hp = damage_enabled and (data.hp or player:get_hp()) or 20
 	local half = ceil((hp / 2) % 1)
 	local hearts = (hp / 2) + half
 	local yextra = 5.6
 
 	for i = 1, hearts do
 		fs(fmt("image", xoffset + ((i - 1) * 0.4), yoffset + 0.7, 0.4, 0.4,
-			(half == 1 and i == floor(hearts)) and "i3_heart_half.png" or "i3_heart.png"))
+			(half == 1 and i == floor(hearts)) and PNG.heart_half or
+				(damage_enabled and PNG.heart or PNG.heart_grey)))
 	end
 
 	fs(fmt("list[current_player;craft;%f,%f;3,3;]", xoffset, yoffset + 1.45),
