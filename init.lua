@@ -10,6 +10,8 @@ local fuel_cache    = {}
 local replacements  = {fuel = {}}
 local toolrepair
 
+local tabs = {}
+
 local progressive_mode = core.settings:get_bool "i3_progressive_mode"
 local __3darmor, __skinsdb, __awards
 
@@ -95,6 +97,7 @@ local PNG = {
 	export = "i3_export.png",
 	slot = "i3_slot.png",
 	tab = "i3_tab.png",
+	tab_top = "i3_tab.png^\\[transformFY",
 	furnace_anim = "i3_furnace_anim.png",
 
 	cancel_hover = "i3_cancel.png^\\[brighten",
@@ -107,6 +110,7 @@ local PNG = {
 	prev_hover = "i3_next_hover.png^\\[transformFX",
 	next_hover = "i3_next_hover.png",
 	tab_hover = "i3_tab_hover.png",
+	tab_hover_top = "i3_tab_hover.png^\\[transformFY",
 }
 
 local fs_elements = {
@@ -142,8 +146,6 @@ local styles = sprintf([[
 	style[next_recipe;fgimg=%s;fgimg_hovered=%s]
 	style[prev_usage;fgimg=%s;fgimg_hovered=%s]
 	style[next_usage;fgimg=%s;fgimg_hovered=%s]
-	style[guide_mode,inv_mode;fgimg_hovered=%s;fgimg_middle=14;noclip=true;font_size=+0;
-	      content_offset=0;sound=i3_tab]
 	style[pagenum,no_item,no_rcp;border=false;font=bold;font_size=+2;content_offset=0]
 	style[craft_rcp,craft_usg;border=false;noclip=true;font_size=+0;sound=i3_craft;
 	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
@@ -161,8 +163,7 @@ PNG.next,     PNG.next_hover,
 PNG.prev,     PNG.prev_hover,
 PNG.next,     PNG.next_hover,
 PNG.prev,     PNG.prev_hover,
-PNG.next,     PNG.next_hover,
-PNG.tab_hover)
+PNG.next,     PNG.next_hover)
 
 local function get_lang_code(info)
 	return info and info.lang_code
@@ -707,6 +708,66 @@ end
 local function show_item(def)
 	return def and def.groups.not_in_creative_inventory ~= 1 and
 		def.description and def.description ~= ""
+end
+
+local function search(data)
+	local filter = data.filter
+
+	if searches[filter] then
+		data.items = searches[filter]
+		return
+	end
+
+	local opt = "^(.-)%+([%w_]+)=([%w_,]+)"
+	local search_filter = next(search_filters) and match(filter, opt)
+	local filters = {}
+
+	if search_filter then
+		for filter_name, values in gmatch(filter, sub(opt, 6)) do
+			if search_filters[filter_name] then
+				values = split(values, ",")
+				filters[filter_name] = values
+			end
+		end
+	end
+
+	local filtered_list, c = {}, 0
+
+	for i = 1, #data.items_raw do
+		local item = data.items_raw[i]
+		local def = reg_items[item]
+		local desc = lower(translate(data.lang_code, def and def.description)) or ""
+		local search_in = fmt("%s %s", item, desc)
+		local to_add
+
+		if search_filter then
+			for filter_name, values in pairs(filters) do
+				if values then
+					local func = search_filters[filter_name]
+					to_add = func(item, values) and (search_filter == "" or
+						find(search_in, search_filter, 1, true))
+				end
+			end
+		else
+			to_add = find(search_in, filter, 1, true)
+		end
+
+		if to_add then
+			c = c + 1
+			filtered_list[c] = item
+		end
+	end
+
+	if not next(recipe_filters) then
+		-- Cache the results only if searched 2 times
+		if searches[filter] == nil then
+			searches[filter] = false
+		else
+			searches[filter] = filtered_list
+		end
+	end
+
+	data.items = filtered_list
 end
 
 local function get_usages(recipe)
@@ -1257,7 +1318,7 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 			     shapeless and "shapeless" or "furnace"
 
 		if not custom_recipe then
-			icon = fmt("i3_%s.png^[resize:16x16", icon)
+			icon = fmt("i3_%s.png^\\[resize:16x16", icon)
 		end
 
 		local pos_x = right + btn_size + 0.42
@@ -1593,7 +1654,7 @@ local function get_export_fs(fs, data, panel, is_recipe, is_usage, max_stacks_rc
 		fmt("%s", fmt(stack_fs > 1 and ES"Craft %u items" or ES"Craft %u item", stack_fs))))
 end
 
-local function get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
+local function get_rcp_extra(player, data, fs, panel, is_recipe, is_usage)
 	local rn = panel.rcp and #panel.rcp
 
 	if rn then
@@ -1647,7 +1708,7 @@ local function get_favs(fs, data)
 	end
 end
 
-local function get_panels(player, fs, data)
+local function get_panels(player, data, fs)
 	local _title   = {name = "title", height = 1.4}
 	local _favs    = {name = "favs",  height = 2.23}
 	local _recipes = {name = "recipes", rcp = data.recipes, height = 3.9}
@@ -1669,65 +1730,12 @@ local function get_panels(player, fs, data)
 		local is_recipe, is_usage = panel.name == "recipes", panel.name == "usages"
 
 		if is_recipe or is_usage then
-			get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
+			get_rcp_extra(player, data, fs, panel, is_recipe, is_usage)
 		elseif panel.name == "title" then
 			get_header(fs, data)
 		elseif panel.name == "favs" then
 			get_favs(fs, data)
 		end
-	end
-end
-
-local function get_item_list(fs, data, full_height)
-	fs(fmt("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10))
-
-	local filtered = data.filter ~= ""
-
-	fs("box[0.2,0.2;4.55,0.6;#bababa25]", "set_focus[filter]")
-	fs(fmt("field[0.3,0.2;%f,0.6;filter;;%s]", filtered and 3.45 or 3.9, ESC(data.filter)))
-	fs("field_close_on_enter[filter;false]")
-
-	if filtered then
-		fs(fmt("image_button", 3.75, 0.35, 0.3, 0.3, "", "cancel", ""))
-	end
-
-	fs(fmt("image_button", 4.25, 0.32, 0.35, 0.35, "", "search", ""))
-
-	fs(fmt("image_button", data.xoffset - 2.73, 0.3, 0.35, 0.35, "", "prev_page", ""),
-	   fmt("image_button", data.xoffset - 0.55, 0.3, 0.35, 0.35, "", "next_page", ""))
-
-	data.pagemax = max(1, ceil(#data.items / IPP))
-
-	fs(fmt("button", data.xoffset - 2.4, 0.14, 1.88, 0.7, "pagenum",
-		fmt("%s / %u", clr("#ff0", data.pagenum), data.pagemax)))
-
-	if #data.items == 0 then
-		local lbl = ES"No item to show"
-
-		if next(recipe_filters) and #init_items > 0 and data.filter == "" then
-			lbl = ES"Collect items to reveal more recipes"
-		end
-
-		fs(fmt("button", 0, 3, data.xoffset, 1, "no_item", lbl))
-	end
-
-	local first_item = (data.pagenum - 1) * IPP
-
-	for i = first_item, first_item + IPP - 1 do
-		local item = data.items[i + 1]
-		if not item then break end
-
-		local X = i % ROWS
-		X = X + (X * 0.1) + 0.2
-
-		local Y = floor((i % IPP - X) / ROWS + 1)
-		Y = Y + (Y * 0.06) + 1
-
-		if data.query_item == item then
-			fs(fmt("image", X, Y, 1, 1, PNG.slot))
-		end
-
-		fs(fmt("item_image_button", X, Y, 1, 1, item, fmt("%s_inv", item), ""))
 	end
 end
 
@@ -1799,7 +1807,8 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 		fs("style_type[label;font=bold;font_size=+1]",
 		   fmt("label", icon_size + 0.2, y + 0.4, _title or title),
 		   "style_type[label;font=normal;font_size=-1]",
-		   fmt("label", icon_size + 0.2, y + 0.75, clr("#bbbbbb", _desc or desc)))
+		   fmt("label", icon_size + 0.2, y + 0.75, clr("#bbbbbb", _desc or desc)),
+		   "style_type[label;font_size=+0]")
 	end
 end
 
@@ -1857,104 +1866,6 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 	end
 end
 
-local function get_inventory_mode(player, fs, data, full_height)
-	fs(fmt("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10))
-
-	local inv_x = 0.234
-
-	for i = 0, 7 do
-		fs(fmt("image", i + inv_x + (i * 0.25), 6.1, 1, 1, "i3_hb_bg.png"))
-	end
-
-	fs("listcolors[#bababa50;#bababa99]",
-	   "listring[current_player;main]",
-	   fmt("list[current_player;main;%f,6.1;8,1;]", inv_x),
-	   fmt("list[current_player;main;%f,7.4;8,3;8]", inv_x))
-
-	local props = player:get_properties()
-	local name = player:get_player_name()
-
-	if props.mesh ~= "" then
-		local anim = player:get_local_animation()
-		--fs("style[player_model;bgcolor=black]")
-
-		fs(fmt("model", (__3darmor or __skinsdb) and 0.2 or 0, 0.2, 4, 5.5, "player_model",
-			props.mesh, concat(props.textures, ","), "0,-150", "false", "false",
-			fmt("%u,%u", anim.x, anim.y)))
-	else
-		local size = 2.5
-		fs(fmt("image", 0.7, 0.2, size, size * props.visual_size.y, props.textures[1]))
-	end
-
-	local extras = __3darmor or __skinsdb or __awards
-
-	local ctn_len = 5.6
-	local xoffset = extras and 0 or 4.4
-	local yoffset = extras and 0 or 0.2
-
-	local award_list, award_list_nb
-	local awards_unlocked = 0
-
-	if extras then
-		local max_val = 15
-
-		if __3darmor then
-			max_val = max_val + 15
-
-			if __skinsdb then
-				max_val = max_val + 20
-			end
-		end
-
-		if __awards then
-			award_list = awards.get_award_states(name)
-			award_list_nb = #award_list
-
-			for i = 1, award_list_nb do
-				local award = award_list[i]
-
-				if award.unlocked then
-					awards_unlocked = awards_unlocked + 1
-				end
-			end
-
-			max_val = max_val + (award_list_nb * (12.9 + ((__3darmor or __skinsdb) and 0.25 or 0)))
-		end
-
-		fs(fmt([[
-			scrollbaroptions[arrows=hide;thumbsize=%u;max=%u]
-			scrollbar[9.69,0.2;0.3,5.5;vertical;scrbar_inv;%u]
-			scrollbaroptions[arrows=default;thumbsize=0;max=1000]
-		]],
-		(max_val * 3) / 15, max_val, data.scrbar_inv or 0))
-
-		fs(fmt("scroll_container[3.9,0.2;%f,5.5;scrbar_inv;vertical]", ctn_len))
-	end
-
-	get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, award_list, awards_unlocked,
-			award_list_nb)
-
-	if extras then
-		fs("scroll_container_end[]")
-	end
-
-	local btn = {
-		{"trash", ES"Trash all items"},
-		{"sort_az", ES"Sort items (A-Z)"},
-		{"sort_za", ES"Sort items (Z-A)"},
-		{"compress", ES"Compress items"},
-	}
-
-	for i, v in ipairs(btn) do
-		local btn_name, tooltip = unpack(v)
-
-		fs(fmt("image_button", i + 3.447 - (i * 0.4),
-			full_height - 0.6, 0.35, 0.35, "", btn_name, ""))
-
-		fs(fmt("tooltip[%s;%s]", btn_name, tooltip))
-	end
-end
-
 local function make_fs(player, data)
 	--local start = os.clock()
 	local fs = setmetatable({}, {
@@ -1966,27 +1877,57 @@ local function make_fs(player, data)
 	data.xoffset = ROWS + 1.23
 	local full_height = LINES + 1.73
 
-	local name = player:get_player_name()
-	local is_creative = creative_enabled(name)
-
 	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
 		MIN_FORMSPEC_VERSION, data.xoffset + (data.query_item and 8 or 0), full_height), styles)
 
-	fs(fmt("style[guide_mode;fgimg=%s]", data.inv_mode and PNG.tab or PNG.tab_hover))
-	fs(fmt("style[inv_mode;fgimg=%s]", data.inv_mode and PNG.tab_hover or PNG.tab))
+	fs(fmt("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10))
 
-	fs(fmt("image_button", 2.05, full_height, 3, 0.5, "", "guide_mode",
-		is_creative and ES"Items" or ES"Crafting Guide"))
-	fs(fmt("image_button", 5.15, full_height, 3, 0.5, "", "inv_mode", ES"Inventory"))
-
-	if data.inv_mode then
-		get_inventory_mode(player, fs, data, full_height)
-	else
-		get_item_list(fs, data, full_height)
-	end
+	tabs[(data.current_tab or 1)].formspec(player, data, fs)
 
 	if data.query_item then
-		get_panels(player, fs, data)
+		get_panels(player, data, fs)
+	end
+
+	local tab_len, c, over = 3, 0
+	local shift = min(3, #tabs)
+
+	for i, def in ipairs(tabs) do
+		if def.access and not def.access(player, data) then
+			remove(tabs, i)
+		end
+	end
+
+	for i, def in ipairs(tabs) do
+		if not over and c > 2 then
+			over = true
+			c = 0
+		end
+
+		local btm = i <= 3
+
+		if not btm then
+			shift = #tabs - 3
+		end
+
+		fs(fmt([[style_type[image_button;fgimg=%s;fgimg_hovered=%s;fgimg_middle=14;noclip=true;
+			font_size=+0;content_offset=0;sound=i3_tab]
+		]], (i == data.current_tab) and
+			(btm and PNG.tab_hover or PNG.tab_hover_top) or (btm and PNG.tab or PNG.tab_top),
+			btm and PNG.tab_hover or PNG.tab_hover_top))
+
+		local X = (data.xoffset / 2) + (c * (tab_len + 0.1)) - ((tab_len + 0.05) * (shift / 2))
+		local Y = btm and full_height or -0.5
+
+		fs(fmt("image_button", X, Y, tab_len, 0.5, "", fmt("tab_%s", def.name), ESC(def.description)))
+
+		if def.image and def.image ~= "" then
+			fs("style_type[image;noclip=true]")
+			local desc = translate(data.lang_code, def.description)
+			fs(fmt("image", X + (tab_len / 2) - ((#desc * 0.1) / 2) - 0.6,
+				Y + 0.05, 0.35, 0.35, fmt("%s^\\[resize:16x16", def.image)))
+		end
+
+		c = c + 1
 	end
 
 	--[[
@@ -2006,13 +1947,335 @@ local function make_fs(player, data)
 	return concat(fs)
 end
 
-local function set_fs(player)
+function i3.set_fs(player)
 	local name = player:get_player_name()
 	local data = pdata[name]
 	local fs = make_fs(player, data)
 
 	player:set_inventory_formspec(fs)
 end
+
+local set_fs = i3.set_fs
+
+function i3.new_tab(def)
+	if #tabs < 6 then
+		tabs[#tabs + 1] = def
+	end
+end
+
+local function init_data(player, name)
+	local info = get_player_info(name)
+
+	pdata[name] = {
+		filter        = "",
+		pagenum       = 1,
+		items         = init_items,
+		items_raw     = init_items,
+		favs          = {},
+		export_counts = {},
+		current_tab   = 1,
+		lang_code     = get_lang_code(info),
+		fs_version    = get_formspec_version(info),
+	}
+
+	local data = pdata[name]
+
+	if __skinsdb then
+		local meta = player:get_meta()
+		data.skin_id = tonum(dslz(meta:get_string "skin_id") or 1)
+	end
+
+	if data.fs_version < MIN_FORMSPEC_VERSION then return end
+
+	after(0, set_fs, player)
+end
+
+local function reset_data(data)
+	data.filter      = ""
+	data.pagenum     = 1
+	data.rnum        = 1
+	data.unum        = 1
+	data.scrbar_rcp  = 1
+	data.scrbar_usg  = 1
+	data.query_item  = nil
+	data.recipes     = nil
+	data.usages      = nil
+	data.export_rcp  = nil
+	data.export_usg  = nil
+	data.items       = data.items_raw
+end
+
+local function common_fields(player, data, fields)
+	local name = player:get_player_name()
+	local sb_rcp, sb_usg = fields.scrbar_rcp, fields.scrbar_usg
+
+	if fields.fav then
+		local fav, i = is_fav(data.favs, data.query_item)
+		local total = #data.favs
+
+		if total < MAX_FAVS and not fav then
+			data.favs[total + 1] = data.query_item
+		elseif fav then
+			remove(data.favs, i)
+		end
+
+	elseif fields.export_rcp or fields.export_usg then
+		if fields.export_rcp then
+			data.export_rcp = not data.export_rcp
+
+			if not data.export_rcp then
+				data.scrbar_rcp = 1
+			end
+		else
+			data.export_usg = not data.export_usg
+
+			if not data.export_usg then
+				data.scrbar_usg = 1
+			end
+		end
+
+	elseif (sb_rcp and sub(sb_rcp, 1, 3) == "CHG") or (sb_usg and sub(sb_usg, 1, 3) == "CHG") then
+		data.scrbar_rcp = sb_rcp and tonum(match(sb_rcp, "%d+"))
+		data.scrbar_usg = sb_usg and tonum(match(sb_usg, "%d+"))
+
+	elseif fields.craft_rcp or fields.craft_usg then
+		craft_stack(player, name, data, fields.craft_rcp)
+	else
+		select_item(player, name, data, fields)
+	end
+end
+
+i3.new_tab {
+	name = "inventory",
+	description = S"Inventory",
+
+	formspec = function(player, data, fs)
+		local inv_x = 0.234
+
+		for i = 0, 7 do
+			fs(fmt("image", i + inv_x + (i * 0.25), 6.1, 1, 1, "i3_hb_bg.png"))
+		end
+
+		fs("listcolors[#bababa50;#bababa99]",
+		   "listring[current_player;main]",
+		   fmt("list[current_player;main;%f,6.1;8,1;]", inv_x),
+		   fmt("list[current_player;main;%f,7.4;8,3;8]", inv_x))
+
+		local props = player:get_properties()
+		local name = player:get_player_name()
+
+		if props.mesh ~= "" then
+			local anim = player:get_local_animation()
+			--fs("style[player_model;bgcolor=black]")
+
+			fs(fmt("model", (__3darmor or __skinsdb) and 0.2 or 0, 0.2, 4, 5.5, "player_model",
+				props.mesh, concat(props.textures, ","), "0,-150", "false", "false",
+				fmt("%u,%u", anim.x, anim.y)))
+		else
+			local size = 2.5
+			fs(fmt("image", 0.7, 0.2, size, size * props.visual_size.y, props.textures[1]))
+		end
+
+		local extras = __3darmor or __skinsdb or __awards
+
+		local ctn_len = 5.6
+		local xoffset = extras and 0 or 4.4
+		local yoffset = extras and 0 or 0.2
+
+		local award_list, award_list_nb
+		local awards_unlocked = 0
+
+		if extras then
+			local max_val = 15
+
+			if __3darmor then
+				max_val = max_val + 15
+
+				if __skinsdb then
+					max_val = max_val + 20
+				end
+			end
+
+			if __awards then
+				award_list = awards.get_award_states(name)
+				award_list_nb = #award_list
+
+				for i = 1, award_list_nb do
+					local award = award_list[i]
+
+					if award.unlocked then
+						awards_unlocked = awards_unlocked + 1
+					end
+				end
+
+				max_val = max_val + (award_list_nb * (12.9 + ((__3darmor or __skinsdb) and 0.25 or 0)))
+			end
+
+			fs(fmt([[
+				scrollbaroptions[arrows=hide;thumbsize=%u;max=%u]
+				scrollbar[9.69,0.2;0.3,5.5;vertical;scrbar_inv;%u]
+				scrollbaroptions[arrows=default;thumbsize=0;max=1000]
+			]],
+			(max_val * 3) / 15, max_val, data.scrbar_inv or 0))
+
+			fs(fmt("scroll_container[3.9,0.2;%f,5.5;scrbar_inv;vertical]", ctn_len))
+		end
+
+		get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, award_list, awards_unlocked,
+				award_list_nb)
+
+		if extras then
+			fs("scroll_container_end[]")
+		end
+
+		local btn = {
+			{"trash", ES"Trash all items"},
+			{"sort_az", ES"Sort items (A-Z)"},
+			{"sort_za", ES"Sort items (Z-A)"},
+			{"compress", ES"Compress items"},
+		}
+
+		for i, v in ipairs(btn) do
+			local btn_name, tooltip = unpack(v)
+			fs(fmt("image_button", i + 3.447 - (i * 0.4), 11.13, 0.35, 0.35, "", btn_name, ""))
+			fs(fmt("tooltip[%s;%s]", btn_name, tooltip))
+		end
+	end,
+
+	fields = function(player, data, fields)
+		local name = player:get_player_name()
+		local sb_inv = fields.scrbar_inv
+
+		common_fields(player, data, fields)
+
+		if fields.skins and data.skin_id ~= tonum(fields.skins) then
+			data.skin_id = tonum(fields.skins)
+			local _skins = skins.get_skinlist_for_player(name)
+			skins.set_player_skin(player, _skins[data.skin_id])
+		end
+
+		if fields.trash then
+			local inv = player:get_inventory()
+			if not inv:is_empty("main") then
+				inv:set_list("main", {})
+			end
+
+		elseif fields.compress then
+			compress_items(player)
+
+		elseif fields.sort_az or fields.sort_za then
+			sort_itemlist(player, fields.sort_az)
+
+		elseif sb_inv and sub(sb_inv, 1, 3) == "CHG" then
+			data.scrbar_inv = tonum(match(sb_inv, "%d+"))
+			return
+		end
+
+		return set_fs(player)
+	end,
+}
+
+i3.new_tab {
+	name = "items",
+	description = S"Items",
+
+	formspec = function(player, data, fs)
+		local filtered = data.filter ~= ""
+
+		fs("box[0.2,0.2;4.55,0.6;#bababa25]", "set_focus[filter]")
+		fs(fmt("field[0.3,0.2;%f,0.6;filter;;%s]", filtered and 3.45 or 3.9, ESC(data.filter)))
+		fs("field_close_on_enter[filter;false]")
+
+		if filtered then
+			fs(fmt("image_button", 3.75, 0.35, 0.3, 0.3, "", "cancel", ""))
+		end
+
+		fs(fmt("image_button", 4.25, 0.32, 0.35, 0.35, "", "search", ""))
+
+		fs(fmt("image_button", data.xoffset - 2.73, 0.3, 0.35, 0.35, "", "prev_page", ""),
+		   fmt("image_button", data.xoffset - 0.55, 0.3, 0.35, 0.35, "", "next_page", ""))
+
+		data.pagemax = max(1, ceil(#data.items / IPP))
+
+		fs(fmt("button", data.xoffset - 2.4, 0.14, 1.88, 0.7, "pagenum",
+			fmt("%s / %u", clr("#ff0", data.pagenum), data.pagemax)))
+
+		if #data.items == 0 then
+			local lbl = ES"No item to show"
+
+			if next(recipe_filters) and #init_items > 0 and data.filter == "" then
+				lbl = ES"Collect items to reveal more recipes"
+			end
+
+			fs(fmt("button", 0, 3, data.xoffset, 1, "no_item", lbl))
+		end
+
+		local first_item = (data.pagenum - 1) * IPP
+
+		for i = first_item, first_item + IPP - 1 do
+			local item = data.items[i + 1]
+			if not item then break end
+
+			local X = i % ROWS
+			X = X + (X * 0.1) + 0.2
+
+			local Y = floor((i % IPP - X) / ROWS + 1)
+			Y = Y + (Y * 0.06) + 1
+
+			if data.query_item == item then
+				fs(fmt("image", X, Y, 1, 1, PNG.slot))
+			end
+
+			fs(fmt("item_image_button", X, Y, 1, 1, item, fmt("%s_inv", item), ""))
+		end
+	end,
+
+	fields = function(player, data, fields)
+		common_fields(player, data, fields)
+
+		if fields.cancel then
+			reset_data(data)
+
+		elseif fields.prev_recipe or fields.next_recipe then
+			local num = data.rnum + (fields.prev_recipe and -1 or 1)
+			data.rnum = data.recipes[num] and num or (fields.prev_recipe and #data.recipes or 1)
+			data.export_rcp = nil
+			data.scrbar_rcp = 1
+
+		elseif fields.prev_usage or fields.next_usage then
+			local num = data.unum + (fields.prev_usage and -1 or 1)
+			data.unum = data.usages[num] and num or (fields.prev_usage and #data.usages or 1)
+			data.export_usg = nil
+			data.scrbar_usg = 1
+
+		elseif fields.key_enter_field == "filter" or fields.search then
+			if fields.filter == "" then
+				reset_data(data)
+				return set_fs(player)
+			end
+
+			local str = lower(fields.filter)
+			if data.filter == str then return end
+
+			data.filter = str
+			data.pagenum = 1
+
+			search(data)
+
+		elseif fields.prev_page or fields.next_page then
+			if data.pagemax == 1 then return end
+			data.pagenum = data.pagenum - (fields.prev_page and 1 or -1)
+
+			if data.pagenum > data.pagemax then
+				data.pagenum = 1
+			elseif data.pagenum == 0 then
+				data.pagenum = data.pagemax
+			end
+		end
+
+		return set_fs(player)
+	end,
+}
 
 local trash = core.create_detached_inventory("i3_trash", {
 	allow_put = function(inv, listname, index, stack)
@@ -2086,66 +2349,6 @@ i3.register_craft_type("digging_chance", {
 	description = ES"Digging (by chance)",
 	icon = "i3_mesepick.png",
 })
-
-local function search(data)
-	local filter = data.filter
-
-	if searches[filter] then
-		data.items = searches[filter]
-		return
-	end
-
-	local opt = "^(.-)%+([%w_]+)=([%w_,]+)"
-	local search_filter = next(search_filters) and match(filter, opt)
-	local filters = {}
-
-	if search_filter then
-		for filter_name, values in gmatch(filter, sub(opt, 6)) do
-			if search_filters[filter_name] then
-				values = split(values, ",")
-				filters[filter_name] = values
-			end
-		end
-	end
-
-	local filtered_list, c = {}, 0
-
-	for i = 1, #data.items_raw do
-		local item = data.items_raw[i]
-		local def = reg_items[item]
-		local desc = lower(translate(data.lang_code, def and def.description)) or ""
-		local search_in = fmt("%s %s", item, desc)
-		local to_add
-
-		if search_filter then
-			for filter_name, values in pairs(filters) do
-				if values then
-					local func = search_filters[filter_name]
-					to_add = func(item, values) and (search_filter == "" or
-						find(search_in, search_filter, 1, true))
-				end
-			end
-		else
-			to_add = find(search_in, filter, 1, true)
-		end
-
-		if to_add then
-			c = c + 1
-			filtered_list[c] = item
-		end
-	end
-
-	if not next(recipe_filters) then
-		-- Cache the results only if searched 2 times
-		if searches[filter] == nil then
-			searches[filter] = false
-		else
-			searches[filter] = filtered_list
-		end
-	end
-
-	data.items = filtered_list
-end
 
 i3.add_search_filter("groups", function(item, groups)
 	local def = reg_items[item]
@@ -2288,48 +2491,6 @@ local function get_init_items()
 	end
 end
 
-local function init_data(player, name)
-	local info = get_player_info(name)
-
-	pdata[name] = {
-		filter        = "",
-		pagenum       = 1,
-		items         = init_items,
-		items_raw     = init_items,
-		favs          = {},
-		export_counts = {},
-		inv_mode      = true,
-		lang_code     = get_lang_code(info),
-		fs_version    = get_formspec_version(info),
-	}
-
-	local data = pdata[name]
-
-	if __skinsdb then
-		local meta = player:get_meta()
-		data.skin_id = tonum(dslz(meta:get_string "skin_id") or 1)
-	end
-
-	if data.fs_version < MIN_FORMSPEC_VERSION then return end
-
-	after(0, set_fs, player)
-end
-
-local function reset_data(data)
-	data.filter      = ""
-	data.pagenum     = 1
-	data.rnum        = 1
-	data.unum        = 1
-	data.scrbar_rcp  = 1
-	data.scrbar_usg  = 1
-	data.query_item  = nil
-	data.recipes     = nil
-	data.usages      = nil
-	data.export_rcp  = nil
-	data.export_usg  = nil
-	data.items       = data.items_raw
-end
-
 on_mods_loaded(function()
 	get_init_items()
 
@@ -2360,112 +2521,26 @@ on_joinplayer(function(player)
 	end
 end)
 
-on_receive_fields(function(player, formname, _f)
+on_receive_fields(function(player, formname, fields)
 	if formname ~= "" then return false end
 	local name = player:get_player_name()
 	local data = pdata[name]
-	local sb_rcp, sb_usg, sb_inv = _f.scrbar_rcp, _f.scrbar_usg, _f.scrbar_inv
 
-	if _f.skins and data.skin_id ~= tonum(_f.skins) then
-		data.skin_id = tonum(_f.skins)
-		local _skins = skins.get_skinlist_for_player(name)
-		skins.set_player_skin(player, _skins[data.skin_id])
+	for f in pairs(fields) do
+		if sub(f, 1, 4) == "tab_" then
+			local tabname = sub(f, 5)
+
+			for i, def in ipairs(tabs) do
+				if def.name == tabname then
+					data.current_tab = i
+				end
+			end
+
+			break
+		end
 	end
 
-	if _f.cancel then
-		reset_data(data)
-
-	elseif _f.prev_recipe or _f.next_recipe then
-		local num = data.rnum + (_f.prev_recipe and -1 or 1)
-		data.rnum = data.recipes[num] and num or (_f.prev_recipe and #data.recipes or 1)
-		data.export_rcp = nil
-		data.scrbar_rcp = 1
-
-	elseif _f.prev_usage or _f.next_usage then
-		local num = data.unum + (_f.prev_usage and -1 or 1)
-		data.unum = data.usages[num] and num or (_f.prev_usage and #data.usages or 1)
-		data.export_usg = nil
-		data.scrbar_usg = 1
-
-	elseif _f.key_enter_field == "filter" or _f.search then
-		if _f.filter == "" then
-			reset_data(data)
-			return true, set_fs(player)
-		end
-
-		local str = lower(_f.filter)
-		if data.filter == str then return end
-
-		data.filter = str
-		data.pagenum = 1
-
-		search(data)
-
-	elseif _f.prev_page or _f.next_page then
-		if data.pagemax == 1 then return end
-		data.pagenum = data.pagenum - (_f.prev_page and 1 or -1)
-
-		if data.pagenum > data.pagemax then
-			data.pagenum = 1
-		elseif data.pagenum == 0 then
-			data.pagenum = data.pagemax
-		end
-
-	elseif _f.fav then
-		local fav, i = is_fav(data.favs, data.query_item)
-		local total = #data.favs
-
-		if total < MAX_FAVS and not fav then
-			data.favs[total + 1] = data.query_item
-		elseif fav then
-			remove(data.favs, i)
-		end
-
-	elseif _f.export_rcp or _f.export_usg then
-		if _f.export_rcp then
-			data.export_rcp = not data.export_rcp
-
-			if not data.export_rcp then
-				data.scrbar_rcp = 1
-			end
-		else
-			data.export_usg = not data.export_usg
-
-			if not data.export_usg then
-				data.scrbar_usg = 1
-			end
-		end
-
-	elseif _f.guide_mode or _f.inv_mode then
-		data.inv_mode = not _f.guide_mode
-
-	elseif _f.trash then
-		local inv = player:get_inventory()
-		if not inv:is_empty("main") then
-			inv:set_list("main", {})
-		end
-
-	elseif _f.compress then
-		compress_items(player)
-
-	elseif _f.sort_az or _f.sort_za then
-		sort_itemlist(player, _f.sort_az)
-
-	elseif sb_inv and sub(sb_inv, 1, 3) == "CHG" then
-		data.scrbar_inv = tonum(match(sb_inv, "%d+"))
-		return true
-
-	elseif (sb_rcp and sub(sb_rcp, 1, 3) == "CHG") or (sb_usg and sub(sb_usg, 1, 3) == "CHG") then
-		data.scrbar_rcp = sb_rcp and tonum(match(sb_rcp, "%d+"))
-		data.scrbar_usg = sb_usg and tonum(match(sb_usg, "%d+"))
-
-	elseif _f.craft_rcp or _f.craft_usg then
-		craft_stack(player, name, data, _f.craft_rcp)
-	else
-		select_item(player, name, data, _f)
-	end
-
-	return true, set_fs(player)
+	return true, tabs[data.current_tab].fields(player, data, fields)
 end)
 
 core.register_on_player_hpchange(function(player, hpchange)
@@ -2725,3 +2800,5 @@ on_leaveplayer(function(player)
 	local name = player:get_player_name()
 	pdata[name] = nil
 end)
+
+--dofile(core.get_modpath("i3") .. "/tabs.lua")

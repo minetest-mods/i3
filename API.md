@@ -1,5 +1,38 @@
 ## API
 
+### Custom tabs
+
+Custom tabs can be added to the `i3` inventory as follow (example):
+
+```Lua
+i3.new_tab {
+	name = "stuff",
+	description = "Stuff",
+	image = "image.png", -- Optional, adds an image inside the tab
+
+	-- Determine if the tab is visible by a player, `false` or `nil` hide the tab
+	access = function(player, data)
+		local name = player:get_player_name()
+		if name == "singleplayer" then
+			return false
+		end
+	end,
+
+	formspec = function(player, data, fs)
+		fs("label[3,1;This is just a test]")
+	end,
+
+	fields = function(player, data, fields)
+		i3.set_fs(player)
+	end,
+}
+```
+
+- `player` is an `ObjectRef` to the user.
+- `data` are the user data.
+- `fs` is the formspec table which is callable with a metamethod. Each call adds a new entry.
+- `i3.set_fs(player)` must be called to update the formspec.
+
 ### Custom recipes
 
 Custom recipes are nonconventional crafts outside the main crafting grid.
