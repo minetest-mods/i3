@@ -1898,7 +1898,7 @@ local function make_fs(player, data)
 		get_panels(player, data, fs)
 	end
 
-	local tab_len, c, over = 3, 0
+	local tab_len, tab_hgh, c, over = 3, 0.5, 0
 	local shift = min(3, #tabs)
 
 	for i, def in ipairs(tabs) do
@@ -1926,9 +1926,9 @@ local function make_fs(player, data)
 			btm and PNG.tab_hover or PNG.tab_hover_top))
 
 		local X = (data.xoffset / 2) + (c * (tab_len + 0.1)) - ((tab_len + 0.05) * (shift / 2))
-		local Y = btm and full_height or -0.5
+		local Y = btm and full_height or -tab_hgh
 
-		fs(fmt("image_button", X, Y, tab_len, 0.5, "", fmt("tab_%s", def.name), ESC(def.description)))
+		fs(fmt("image_button", X, Y, tab_len, tab_hgh, "", fmt("tab_%s", def.name), ESC(def.description)))
 
 		if def.image and def.image ~= "" then
 			fs("style_type[image;noclip=true]")
@@ -2045,7 +2045,7 @@ local function reset_data(data)
 	data.items       = data.items_raw
 end
 
-local function common_fields(player, data, fields)
+local function panel_fields(player, data, fields)
 	local name = player:get_player_name()
 	local sb_rcp, sb_usg = fields.scrbar_rcp, fields.scrbar_usg
 
@@ -2250,7 +2250,7 @@ i3.new_tab {
 		local name = player:get_player_name()
 		local sb_inv = fields.scrbar_inv
 
-		common_fields(player, data, fields)
+		panel_fields(player, data, fields)
 
 		if fields.skins and data.skin_id ~= tonum(fields.skins) then
 			data.skin_id = tonum(fields.skins)
@@ -2285,7 +2285,7 @@ i3.new_tab {
 	formspec = get_items_fs,
 
 	fields = function(player, data, fields)
-		common_fields(player, data, fields)
+		panel_fields(player, data, fields)
 
 		if fields.cancel then
 			reset_data(data)
