@@ -1987,6 +1987,22 @@ function i3.new_tab(def)
 	tabs[#tabs + 1] = def
 end
 
+function i3.get_tabs()
+	return tabs
+end
+
+function i3.delete_tab(name)
+	if not true_str(name) then
+		return err "i3.delete_tab: name missing"
+	end
+
+	for i, def in ipairs(tabs) do
+		if name == def.name then
+			remove(tabs, i)
+		end
+	end
+end
+
 local function init_data(player, name)
 	local info = get_player_info(name)
 

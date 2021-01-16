@@ -2,6 +2,8 @@
 
 ### Custom tabs
 
+#### `i3.new_tab(def)`
+
 Custom tabs can be added to the `i3` inventory as follow (example):
 
 ```Lua
@@ -32,6 +34,16 @@ i3.new_tab {
 - `data` are the user data.
 - `fs` is the formspec table which is callable with a metamethod. Each call adds a new entry.
 - `i3.set_fs(player)` must be called to update the formspec.
+
+##### `i3.delete_tab(name)`
+
+Deletes a tab by name.
+
+##### `i3.get_tabs()`
+
+Returns the list of registered tabs.
+
+---
 
 ### Custom recipes
 
