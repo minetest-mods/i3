@@ -428,7 +428,7 @@ local craft_types = {}
 
 function i3.register_craft_type(name, def)
 	if not true_str(name) then
-		return err "i3.register_craft_type(): name missing"
+		return err "i3.register_craft_type: name missing"
 	end
 
 	if not is_str(def.description) then
@@ -465,7 +465,7 @@ function i3.register_craft(def)
 	end
 
 	if not is_table(def) or not next(def) then
-		return err "i3.register_craft(): craft definition missing"
+		return err "i3.register_craft: craft definition missing"
 	end
 
 	if #def > 1 then
@@ -481,7 +481,7 @@ function i3.register_craft(def)
 	end
 
 	if not true_str(def.output) then
-		return err "i3.register_craft(): output missing"
+		return err "i3.register_craft: output missing"
 	end
 
 	if not is_table(def.items) then
@@ -552,9 +552,9 @@ local recipe_filters = {}
 
 function i3.add_recipe_filter(name, f)
 	if not true_str(name) then
-		return err "i3.add_recipe_filter(): name missing"
+		return err "i3.add_recipe_filter: name missing"
 	elseif not is_func(f) then
-		return err "i3.add_recipe_filter(): function missing"
+		return err "i3.add_recipe_filter: function missing"
 	end
 
 	recipe_filters[name] = f
@@ -562,9 +562,9 @@ end
 
 function i3.set_recipe_filter(name, f)
 	if not is_str(name) then
-		return err "i3.set_recipe_filter(): name missing"
+		return err "i3.set_recipe_filter: name missing"
 	elseif not is_func(f) then
-		return err "i3.set_recipe_filter(): function missing"
+		return err "i3.set_recipe_filter: function missing"
 	end
 
 	recipe_filters = {[name] = f}
@@ -590,9 +590,9 @@ local search_filters = {}
 
 function i3.add_search_filter(name, f)
 	if not true_str(name) then
-		return err "i3.add_search_filter(): name missing"
+		return err "i3.add_search_filter: name missing"
 	elseif not is_func(f) then
-		return err "i3.add_search_filter(): function missing"
+		return err "i3.add_search_filter: function missing"
 	end
 
 	search_filters[name] = f
@@ -1959,20 +1959,22 @@ local set_fs = i3.set_fs
 
 function i3.new_tab(def)
 	if not is_table(def) or not next(def) then
-		return err "i3.new_tab(): tab definition missing"
+		return err "i3.new_tab: tab definition missing"
 	end
 
 	if not true_str(def.name) then
-		return err "i3.new_tab(): name missing"
+		return err "i3.new_tab: name missing"
 	end
 
 	if not true_str(def.description) then
-		return err "i3.new_tab(): description missing"
+		return err "i3.new_tab: description missing"
 	end
 
-	if #tabs < 6 then
-		tabs[#tabs + 1] = def
+	if #tabs == 6 then
+		return err(fmt("i3.new_tab: cannot add '%s' tab. Limit reached (6).", def.name))
 	end
+
+	tabs[#tabs + 1] = def
 end
 
 local function init_data(player, name)
