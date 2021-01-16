@@ -2852,5 +2852,5 @@ on_leaveplayer(function(player)
 	pdata[name] = nil
 end)
 
---dofile(core.get_modpath("i3") .. "/tabs.lua")
---dofile(core.get_modpath("i3") .. "/custom_recipes.lua")
+--dofile(core.get_modpath("i3") .. "/test_tabs.lua")
+--dofile(core.get_modpath("i3") .. "/test_custom_recipes.lua")
