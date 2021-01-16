@@ -2071,103 +2071,154 @@ local function common_fields(player, data, fields)
 	end
 end
 
+local function get_inventory_fs(player, data, fs)
+	local inv_x = 0.234
+
+	for i = 0, 7 do
+		fs(fmt("image", i + inv_x + (i * 0.25), 6.1, 1, 1, "i3_hb_bg.png"))
+	end
+
+	fs("listcolors[#bababa50;#bababa99]",
+	   "listring[current_player;main]",
+	   fmt("list[current_player;main;%f,6.1;8,1;]", inv_x),
+	   fmt("list[current_player;main;%f,7.4;8,3;8]", inv_x))
+
+	local props = player:get_properties()
+	local name = player:get_player_name()
+
+	if props.mesh ~= "" then
+		local anim = player:get_local_animation()
+		--fs("style[player_model;bgcolor=black]")
+
+		fs(fmt("model", (__3darmor or __skinsdb) and 0.2 or 0, 0.2, 4, 5.5, "player_model",
+			props.mesh, concat(props.textures, ","), "0,-150", "false", "false",
+			fmt("%u,%u", anim.x, anim.y)))
+	else
+		local size = 2.5
+		fs(fmt("image", 0.7, 0.2, size, size * props.visual_size.y, props.textures[1]))
+	end
+
+	local extras = __3darmor or __skinsdb or __awards
+
+	local ctn_len = 5.6
+	local xoffset = extras and 0 or 4.4
+	local yoffset = extras and 0 or 0.2
+
+	local award_list, award_list_nb
+	local awards_unlocked = 0
+
+	if extras then
+		local max_val = 15
+
+		if __3darmor then
+			max_val = max_val + 15
+
+			if __skinsdb then
+				max_val = max_val + 20
+			end
+		end
+
+		if __awards then
+			award_list = awards.get_award_states(name)
+			award_list_nb = #award_list
+
+			for i = 1, award_list_nb do
+				local award = award_list[i]
+
+				if award.unlocked then
+					awards_unlocked = awards_unlocked + 1
+				end
+			end
+
+			max_val = max_val + (award_list_nb * (12.9 + ((__3darmor or __skinsdb) and 0.25 or 0)))
+		end
+
+		fs(fmt([[
+			scrollbaroptions[arrows=hide;thumbsize=%u;max=%u]
+			scrollbar[9.69,0.2;0.3,5.5;vertical;scrbar_inv;%u]
+			scrollbaroptions[arrows=default;thumbsize=0;max=1000]
+		]],
+		(max_val * 3) / 15, max_val, data.scrbar_inv or 0))
+
+		fs(fmt("scroll_container[3.9,0.2;%f,5.5;scrbar_inv;vertical]", ctn_len))
+	end
+
+	get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, award_list, awards_unlocked,
+			award_list_nb)
+
+	if extras then
+		fs("scroll_container_end[]")
+	end
+
+	local btn = {
+		{"trash", ES"Trash all items"},
+		{"sort_az", ES"Sort items (A-Z)"},
+		{"sort_za", ES"Sort items (Z-A)"},
+		{"compress", ES"Compress items"},
+	}
+
+	for i, v in ipairs(btn) do
+		local btn_name, tooltip = unpack(v)
+		fs(fmt("image_button", i + 3.447 - (i * 0.4), 11.13, 0.35, 0.35, "", btn_name, ""))
+		fs(fmt("tooltip[%s;%s]", btn_name, tooltip))
+	end
+end
+
+local function get_items_fs(player, data, fs)
+	local filtered = data.filter ~= ""
+
+	fs("box[0.2,0.2;4.55,0.6;#bababa25]", "set_focus[filter]")
+	fs(fmt("field[0.3,0.2;%f,0.6;filter;;%s]", filtered and 3.45 or 3.9, ESC(data.filter)))
+	fs("field_close_on_enter[filter;false]")
+
+	if filtered then
+		fs(fmt("image_button", 3.75, 0.35, 0.3, 0.3, "", "cancel", ""))
+	end
+
+	fs(fmt("image_button", 4.25, 0.32, 0.35, 0.35, "", "search", ""))
+
+	fs(fmt("image_button", data.xoffset - 2.73, 0.3, 0.35, 0.35, "", "prev_page", ""),
+	   fmt("image_button", data.xoffset - 0.55, 0.3, 0.35, 0.35, "", "next_page", ""))
+
+	data.pagemax = max(1, ceil(#data.items / IPP))
+
+	fs(fmt("button", data.xoffset - 2.4, 0.14, 1.88, 0.7, "pagenum",
+		fmt("%s / %u", clr("#ff0", data.pagenum), data.pagemax)))
+
+	if #data.items == 0 then
+		local lbl = ES"No item to show"
+
+		if next(recipe_filters) and #init_items > 0 and data.filter == "" then
+			lbl = ES"Collect items to reveal more recipes"
+		end
+
+		fs(fmt("button", 0, 3, data.xoffset, 1, "no_item", lbl))
+	end
+
+	local first_item = (data.pagenum - 1) * IPP
+
+	for i = first_item, first_item + IPP - 1 do
+		local item = data.items[i + 1]
+		if not item then break end
+
+		local X = i % ROWS
+		X = X + (X * 0.1) + 0.2
+
+		local Y = floor((i % IPP - X) / ROWS + 1)
+		Y = Y + (Y * 0.06) + 1
+
+		if data.query_item == item then
+			fs(fmt("image", X, Y, 1, 1, PNG.slot))
+		end
+
+		fs(fmt("item_image_button", X, Y, 1, 1, item, fmt("%s_inv", item), ""))
+	end
+end
+
 i3.new_tab {
 	name = "inventory",
 	description = S"Inventory",
-
-	formspec = function(player, data, fs)
-		local inv_x = 0.234
-
-		for i = 0, 7 do
-			fs(fmt("image", i + inv_x + (i * 0.25), 6.1, 1, 1, "i3_hb_bg.png"))
-		end
-
-		fs("listcolors[#bababa50;#bababa99]",
-		   "listring[current_player;main]",
-		   fmt("list[current_player;main;%f,6.1;8,1;]", inv_x),
-		   fmt("list[current_player;main;%f,7.4;8,3;8]", inv_x))
-
-		local props = player:get_properties()
-		local name = player:get_player_name()
-
-		if props.mesh ~= "" then
-			local anim = player:get_local_animation()
-			--fs("style[player_model;bgcolor=black]")
-
-			fs(fmt("model", (__3darmor or __skinsdb) and 0.2 or 0, 0.2, 4, 5.5, "player_model",
-				props.mesh, concat(props.textures, ","), "0,-150", "false", "false",
-				fmt("%u,%u", anim.x, anim.y)))
-		else
-			local size = 2.5
-			fs(fmt("image", 0.7, 0.2, size, size * props.visual_size.y, props.textures[1]))
-		end
-
-		local extras = __3darmor or __skinsdb or __awards
-
-		local ctn_len = 5.6
-		local xoffset = extras and 0 or 4.4
-		local yoffset = extras and 0 or 0.2
-
-		local award_list, award_list_nb
-		local awards_unlocked = 0
-
-		if extras then
-			local max_val = 15
-
-			if __3darmor then
-				max_val = max_val + 15
-
-				if __skinsdb then
-					max_val = max_val + 20
-				end
-			end
-
-			if __awards then
-				award_list = awards.get_award_states(name)
-				award_list_nb = #award_list
-
-				for i = 1, award_list_nb do
-					local award = award_list[i]
-
-					if award.unlocked then
-						awards_unlocked = awards_unlocked + 1
-					end
-				end
-
-				max_val = max_val +
-					(award_list_nb * (12.9 + ((__3darmor or __skinsdb) and 0.25 or 0)))
-			end
-
-			fs(fmt([[
-				scrollbaroptions[arrows=hide;thumbsize=%u;max=%u]
-				scrollbar[9.69,0.2;0.3,5.5;vertical;scrbar_inv;%u]
-				scrollbaroptions[arrows=default;thumbsize=0;max=1000]
-			]],
-			(max_val * 3) / 15, max_val, data.scrbar_inv or 0))
-
-			fs(fmt("scroll_container[3.9,0.2;%f,5.5;scrbar_inv;vertical]", ctn_len))
-		end
-
-		get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, award_list, awards_unlocked,
-				award_list_nb)
-
-		if extras then
-			fs("scroll_container_end[]")
-		end
-
-		local btn = {
-			{"trash", ES"Trash all items"},
-			{"sort_az", ES"Sort items (A-Z)"},
-			{"sort_za", ES"Sort items (Z-A)"},
-			{"compress", ES"Compress items"},
-		}
-
-		for i, v in ipairs(btn) do
-			local btn_name, tooltip = unpack(v)
-			fs(fmt("image_button", i + 3.447 - (i * 0.4), 11.13, 0.35, 0.35, "", btn_name, ""))
-			fs(fmt("tooltip[%s;%s]", btn_name, tooltip))
-		end
-	end,
+	formspec = get_inventory_fs,
 
 	fields = function(player, data, fields)
 		local name = player:get_player_name()
@@ -2205,57 +2256,7 @@ i3.new_tab {
 i3.new_tab {
 	name = "items",
 	description = S"Items",
-
-	formspec = function(player, data, fs)
-		local filtered = data.filter ~= ""
-
-		fs("box[0.2,0.2;4.55,0.6;#bababa25]", "set_focus[filter]")
-		fs(fmt("field[0.3,0.2;%f,0.6;filter;;%s]", filtered and 3.45 or 3.9, ESC(data.filter)))
-		fs("field_close_on_enter[filter;false]")
-
-		if filtered then
-			fs(fmt("image_button", 3.75, 0.35, 0.3, 0.3, "", "cancel", ""))
-		end
-
-		fs(fmt("image_button", 4.25, 0.32, 0.35, 0.35, "", "search", ""))
-
-		fs(fmt("image_button", data.xoffset - 2.73, 0.3, 0.35, 0.35, "", "prev_page", ""),
-		   fmt("image_button", data.xoffset - 0.55, 0.3, 0.35, 0.35, "", "next_page", ""))
-
-		data.pagemax = max(1, ceil(#data.items / IPP))
-
-		fs(fmt("button", data.xoffset - 2.4, 0.14, 1.88, 0.7, "pagenum",
-			fmt("%s / %u", clr("#ff0", data.pagenum), data.pagemax)))
-
-		if #data.items == 0 then
-			local lbl = ES"No item to show"
-
-			if next(recipe_filters) and #init_items > 0 and data.filter == "" then
-				lbl = ES"Collect items to reveal more recipes"
-			end
-
-			fs(fmt("button", 0, 3, data.xoffset, 1, "no_item", lbl))
-		end
-
-		local first_item = (data.pagenum - 1) * IPP
-
-		for i = first_item, first_item + IPP - 1 do
-			local item = data.items[i + 1]
-			if not item then break end
-
-			local X = i % ROWS
-			X = X + (X * 0.1) + 0.2
-
-			local Y = floor((i % IPP - X) / ROWS + 1)
-			Y = Y + (Y * 0.06) + 1
-
-			if data.query_item == item then
-				fs(fmt("image", X, Y, 1, 1, PNG.slot))
-			end
-
-			fs(fmt("item_image_button", X, Y, 1, 1, item, fmt("%s_inv", item), ""))
-		end
-	end,
+	formspec = get_items_fs,
 
 	fields = function(player, data, fields)
 		common_fields(player, data, fields)
