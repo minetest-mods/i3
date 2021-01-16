@@ -2,20 +2,44 @@
 
 [![ContentDB](https://content.minetest.net/packages/jp/i3/shields/title/)](https://content.minetest.net/packages/jp/i3/) [![ContentDB](https://content.minetest.net/packages/jp/i3/shields/downloads/)](https://content.minetest.net/packages/jp/i3/)
 
-**`i3`** is a tiling inventory for Minetest 5.4+ with a modern UI using the latest technologies of the Minetest engine.
-It supports everything what [**`craftguide`**](https://github.com/minetest-mods/craftguide) can do, with an inventory on top of that.
+#### **`i3`** is the inventory of your wildest dreams.
 
-This inventory features a **Progressive Mode**.
-This mode is a Terraria-like system that shows recipes you can craft from items you ever had in your inventory.
-To enable it: `i3_progressive_mode = true` in `minetest.conf`.
+This inventory offers a slick, modern UI made with the latest technologies of the Minetest engine.
+**`i3`** provides a rich [**API**](https://github.com/minetest-mods/i3/blob/master/API.md) for mod developers who want to extend it.
 
-For developers, **`i3`** also has a [modding API](https://github.com/minetest-mods/i3/blob/master/API.md).
+This mod is targetted for **Minetest 5.4+**
 
-This mod supports the following mods:
-   - [`3d_armor`](https://github.com/minetest-mods/3d_armor)
-   - [`skinsdb`](https://github.com/minetest-mods/skinsdb)
-   - [`awards`](https://gitlab.com/rubenwardy/awards)
+#### List of features:
+   - Crafting Guide (only in survival mode)
+   - Progressive Mode¹
+   - Quick Crafting
+   - 3D Player Model Preview
+   - Inventory Sorting (alphabetical + item stack compression)
+   - Item Bookmarks
 
-**Demo video** on [YouTube](https://www.youtube.com/watch?v=fsZk_11pCN8)
+**¹** *This mode is a Terraria-like system that shows recipes you can craft from items you ever had in your inventory.
+To enable it: `i3_progressive_mode = true` in `minetest.conf`.*
+
+#### This mod officially supports the following mods:
+   - [**`3d_armor`**](https://content.minetest.net/packages/stu/3d_armor/)
+   - [**`skinsdb`**](https://content.minetest.net/packages/bell07/skinsdb/)
+   - [**`awards`**](https://content.minetest.net/packages/rubenwardy/awards/)
+
+---
+
+#### Recommendations:
+   - Use LuaJIT
+   - Use [Minetest Game](https://github.com/minetest/minetest_game) preferably
+   - Use the default font style with Freetype
+   - **DON'T** change the default font size settings
+   - **DON'T** change the default GUI scaling setting
+
+Please report any bug on the [**Bug Tracker**](https://github.com/minetest-mods/i3/issues).
+
+---
+
+Love this mod? Donations are appreciated: https://www.paypal.me/jpg84240
+
+Demo video: https://www.youtube.com/watch?v=fsZk_11pCN8
 
 ![Preview](https://user-images.githubusercontent.com/7883281/103390611-b2bc1880-4b15-11eb-92d2-296d0137f2a1.png)
