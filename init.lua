@@ -2023,7 +2023,19 @@ local function common_fields(player, data, fields)
 	local name = player:get_player_name()
 	local sb_rcp, sb_usg = fields.scrbar_rcp, fields.scrbar_usg
 
-	if fields.fav then
+	if fields.prev_recipe or fields.next_recipe then
+		local num = data.rnum + (fields.prev_recipe and -1 or 1)
+		data.rnum = data.recipes[num] and num or (fields.prev_recipe and #data.recipes or 1)
+		data.export_rcp = nil
+		data.scrbar_rcp = 1
+
+	elseif fields.prev_usage or fields.next_usage then
+		local num = data.unum + (fields.prev_usage and -1 or 1)
+		data.unum = data.usages[num] and num or (fields.prev_usage and #data.usages or 1)
+		data.export_usg = nil
+		data.scrbar_usg = 1
+
+	elseif fields.fav then
 		local fav, i = is_fav(data.favs, data.query_item)
 		local total = #data.favs
 
@@ -2122,7 +2134,8 @@ i3.new_tab {
 					end
 				end
 
-				max_val = max_val + (award_list_nb * (12.9 + ((__3darmor or __skinsdb) and 0.25 or 0)))
+				max_val = max_val +
+					(award_list_nb * (12.9 + ((__3darmor or __skinsdb) and 0.25 or 0)))
 			end
 
 			fs(fmt([[
@@ -2249,18 +2262,6 @@ i3.new_tab {
 
 		if fields.cancel then
 			reset_data(data)
-
-		elseif fields.prev_recipe or fields.next_recipe then
-			local num = data.rnum + (fields.prev_recipe and -1 or 1)
-			data.rnum = data.recipes[num] and num or (fields.prev_recipe and #data.recipes or 1)
-			data.export_rcp = nil
-			data.scrbar_rcp = 1
-
-		elseif fields.prev_usage or fields.next_usage then
-			local num = data.unum + (fields.prev_usage and -1 or 1)
-			data.unum = data.usages[num] and num or (fields.prev_usage and #data.usages or 1)
-			data.export_usg = nil
-			data.scrbar_usg = 1
 
 		elseif fields.key_enter_field == "filter" or fields.search then
 			if fields.filter == "" then
