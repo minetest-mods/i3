@@ -2846,3 +2846,4 @@ on_leaveplayer(function(player)
 end)
 
 --dofile(core.get_modpath("i3") .. "/tabs.lua")
+--dofile(core.get_modpath("i3") .. "/custom_recipes.lua")
