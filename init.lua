@@ -2250,7 +2250,9 @@ i3.new_tab {
 		local name = player:get_player_name()
 		local sb_inv = fields.scrbar_inv
 
-		panel_fields(player, data, fields)
+		if not creative_enabled(name) then
+			panel_fields(player, data, fields)
+		end
 
 		if fields.skins and data.skin_id ~= tonum(fields.skins) then
 			data.skin_id = tonum(fields.skins)
