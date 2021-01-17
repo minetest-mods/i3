@@ -7,7 +7,7 @@
 This inventory offers a slick, modern UI made with the latest technologies of the Minetest engine.
 **`i3`** provides a rich [**API**](https://github.com/minetest-mods/i3/blob/master/API.md) for mod developers who want to extend it.
 
-This mod is targetted for **Minetest 5.4+**
+This mod requires **Minetest 5.4+**
 
 #### List of features:
    - Crafting Guide (only in survival mode)
