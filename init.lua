@@ -44,6 +44,7 @@ local slz, dslz = core.serialize, core.deserialize
 local on_mods_loaded = core.register_on_mods_loaded
 local on_leaveplayer = core.register_on_leaveplayer
 local get_player_info = core.get_player_information
+local create_inventory = core.create_detached_inventory
 local on_receive_fields = core.register_on_player_receive_fields
 
 local ESC = core.formspec_escape
@@ -73,11 +74,21 @@ local IPP = ROWS * LINES
 local MAX_FAVS = 6
 local ITEM_BTN_SIZE = 1.1
 
+local INV_SIZE = 8*4
+
 -- Progressive mode
 local POLL_FREQ = 0.25
 local HUD_TIMER_MAX = 1.5
 
 local MIN_FORMSPEC_VERSION = 4
+
+local META_SAVES = {"bag_size", "skin_id"}
+
+local BAG_SIZES = {
+	small  = INV_SIZE + 8,
+	medium = INV_SIZE + 16,
+	large  = INV_SIZE + 24,
+}
 
 local PNG = {
 	bg = "i3_bg.png",
@@ -1093,6 +1104,15 @@ local function get_stack_max(inv, data, is_recipe, rcp)
 	return max_stacks
 end
 
+local function spawn_item(player, stack)
+	local dir     = player:get_look_dir()
+	local ppos    = player:get_pos()
+	      ppos.y  = ppos.y + 1.625
+	local look_at = vec_add(ppos, vec_mul(dir, 1))
+
+	core.add_item(look_at, stack)
+end
+
 local function get_stack(player, pname, stack, message)
 	local inv = player:get_inventory()
 
@@ -1100,12 +1120,7 @@ local function get_stack(player, pname, stack, message)
 		inv:add_item("main", stack)
 		msg(pname, fmt("%s added in your inventory", message))
 	else
-		local dir     = player:get_look_dir()
-		local ppos    = player:get_pos()
-		      ppos.y  = ppos.y + 1.625
-		local look_at = vec_add(ppos, vec_mul(dir, 1))
-
-		core.add_item(look_at, stack)
+		spawn_item(player, stack)
 		msg(pname, fmt("%s spawned", message))
 	end
 end
@@ -1647,7 +1662,7 @@ local function get_export_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, max_
 	   fmt("scrollbaroptions[min=1;max=%u;smallstep=1]", craft_max),
 	   fmt("scrollbar", data.xoffset + 8.1, data.yoffset, 3, 0.35, fmt("scrbar_%s", name), stack_fs),
 	   fmt("button", data.xoffset + 8.1, data.yoffset + 0.4, 3, 0.7, fmt("craft_%s", name),
-		fmt("%s", fmt(ES"Craft x %u", stack_fs))))
+		fmt("%s", fmt(ES"Craft (x%u)", stack_fs))))
 end
 
 local function get_rcp_extra(player, data, fs, panel, is_recipe, is_usage)
@@ -1735,11 +1750,13 @@ local function get_panels(player, data, fs)
 end
 
 local function add_subtitle(fs, title, x, y, ctn_len, font_size)
+	font_size = font_size or "+2"
+
 	fs(fmt("style_type[label;font=bold;font_size=%s]", font_size), fmt("label", x, y, title),
 	   "style_type[label;font=normal;font_size=+0]", fmt("box", x, y + 0.3, ctn_len, 0.045, "#bababa50"))
 end
 
-local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
+local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
 	if (__3darmor and __skinsdb) or __skinsdb then
 		yextra = yextra + 1.8
 	elseif __3darmor then
@@ -1749,7 +1766,7 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 	local percent = fmt("%.1f%%", (awards_unlocked * 100) / award_list_nb):gsub(".0", "")
 
 	add_subtitle(fs, fmt("%s: %u of %u (%s)", ES"Achievements",
-		awards_unlocked, award_list_nb, percent), 0, yextra, ctn_len, "+2")
+		awards_unlocked, award_list_nb, percent), 0, yextra, ctn_len)
 
 	for i = 1, award_list_nb do
 		local award = award_list[i]
@@ -1836,15 +1853,18 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 
 	local yextra = 5.6
 
-	if __3darmor then
-		add_subtitle(fs, ES"Armor", 0, yextra, ctn_len, "+2")
+	add_subtitle(fs, ES"Backpack", 0, yextra, ctn_len)
+	fs(fmt("list[detached:%s_backpack;main;0,%f;1,1;]", ESC(name), yextra + 0.6))
 
-		fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", ESC(name), yextra + 0.6))
+	if __3darmor then
+		add_subtitle(fs, ES"Armor", 0, yextra + 2.2, ctn_len)
+
+		fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", ESC(name), yextra + 2.8))
 
 		local armor_def = armor.def[name]
 
-		fs(fmt("label", 3.75, yextra + 1.55, fmt("%s: %s", ES"Level", armor_def.level)),
-		   fmt("label", 3.75, yextra + 1.95, fmt("%s: %s", ES"Heal", armor_def.heal)))
+		fs(fmt("label", 3.75, yextra + 3.75, fmt("%s: %s", ES"Level", armor_def.level)),
+		   fmt("label", 3.75, yextra + 4.25, fmt("%s: %s", ES"Heal", armor_def.heal)))
 	end
 
 	if __skinsdb then
@@ -1855,16 +1875,16 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 			t[#t + 1] = skin.name
 		end
 
-		yextra = __3darmor and (yextra + 3.5) or yextra
+		yextra = __3darmor and (yextra + 5.7) or yextra + 2.2
 
-		add_subtitle(fs, ES"Skins", 0, yextra, ctn_len, "+2")
+		add_subtitle(fs, ES"Skins", 0, yextra, ctn_len)
 
 		fs(fmt("dropdown[0,%f;3.55,0.6;skins;%s;%u;true]",
 			yextra + 0.6, concat(t, ","), data.skin_id or 1))
 	end
 
 	if __awards then
-		get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
+		get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
 	end
 end
 
@@ -2008,8 +2028,8 @@ function i3.delete_tab(name)
 	end
 end
 
-local function init_data(player, name)
-	local info = get_player_info(name)
+local function init_data(player, info)
+	local name = player:get_player_name()
 
 	pdata[name] = {
 		filter        = "",
@@ -2020,17 +2040,16 @@ local function init_data(player, name)
 		export_counts = {},
 		current_tab   = 1,
 		lang_code     = get_lang_code(info),
-		fs_version    = get_formspec_version(info),
 	}
 
 	local data = pdata[name]
+	local meta = player:get_meta()
+
+	data.bag_size = dslz(meta:get_string "bag_size")
 
 	if __skinsdb then
-		local meta = player:get_meta()
 		data.skin_id = tonum(dslz(meta:get_string "skin_id") or 1)
 	end
-
-	if data.fs_version < MIN_FORMSPEC_VERSION then return end
 
 	after(0, set_fs, player)
 end
@@ -2102,17 +2121,46 @@ local function panel_fields(player, data, fields)
 	end
 end
 
-local function get_inventory_fs(player, data, fs)
+local function get_inv_slots(data, fs)
 	local inv_x = 0.234
+	local bag = data.bag_size
 
-	for i = 0, 7 do
-		fs(fmt("image", i + inv_x + (i * 0.25), 6.1, 1, 1, "i3_hb_bg.png"))
+	if bag then
+		local max_value = 38
+
+		if data.bag_size == "small" then
+			max_value = 12
+		elseif data.bag_size == "medium" then
+			max_value = 25
+		end
+
+		fs(fmt([[
+			scrollbaroptions[arrows=hide;thumbsize=6;max=%u]
+			scrollbar[-2,6.09;0.3,4.83;vertical;scrbar_inv2;]
+			scrollbaroptions[arrows=default;thumbsize=0;max=1000]
+		]], max_value))
+
+		fs(fmt("scroll_container[%f,6.09;10,4.83;scrbar_inv2;vertical]", inv_x))
+		inv_x = 0
 	end
 
-	fs("listcolors[#bababa50;#bababa99]",
-	   "listring[current_player;main]",
-	   fmt("list[current_player;main;%f,6.1;8,1;]", inv_x),
-	   fmt("list[current_player;main;%f,7.4;8,3;8]", inv_x))
+	for i = 0, 7 do
+		fs(fmt("image", i + inv_x + (i * 0.25), bag and 0 or 6.1, 1, 1, "i3_hb_bg.png"))
+	end
+
+	fs(fmt("list[current_player;main;%f,%f;8,1;]", inv_x, bag and 0 or 6.1),
+	   fmt("list[current_player;main;%f,%f;8,%u;8]", inv_x, bag and 1.3 or 7.4,
+		(bag and BAG_SIZES[data.bag_size] or INV_SIZE) / 8))
+
+	if bag then
+		fs("scroll_container_end[]")
+	end
+end
+
+local function get_inventory_fs(player, data, fs)
+	fs("listcolors[#bababa50;#bababa99]listring[current_player;main]")
+
+	get_inv_slots(data, fs)
 
 	local props = player:get_properties()
 	local name = player:get_player_name()
@@ -2129,57 +2177,54 @@ local function get_inventory_fs(player, data, fs)
 		fs(fmt("image", 0.7, 0.2, size, size * props.visual_size.y, props.textures[1]))
 	end
 
-	local extras = __3darmor or __skinsdb or __awards
-
 	local ctn_len = 5.6
-	local xoffset = extras and 0 or 4.4
-	local yoffset = extras and 0 or 0.2
+	local xoffset, yoffset = 0, 0
 
 	local award_list, award_list_nb
 	local awards_unlocked = 0
 
-	if extras then
-		local max_val = 15
+	local max_val = 20
 
-		if __3darmor then
-			max_val = max_val + 15
+	if __3darmor then
+		max_val = max_val + 33
 
-			if __skinsdb then
-				max_val = max_val + 20
-			end
+		if __skinsdb then
+			max_val = max_val + 3
 		end
-
-		if __awards then
-			award_list = awards.get_award_states(name)
-			award_list_nb = #award_list
-
-			for i = 1, award_list_nb do
-				local award = award_list[i]
-
-				if award.unlocked then
-					awards_unlocked = awards_unlocked + 1
-				end
-			end
-
-			max_val = max_val + (award_list_nb * (12.9 + ((__3darmor or __skinsdb) and 0.25 or 0)))
-		end
-
-		fs(fmt([[
-			scrollbaroptions[arrows=hide;thumbsize=%u;max=%u]
-			scrollbar[9.69,0.2;0.3,5.5;vertical;scrbar_inv;%u]
-			scrollbaroptions[arrows=default;thumbsize=0;max=1000]
-		]],
-		(max_val * 3) / 15, max_val, data.scrbar_inv or 0))
-
-		fs(fmt("scroll_container[3.9,0.2;%f,5.5;scrbar_inv;vertical]", ctn_len))
 	end
+
+	if __skinsdb then
+		max_val = max_val + 16
+	end
+
+	if __awards then
+		award_list = awards.get_award_states(name)
+		award_list_nb = #award_list
+
+		for i = 1, award_list_nb do
+			local award = award_list[i]
+
+			if award.unlocked then
+				awards_unlocked = awards_unlocked + 1
+			end
+		end
+
+		max_val = max_val + (award_list_nb * (12.9 + ((__3darmor or __skinsdb) and 0.25 or 0)))
+	end
+
+	fs(fmt([[
+		scrollbaroptions[arrows=hide;thumbsize=%u;max=%u]
+		scrollbar[%f,0.2;0.3,5.5;vertical;scrbar_inv;%u]
+		scrollbaroptions[arrows=default;thumbsize=0;max=1000]
+	]],
+	(max_val * 3) / 15, max_val, 9.69, data.scrbar_inv or 0))
+
+	fs(fmt("scroll_container[3.9,0.2;%f,5.5;scrbar_inv;vertical]", ctn_len))
 
 	get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, award_list, awards_unlocked,
 			award_list_nb)
 
-	if extras then
-		fs("scroll_container_end[]")
-	end
+	fs("scroll_container_end[]")
 
 	local btn = {
 		{"trash", ES"Trash all items"},
@@ -2330,7 +2375,7 @@ i3.new_tab {
 	end,
 }
 
-local trash = core.create_detached_inventory("i3_trash", {
+local trash = create_inventory("i3_trash", {
 	allow_put = function(inv, listname, index, stack)
 		return stack:get_count()
 	end,
@@ -2365,14 +2410,7 @@ end
 
 if rawget(_G, "skins") then
 	__skinsdb = true
-
-	on_shutdown(function()
-		local players = get_players()
-		for i = 1, #players do
-			local player = players[i]
-			save_meta(player, {"skin_id"})
-		end
-	end)
+	insert(META_SAVES, "skin_id")
 end
 
 if rawget(_G, "awards") then
@@ -2572,13 +2610,92 @@ on_mods_loaded(function()
 	end
 end)
 
-on_joinplayer(function(player)
+local function init_backpack(player)
 	local name = player:get_player_name()
-	init_data(player, name)
 	local data = pdata[name]
 
-	if data.fs_version < MIN_FORMSPEC_VERSION then
-		outdated(name)
+	local player_inv = player:get_inventory()
+	player_inv:set_size("main", INV_SIZE)
+
+	data.bag = create_inventory(fmt("%s_backpack", name), {
+		allow_put = function(inv, listname, _, stack)
+			local empty = inv:get_stack(listname, 1):is_empty()
+
+			if empty and sub(stack:get_name(), 1, 7) == "i3:bag_" then
+				return 1
+			end
+
+			return 0
+		end,
+
+		on_put = function(_, _, _, stack)
+			data.bag_size = match(stack:get_name(), "_(%w+)$")
+			player_inv:set_size("main", BAG_SIZES[data.bag_size])
+			set_fs(player)
+		end,
+
+		on_take = function()
+			for i = INV_SIZE + 1, BAG_SIZES[data.bag_size] do
+				local stack = player_inv:get_stack("main", i)
+
+				if not stack:is_empty() then
+					spawn_item(player, stack)
+				end
+			end
+
+			data.bag_size = nil
+			player_inv:set_size("main", INV_SIZE)
+
+			set_fs(player)
+		end,
+	})
+
+	data.bag:set_size("main", 1)
+
+	if data.bag_size then
+		data.bag:set_stack("main", 1, fmt("i3:bag_%s", data.bag_size))
+		player_inv:set_size("main", BAG_SIZES[data.bag_size])
+	end
+end
+
+on_joinplayer(function(player)
+	local name = player:get_player_name()
+	local info = get_player_info(name)
+
+	if get_formspec_version(info) < MIN_FORMSPEC_VERSION then
+		return outdated(name)
+	end
+
+	init_data(player, info)
+	init_backpack(player)
+end)
+
+core.register_on_dieplayer(function(player)
+	local name = player:get_player_name()
+	local data = pdata[name]
+
+	data.bag_size = nil
+	data.bag:set_list("main", {})
+
+	local inv = player:get_inventory()
+	inv:set_size("main", INV_SIZE)
+
+	set_fs(player)
+end)
+
+on_leaveplayer(function(player)
+	save_meta(player, META_SAVES)
+
+	local name = player:get_player_name()
+	pdata[name] = nil
+end)
+
+on_shutdown(function()
+	local players = get_players()
+
+	for i = 1, #players do
+		local player = players[i]
+		save_meta(player, META_SAVES)
 	end
 end)
 
@@ -2586,6 +2703,7 @@ on_receive_fields(function(player, formname, fields)
 	if formname ~= "" then return false end
 	local name = player:get_player_name()
 	local data = pdata[name]
+	if not data then return end
 
 	for f in pairs(fields) do
 		if sub(f, 1, 4) == "tab_" then
@@ -2838,29 +2956,49 @@ if progressive_mode then
 		end
 	end)
 
-	local to_save = {"inv_items", "known_recipes"}
-
-	on_leaveplayer(function(player)
-		save_meta(player, to_save)
-	end)
-
-	on_shutdown(function()
-		local players = get_players()
-		for i = 1, #players do
-			local player = players[i]
-			save_meta(player, to_save)
-		end
-	end)
+	table_merge(META_SAVES, {"inv_items", "known_recipes"})
 end
 
-on_leaveplayer(function(player)
-	if __skinsdb then
-		save_meta(player, {"skin_id"})
-	end
+for _, size in ipairs({"small", "medium", "large"}) do
+	local bagname = fmt("i3:bag_%s", size)
 
-	local name = player:get_player_name()
-	pdata[name] = nil
-end)
+	core.register_craftitem(bagname, {
+		description = fmt("%s Backpack", size:gsub("^%l", upper)),
+		inventory_image = fmt("i3_bag_%s.png", size),
+		stack_max = 1,
+	})
+
+	core.register_craft {
+		type = "fuel",
+		recipe = bagname,
+		burntime = 3
+	}
+end
+
+core.register_craft {
+	output = "i3:bag_small",
+	recipe = {
+		{"", "farming:string", ""},
+		{"group:wool", "group:wool", "group:wool"},
+		{"group:wool", "group:wool", "group:wool"},
+	}
+}
+
+core.register_craft {
+	output = "i3:bag_medium",
+	recipe = {
+		{"farming:string", "i3:bag_small", "farming:string"},
+		{"farming:string", "i3:bag_small", "farming:string"},
+	}
+}
+
+core.register_craft {
+	output = "i3:bag_large",
+	recipe = {
+		{"farming:string", "i3:bag_medium", "farming:string"},
+		{"farming:string", "i3:bag_medium", "farming:string"},
+	}
+}
 
 --dofile(core.get_modpath("i3") .. "/test_tabs.lua")
 --dofile(core.get_modpath("i3") .. "/test_custom_recipes.lua")
