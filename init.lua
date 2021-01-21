@@ -1940,6 +1940,7 @@ end
 
 local function make_fs(player, data)
 	--local start = os.clock()
+
 	local fs = setmetatable({}, {
 		__call = function(t, ...)
 			t[#t + 1] = concat({...})
@@ -1949,7 +1950,7 @@ local function make_fs(player, data)
 	data.xoffset = ROWS + 1.23
 	local full_height = LINES + 1.73
 
-	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
+	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#080808BB;true]",
 		MIN_FORMSPEC_VERSION, data.xoffset + (data.query_item and 8 or 0), full_height), styles)
 
 	fs(fmt("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10))
