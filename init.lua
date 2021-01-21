@@ -1744,7 +1744,7 @@ end
 
 local function add_subtitle(fs, title, x, y, ctn_len, font_size)
 	fs(fmt("style_type[label;font=bold;font_size=%s]", font_size), fmt("label", x, y, title),
-	   "style_type[label;font=normal;font_size=+0]", fmt("box", x, y + 0.3, ctn_len, 0.05, "#666"))
+	   "style_type[label;font=normal;font_size=+0]", fmt("box", x, y + 0.3, ctn_len, 0.045, "#bababa50"))
 end
 
 local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
@@ -1918,21 +1918,24 @@ local function make_fs(player, data)
 			shift = #tabs - 3
 		end
 
+		local selected = i == data.current_tab
+
 		fs(fmt([[style_type[image_button;fgimg=%s;fgimg_hovered=%s;fgimg_middle=14;noclip=true;
-			font_size=+0;content_offset=0;sound=i3_tab]
-		]], (i == data.current_tab) and
-			(btm and PNG.tab_hover or PNG.tab_hover_top) or (btm and PNG.tab or PNG.tab_top),
-			btm and PNG.tab_hover or PNG.tab_hover_top))
+			font_size=+0;textcolor=%s;content_offset=0;sound=i3_tab] ]],
+		selected and (btm and PNG.tab_hover or PNG.tab_hover_top) or (btm and PNG.tab or PNG.tab_top),
+		btm and PNG.tab_hover or PNG.tab_hover_top,
+		selected and "#fff" or "#ddd"))
 
 		local X = (data.xoffset / 2) + (c * (tab_len + 0.1)) - ((tab_len + 0.05) * (shift / 2))
 		local Y = btm and full_height or -tab_hgh
 
+		fs("style_type[image_button:hovered;textcolor=#fff]")
 		fs(fmt("image_button", X, Y, tab_len, tab_hgh, "", fmt("tab_%s", def.name), ESC(def.description)))
 
 		if def.image and def.image ~= "" then
 			fs("style_type[image;noclip=true]")
 			local desc = translate(data.lang_code, def.description)
-			fs(fmt("image", X + (tab_len / 2) - ((#desc * 0.1) / 2) - 0.6,
+			fs(fmt("image", X + (tab_len / 2) - ((#desc * 0.1) / 2) - 0.55,
 				Y + 0.05, 0.35, 0.35, fmt("%s^\\[resize:16x16", def.image)))
 		end
 

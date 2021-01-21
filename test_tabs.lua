@@ -1,6 +1,6 @@
 i3.new_tab {
 	name = "test1",
-	description = "Test 1",
+	description = "Test 1 Test 1",
 	image = "i3_heart.png",
 
 	formspec = function(player, data, fs)
