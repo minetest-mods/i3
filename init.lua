@@ -1875,28 +1875,7 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 	end
 end
 
-local function make_fs(player, data)
-	--local start = os.clock()
-	local fs = setmetatable({}, {
-		__call = function(t, ...)
-			t[#t + 1] = concat({...})
-		end
-	})
-
-	data.xoffset = ROWS + 1.23
-	local full_height = LINES + 1.73
-
-	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
-		MIN_FORMSPEC_VERSION, data.xoffset + (data.query_item and 8 or 0), full_height), styles)
-
-	fs(fmt("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10))
-
-	tabs[(data.current_tab or 1)].formspec(player, data, fs)
-
-	if data.query_item then
-		get_panels(player, data, fs)
-	end
-
+local function get_tabs_fs(player, data, fs, full_height)
 	local tab_len, tab_hgh, c, over = 3, 0.5, 0
 	local shift = min(3, #tabs)
 
@@ -1930,7 +1909,8 @@ local function make_fs(player, data)
 		local Y = btm and full_height or -tab_hgh
 
 		fs("style_type[image_button:hovered;textcolor=#fff]")
-		fs(fmt("image_button", X, Y, tab_len, tab_hgh, "", fmt("tab_%s", def.name), ESC(def.description)))
+		fs(fmt("image_button", X, Y, tab_len, tab_hgh, "", fmt("tab_%s", def.name),
+			ESC(def.description)))
 
 		if def.image and def.image ~= "" then
 			fs("style_type[image;noclip=true]")
@@ -1941,21 +1921,50 @@ local function make_fs(player, data)
 
 		c = c + 1
 	end
+end
 
-	--[[
+local function get_debug_grid(data, fs, full_height)
 	local spacing = 0.2
+
 	for x = 0, data.xoffset, spacing do
 		fs(fmt("box", x, 0, 0.01, full_height, "#f00"))
 	end
+
 	for y = 0, full_height, spacing do
 		fs(fmt("box", 0, y, data.xoffset, 0.01, "#f00"))
 	end
 
 	fs(fmt("box", data.xoffset / 2, 0, 0.01, full_height, "#ff0"))
 	fs(fmt("box", 0, full_height / 2, data.xoffset, 0.01, "#ff0"))
-	]]
+end
 
+local function make_fs(player, data)
+	--local start = os.clock()
+	local fs = setmetatable({}, {
+		__call = function(t, ...)
+			t[#t + 1] = concat({...})
+		end
+	})
+
+	data.xoffset = ROWS + 1.23
+	local full_height = LINES + 1.73
+
+	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
+		MIN_FORMSPEC_VERSION, data.xoffset + (data.query_item and 8 or 0), full_height), styles)
+
+	fs(fmt("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10))
+
+	tabs[(data.current_tab or 1)].formspec(player, data, fs)
+
+	if data.query_item then
+		get_panels(player, data, fs)
+	end
+
+	get_tabs_fs(player, data, fs, full_height)
+
+	--get_debug_grid(data, fs, full_height)
 	--print("make_fs()", fmt("%.2f ms", (os.clock() - start) * 1000))
+
 	return concat(fs)
 end
 
