@@ -90,8 +90,8 @@ local PNG = {
 	next = "i3_next.png",
 	arrow = "i3_arrow.png",
 	trash = "i3_trash.png",
-	sort_az = "i3_sort.png",
-	sort_za = "i3_sort2.png",
+	sort_az = "i3_sort_az.png",
+	sort_za = "i3_sort_za.png",
 	compress = "i3_compress.png",
 	fire = "i3_fire.png",
 	fire_anim = "i3_fire_anim.png",
@@ -109,8 +109,8 @@ local PNG = {
 	export_hover = "i3_export.png^\\[brighten",
 	trash_hover = "i3_trash.png^\\[brighten^\\[colorize:#f00:100",
 	compress_hover = "i3_compress.png^\\[brighten",
-	sort_az_hover = "i3_sort.png^\\[brighten",
-	sort_za_hover = "i3_sort2.png^\\[brighten",
+	sort_az_hover = "i3_sort_az.png^\\[brighten",
+	sort_za_hover = "i3_sort_za.png^\\[brighten",
 	prev_hover = "i3_next_hover.png^\\[transformFX",
 	next_hover = "i3_next_hover.png",
 	tab_hover = "i3_tab_hover.png",
@@ -140,10 +140,6 @@ local styles = sprintf([[
 	style[filter;border=false]
 	style[cancel;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[search;fgimg=%s;fgimg_hovered=%s;content_offset=0]
-	style[trash;fgimg=%s;fgimg_hovered=%s;content_offset=0;sound=i3_delete]
-	style[sort_az;fgimg=%s;fgimg_hovered=%s;content_offset=0]
-	style[sort_za;fgimg=%s;fgimg_hovered=%s;content_offset=0]
-	style[compress;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[prev_page;fgimg=%s;fgimg_hovered=%s]
 	style[next_page;fgimg=%s;fgimg_hovered=%s]
 	style[prev_recipe;fgimg=%s;fgimg_hovered=%s]
@@ -158,10 +154,6 @@ local styles = sprintf([[
 PNG.slot,
 PNG.cancel,   PNG.cancel_hover,
 PNG.search,   PNG.search_hover,
-PNG.trash,    PNG.trash_hover,
-PNG.sort_az,  PNG.sort_az_hover,
-PNG.sort_za,  PNG.sort_za_hover,
-PNG.compress, PNG.compress_hover,
 PNG.prev,     PNG.prev_hover,
 PNG.next,     PNG.next_hover,
 PNG.prev,     PNG.prev_hover,
@@ -1823,7 +1815,6 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 	local hp = damage_enabled and (data.hp or player:get_hp()) or 20
 	local half = ceil((hp / 2) % 1)
 	local hearts = (hp / 2) + half
-	local yextra = 5.6
 
 	for i = 1, 10 do
 		fs(fmt("image", xoffset + ((i - 1) * 0.4), yoffset + 0.7, 0.4, 0.4, PNG.heart_grey))
@@ -1842,6 +1833,8 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 	   "listring[detached:i3_trash;main]",
 	   fmt("list[detached:i3_trash;main;%f,%f;1,1;]", xoffset + 4.45, yoffset + 3.95),
 	   fmt("image", xoffset + 4.45, yoffset + 3.95, 1, 1, PNG.trash))
+
+	local yextra = 5.6
 
 	if __3darmor then
 		add_subtitle(fs, ES"Armor", 0, yextra, ctn_len, "+2")
@@ -1950,7 +1943,7 @@ local function make_fs(player, data)
 	data.xoffset = ROWS + 1.23
 	local full_height = LINES + 1.73
 
-	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#080808BB;true]",
+	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
 		MIN_FORMSPEC_VERSION, data.xoffset + (data.query_item and 8 or 0), full_height), styles)
 
 	fs(fmt("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10))
@@ -2197,6 +2190,10 @@ local function get_inventory_fs(player, data, fs)
 
 	for i, v in ipairs(btn) do
 		local btn_name, tooltip = unpack(v)
+
+		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
+			btn_name, PNG[btn_name], PNG[fmt("%s_hover", btn_name)]))
+
 		fs(fmt("image_button", i + 3.447 - (i * 0.4), 11.13, 0.35, 0.35, "", btn_name, ""))
 		fs(fmt("tooltip[%s;%s]", btn_name, tooltip))
 	end
