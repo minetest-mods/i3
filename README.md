@@ -13,6 +13,7 @@ This mod requires **Minetest 5.4+**
    - Crafting Guide (only in survival mode)
    - Progressive Mode¹
    - Quick Crafting
+   - Backpacks
    - 3D Player Model Preview
    - Inventory Sorting (alphabetical + item stack compression)
    - Item Bookmarks
