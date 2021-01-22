@@ -158,6 +158,7 @@ local styles = sprintf([[
 	style[prev_usage;fgimg=%s;fgimg_hovered=%s]
 	style[next_usage;fgimg=%s;fgimg_hovered=%s]
 	style[pagenum,no_item,no_rcp;border=false;font=bold;font_size=+2;content_offset=0]
+	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=+2;border=false;content_offset=-13,0]
 	style[craft_rcp,craft_usg;border=false;noclip=true;font_size=+0;sound=i3_craft;
 	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
 	      bgimg_pressed=i3_btn9_pressed.png;bgimg_middle=4,6]
@@ -1757,12 +1758,6 @@ local function add_subtitle(fs, title, x, y, ctn_len, font_size)
 end
 
 local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
-	if (__3darmor and __skinsdb) or __skinsdb then
-		yextra = yextra + 1.8
-	elseif __3darmor then
-		yextra = yextra + 3.5
-	end
-
 	local percent = fmt("%.1f%%", (awards_unlocked * 100) / award_list_nb):gsub(".0", "")
 
 	add_subtitle(fs, fmt("%s: %u of %u (%s)", ES"Achievements",
@@ -1852,38 +1847,67 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 	   fmt("image", xoffset + 4.45, yoffset + 3.95, 1, 1, PNG.trash))
 
 	local yextra = 5.6
+	local bag_equip = data.equip == "bag"
+	local armor_equip = data.equip == "armor"
+	local skins_equip = data.equip == "skins"
 
-	add_subtitle(fs, ES"Backpack", 0, yextra, ctn_len)
-	fs(fmt("list[detached:%s_backpack;main;0,%f;1,1;]", ESC(name), yextra + 0.6))
+	fs(fmt("style[btn_bag;textcolor=%s]", bag_equip and "#fff" or "#aaa"),
+	   fmt("style[btn_armor;textcolor=%s]", armor_equip and "#fff" or "#aaa"),
+	   fmt("style[btn_skins;textcolor=%s]", skins_equip and "#fff" or "#aaa"),
+	   "style_type[button:hovered;textcolor=#fff]",
+	   fmt("button", 0, yextra - 0.2, 2, 0.6, "btn_bag", ES"Bag"),
+	   fmt("button", 2, yextra - 0.2, 2, 0.6, "btn_armor", ES"Armor"),
+	   fmt("button", 4, yextra - 0.2, 2, 0.6, "btn_skins", ES"Skins"))
 
-	if __3darmor then
-		add_subtitle(fs, ES"Armor", 0, yextra + 2.2, ctn_len)
+	fs(fmt("box", 0, yextra + 0.4, ctn_len, 0.045, "#bababa50"))
+	fs(fmt("box", (bag_equip and 0) or
+		      (armor_equip and 2) or
+		      (skins_equip and 4), yextra + 0.4, 1.6, 0.045, "#f9826c"))
 
-		fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", ESC(name), yextra + 2.8))
-
-		local armor_def = armor.def[name]
-
-		fs(fmt("label", 3.75, yextra + 3.75, fmt("%s: %s", ES"Level", armor_def.level)),
-		   fmt("label", 3.75, yextra + 4.25, fmt("%s: %s", ES"Heal", armor_def.heal)))
+	if bag_equip then
+		fs(fmt("list[detached:%s_backpack;main;0,%f;1,1;]", ESC(name), yextra + 0.7))
 	end
 
-	if __skinsdb then
-		local _skins = skins.get_skinlist_for_player(name)
-		local t = {}
+	if armor_equip then
+		if __3darmor then
+			fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", ESC(name), yextra + 0.7))
 
-		for _, skin in ipairs(_skins) do
-			t[#t + 1] = skin.name
+			local armor_def = armor.def[name]
+
+			fs(fmt("label", 3.75, yextra + 1.6, fmt("%s: %s", ES"Level", armor_def.level)),
+			   fmt("label", 3.75, yextra + 2.1, fmt("%s: %s", ES"Heal", armor_def.heal)))
+		else
+			fs(fmt("hypertext[0,%f;%f,0.6;;%s]", yextra + 0.9, ctn_len,
+				"<center><style color=#7bf font=mono>3d_armor</style> not installed</center>"))
 		end
+	end
 
-		yextra = __3darmor and (yextra + 5.7) or yextra + 2.2
+	if skins_equip then
+		if __skinsdb then
+			local _skins = skins.get_skinlist_for_player(name)
+			local t = {}
 
-		add_subtitle(fs, ES"Skins", 0, yextra, ctn_len)
+			for _, skin in ipairs(_skins) do
+				t[#t + 1] = skin.name
+			end
 
-		fs(fmt("dropdown[0,%f;3.55,0.6;skins;%s;%u;true]",
-			yextra + 0.6, concat(t, ","), data.skin_id or 1))
+			fs(fmt("dropdown[0,%f;3.55,0.6;skins;%s;%u;true]",
+				yextra + 0.7, concat(t, ","), data.skin_id or 1))
+		else
+			fs(fmt("hypertext[0,%f;%f,0.6;;%s]", yextra + 0.9, ctn_len,
+				"<center><style color=#7bf font=mono>skinsdb</style> not installed</center>"))
+		end
 	end
 
 	if __awards then
+		if bag_equip then
+			yextra = yextra + 2.5
+		elseif armor_equip then
+			yextra = yextra + (__3darmor and 3.8 or 1.8)
+		elseif skins_equip then
+			yextra = yextra + (__skinsdb and 2.1 or 1.8)
+		end
+
 		get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
 	end
 end
@@ -2039,6 +2063,7 @@ local function init_data(player, info)
 		favs          = {},
 		export_counts = {},
 		current_tab   = 1,
+		equip         = "bag",
 		lang_code     = get_lang_code(info),
 	}
 
@@ -2185,16 +2210,12 @@ local function get_inventory_fs(player, data, fs)
 
 	local max_val = 20
 
-	if __3darmor then
-		max_val = max_val + 33
-
-		if __skinsdb then
-			max_val = max_val + 3
+	if __3darmor and data.equip == "armor" then
+		if data.scrbar_inv == max_val then
+			data.scrbar_inv = data.scrbar_inv + 12
 		end
-	end
 
-	if __skinsdb then
-		max_val = max_val + 16
+		max_val = max_val + 12
 	end
 
 	if __awards then
@@ -2329,6 +2350,14 @@ i3.new_tab {
 		elseif sb_inv and sub(sb_inv, 1, 3) == "CHG" then
 			data.scrbar_inv = tonum(match(sb_inv, "%d+"))
 			return
+
+		elseif fields.btn_bag or fields.btn_armor or fields.btn_skins then
+			for k in pairs(fields) do
+				if sub(k, 1, 4) == "btn_" then
+					data.equip = sub(k, 5)
+					break
+				end
+			end
 		end
 
 		return set_fs(player)
