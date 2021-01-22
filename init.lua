@@ -128,17 +128,18 @@ local PNG = {
 }
 
 local fs_elements = {
-	box = "box[%f,%f;%f,%f;%s]",
 	label = "label[%f,%f;%s]",
+	box = "box[%f,%f;%f,%f;%s]",
 	image = "image[%f,%f;%f,%f;%s]",
-	button = "button[%f,%f;%f,%f;%s;%s]",
 	tooltip = "tooltip[%f,%f;%f,%f;%s]",
+	button = "button[%f,%f;%f,%f;%s;%s]",
 	item_image = "item_image[%f,%f;%f,%f;%s]",
+	hypertext = "hypertext[%f,%f;%f,%f;%s;%s]",
 	bg9 = "background9[%f,%f;%f,%f;%s;false;%u]",
+	scrollbar = "scrollbar[%f,%f;%f,%f;%s;%s;%u]",
 	model = "model[%f,%f;%f,%f;%s;%s;%s;%s;%s;%s;%s]",
 	image_button = "image_button[%f,%f;%f,%f;%s;%s;%s]",
 	animated_image = "animated_image[%f,%f;%f,%f;;%s;%u;%u]",
-	scrollbar = "scrollbar[%f,%f;%f,%f;horizontal;%s;%u]",
 	item_image_button = "item_image_button[%f,%f;%f,%f;%s;%s;%s]",
 }
 
@@ -1659,7 +1660,8 @@ local function get_export_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, max_
 
 	fs(fmt("style[scrbar_%s;noclip=true]", name),
 	   fmt("scrollbaroptions[min=1;max=%u;smallstep=1]", craft_max),
-	   fmt("scrollbar", data.xoffset + 8.1, data.yoffset, 3, 0.35, fmt("scrbar_%s", name), stack_fs),
+	   fmt("scrollbar", data.xoffset + 8.1, data.yoffset, 3, 0.35,
+		"horizontal", fmt("scrbar_%s", name), stack_fs),
 	   fmt("button", data.xoffset + 8.1, data.yoffset + 0.4, 3, 0.7, fmt("craft_%s", name),
 		fmt("%s", fmt(ES"Craft (x%u)", stack_fs))))
 end
@@ -1857,12 +1859,18 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 	   fmt("button", 2, yextra - 0.2, 2, 0.6, "btn_armor", ES"Armor"),
 	   fmt("button", 4, yextra - 0.2, 2, 0.6, "btn_skins", ES"Skins"))
 
-	fs(fmt("box", 0, yextra + 0.4, ctn_len, 0.045, "#bababa50"))
-	fs(fmt("box", (bag_equip and 0) or (armor_equip and 2) or (skins_equip and 4),
+	fs(fmt("box", 0, yextra + 0.4, ctn_len, 0.045, "#bababa50"),
+	   fmt("box", (bag_equip and 0) or (armor_equip and 2) or (skins_equip and 4),
 		yextra + 0.4, 1.6, 0.045, "#f9826c"))
 
 	if bag_equip then
 		fs(fmt("list[detached:%s_backpack;main;0,%f;1,1;]", ESC(name), yextra + 0.7))
+
+		if not data.bag:get_stack("main", 1):is_empty() then
+			fs(fmt("hypertext", 1.2, yextra + 0.89, ctn_len - 1.2, 0.8, "",
+				ES("Your inventory has been extended by @1 slots. Scroll over it.",
+					BAG_SIZES[data.bag_size] - INV_SIZE)))
+		end
 
 	elseif armor_equip then
 		if __3darmor then
@@ -1873,7 +1881,7 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 			fs(fmt("label", 3.75, yextra + 1.6, fmt("%s: %s", ES"Level", armor_def.level)),
 			   fmt("label", 3.75, yextra + 2.1, fmt("%s: %s", ES"Heal", armor_def.heal)))
 		else
-			fs(fmt("hypertext[0,%f;%f,0.6;;%s]", yextra + 0.9, ctn_len,
+			fs(fmt("hypertext", 0, yextra + 0.9, ctn_len, 0.4, "",
 				"<center><style color=#7bf font=mono>3d_armor</style> not installed</center>"))
 		end
 
@@ -1889,7 +1897,7 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 			fs(fmt("dropdown[0,%f;3.55,0.6;skins;%s;%u;true]",
 				yextra + 0.7, concat(t, ","), data.skin_id or 1))
 		else
-			fs(fmt("hypertext[0,%f;%f,0.6;;%s]", yextra + 0.9, ctn_len,
+			fs(fmt("hypertext", 0, yextra + 0.9, ctn_len, 0.6, "",
 				"<center><style color=#7bf font=mono>skinsdb</style> not installed</center>"))
 		end
 	end
