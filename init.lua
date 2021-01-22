@@ -38,7 +38,6 @@ local get_players = core.get_connected_players
 local get_craft_result = core.get_craft_result
 local translate = minetest.get_translated_string
 local on_joinplayer = core.register_on_joinplayer
-local creative_enabled = core.is_creative_enabled
 local get_all_recipes = core.get_all_craft_recipes
 local slz, dslz = core.serialize, core.deserialize
 local on_mods_loaded = core.register_on_mods_loaded
@@ -1205,7 +1204,7 @@ local function select_item(player, name, data, _f)
 	item = reg_aliases[item] or item
 	if not reg_items[item] then return end
 
-	if creative_enabled(name) then
+	if core.is_creative_enabled(name) then
 		local stack = ItemStack(item)
 		local stackmax = stack:get_stack_max()
 		stack = fmt("%s %s", item, stackmax)
@@ -1860,9 +1859,8 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 	   fmt("button", 4, yextra - 0.2, 2, 0.6, "btn_skins", ES"Skins"))
 
 	fs(fmt("box", 0, yextra + 0.4, ctn_len, 0.045, "#bababa50"))
-	fs(fmt("box", (bag_equip and 0) or
-		      (armor_equip and 2) or
-		      (skins_equip and 4), yextra + 0.4, 1.6, 0.045, "#f9826c"))
+	fs(fmt("box", (bag_equip and 0) or (armor_equip and 2) or (skins_equip and 4),
+		yextra + 0.4, 1.6, 0.045, "#f9826c"))
 
 	if bag_equip then
 		fs(fmt("list[detached:%s_backpack;main;0,%f;1,1;]", ESC(name), yextra + 0.7))
@@ -2325,7 +2323,7 @@ i3.new_tab {
 		local name = player:get_player_name()
 		local sb_inv = fields.scrbar_inv
 
-		if not creative_enabled(name) then
+		if not core.is_creative_enabled(name) then
 			panel_fields(player, data, fields)
 		end
 
@@ -2413,7 +2411,7 @@ local trash = create_inventory("i3_trash", {
 
 		local name = player:get_player_name()
 
-		if not creative_enabled(name) then
+		if not core.is_creative_enabled(name) then
 			set_fs(player)
 		end
 	end,
@@ -2424,7 +2422,7 @@ trash:set_size("main", 1)
 core.register_on_player_inventory_action(function(player, _, _, info)
 	local name = player:get_player_name()
 
-	if not creative_enabled(name) and
+	if not core.is_creative_enabled(name) and
 	  ((info.from_list == "main"  and info.to_list == "craft") or
 	   (info.from_list == "craft" and info.to_list == "main")  or
 	   (info.from_list == "craftresult" and info.to_list == "main")) then
