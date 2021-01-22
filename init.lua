@@ -181,17 +181,11 @@ local function get_formspec_version(info)
 end
 
 local function outdated(name)
-	local fs = sprintf([[
-		size[7.1,1.3]
-		image[0,0;1,1;%s]
-		label[1,0;%s]
-		button_exit[3.1,0.8;1,1;;OK]
-	]],
-	PNG.book,
-	"Your Minetest client is outdated.\n" ..
-	"Get the latest version on minetest.net to use the i3 inventory.")
+	local fs = sprintf("size[5.8,1.3]image[0,0;1,1;%s]label[1,0;%s]button_exit[2.4,0.8;1,1;;OK]",
+		PNG.book,
+		"Your Minetest client is outdated.\nGet the latest version on minetest.net to use i3")
 
-	return show_formspec(name, "i3", fs)
+	show_formspec(name, "i3", fs)
 end
 
 local old_is_creative_enabled = core.is_creative_enabled
@@ -431,6 +425,7 @@ local function save_meta(player, entries)
 	local meta = player:get_meta()
 	local name = player:get_player_name()
 	local data = pdata[name]
+	if not data then return end
 
 	for _, entry in ipairs(entries) do
 		meta:set_string(entry, slz(data[entry]))
@@ -1870,9 +1865,8 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 
 	if bag_equip then
 		fs(fmt("list[detached:%s_backpack;main;0,%f;1,1;]", ESC(name), yextra + 0.7))
-	end
 
-	if armor_equip then
+	elseif armor_equip then
 		if __3darmor then
 			fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", ESC(name), yextra + 0.7))
 
@@ -1884,9 +1878,8 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 			fs(fmt("hypertext[0,%f;%f,0.6;;%s]", yextra + 0.9, ctn_len,
 				"<center><style color=#7bf font=mono>3d_armor</style> not installed</center>"))
 		end
-	end
 
-	if skins_equip then
+	elseif skins_equip then
 		if __skinsdb then
 			local _skins = skins.get_skinlist_for_player(name)
 			local t = {}
