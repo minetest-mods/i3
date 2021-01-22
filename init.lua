@@ -194,6 +194,12 @@ local function outdated(name)
 	return show_formspec(name, "i3", fs)
 end
 
+local old_is_creative_enabled = core.is_creative_enabled
+
+function core.is_creative_enabled(name)
+	return core.check_player_privs(name, {creative = true}) or old_is_creative_enabled(name)
+end
+
 i3.group_stereotypes = {
 	dye = "dye:white",
 	wool = "wool:white",
