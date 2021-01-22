@@ -157,7 +157,7 @@ local styles = sprintf([[
 	style[prev_usage;fgimg=%s;fgimg_hovered=%s]
 	style[next_usage;fgimg=%s;fgimg_hovered=%s]
 	style[pagenum,no_item,no_rcp;border=false;font=bold;font_size=+2;content_offset=0]
-	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=+2;border=false;content_offset=-13,0]
+	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=+2;border=false;content_offset=-12,0]
 	style[craft_rcp,craft_usg;border=false;noclip=true;font_size=+0;sound=i3_craft;
 	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
 	      bgimg_pressed=i3_btn9_pressed.png;bgimg_middle=4,6]
@@ -422,10 +422,11 @@ local function table_replace(t, val, new)
 end
 
 local function save_meta(player, entries)
-	local meta = player:get_meta()
 	local name = player:get_player_name()
 	local data = pdata[name]
 	if not data then return end
+
+	local meta = player:get_meta()
 
 	for _, entry in ipairs(entries) do
 		meta:set_string(entry, slz(data[entry]))
@@ -835,8 +836,7 @@ local function drop_table(name, drop)
 				local dcount = dstack:get_count()
 				local empty  = dstack:is_empty()
 
-				if not empty and (dname ~= name or
-						(dname == name and dcount > 1)) then
+				if not empty and (dname ~= name or (dname == name and dcount > 1)) then
 					local rarity = valid_rarity and di.rarity
 
 					i3.register_craft{
@@ -1311,8 +1311,7 @@ local function get_tooltip(item, info)
 				names = fmt("%s\t\t- %s\n", names, clr("#ff0", get_desc(info.tools[i])))
 			end
 
-			tooltip = add(S("Only drop if using one of these tools: @1",
-				sub(names, 1, -2)))
+			tooltip = add(S("Only drop if using one of these tools: @1", sub(names, 1, -2)))
 		else
 			tooltip = add(S("Only drop if using this tool: @1",
 				clr("#ff0", get_desc(info.tools[1]))))
@@ -1326,8 +1325,7 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 	local custom_recipe = craft_types[rcp.type]
 
 	if custom_recipe or shapeless or rcp.type == "cooking" then
-		local icon = custom_recipe and custom_recipe.icon or
-			     shapeless and "shapeless" or "furnace"
+		local icon = custom_recipe and custom_recipe.icon or shapeless and "shapeless" or "furnace"
 
 		if not custom_recipe then
 			icon = fmt("i3_%s.png^\\[resize:16x16", icon)
@@ -1936,8 +1934,7 @@ local function get_tabs_fs(player, data, fs, full_height)
 		fs(fmt([[style_type[image_button;fgimg=%s;fgimg_hovered=%s;fgimg_middle=14;noclip=true;
 			font_size=+0;textcolor=%s;content_offset=0;sound=i3_tab] ]],
 		selected and (btm and PNG.tab_hover or PNG.tab_hover_top) or (btm and PNG.tab or PNG.tab_top),
-		btm and PNG.tab_hover or PNG.tab_hover_top,
-		selected and "#fff" or "#ddd"))
+		btm and PNG.tab_hover or PNG.tab_hover_top, selected and "#fff" or "#ddd"))
 
 		local X = (data.xoffset / 2) + (c * (tab_len + 0.1)) - ((tab_len + 0.05) * (shift / 2))
 		local Y = btm and full_height or -tab_hgh
@@ -2804,6 +2801,7 @@ if progressive_mode then
 		end
 
 		local filtered, c = {}, 0
+
 		for i = 1, #recipes do
 			local recipe = recipes[i]
 			if recipe_in_inv(recipe, data.inv_items) then
