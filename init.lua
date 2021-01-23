@@ -1761,8 +1761,8 @@ end
 local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
 	local percent = fmt("%.1f%%", (awards_unlocked * 100) / award_list_nb):gsub(".0", "")
 
-	add_subtitle(fs, fmt("%s: %u of %u (%s)", ES"Achievements",
-		awards_unlocked, award_list_nb, percent), 0, yextra, ctn_len)
+	add_subtitle(fs, ES("Achievements: @1 of @2 (@3)", awards_unlocked, award_list_nb, percent),
+		0, yextra, ctn_len)
 
 	for i = 1, award_list_nb do
 		local award = award_list[i]
