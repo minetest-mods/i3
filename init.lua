@@ -919,7 +919,7 @@ local function cache_recipes(item)
 	end
 end
 
-local function get_recipes(item, data, player)
+local function get_recipes(player, item)
 	local clean_item = reg_aliases[item] or item
 	local recipes = recipes_cache[clean_item]
 	local usages = usages_cache[clean_item]
@@ -1225,7 +1225,7 @@ local function select_item(player, name, data, _f)
 	end
 
 	if item == data.query_item then return end
-	local recipes, usages = get_recipes(item, data, player)
+	local recipes, usages = get_recipes(player, item)
 
 	data.query_item = item
 	data.recipes    = recipes
@@ -1767,7 +1767,7 @@ local function add_subtitle(fs, title, x, y, ctn_len, font_size)
 	   "style_type[label;font=normal;font_size=+0]", fmt("box", x, y + 0.3, ctn_len, 0.045, "#bababa50"))
 end
 
-local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
+local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
 	local percent = fmt("%.1f%%", (awards_unlocked * 100) / award_list_nb):gsub(".0", "")
 
 	add_subtitle(fs, ES("Achievements: @1 of @2 (@3)", awards_unlocked, award_list_nb, percent),
@@ -1921,7 +1921,7 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 			yextra = yextra + (__skinsdb and 2.1 or 2)
 		end
 
-		get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
+		get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
 	end
 end
 
@@ -2281,7 +2281,7 @@ local function get_inventory_fs(player, data, fs)
 	end
 end
 
-local function get_items_fs(player, data, fs)
+local function get_items_fs(_, data, fs)
 	local filtered = data.filter ~= ""
 
 	fs("box[0.2,0.2;4.55,0.6;#bababa25]", "set_focus[filter]")
@@ -2379,7 +2379,7 @@ i3.new_tab {
 		return set_fs(player)
 	end,
 
-	hide_panels = function(player, data)
+	hide_panels = function(player)
 		local name = player:get_player_name()
 		return core.is_creative_enabled(name)
 	end,
@@ -2426,10 +2426,10 @@ i3.new_tab {
 }
 
 local trash = create_inventory("i3_trash", {
-	allow_put = function(inv, listname, index, stack)
+	allow_put = function(_, _, _, stack)
 		return stack:get_count()
 	end,
-	on_put = function(inv, listname, index, stack, player)
+	on_put = function(inv, listname, _, _, player)
 		inv:set_list(listname, {})
 
 		local name = player:get_player_name()

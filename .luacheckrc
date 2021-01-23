@@ -1,5 +1,8 @@
-unused_args = false
 allow_defined_top = true
+
+ignore = {
+	"get_debug_grid",
+}
 
 read_globals = {
 	"minetest",
@@ -14,6 +17,6 @@ read_globals = {
 }
 
 globals = {
-	"craftguide",
+	"i3",
 	"core",
 }
