@@ -20,6 +20,8 @@ local http = core.request_http_api()
 local singleplayer = core.is_singleplayer()
 
 local reg_items = core.registered_items
+local reg_nodes = core.registered_nodes
+local reg_craftitems = core.registered_craftitems
 local reg_tools = core.registered_tools
 local reg_entities = core.registered_entities
 local reg_aliases = core.registered_aliases
@@ -749,14 +751,21 @@ local function search(data)
 		local def = reg_items[item]
 		local desc = lower(translate(data.lang_code, def and def.description)) or ""
 		local search_in = fmt("%s %s", item, desc)
-		local to_add
+		local temp, j, to_add = {}, 1
 
 		if search_filter then
 			for filter_name, values in pairs(filters) do
 				if values then
 					local func = search_filters[filter_name]
-					to_add = func(item, values) and (search_filter == "" or
+					to_add = (j > 1 and temp[item] or j == 1) and
+						func(item, values) and (search_filter == "" or
 						find(search_in, search_filter, 1, true))
+
+					if to_add then
+						temp[item] = true
+					end
+
+					j = j + 1
 				end
 			end
 		else
@@ -1967,15 +1976,15 @@ local function get_debug_grid(data, fs, full_height)
 	local spacing = 0.2
 
 	for x = 0, data.xoffset, spacing do
-		fs(fmt("box", x, 0, 0.01, full_height, "#f00"))
+		fs(fmt("box", x, 0, 0.01, full_height, "#ff0"))
 	end
 
 	for y = 0, full_height, spacing do
-		fs(fmt("box", 0, y, data.xoffset, 0.01, "#f00"))
+		fs(fmt("box", 0, y, data.xoffset, 0.01, "#ff0"))
 	end
 
-	fs(fmt("box", data.xoffset / 2, 0, 0.01, full_height, "#ff0"))
-	fs(fmt("box", 0, full_height / 2, data.xoffset, 0.01, "#ff0"))
+	fs(fmt("box", data.xoffset / 2, 0, 0.01, full_height, "#f00"))
+	fs(fmt("box", 0, full_height / 2, data.xoffset, 0.01, "#f00"))
 end
 
 local function make_fs(player, data)
@@ -1995,9 +2004,13 @@ local function make_fs(player, data)
 
 	fs(fmt("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10))
 
-	tabs[(data.current_tab or 1)].formspec(player, data, fs)
+	local tab = tabs[(data.current_tab or 1)]
 
-	if data.query_item then
+	tab.formspec(player, data, fs)
+
+	local hide_panels = tab.hide_panels and tab.hide_panels(player, data)
+
+	if data.query_item and not hide_panels then
 		get_panels(player, data, fs)
 	end
 
@@ -2365,6 +2378,11 @@ i3.new_tab {
 
 		return set_fs(player)
 	end,
+
+	hide_panels = function(player, data)
+		local name = player:get_player_name()
+		return core.is_creative_enabled(name)
+	end,
 }
 
 i3.new_tab {
@@ -2485,8 +2503,7 @@ i3.add_search_filter("groups", function(item, groups)
 	local def = reg_items[item]
 	local has_groups = true
 
-	for i = 1, #groups do
-		local group = groups[i]
+	for _, group in ipairs(groups) do
 		if not def.groups[group] then
 			has_groups = nil
 			break
@@ -2494,6 +2511,16 @@ i3.add_search_filter("groups", function(item, groups)
 	end
 
 	return has_groups
+end)
+
+i3.add_search_filter("type", function(item, drawtype)
+	if drawtype == "node" then
+		return reg_nodes[item]
+	elseif drawtype == "item" then
+		return reg_craftitems[item]
+	elseif drawtype == "tool" then
+		return reg_tools[item]
+	end
 end)
 
 --[[	As `core.get_craft_recipe` and `core.get_all_craft_recipes` do not
