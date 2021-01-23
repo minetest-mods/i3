@@ -2205,7 +2205,7 @@ local function get_inventory_fs(player, data, fs)
 		local anim = player:get_local_animation()
 		--fs("style[player_model;bgcolor=black]")
 
-		fs(fmt("model", (__3darmor or __skinsdb) and 0.2 or 0, 0.2, 4, 5.5, "player_model",
+		fs(fmt("model", (__3darmor or __skinsdb) and 0.2 or 0, 0.2, 4, 5.7, "player_model",
 			props.mesh, concat(props.textures, ","), "0,-150", "false", "false",
 			fmt("%u,%u", anim.x, anim.y)))
 	else
