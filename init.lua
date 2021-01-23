@@ -89,7 +89,7 @@ local META_SAVES = {"bag_size", "skin_id"}
 local BAG_SIZES = {
 	small  = INV_SIZE + 6,
 	medium = INV_SIZE + 12,
-	large  = INV_SIZE + 26,
+	large  = INV_SIZE + 24,
 }
 
 local PNG = {
