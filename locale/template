@@ -1,9 +1,8 @@
 # textdomain: i3
 
-
-
 ### init.lua ###
 
+Achievements: @1 of @2 (@3)=
 Any vessel=
 @1 new recipe(s) discovered!=
 @1 of chance to drop=
@@ -45,6 +44,7 @@ Any wool=
 Any yellow dye=
 Any yellow flower=
 Armor=
+Bag=
 Bookmarks=
 Burning time: @1=
 Cannot mark this item. Bookmark limit reached.=
@@ -59,6 +59,7 @@ Digging=
 Digging (by chance)=
 Heal=
 Inventory=
+Items=
 Level=
 Mark this item=
 No item to show=
@@ -80,3 +81,4 @@ Trash all items=
 Unknown Item (@1)=
 Unmark this item=
 Usage @1 of @2=
+Your inventory has been extended by @1 slots. Scroll over it.=

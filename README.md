@@ -30,8 +30,9 @@ To enable it: `i3_progressive_mode = true` in `minetest.conf`.*
 
 #### Recommendations:
    - Use LuaJIT
-   - Use [Minetest Game](https://github.com/minetest/minetest_game) preferably
+   - Use [Minetest Game](https://github.com/minetest/minetest_game)
    - Use the default font style with Freetype
+   - Use the english locale
    - **DON'T** change the default font size settings
    - **DON'T** change the default GUI scaling setting
 
