@@ -1846,7 +1846,7 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 	   fmt("list[detached:i3_trash;main;%f,%f;1,1;]", xoffset + 4.45, yoffset + 3.95),
 	   fmt("image", xoffset + 4.45, yoffset + 3.95, 1, 1, PNG.trash))
 
-	local yextra = 5.6
+	local yextra = 5.7
 	local bag_equip = data.equip == "bag"
 	local armor_equip = data.equip == "armor"
 	local skins_equip = data.equip == "skins"
@@ -1906,9 +1906,9 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 		if bag_equip then
 			yextra = yextra + 2.5
 		elseif armor_equip then
-			yextra = yextra + (__3darmor and 3.8 or 1.8)
+			yextra = yextra + (__3darmor and 3.8 or 2)
 		elseif skins_equip then
-			yextra = yextra + (__skinsdb and 2.1 or 1.8)
+			yextra = yextra + (__skinsdb and 2.1 or 2)
 		end
 
 		get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
@@ -2232,7 +2232,7 @@ local function get_inventory_fs(player, data, fs)
 			end
 		end
 
-		max_val = max_val + (award_list_nb * (12.9 + ((__3darmor or __skinsdb) and 0.25 or 0)))
+		max_val = max_val + (award_list_nb * 13.17)
 	end
 
 	fs(fmt([[
