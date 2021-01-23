@@ -185,16 +185,17 @@ Returns a map of recipe filters, indexed by name.
 ### Search filters
 
 Search filters are used to perform specific searches inside the search field.
+You can cumulate several filters to perform a specific search.
 They can be used like so: `<optional_name> +<filter name>=<value1>,<value2>,<...>`
 
-Examples:
+Example usages:
 
 - `+groups=cracky,crumbly`: search for groups `cracky` and `crumbly` in all items.
-- `sand +groups=falling_node`: search for group `falling_node` for items which contain `sand` in their names.
+- `wood +groups=flammable +type=node`: search for group `flammable` amongst items which contain
+  `wood` in their names AND have a `node` drawtype.
 
 Notes:
 - If `optional_name` is omitted, the search filter will apply to all items, without pre-filtering.
-- Filters can be combined.
 - The `groups` and `type` filters are currently implemented by default.
 
 #### `i3.add_search_filter(name, function(item, values))`
