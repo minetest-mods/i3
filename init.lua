@@ -87,9 +87,9 @@ local MIN_FORMSPEC_VERSION = 4
 local META_SAVES = {"bag_size", "skin_id"}
 
 local BAG_SIZES = {
-	small  = INV_SIZE + 8,
-	medium = INV_SIZE + 16,
-	large  = INV_SIZE + 24,
+	small  = INV_SIZE + 6,
+	medium = INV_SIZE + 12,
+	large  = INV_SIZE + 26,
 }
 
 local PNG = {
@@ -1850,13 +1850,13 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 	end
 
 	fs(fmt("list[current_player;craft;%f,%f;3,3;]", xoffset, yoffset + 1.45),
-	   fmt("image", xoffset + 3.64, yoffset + 2.88, 0.7, 0.7, PNG.arrow),
-	   fmt("list[current_player;craftpreview;%f,%f;1,1;]", xoffset + 4.45, yoffset + 2.7),
+	   fmt("image", xoffset + 3.47, yoffset + 2.69, 0.85, 0.85, PNG.arrow),
+	   fmt("list[current_player;craftpreview;%f,%f;1,1;]", xoffset + 4.45, yoffset + 2.6),
 	   "listring[detached:i3_trash;main]",
-	   fmt("list[detached:i3_trash;main;%f,%f;1,1;]", xoffset + 4.45, yoffset + 3.95),
-	   fmt("image", xoffset + 4.45, yoffset + 3.95, 1, 1, PNG.trash))
+	   fmt("list[detached:i3_trash;main;%f,%f;1,1;]", xoffset + 4.45, yoffset + 3.75),
+	   fmt("image", xoffset + 4.45, yoffset + 3.75, 1, 1, PNG.trash))
 
-	local yextra = 5.7
+	local yextra = 5.4
 	local bag_equip = data.equip == "bag"
 	local armor_equip = data.equip == "armor"
 	local skins_equip = data.equip == "skins"
@@ -1877,8 +1877,8 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 		fs(fmt("list[detached:%s_backpack;main;0,%f;1,1;]", ESC(name), yextra + 0.7))
 
 		if not data.bag:get_stack("main", 1):is_empty() then
-			fs(fmt("hypertext", 1.2, yextra + 0.89, ctn_len - 1.2, 0.8, "",
-				ES("Your inventory has been extended by @1 slots. Scroll over it.",
+			fs(fmt("hypertext", 1.2, yextra + 0.89, ctn_len - 1.9, 0.8, "",
+				ES("The inventory is extended by @1 slots.",
 					BAG_SIZES[data.bag_size] - INV_SIZE)))
 		end
 
@@ -1888,8 +1888,8 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 
 			local armor_def = armor.def[name]
 
-			fs(fmt("label", 3.75, yextra + 1.6, fmt("%s: %s", ES"Level", armor_def.level)),
-			   fmt("label", 3.75, yextra + 2.1, fmt("%s: %s", ES"Heal", armor_def.heal)))
+			fs(fmt("label", 3.65, yextra + 1.55, fmt("%s: %s", ES"Level", armor_def.level)),
+			   fmt("label", 3.65, yextra + 2.05, fmt("%s: %s", ES"Heal", armor_def.heal)))
 		else
 			fs(fmt("hypertext", 0, yextra + 0.9, ctn_len, 0.4, "",
 				"<center><style color=#7bf font=mono>3d_armor</style> not installed</center>"))
@@ -1914,11 +1914,11 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 
 	if __awards then
 		if bag_equip then
-			yextra = yextra + 2.5
+			yextra = yextra + 2.3
 		elseif armor_equip then
-			yextra = yextra + (__3darmor and 3.8 or 2)
+			yextra = yextra + (__3darmor and 3.6 or 1.8)
 		elseif skins_equip then
-			yextra = yextra + (__skinsdb and 2.1 or 2)
+			yextra = yextra + (__skinsdb and 1.9 or 1.8)
 		end
 
 		get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
@@ -2163,39 +2163,34 @@ local function panel_fields(player, data, fields)
 end
 
 local function get_inv_slots(data, fs)
-	local inv_x = 0.234
+	local inv_x, inv_y = 0.234, 6.35
 	local bag = data.bag_size
 
-	if bag then
-		local max_value = 38
-
-		if data.bag_size == "small" then
-			max_value = 12
-		elseif data.bag_size == "medium" then
-			max_value = 25
-		end
-
-		fs(fmt([[
-			scrollbaroptions[arrows=hide;thumbsize=6;max=%u]
-			scrollbar[-2,6.09;0.3,4.83;vertical;scrbar_inv2;]
-			scrollbaroptions[arrows=default;thumbsize=0;max=1000]
-		]], max_value))
-
-		fs(fmt("scroll_container[%f,6.09;10,4.83;scrbar_inv2;vertical]", inv_x))
-		inv_x = 0
-	end
-
 	for i = 0, 7 do
-		fs(fmt("image", i + inv_x + (i * 0.25), bag and 0 or 6.1, 1, 1, "i3_hb_bg.png"))
+		fs(fmt("image", i + inv_x + (i * 0.25), inv_y, 1, 1, "i3_hb_bg.png"))
 	end
 
-	fs(fmt("list[current_player;main;%f,%f;8,1;]", inv_x, bag and 0 or 6.1),
-	   fmt("list[current_player;main;%f,%f;8,%u;8]", inv_x, bag and 1.3 or 7.4,
-		(bag and BAG_SIZES[data.bag_size] or INV_SIZE) / 8))
+	fs("style_type[list;size=1;spacing=0.25]")
+	fs(fmt("list[current_player;main;%f,%f;8,1;]", inv_x, inv_y))
+
+	local width, size, spacing_x, spacing_y = 8, 1, 0.25, 0.15
 
 	if bag then
-		fs("scroll_container_end[]")
+		if bag == "small" then
+			width, size, spacing_x, spacing_y = 10, 0.89, 0.1, 0.1
+		elseif bag == "medium" then
+			width, size, spacing_x, spacing_y = 12, 0.72, 0.1, 0.1
+		elseif bag == "large" then
+			width, size, spacing_x, spacing_y = 12, 0.72, 0.1, 0.1
+		end
 	end
+
+	fs(fmt("style_type[list;size=%f,%f;spacing=%f,%f]", size, size, spacing_x, spacing_y))
+
+	fs(fmt("list[current_player;main;%f,%f;%u,%u;8]", inv_x, inv_y + 1.25,
+		width, (bag and BAG_SIZES[data.bag_size] or INV_SIZE) / width))
+
+	fs("style_type[list;size=1;spacing=0.15]")
 end
 
 local function get_inventory_fs(player, data, fs)
@@ -2224,7 +2219,7 @@ local function get_inventory_fs(player, data, fs)
 	local award_list, award_list_nb
 	local awards_unlocked = 0
 
-	local max_val = 20
+	local max_val = 15
 
 	if __3darmor and data.equip == "armor" then
 		if data.scrbar_inv == max_val then
@@ -2246,17 +2241,17 @@ local function get_inventory_fs(player, data, fs)
 			end
 		end
 
-		max_val = max_val + (award_list_nb * 13.17)
+		max_val = max_val + (award_list_nb * 13.15)
 	end
 
 	fs(fmt([[
 		scrollbaroptions[arrows=hide;thumbsize=%u;max=%u]
-		scrollbar[%f,0.2;0.3,5.5;vertical;scrbar_inv;%u]
+		scrollbar[%f,0.2;0.3,5.7;vertical;scrbar_inv;%u]
 		scrollbaroptions[arrows=default;thumbsize=0;max=1000]
 	]],
 	(max_val * 3) / 15, max_val, 9.69, data.scrbar_inv or 0))
 
-	fs(fmt("scroll_container[3.9,0.2;%f,5.5;scrbar_inv;vertical]", ctn_len))
+	fs(fmt("scroll_container[3.9,0.2;%f,5.7;scrbar_inv;vertical]", ctn_len))
 
 	get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, award_list, awards_unlocked,
 			award_list_nb)
