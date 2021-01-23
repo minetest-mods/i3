@@ -62,6 +62,7 @@ local sprintf, find, gmatch, match, sub, split, upper, lower =
 	string.sub, string.split, string.upper, string.lower
 
 local min, max, floor, ceil, abs = math.min, math.max, math.floor, math.ceil, math.abs
+
 local pairs, ipairs, next, type, setmetatable, tonum, unpack =
 	pairs, ipairs, next, type, setmetatable, tonumber, unpack
 
@@ -2991,7 +2992,23 @@ if progressive_mode then
 	table_merge(META_SAVES, {"inv_items", "known_recipes"})
 end
 
-for _, size in ipairs({"small", "medium", "large"}) do
+local bag_recipes = {
+	small = {
+		{"", "farming:string", ""},
+		{"group:wool", "group:wool", "group:wool"},
+		{"group:wool", "group:wool", "group:wool"},
+	},
+	medium = {
+		{"farming:string", "i3:bag_small", "farming:string"},
+		{"farming:string", "i3:bag_small", "farming:string"},
+	},
+	large = {
+		{"farming:string", "i3:bag_medium", "farming:string"},
+		{"farming:string", "i3:bag_medium", "farming:string"},
+	},
+}
+
+for size, rcp in pairs(bag_recipes) do
 	local bagname = fmt("i3:bag_%s", size)
 
 	core.register_craftitem(bagname, {
@@ -3000,37 +3017,9 @@ for _, size in ipairs({"small", "medium", "large"}) do
 		stack_max = 1,
 	})
 
-	core.register_craft {
-		type = "fuel",
-		recipe = bagname,
-		burntime = 3
-	}
+	core.register_craft {output = bagname, recipe = rcp}
+	core.register_craft {type = "fuel", recipe = bagname, burntime = 3}
 end
-
-core.register_craft {
-	output = "i3:bag_small",
-	recipe = {
-		{"", "farming:string", ""},
-		{"group:wool", "group:wool", "group:wool"},
-		{"group:wool", "group:wool", "group:wool"},
-	}
-}
-
-core.register_craft {
-	output = "i3:bag_medium",
-	recipe = {
-		{"farming:string", "i3:bag_small", "farming:string"},
-		{"farming:string", "i3:bag_small", "farming:string"},
-	}
-}
-
-core.register_craft {
-	output = "i3:bag_large",
-	recipe = {
-		{"farming:string", "i3:bag_medium", "farming:string"},
-		{"farming:string", "i3:bag_medium", "farming:string"},
-	}
-}
 
 --dofile(core.get_modpath("i3") .. "/test_tabs.lua")
 --dofile(core.get_modpath("i3") .. "/test_custom_recipes.lua")
