@@ -1133,10 +1133,10 @@ local function get_stack(player, pname, stack, message)
 
 	if inv:room_for_item("main", stack) then
 		inv:add_item("main", stack)
-		msg(pname, fmt("%s added in your inventory", message))
+		msg(pname, S("@1 added in your inventory", message))
 	else
 		spawn_item(player, stack)
-		msg(pname, fmt("%s spawned", message))
+		msg(pname, S("@1 spawned", message))
 	end
 end
 
@@ -1274,7 +1274,7 @@ local function get_tooltip(item, info)
 			end
 
 			groupstr = concat(groupstr, ", ")
-			tooltip = S("Any item belonging to the group(s): @1", groupstr)
+			tooltip = S("Any item belonging to the groups: @1", groupstr)
 		end
 	else
 		tooltip = get_desc(item)
@@ -1885,7 +1885,7 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 
 		if not data.bag:get_stack("main", 1):is_empty() then
 			fs(fmt("hypertext", 1.2, yextra + 0.89, ctn_len - 1.9, 0.8, "",
-				ES("The inventory is extended by @1 slots.",
+				ES("The inventory is extended by @1 slots",
 					BAG_SIZES[data.bag_size] - INV_SIZE)))
 		end
 

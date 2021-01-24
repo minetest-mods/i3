@@ -2,10 +2,11 @@
 
 ### init.lua ###
 
-Achievements: @1 of @2 (@3)=
-Any vessel=
+@1 added in your inventory=
 @1 new recipe(s) discovered!=
 @1 of chance to drop=
+@1 spawned=
+Achievements: @1 of @2 (@3)=
 Any black dye=
 Any black flower=
 Any blue dye=
@@ -22,7 +23,7 @@ Any glass=
 Any green dye=
 Any green flower=
 Any grey dye=
-Any item belonging to the group(s): @1=
+Any item belonging to the groups: @1=
 Any leaves=
 Any magenta dye=
 Any mushroom=
@@ -35,6 +36,7 @@ Any sand=
 Any stick=
 Any stone=
 Any tree=
+Any vessel=
 Any violet dye=
 Any violet flower=
 Any white dye=
@@ -75,7 +77,7 @@ Shapeless=
 Skins=
 Sort items (A-Z)=
 Sort items (Z-A)=
-The inventory is extended by @1 slots.=
+The inventory is extended by @1 slots=
 Trash all items=
 Unknown Item (@1)=
 Unmark this item=
