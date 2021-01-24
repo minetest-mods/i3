@@ -76,7 +76,8 @@ local IPP = ROWS * LINES
 local MAX_FAVS = 6
 local ITEM_BTN_SIZE = 1.1
 
-local INV_SIZE = 35
+local INV_SIZE = 36
+local HOTBAR_COUNT = 9
 
 -- Progressive mode
 local POLL_FREQ = 0.25
@@ -95,6 +96,7 @@ local BAG_SIZES = {
 local PNG = {
 	bg = "i3_bg.png",
 	bg_full = "i3_bg_full.png",
+	hotbar = "i3_hotbar.png",
 	search = "i3_search.png",
 	heart = "i3_heart.png",
 	heart_half = "i3_heart_half.png",
@@ -2168,16 +2170,16 @@ local function panel_fields(player, data, fields)
 end
 
 local function get_inv_slots(data, fs)
-	local inv_x, inv_y = 0.58334, 6.5
+	local inv_x, inv_y = 0.234, 6.6
+	local width, size, spacing, extra = HOTBAR_COUNT, 0.96, 0.15, 0
 	local bag = data.bag_size
 
-	for i = 0, 7 do
-		fs(fmt("image", i + inv_x + (i * 0.15), inv_y, 1, 1, "i3_hb_bg.png"))
+	for i = 0, HOTBAR_COUNT - 1 do
+		fs(fmt("image", i + inv_x + (i * 0.1), inv_y, size, size, "i3_hb_bg.png"))
 	end
 
-	fs("style_type[list;size=1;spacing=0.15]", fmt("list[current_player;main;%f,%f;8,1;]", inv_x, inv_y))
-
-	local width, size, spacing, extra = 9, 0.96, 0.15, 0
+	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing),
+	   fmt("list[current_player;main;%f,%f;%u,1;]", inv_x, inv_y, HOTBAR_COUNT))
 
 	if bag then
 		if bag == "small" then
@@ -2190,8 +2192,8 @@ local function get_inv_slots(data, fs)
 	end
 
 	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing),
-	   fmt("list[current_player;main;%f,%f;%u,%u;8]", 0.234 + extra, inv_y + 1.25,
-		width, (bag and BAG_SIZES[data.bag_size] or INV_SIZE) / width),
+	   fmt("list[current_player;main;%f,%f;%u,%u;%u]", inv_x + extra, inv_y + 1.15,
+		width, (bag and BAG_SIZES[data.bag_size] or INV_SIZE) / width, HOTBAR_COUNT),
 	   "style_type[list;size=1;spacing=0.15]")
 end
 
@@ -2240,10 +2242,10 @@ local function get_inventory_fs(player, data, fs)
 			end
 		end
 
-		max_val = max_val + (award_list_nb * 13.13)
+		max_val = max_val + (award_list_nb * 13.11)
 	end
 
-	local ctn_len, ctn_hgt = 5.6, 5.85
+	local ctn_len, ctn_hgt = 5.6, 5.95
 	local xoffset, yoffset = 0, 0
 
 	fs(fmt([[
@@ -2724,6 +2726,9 @@ on_joinplayer(function(player)
 
 	init_data(player, info)
 	init_backpack(player)
+
+	player:hud_set_hotbar_itemcount(HOTBAR_COUNT)
+	player:hud_set_hotbar_image(PNG.hotbar)
 end)
 
 core.register_on_dieplayer(function(player)
