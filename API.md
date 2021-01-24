@@ -185,7 +185,7 @@ Returns a map of recipe filters, indexed by name.
 ### Search filters
 
 Search filters are used to perform specific searches inside the search field.
-You can cumulate several filters to perform a specific search.
+These filters are cumulative to perform a specific search.
 They can be used like so: `<optional_name> +<filter name>=<value1>,<value2>,<...>`
 
 Example usages:
@@ -200,20 +200,22 @@ Notes:
 
 #### `i3.add_search_filter(name, function(item, values))`
 
-Adds a search filter with the given `name`.
+Adds a search filter with the given `name`. `values` is a table of all possible values.
 The search function must return a boolean value (whether the given item should be listed or not).
 
 Example function sorting items by drawtype:
 
 ```lua
-i3.add_search_filter("type", function(item, drawtype)
-	if drawtype == "node" then
-		return reg_nodes[item]
-	elseif drawtype == "item" then
-		return reg_craftitems[item]
-	elseif drawtype == "tool" then
-		return reg_tools[item]
+i3.add_search_filter("types", function(item, drawtypes)
+	local t = {}
+
+	for i, dt in ipairs(drawtypes) do
+		t[i] = (dt == "node" and reg_nodes[item] and 1) or
+		       (dt == "item" and reg_craftitems[item] and 1) or
+		       (dt == "tool" and reg_tools[item] and 1) or nil
 	end
+
+	return #t > 0
 end)
 ```
 

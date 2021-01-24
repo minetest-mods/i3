@@ -2512,14 +2512,16 @@ i3.add_search_filter("groups", function(item, groups)
 	return has_groups
 end)
 
-i3.add_search_filter("type", function(item, drawtype)
-	if drawtype == "node" then
-		return reg_nodes[item]
-	elseif drawtype == "item" then
-		return reg_craftitems[item]
-	elseif drawtype == "tool" then
-		return reg_tools[item]
+i3.add_search_filter("types", function(item, drawtypes)
+	local t = {}
+
+	for i, dt in ipairs(drawtypes) do
+		t[i] = (dt == "node" and reg_nodes[item] and 1) or
+		       (dt == "item" and reg_craftitems[item] and 1) or
+		       (dt == "tool" and reg_tools[item] and 1) or nil
 	end
+
+	return #t > 0
 end)
 
 --[[	As `core.get_craft_recipe` and `core.get_all_craft_recipes` do not
