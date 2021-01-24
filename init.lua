@@ -2173,21 +2173,24 @@ local function get_inv_slots(data, fs)
 	fs("style_type[list;size=1;spacing=0.15]")
 	fs(fmt("list[current_player;main;%f,%f;8,1;]", inv_x, inv_y))
 
-	local width, size, spacing_x, spacing_y = 9, 0.96, 0.15, 0.15
+	local width, size, spacing_x, spacing_y, extra = 9, 0.96, 0.15, 0.15, 0
 
 	if bag then
 		if bag == "small" then
 			width, size, spacing_x, spacing_y = 10, 0.89, 0.1, 0.1
+			extra = 0.01
 		elseif bag == "medium" then
 			width, size, spacing_x, spacing_y = 12, 0.72, 0.1, 0.1
+			extra = 0.032
 		elseif bag == "large" then
 			width, size, spacing_x, spacing_y = 12, 0.72, 0.1, 0.1
+			extra = 0.032
 		end
 	end
 
 	fs(fmt("style_type[list;size=%f,%f;spacing=%f,%f]", size, size, spacing_x, spacing_y))
 
-	fs(fmt("list[current_player;main;%f,%f;%u,%u;8]", 0.234, inv_y + 1.25,
+	fs(fmt("list[current_player;main;%f,%f;%u,%u;8]", 0.234 + extra, inv_y + 1.25,
 		width, (bag and BAG_SIZES[data.bag_size] or INV_SIZE) / width))
 
 	fs("style_type[list;size=1;spacing=0.15]")
