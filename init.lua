@@ -2032,8 +2032,9 @@ end
 function i3.set_fs(player)
 	local name = player:get_player_name()
 	local data = pdata[name]
-	local fs = make_fs(player, data)
+	if not data then return end
 
+	local fs = make_fs(player, data)
 	player:set_inventory_formspec(fs)
 end
 
