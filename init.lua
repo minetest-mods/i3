@@ -1838,14 +1838,18 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 	local hp = damage_enabled and (data.hp or player:get_hp()) or 20
 	local half = ceil((hp / 2) % 1)
 	local hearts = (hp / 2) + half
+	local heart_size = 0.35
+	local heart_hgt = yoffset + 0.7
 
 	for i = 1, 10 do
-		fs(fmt("image", xoffset + ((i - 1) * 0.4), yoffset + 0.7, 0.4, 0.4, PNG.heart_grey))
+		fs(fmt("image", xoffset + ((i - 1) * (heart_size + 0.1)), heart_hgt,
+			heart_size, heart_size, PNG.heart_grey))
 	end
 
 	if damage_enabled then
 		for i = 1, hearts do
-			fs(fmt("image", xoffset + ((i - 1) * 0.4), yoffset + 0.7, 0.4, 0.4,
+			fs(fmt("image", xoffset + ((i - 1) * (heart_size + 0.1)), heart_hgt,
+				heart_size, heart_size,
 				(half == 1 and i == floor(hearts)) and PNG.heart_half or PNG.heart))
 		end
 	end
