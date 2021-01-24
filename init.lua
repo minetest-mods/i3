@@ -76,7 +76,7 @@ local IPP = ROWS * LINES
 local MAX_FAVS = 6
 local ITEM_BTN_SIZE = 1.1
 
-local INV_SIZE = 8*4
+local INV_SIZE = 35
 
 -- Progressive mode
 local POLL_FREQ = 0.25
@@ -87,9 +87,9 @@ local MIN_FORMSPEC_VERSION = 4
 local META_SAVES = {"bag_size", "skin_id"}
 
 local BAG_SIZES = {
-	small  = INV_SIZE + 6,
-	medium = INV_SIZE + 12,
-	large  = INV_SIZE + 24,
+	small  = INV_SIZE + 3,
+	medium = INV_SIZE + 9,
+	large  = INV_SIZE + 21,
 }
 
 local PNG = {
@@ -2163,17 +2163,17 @@ local function panel_fields(player, data, fields)
 end
 
 local function get_inv_slots(data, fs)
-	local inv_x, inv_y = 0.234, 6.35
+	local inv_x, inv_y = 0.58334, 6.5
 	local bag = data.bag_size
 
 	for i = 0, 7 do
-		fs(fmt("image", i + inv_x + (i * 0.25), inv_y, 1, 1, "i3_hb_bg.png"))
+		fs(fmt("image", i + inv_x + (i * 0.15), inv_y, 1, 1, "i3_hb_bg.png"))
 	end
 
-	fs("style_type[list;size=1;spacing=0.25]")
+	fs("style_type[list;size=1;spacing=0.15]")
 	fs(fmt("list[current_player;main;%f,%f;8,1;]", inv_x, inv_y))
 
-	local width, size, spacing_x, spacing_y = 8, 1, 0.25, 0.15
+	local width, size, spacing_x, spacing_y = 9, 0.96, 0.15, 0.15
 
 	if bag then
 		if bag == "small" then
@@ -2187,7 +2187,7 @@ local function get_inv_slots(data, fs)
 
 	fs(fmt("style_type[list;size=%f,%f;spacing=%f,%f]", size, size, spacing_x, spacing_y))
 
-	fs(fmt("list[current_player;main;%f,%f;%u,%u;8]", inv_x, inv_y + 1.25,
+	fs(fmt("list[current_player;main;%f,%f;%u,%u;8]", 0.234, inv_y + 1.25,
 		width, (bag and BAG_SIZES[data.bag_size] or INV_SIZE) / width))
 
 	fs("style_type[list;size=1;spacing=0.15]")
@@ -2205,16 +2205,13 @@ local function get_inventory_fs(player, data, fs)
 		local anim = player:get_local_animation()
 		--fs("style[player_model;bgcolor=black]")
 
-		fs(fmt("model", (__3darmor or __skinsdb) and 0.2 or 0, 0.2, 4, 5.7, "player_model",
+		fs(fmt("model", (__3darmor or __skinsdb) and 0.2 or -0.2, 0.2, 4, 5.85, "player_model",
 			props.mesh, concat(props.textures, ","), "0,-150", "false", "false",
 			fmt("%u,%u", anim.x, anim.y)))
 	else
 		local size = 2.5
 		fs(fmt("image", 0.7, 0.2, size, size * props.visual_size.y, props.textures[1]))
 	end
-
-	local ctn_len = 5.6
-	local xoffset, yoffset = 0, 0
 
 	local award_list, award_list_nb
 	local awards_unlocked = 0
@@ -2241,17 +2238,20 @@ local function get_inventory_fs(player, data, fs)
 			end
 		end
 
-		max_val = max_val + (award_list_nb * 13.15)
+		max_val = max_val + (award_list_nb * 13.13)
 	end
+
+	local ctn_len, ctn_hgt = 5.6, 5.85
+	local xoffset, yoffset = 0, 0
 
 	fs(fmt([[
 		scrollbaroptions[arrows=hide;thumbsize=%u;max=%u]
-		scrollbar[%f,0.2;0.3,5.7;vertical;scrbar_inv;%u]
+		scrollbar[%f,0.2;0.3,%f;vertical;scrbar_inv;%u]
 		scrollbaroptions[arrows=default;thumbsize=0;max=1000]
 	]],
-	(max_val * 3) / 15, max_val, 9.69, data.scrbar_inv or 0))
+	(max_val * 3) / 15, max_val, 9.69, ctn_hgt, data.scrbar_inv or 0))
 
-	fs(fmt("scroll_container[3.9,0.2;%f,5.7;scrbar_inv;vertical]", ctn_len))
+	fs(fmt("scroll_container[3.9,0.2;%f,%f;scrbar_inv;vertical]", ctn_len, ctn_hgt))
 
 	get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, award_list, awards_unlocked,
 			award_list_nb)
