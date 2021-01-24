@@ -2205,11 +2205,14 @@ local function get_inventory_fs(player, data, fs)
 	local props = player:get_properties()
 	local name = player:get_player_name()
 
+	local ctn_len, ctn_hgt = 5.6, 6
+	local xoffset, yoffset = 0, 0
+
 	if props.mesh ~= "" then
 		local anim = player:get_local_animation()
 		--fs("style[player_model;bgcolor=black]")
 
-		fs(fmt("model", (__3darmor or __skinsdb) and 0.2 or -0.2, 0.2, 4, 5.85, "player_model",
+		fs(fmt("model", (__3darmor or __skinsdb) and 0.2 or -0.2, 0.2, 4, ctn_hgt, "player_model",
 			props.mesh, concat(props.textures, ","), "0,-150", "false", "false",
 			fmt("%u,%u", anim.x, anim.y)))
 	else
@@ -2244,9 +2247,6 @@ local function get_inventory_fs(player, data, fs)
 
 		max_val = max_val + (award_list_nb * 13.17)
 	end
-
-	local ctn_len, ctn_hgt = 5.6, 5.95
-	local xoffset, yoffset = 0, 0
 
 	fs(fmt([[
 		scrollbaroptions[arrows=hide;thumbsize=%u;max=%u]
