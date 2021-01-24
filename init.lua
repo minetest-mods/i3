@@ -1921,11 +1921,11 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 
 	if __awards then
 		if bag_equip then
-			yextra = yextra + 2.3
+			yextra = yextra + 2.4
 		elseif armor_equip then
-			yextra = yextra + (__3darmor and 3.6 or 1.8)
+			yextra = yextra + (__3darmor and 3.6 or 1.9)
 		elseif skins_equip then
-			yextra = yextra + (__skinsdb and 1.9 or 1.8)
+			yextra = yextra + 1.9
 		end
 
 		get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
@@ -2220,14 +2220,14 @@ local function get_inventory_fs(player, data, fs)
 	local award_list, award_list_nb
 	local awards_unlocked = 0
 
-	local max_val = 15
+	local max_val = 13
 
 	if __3darmor and data.equip == "armor" then
 		if data.scrbar_inv == max_val then
-			data.scrbar_inv = data.scrbar_inv + 12
+			data.scrbar_inv = data.scrbar_inv + 9
 		end
 
-		max_val = max_val + 12
+		max_val = max_val + 9
 	end
 
 	if __awards then
@@ -2242,7 +2242,7 @@ local function get_inventory_fs(player, data, fs)
 			end
 		end
 
-		max_val = max_val + (award_list_nb * 13.11)
+		max_val = max_val + (award_list_nb * 13.17)
 	end
 
 	local ctn_len, ctn_hgt = 5.6, 5.95
@@ -2253,7 +2253,7 @@ local function get_inventory_fs(player, data, fs)
 		scrollbar[%f,0.2;0.3,%f;vertical;scrbar_inv;%u]
 		scrollbaroptions[arrows=default;thumbsize=0;max=1000]
 	]],
-	(max_val * 3) / 15, max_val, 9.69, ctn_hgt, data.scrbar_inv or 0))
+	(max_val * 4) / 15, max_val, 9.69, ctn_hgt, data.scrbar_inv or 0))
 
 	fs(fmt("scroll_container[3.9,0.2;%f,%f;scrbar_inv;vertical]", ctn_len, ctn_hgt))
 
