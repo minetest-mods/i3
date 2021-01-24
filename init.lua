@@ -161,7 +161,8 @@ local styles = sprintf([[
 	style[prev_usage;fgimg=%s;fgimg_hovered=%s]
 	style[next_usage;fgimg=%s;fgimg_hovered=%s]
 	style[pagenum,no_item,no_rcp;border=false;font=bold;font_size=+2;content_offset=0]
-	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=+2;border=false;content_offset=-12,0]
+	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=+2;border=false;content_offset=-12,0;
+	      sound=i3_click]
 	style[craft_rcp,craft_usg;border=false;noclip=true;font_size=+0;sound=i3_craft;
 	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
 	      bgimg_pressed=i3_btn9_pressed.png;bgimg_middle=4,6]
