@@ -14,7 +14,9 @@ local tabs = {}
 
 local progressive_mode = core.settings:get_bool "i3_progressive_mode"
 local damage_enabled = core.settings:get_bool "enable_damage"
+
 local __3darmor, __skinsdb, __awards
+local sfinv, unified_inventory, old_unified_inventory_fn
 
 local http = core.request_http_api()
 local singleplayer = core.is_singleplayer()
@@ -149,7 +151,7 @@ local fs_elements = {
 }
 
 local styles = sprintf([[
-	style_type[label,field;font_size=+0]
+	style_type[label,field;font_size=16]
 	style_type[image_button;border=false;sound=i3_click]
 	style_type[item_image_button;border=false;bgimg_hovered=%s;sound=i3_click]
 
@@ -162,10 +164,10 @@ local styles = sprintf([[
 	style[next_recipe;fgimg=%s;fgimg_hovered=%s]
 	style[prev_usage;fgimg=%s;fgimg_hovered=%s]
 	style[next_usage;fgimg=%s;fgimg_hovered=%s]
-	style[pagenum,no_item,no_rcp;border=false;font=bold;font_size=+2;content_offset=0]
-	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=+2;border=false;content_offset=-12,0;
+	style[pagenum,no_item,no_rcp;border=false;font=bold;font_size=18;content_offset=0]
+	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=18;border=false;content_offset=-12,0;
 	      sound=i3_click]
-	style[craft_rcp,craft_usg;border=false;noclip=true;font_size=+0;sound=i3_craft;
+	style[craft_rcp,craft_usg;border=false;noclip=true;font_size=16;sound=i3_craft;
 	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
 	      bgimg_pressed=i3_btn9_pressed.png;bgimg_middle=4,6]
 ]],
@@ -1632,9 +1634,9 @@ local function get_header(fs, data)
 		tech_name = snip(tech_name, name_lim)
 	end
 
-	fs("style_type[label;font=bold;font_size=+6]",
-	   fmt("label", X, Y1, desc), "style_type[label;font=mono;font_size=+0]",
-	   fmt("label", X, Y2, clr("#7bf", tech_name)), "style_type[label;font=normal;font_size=+0]")
+	fs("style_type[label;font=bold;font_size=22]",
+	   fmt("label", X, Y1, desc), "style_type[label;font=mono;font_size=16]",
+	   fmt("label", X, Y2, clr("#7bf", tech_name)), "style_type[label;font=normal;font_size=16]")
 
 	local def = reg_items[data.query_item]
 	local model_alias = i3.model_alias[data.query_item]
@@ -1764,10 +1766,10 @@ local function get_panels(player, data, fs)
 end
 
 local function add_subtitle(fs, title, x, y, ctn_len, font_size)
-	font_size = font_size or "+2"
+	font_size = font_size or 18
 
-	fs(fmt("style_type[label;font=bold;font_size=%s]", font_size), fmt("label", x, y, title),
-	   "style_type[label;font=normal;font_size=+0]", fmt("box", x, y + 0.3, ctn_len, 0.045, "#bababa50"))
+	fs(fmt("style_type[label;font=bold;font_size=%u]", font_size), fmt("label", x, y, title),
+	   "style_type[label;font=normal;font_size=16]", fmt("box", x, y + 0.3, ctn_len, 0.045, "#bababa50"))
 end
 
 local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
@@ -1818,24 +1820,24 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 
 			fs(fmt("box", icon_size + 0.1, y + 0.8, box_len, 0.3, "#101010"),
 			   fmt("box", icon_size + 0.1, y + 0.8, curr_bar, 0.3, "#9dc34c"),
-			   "style_type[label;font_size=-2]",
+			   "style_type[label;font_size=14]",
 			   fmt("label", icon_size + 0.5, y + 0.97, fmt("%u / %u", current, target)))
 
 			y = y - 0.14
 		end
 
-		fs("style_type[label;font=bold;font_size=+1]",
+		fs("style_type[label;font=bold;font_size=17]",
 		   fmt("label", icon_size + 0.2, y + 0.4, _title or title),
-		   "style_type[label;font=normal;font_size=-1]",
+		   "style_type[label;font=normal;font_size=15]",
 		   fmt("label", icon_size + 0.2, y + 0.75, clr("#bbbbbb", _desc or desc)),
-		   "style_type[label;font_size=+0]")
+		   "style_type[label;font_size=16]")
 	end
 end
 
 local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, award_list, awards_unlocked,
 			       award_list_nb)
 	local name = player:get_player_name()
-	add_subtitle(fs, ESC(name), xoffset, yoffset + 0.2, ctn_len, "+6")
+	add_subtitle(fs, ESC(name), xoffset, yoffset + 0.2, ctn_len, 22)
 
 	local hp = damage_enabled and (data.hp or player:get_hp()) or 20
 	local half = ceil((hp / 2) % 1)
@@ -1957,7 +1959,7 @@ local function get_tabs_fs(player, data, fs, full_height)
 		local selected = i == data.current_tab
 
 		fs(fmt([[style_type[image_button;fgimg=%s;fgimg_hovered=%s;fgimg_middle=14;noclip=true;
-			font_size=+0;textcolor=%s;content_offset=0;sound=i3_tab] ]],
+			font_size=16;textcolor=%s;content_offset=0;sound=i3_tab] ]],
 		selected and (btm and PNG.tab_hover or PNG.tab_hover_top) or (btm and PNG.tab or PNG.tab_top),
 		btm and PNG.tab_hover or PNG.tab_hover_top, selected and "#fff" or "#ddd"))
 
@@ -2654,19 +2656,16 @@ end
 on_mods_loaded(function()
 	get_init_items()
 
-	local creative = rawget(_G, "creative")
-	if creative then
-		function creative.set_creative_formspec() return end
-	end
+	sfinv = rawget(_G, "sfinv")
 
-	local sfinv = rawget(_G, "sfinv")
 	if sfinv then
 		sfinv.enabled = false
-		function sfinv.set_player_inventory_formspec() return end
 	end
 
-	local unified_inventory = rawget(_G, "unified_inventory")
+	unified_inventory = rawget(_G, "unified_inventory")
+
 	if unified_inventory then
+		old_unified_inventory_fn = unified_inventory.set_inventory_formspec
 		function unified_inventory.set_inventory_formspec() return end
 	end
 end)
@@ -2724,14 +2723,26 @@ on_joinplayer(function(player)
 	local info = get_player_info(name)
 
 	if get_formspec_version(info) < MIN_FORMSPEC_VERSION then
+		sfinv.enabled = true
+
+		if unified_inventory then
+			unified_inventory.set_inventory_formspec = old_unified_inventory_fn
+
+			if sfinv then
+				sfinv.enabled = false
+			end
+		end
+
 		return outdated(name)
 	end
 
 	init_data(player, info)
 	init_backpack(player)
 
-	player:hud_set_hotbar_itemcount(HOTBAR_COUNT)
-	player:hud_set_hotbar_image(PNG.hotbar)
+	after(0, function()
+		player:hud_set_hotbar_itemcount(HOTBAR_COUNT)
+		player:hud_set_hotbar_image(PNG.hotbar)
+	end)
 end)
 
 core.register_on_dieplayer(function(player)

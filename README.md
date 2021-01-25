@@ -33,10 +33,8 @@ To enable it: `i3_progressive_mode = true` in `minetest.conf`.*
 To use this mod in the best conditions, it's recommended to follow these recommendations:
 
    - Use LuaJIT
-   - Use [Minetest Game](https://github.com/minetest/minetest_game)
-   - Use the default font style with Freetype
    - Use a HiDPI widescreen display
-   - **DON'T** change the default font size settings
+   - Use the default Freetype font style
    - **DON'T** change the default GUI scaling setting
 
 Please report any bug on the [**Bug Tracker**](https://github.com/minetest-mods/i3/issues).
