@@ -21,12 +21,12 @@ This mod requires **Minetest 5.4+**
 **¹** *This mode is a Terraria-like system that shows recipes you can craft from items you ever had in your inventory.
 To enable it: `i3_progressive_mode = true` in `minetest.conf`.*
 
+
 #### This mod officially supports the following mods:
    - [**`3d_armor`**](https://content.minetest.net/packages/stu/3d_armor/)
    - [**`skinsdb`**](https://content.minetest.net/packages/bell07/skinsdb/)
    - [**`awards`**](https://content.minetest.net/packages/rubenwardy/awards/)
 
----
 
 #### Recommendations
 
@@ -35,11 +35,13 @@ To use this mod in the best conditions, it's recommended to follow these recomme
    - Use LuaJIT
    - Use a HiDPI widescreen display
    - Use the default Freetype font style
-   - **DON'T** change the default GUI scaling setting
 
-Please report any bug on the [**Bug Tracker**](https://github.com/minetest-mods/i3/issues).
+#### Notes
 
----
+`i3` uses a larger inventory (9 slots wide) than the usual inventories in Minetest.
+Thus, most chests will be unadapted to this inventory size.
+
+Report any bug on the [**Bug Tracker**](https://github.com/minetest-mods/i3/issues).
 
 Love this mod? Donations are appreciated: https://www.paypal.me/jpg84240
 
