@@ -2215,8 +2215,10 @@ local function get_inventory_fs(player, data, fs)
 	if props.mesh ~= "" then
 		local anim = player:get_local_animation()
 		--fs("style[player_model;bgcolor=black]")
+		local armor_skin = __3darmor or __skinsdb
 
-		fs(fmt("model", (__3darmor or __skinsdb) and 0.2 or -0.2, 0.2, 4, ctn_hgt, "player_model",
+		fs(fmt("model", 0.2, 0.2, armor_skin and 4 or 3.4, armor_skin and ctn_hgt or 5.8,
+			"player_model",
 			props.mesh, concat(props.textures, ","), "0,-150", "false", "false",
 			fmt("%u,%u", anim.x, anim.y)))
 	else
