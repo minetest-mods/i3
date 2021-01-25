@@ -165,7 +165,7 @@ local styles = sprintf([[
 	style[prev_usage;fgimg=%s;fgimg_hovered=%s]
 	style[next_usage;fgimg=%s;fgimg_hovered=%s]
 	style[pagenum,no_item,no_rcp;border=false;font=bold;font_size=18;content_offset=0]
-	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=18;border=false;content_offset=-12,0;
+	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=18;border=false;content_offset=-9,0;
 	      sound=i3_click]
 	style[craft_rcp,craft_usg;border=false;noclip=true;font_size=16;sound=i3_craft;
 	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
@@ -1786,9 +1786,10 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 		local title = def.title
 		local desc = def.description and def.description:gsub("%.$", "") or ""
 
-		local title_lim, _title = 26
-		local desc_lim, _desc = 39
-		local box_len, icon_size = 4.39, 1.1
+		local title_lim, _title = 27
+		local desc_lim, _desc = 40
+		local icon_size = 1.1
+		local box_len = ctn_len - icon_size + 0.1
 
 		if #title > title_lim then
 			_title = snip(title, title_lim)
@@ -1880,7 +1881,7 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 
 	fs(fmt("box", 0, yextra + 0.4, ctn_len, 0.045, "#bababa50"),
 	   fmt("box", (bag_equip and 0) or (armor_equip and 2) or (skins_equip and 4),
-		yextra + 0.4, 1.6, 0.045, "#f9826c"))
+		yextra + 0.4, 1.7, 0.045, "#f9826c"))
 
 	if bag_equip then
 		fs(fmt("list[detached:%s_backpack;main;0,%f;1,1;]", ESC(name), yextra + 0.7))
@@ -2208,7 +2209,7 @@ local function get_inventory_fs(player, data, fs)
 	local props = player:get_properties()
 	local name = player:get_player_name()
 
-	local ctn_len, ctn_hgt = 5.6, 6
+	local ctn_len, ctn_hgt = 5.7, 6
 	local xoffset, yoffset = 0, 0
 
 	if props.mesh ~= "" then
@@ -2253,10 +2254,10 @@ local function get_inventory_fs(player, data, fs)
 
 	fs(fmt([[
 		scrollbaroptions[arrows=hide;thumbsize=%u;max=%u]
-		scrollbar[%f,0.2;0.3,%f;vertical;scrbar_inv;%u]
+		scrollbar[%f,0.2;0.2,%f;vertical;scrbar_inv;%u]
 		scrollbaroptions[arrows=default;thumbsize=0;max=1000]
 	]],
-	(max_val * 4) / 15, max_val, 9.69, ctn_hgt, data.scrbar_inv or 0))
+	(max_val * 4) / 15, max_val, 9.79, ctn_hgt, data.scrbar_inv or 0))
 
 	fs(fmt("scroll_container[3.9,0.2;%f,%f;scrbar_inv;vertical]", ctn_len, ctn_hgt))
 
