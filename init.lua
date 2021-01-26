@@ -1769,7 +1769,9 @@ local function add_subtitle(fs, title, x, y, ctn_len, font_size)
 	font_size = font_size or 18
 
 	fs(fmt("style_type[label;font=bold;font_size=%u]", font_size), fmt("label", x, y, title),
-	   "style_type[label;font=normal;font_size=16]", fmt("box", x, y + 0.3, ctn_len, 0.045, "#bababa50"))
+	   "style_type[label;font=normal;font_size=16]",
+	   "style_type[box;colors=#bababa,#bababa30,#bababa30,#bababa]",
+	   fmt("box", x, y + 0.3, ctn_len, 0.045, "#"))
 end
 
 local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
@@ -2179,6 +2181,7 @@ local function get_inv_slots(data, fs)
 	local inv_x, inv_y = 0.234, 6.6
 	local width, size, spacing, extra = HOTBAR_COUNT, 0.96, 0.15, 0
 	local bag = data.bag_size
+
 	fs("style_type[box;colors=#77777710,#77777710,#777777,#777777]")
 
 	for i = 0, HOTBAR_COUNT - 1 do
