@@ -1813,14 +1813,16 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 		end
 
 		fs(fmt("image", 0, y + 0.01, icon_size, icon_size, icon),
-		   fmt("box", icon_size + 0.1, y, box_len, icon_size, "#bababa25"))
+		   "style_type[box;colors=#bababa30,#bababa30,#bababa05,#bababa05]",
+		   fmt("box", icon_size + 0.1, y, box_len, icon_size, ""))
 
 		if progress then
 			local current, target = progress.current, progress.target
 			local curr_bar = (current * box_len) / target
 
 			fs(fmt("box", icon_size + 0.1, y + 0.8, box_len, 0.3, "#101010"),
-			   fmt("box", icon_size + 0.1, y + 0.8, curr_bar, 0.3, "#9dc34c"),
+			   "style_type[box;colors=#9dc34c80,#9dc34c,#9dc34c,#9dc34c80]",
+			   fmt("box", icon_size + 0.1, y + 0.8, curr_bar, 0.3, ""),
 			   "style_type[label;font_size=14]",
 			   fmt("label", icon_size + 0.5, y + 0.97, fmt("%u / %u", current, target)))
 
@@ -2177,9 +2179,10 @@ local function get_inv_slots(data, fs)
 	local inv_x, inv_y = 0.234, 6.6
 	local width, size, spacing, extra = HOTBAR_COUNT, 0.96, 0.15, 0
 	local bag = data.bag_size
+	fs("style_type[box;colors=#77777710,#77777710,#777777,#777777]")
 
 	for i = 0, HOTBAR_COUNT - 1 do
-		fs(fmt("image", i + inv_x + (i * 0.1), inv_y, size, size, "i3_hb_bg.png"))
+		fs(fmt("box", i + inv_x + (i * 0.1), inv_y, size, size, ""))
 	end
 
 	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing),
