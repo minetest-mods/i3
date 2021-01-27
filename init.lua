@@ -795,29 +795,35 @@ local function search(data)
 	data.items = filtered_list
 end
 
+local function get_item_usages(item, recipe, added)
+	local groups = extract_groups(item)
+
+	if groups then
+		for name, def in pairs(reg_items) do
+			if not added[name] and show_item(def) and item_has_groups(def.groups, groups) then
+				local usage = copy(recipe)
+				table_replace(usage.items, item, name)
+
+				usages_cache[name] = usages_cache[name] or {}
+				insert(usages_cache[name], 1, usage)
+
+				added[name] = true
+			end
+		end
+	elseif show_item(reg_items[item]) then
+		usages_cache[item] = usages_cache[item] or {}
+		insert(usages_cache[item], 1, recipe)
+	end
+end
+
 local function get_usages(recipe)
 	local added = {}
 
 	for _, item in pairs(recipe.items) do
 		item = reg_aliases[item] or item
-		if not added[item] then
-			local groups = extract_groups(item)
-			if groups then
-				for name, def in pairs(reg_items) do
-					if not added[name] and show_item(def) and
-							item_has_groups(def.groups, groups) then
-						local usage = copy(recipe)
-						table_replace(usage.items, item, name)
-						usages_cache[name] = usages_cache[name] or {}
-						insert(usages_cache[name], 1, usage)
-						added[name] = true
-					end
-				end
-			elseif show_item(reg_items[item]) then
-				usages_cache[item] = usages_cache[item] or {}
-				insert(usages_cache[item], 1, recipe)
-			end
 
+		if not added[item] then
+			get_item_usages(item, recipe, added)
 			added[item] = true
 		end
 	end
