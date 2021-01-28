@@ -1969,7 +1969,7 @@ local function get_tabs_fs(player, data, fs, full_height)
 
 		local selected = i == data.current_tab
 
-		fs(fmt([[style_type[image_button;bgimg=%s;bgimg_hovered=%s;noclip=true;
+		fs(fmt([[style_type[image_button;fgimg=%s;fgimg_hovered=%s;noclip=true;
 			font_size=16;textcolor=%s;content_offset=0;sound=i3_tab] ]],
 		selected and (btm and PNG.tab_hover or PNG.tab_hover_top) or (btm and PNG.tab or PNG.tab_top),
 		btm and PNG.tab_hover or PNG.tab_hover_top, selected and "#fff" or "#ddd"))
