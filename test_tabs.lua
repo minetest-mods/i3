@@ -45,3 +45,17 @@ i3.new_tab {
 		i3.set_fs(player)
 	end,
 }
+
+i3.override_tab("test2", {
+	name = "test2",
+	description = "Test override",
+	image = "i3_mesepick.png",
+
+	formspec = function(player, data, fs)
+		fs("label[3,1;Override!]")
+	end,
+
+	fields = function(player, data, fields)
+		i3.set_fs(player)
+	end,
+})

@@ -1969,7 +1969,7 @@ local function get_tabs_fs(player, data, fs, full_height)
 
 		local selected = i == data.current_tab
 
-		fs(fmt([[style_type[image_button;fgimg=%s;fgimg_hovered=%s;fgimg_middle=14;noclip=true;
+		fs(fmt([[style_type[image_button;bgimg=%s;bgimg_hovered=%s;noclip=true;
 			font_size=16;textcolor=%s;content_offset=0;sound=i3_tab] ]],
 		selected and (btm and PNG.tab_hover or PNG.tab_hover_top) or (btm and PNG.tab or PNG.tab_top),
 		btm and PNG.tab_hover or PNG.tab_hover_top, selected and "#fff" or "#ddd"))
@@ -2024,9 +2024,11 @@ local function make_fs(player, data)
 
 	fs(fmt("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10))
 
-	local tab = tabs[(data.current_tab or 1)]
+	local tab = tabs[data.current_tab]
 
-	tab.formspec(player, data, fs)
+	if tab then
+		tab.formspec(player, data, fs)
+	end
 
 	local hide_panels = tab.hide_panels and tab.hide_panels(player, data)
 
@@ -2059,7 +2061,7 @@ function i3.new_tab(def)
 	end
 
 	if not true_str(def.name) then
-		return err "i3.new_tab: name missing"
+		return err "i3.new_tab: tab name missing"
 	end
 
 	if not true_str(def.description) then
@@ -2077,14 +2079,57 @@ function i3.get_tabs()
 	return tabs
 end
 
-function i3.delete_tab(name)
-	if not true_str(name) then
-		return err "i3.delete_tab: name missing"
+function i3.delete_tab(tabname)
+	if not true_str(tabname) then
+		return err "i3.delete_tab: tab name missing"
 	end
 
 	for i, def in ipairs(tabs) do
-		if name == def.name then
+		if tabname == def.name then
 			remove(tabs, i)
+		end
+	end
+end
+
+function i3.set_tab(player, tabname)
+	if not true_str(tabname) then
+		return err "i3.set_tab: tab name missing"
+	end
+
+	local name = player:get_player_name()
+	local data = pdata[name]
+	local found
+
+	for i, def in ipairs(tabs) do
+		if not found and def.name == tabname then
+			data.current_tab = i
+			found = true
+		end
+	end
+
+	if not found then
+		return err(fmt("i3.set_tab: tab name '%s' does not exist", tabname))
+	end
+end
+
+local set_tab = i3.set_tab
+
+function i3.override_tab(tabname, newdef)
+	if not is_table(newdef) or not next(newdef) then
+		return err "i3.override_tab: tab definition missing"
+	end
+
+	if not true_str(newdef.name) then
+		return err "i3.override_tab: tab name missing"
+	end
+
+	if not true_str(newdef.description) then
+		return err "i3.override_tab: description missing"
+	end
+
+	for i, def in ipairs(tabs) do
+		if def.name == tabname then
+			tabs[i] = newdef
 		end
 	end
 end
@@ -2803,13 +2848,7 @@ on_receive_fields(function(player, formname, fields)
 	for f in pairs(fields) do
 		if sub(f, 1, 4) == "tab_" then
 			local tabname = sub(f, 5)
-
-			for i, def in ipairs(tabs) do
-				if def.name == tabname then
-					data.current_tab = i
-				end
-			end
-
+			set_tab(player, tabname)
 			break
 		end
 	end
