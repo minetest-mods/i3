@@ -41,19 +41,19 @@ i3.new_tab {
 - `fs` is the formspec table which is callable with a metamethod. Each call adds a new entry.
 - `i3.set_fs(player)` must be called to update the formspec.
 
-##### `i3.delete_tab(tabname)`
+#### `i3.delete_tab(tabname)`
 
 Deletes a tab by name.
 
-##### `i3.set_tab(player, tabname)`
+#### `i3.set_tab(player, tabname)`
 
 Sets the current tab by name. `player` is an `ObjectRef` to the user.
 
-##### `i3.override_tab(tabname, def)`
+#### `i3.override_tab(tabname, def)`
 
 Overrides a tab by name. `def` is the tab definition like seen in `i3.set_tab`.
 
-##### `i3.get_tabs()`
+#### `i3.get_tabs()`
 
 Returns the list of registered tabs.
 
@@ -199,12 +199,12 @@ They can be used like so: `<optional_name> +<filter name>=<value1>,<value2>,<...
 Example usages:
 
 - `+groups=cracky,crumbly`: search for groups `cracky` and `crumbly` in all items.
-- `wood +groups=flammable +type=node`: search for group `flammable` amongst items which contain
+- `wood +groups=flammable +types=node`: search for group `flammable` amongst items which contain
   `wood` in their names AND have a `node` drawtype.
 
 Notes:
 - If `optional_name` is omitted, the search filter will apply to all items, without pre-filtering.
-- The `groups` and `type` filters are currently implemented by default.
+- The `+groups` and `+types` filters are currently implemented by default.
 
 #### `i3.add_search_filter(name, function(item, values))`
 
