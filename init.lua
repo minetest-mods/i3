@@ -2538,8 +2538,8 @@ if rawget(_G, "worldedit") then
 
 		formspec = function(player, _, fs)
 			local name = player:get_player_name()
-			local wfs = worldedit.pages.worldedit_gui.get_formspec(name)
-			      wfs = split(wfs, "]")
+			local wfs = split(worldedit.pages.worldedit_gui.get_formspec(name), "]")
+			local new_fs = {}
 
 			for i, elem in ipairs(wfs) do
 				if sub(elem, 1, 4) == "size" or sub(elem, 1, 5) == "label" or
@@ -2550,19 +2550,16 @@ if rawget(_G, "worldedit") then
 				wfs[i] = wfs[i] .. "]"
 			end
 
-			local new_fs = {}
-
-			for i = 1, #wfs do
-				local elem = wfs[i]
-				local elem_name, field, str = match(elem, "(.*)%[.*%d+;(.*);(.*)]")
+			for i, elem in ipairs(wfs) do
+				local ename, field, str = match(elem, "(.*)%[.*%d+;(.*);(.*)]")
 
 				local X = i % 3
 				X = X + (X * 2.42) + 0.2
 
 				local Y = floor((i % (#wfs - 1) - X) / 3 + 1) + 1.2
 
-				insert(new_fs, fmt("%s[%.1f,%.1f;3,0.8;%s;%s]",
-					elem_name, X, Y, field, str:gsub("/", " / ")))
+				insert(new_fs, fmt("%s[%f,%f;3,0.8;%s;%s]",
+					ename, X, Y, field, str:gsub("/", " / ")))
 			end
 
 			fs(concat(new_fs))
