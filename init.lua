@@ -589,7 +589,7 @@ function i3.set_recipe_filter(name, f)
 	recipe_filters = {[name] = f}
 end
 
-function i3.remove_recipe_filter(name)
+function i3.delete_recipe_filter(name)
 	recipe_filters[name] = nil
 end
 

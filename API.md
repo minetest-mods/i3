@@ -180,7 +180,7 @@ end)
 
 Removes all recipe filters and adds a new one.
 
-#### `i3.remove_recipe_filter(name)`
+#### `i3.delete_recipe_filter(name)`
 
 Removes the recipe filter with the given `name`.
 
