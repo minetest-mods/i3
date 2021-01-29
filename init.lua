@@ -36,6 +36,7 @@ local write_json = core.write_json
 
 local chat_send = core.chat_send_player
 local show_formspec = core.show_formspec
+local check_privs = core.check_player_privs
 local globalstep = core.register_globalstep
 local on_shutdown = core.register_on_shutdown
 local get_players = core.get_connected_players
@@ -200,7 +201,7 @@ end
 local old_is_creative_enabled = core.is_creative_enabled
 
 function core.is_creative_enabled(name)
-	return core.check_player_privs(name, {creative = true}) or old_is_creative_enabled(name)
+	return check_privs(name, {creative = true}) or old_is_creative_enabled(name)
 end
 
 i3.group_stereotypes = {
@@ -2525,6 +2526,58 @@ if rawget(_G, "skins") then
 	insert(META_SAVES, "skin_id")
 end
 
+if rawget(_G, "worldedit") then
+	i3.new_tab {
+		name = "worldedit",
+		description = "WorldEdit",
+
+		access = function(player)
+			local name = player:get_player_name()
+			return check_privs(name, {server = true})
+		end,
+
+		formspec = function(player, _, fs)
+			local name = player:get_player_name()
+			local wfs = worldedit.pages.worldedit_gui.get_formspec(name)
+			      wfs = split(wfs, "]")
+
+			for i, elem in ipairs(wfs) do
+				if sub(elem, 1, 4) == "size" or sub(elem, 1, 5) == "label" or
+						find(elem, "worldedit_gui_exit") then
+					remove(wfs, i)
+				end
+
+				wfs[i] = wfs[i] .. "]"
+			end
+
+			local new_fs = {}
+
+			for i = 1, #wfs do
+				local elem = wfs[i]
+				local elem_name, field, str = match(elem, "(.*)%[.*%d+;(.*);(.*)]")
+
+				local X = i % 3
+				X = X + (X * 2.42) + 0.2
+
+				local Y = floor((i % (#wfs - 1) - X) / 3 + 1) + 1.2
+
+				insert(new_fs, fmt("%s[%.1f,%.1f;3,0.8;%s;%s]",
+					elem_name, X, Y, field, str:gsub("/", " / ")))
+			end
+
+			fs(concat(new_fs))
+		end,
+
+		fields = function(player)
+			i3.set_fs(player)
+		end,
+
+		hide_panels = function()
+			return true
+		end,
+	}
+end
+
 if rawget(_G, "awards") then
 	__awards = true
 
@@ -2853,7 +2906,9 @@ on_receive_fields(function(player, formname, fields)
 		end
 	end
 
-	return true, tabs[data.current_tab].fields(player, data, fields)
+	local tab = tabs[data.current_tab]
+
+	return true, tab and tab.fields and tab.fields(player, data, fields)
 end)
 
 core.register_on_player_hpchange(function(player, hpchange)

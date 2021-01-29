@@ -10,6 +10,7 @@ read_globals = {
 	"armor",
 	"skins",
 	"awards",
+	"worldedit",
 	"vector",
 	"string",
 	"table",
