@@ -16,7 +16,7 @@ local progressive_mode = core.settings:get_bool "i3_progressive_mode"
 local damage_enabled = core.settings:get_bool "enable_damage"
 
 local __3darmor, __skinsdb, __awards
-local sfinv, old_sfinv_fn, unified_inventory, old_unified_inventory_fn
+local sfinv, unified_inventory, old_unified_inventory_fn
 
 local http = core.request_http_api()
 local singleplayer = core.is_singleplayer()
@@ -1948,15 +1948,17 @@ end
 
 local function get_tabs_fs(player, data, fs, full_height)
 	local tab_len, tab_hgh, c, over = 3, 0.5, 0
-	local shift = min(3, #tabs)
+	local _tabs = copy(tabs)
 
 	for i, def in ipairs(tabs) do
 		if def.access and not def.access(player, data) then
-			remove(tabs, i)
+			remove(_tabs, i)
 		end
 	end
 
-	for i, def in ipairs(tabs) do
+	local shift = min(3, #_tabs)
+
+	for i, def in ipairs(_tabs) do
 		if not over and c > 2 then
 			over = true
 			c = 0
@@ -1965,7 +1967,7 @@ local function get_tabs_fs(player, data, fs, full_height)
 		local btm = i <= 3
 
 		if not btm then
-			shift = #tabs - 3
+			shift = #_tabs - 3
 		end
 
 		local selected = i == data.current_tab
@@ -2547,11 +2549,14 @@ if rawget(_G, "worldedit") then
 
 			for i, elem in ipairs(wfs) do
 				local ename, field, str = match(elem, "(.*)%[.*%d+;(.*);(.*)$")
+				local X, Y = i % 3, 0
 
-				local X = i % 3
-				X = X + (X * 2.42) + 0.2
+				if X == 2 then
+					Y = 1
+				end
 
-				local Y = floor((i % #wfs - X) / 3 - 1) + 2.2
+				X = X + (X * 2.1) + 0.5
+				Y = floor((i % #wfs - X) / 3) + 3 + Y
 
 				insert(new_fs, fmt("%s[%f,%f;3,0.8;%s;%s]",
 					ename, X, Y, field, str:gsub("/", " / ")))
@@ -2585,16 +2590,18 @@ if rawget(_G, "awards") then
 		set_fs(player)
 	end)
 
-	core.register_on_chat_message(function(name, message)
+	core.register_on_chat_message(function(name)
 		local player = core.get_player_by_name(name)
-
-		if player:is_player() and sub(message, 1, 1) ~= "/" then
-			set_fs(player)
-		end
+		set_fs(player)
 	end)
 
 	core.register_on_dieplayer(set_fs)
 end
+
+core.register_on_chatcommand(function(name)
+	local player = core.get_player_by_name(name)
+	after(0, set_fs, player)
+end)
 
 i3.register_craft_type("digging", {
 	description = ES"Digging",
@@ -2764,8 +2771,6 @@ on_mods_loaded(function()
 	sfinv = rawget(_G, "sfinv")
 
 	if sfinv then
-		old_sfinv_fn = sfinv.set_player_inventory_formspec
-		function sfinv.set_player_inventory_formspec() return end
 		sfinv.enabled = false
 	end
 
@@ -2832,7 +2837,6 @@ on_joinplayer(function(player)
 	if get_formspec_version(info) < MIN_FORMSPEC_VERSION then
 		if sfinv then
 			sfinv.enabled = true
-			sfinv.set_player_inventory_formspec = old_sfinv_fn
 		end
 
 		if unified_inventory then
