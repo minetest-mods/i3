@@ -2020,20 +2020,20 @@ local function make_fs(player, data)
 	data.xoffset = ROWS + 1.23
 	local full_height = LINES + 1.73
 
+	local tab = tabs[data.current_tab]
+	local hide_panels = tab.hide_panels and tab.hide_panels(player, data)
+	local show_panels = data.query_item and not hide_panels
+
 	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
-		MIN_FORMSPEC_VERSION, data.xoffset + (data.query_item and 8 or 0), full_height), styles)
+		MIN_FORMSPEC_VERSION, data.xoffset + (show_panels and 8 or 0), full_height), styles)
 
 	fs(fmt("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10))
-
-	local tab = tabs[data.current_tab]
 
 	if tab then
 		tab.formspec(player, data, fs)
 	end
 
-	local hide_panels = tab.hide_panels and tab.hide_panels(player, data)
-
-	if data.query_item and not hide_panels then
+	if show_panels then
 		get_panels(player, data, fs)
 	end
 
