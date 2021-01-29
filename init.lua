@@ -166,8 +166,7 @@ local styles = sprintf([[
 	style[prev_usage;fgimg=%s;fgimg_hovered=%s]
 	style[next_usage;fgimg=%s;fgimg_hovered=%s]
 	style[pagenum,no_item,no_rcp;border=false;font=bold;font_size=18;content_offset=0]
-	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=18;border=false;content_offset=-9,0;
-	      sound=i3_click]
+	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=18;border=false;sound=i3_click]
 	style[craft_rcp,craft_usg;border=false;noclip=true;font_size=16;sound=i3_craft;
 	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
 	      bgimg_pressed=i3_btn9_pressed.png;bgimg_middle=4,6]
@@ -1886,9 +1885,9 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 	   fmt("style[btn_armor;textcolor=%s]", armor_equip and "#fff" or "#aaa"),
 	   fmt("style[btn_skins;textcolor=%s]", skins_equip and "#fff" or "#aaa"),
 	   "style_type[button:hovered;textcolor=#fff]",
-	   fmt("button", 0, yextra - 0.2, 2, 0.6, "btn_bag", ES"Bag"),
-	   fmt("button", 2, yextra - 0.2, 2, 0.6, "btn_armor", ES"Armor"),
-	   fmt("button", 4, yextra - 0.2, 2, 0.6, "btn_skins", ES"Skins"))
+	   fmt("button", -0.14, yextra - 0.2, 2, 0.6, "btn_bag", ES"Bag"),
+	   fmt("button", 1.87, yextra - 0.2, 2, 0.6, "btn_armor", ES"Armor"),
+	   fmt("button", 3.87, yextra - 0.2, 2, 0.6, "btn_skins", ES"Skins"))
 
 	fs(fmt("box", 0, yextra + 0.4, ctn_len, 0.045, "#bababa50"),
 	   fmt("box", (bag_equip and 0) or (armor_equip and 2) or (skins_equip and 4),
@@ -2236,7 +2235,7 @@ local function get_inv_slots(data, fs)
 	local width, size, spacing, extra = HOTBAR_COUNT, 0.96, 0.15, 0
 	local bag = data.bag_size
 
-	fs("style_type[box;colors=#77777710,#77777710,#777777,#777777]")
+	fs("style_type[box;colors=#77777710,#77777710,#777,#777]")
 
 	for i = 0, HOTBAR_COUNT - 1 do
 		fs(fmt("box", i + inv_x + (i * 0.1), inv_y, size, size, ""))
