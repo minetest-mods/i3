@@ -2541,22 +2541,17 @@ if rawget(_G, "worldedit") then
 			local wfs = split(worldedit.pages.worldedit_gui.get_formspec(name), "]")
 			local new_fs = {}
 
-			for i, elem in ipairs(wfs) do
-				if sub(elem, 1, 4) == "size" or sub(elem, 1, 5) == "label" or
-						find(elem, "worldedit_gui_exit") then
-					remove(wfs, i)
-				end
-
-				wfs[i] = wfs[i] .. "]"
+			for i = 3, 1, -1 do
+				remove(wfs, i)
 			end
 
 			for i, elem in ipairs(wfs) do
-				local ename, field, str = match(elem, "(.*)%[.*%d+;(.*);(.*)]")
+				local ename, field, str = match(elem, "(.*)%[.*%d+;(.*);(.*)$")
 
 				local X = i % 3
 				X = X + (X * 2.42) + 0.2
 
-				local Y = floor((i % (#wfs - 1) - X) / 3 + 1) + 1.2
+				local Y = floor((i % #wfs - X) / 3 - 1) + 2.2
 
 				insert(new_fs, fmt("%s[%f,%f;3,0.8;%s;%s]",
 					ename, X, Y, field, str:gsub("/", " / ")))
