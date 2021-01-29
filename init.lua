@@ -2535,7 +2535,7 @@ if rawget(_G, "worldedit") then
 
 		access = function(player)
 			local name = player:get_player_name()
-			return check_privs(name, {server = true})
+			return worldedit.pages and check_privs(name, {server = true})
 		end,
 
 		formspec = function(player, _, fs)
