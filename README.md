@@ -26,8 +26,6 @@ To enable it: `i3_progressive_mode = true` in `minetest.conf`.*
    - [**`3d_armor`**](https://content.minetest.net/packages/stu/3d_armor/)
    - [**`skinsdb`**](https://content.minetest.net/packages/bell07/skinsdb/)
    - [**`awards`**](https://content.minetest.net/packages/rubenwardy/awards/)
-   - [**`worldedit`**](https://content.minetest.net/packages/sfan5/worldedit/)
-
 
 #### Recommendations
 

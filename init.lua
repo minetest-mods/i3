@@ -92,8 +92,8 @@ local META_SAVES = {"bag_size", "skin_id"}
 
 local BAG_SIZES = {
 	small  = INV_SIZE + 3,
-	medium = INV_SIZE + 9,
-	large  = INV_SIZE + 21,
+	medium = INV_SIZE + 6,
+	large  = INV_SIZE + 9,
 }
 
 local PNG = {
@@ -2022,7 +2022,7 @@ local function make_fs(player, data)
 	local full_height = LINES + 1.73
 
 	local tab = tabs[data.current_tab]
-	local hide_panels = tab.hide_panels and tab.hide_panels(player, data)
+	local hide_panels = tab and tab.hide_panels and tab.hide_panels(player, data)
 	local show_panels = data.query_item and not hide_panels
 
 	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
@@ -2046,12 +2046,12 @@ local function make_fs(player, data)
 	return concat(fs)
 end
 
-function i3.set_fs(player)
+function i3.set_fs(player, _fs)
 	local name = player:get_player_name()
 	local data = pdata[name]
 	if not data then return end
 
-	local fs = make_fs(player, data)
+	local fs = fmt("%s%s", make_fs(player, data), _fs or "")
 	player:set_inventory_formspec(fs)
 end
 
@@ -2094,12 +2094,14 @@ function i3.delete_tab(tabname)
 end
 
 function i3.set_tab(player, tabname)
-	if not true_str(tabname) then
-		return err "i3.set_tab: tab name missing"
-	end
-
 	local name = player:get_player_name()
 	local data = pdata[name]
+
+	if not tabname or tabname == "" then
+		data.current_tab = 0
+		return
+	end
+
 	local found
 
 	for i, def in ipairs(tabs) do
@@ -2231,14 +2233,14 @@ local function panel_fields(player, data, fields)
 end
 
 local function get_inv_slots(data, fs)
-	local inv_x, inv_y = 0.234, 6.6
-	local width, size, spacing, extra = HOTBAR_COUNT, 0.96, 0.15, 0
+	local inv_x, inv_y = 0.22, 6.6
+	local width, size, spacing = HOTBAR_COUNT, 1, 0.1
 	local bag = data.bag_size
 
 	fs("style_type[box;colors=#77777710,#77777710,#777,#777]")
 
 	for i = 0, HOTBAR_COUNT - 1 do
-		fs(fmt("box", i + inv_x + (i * 0.1), inv_y, size, size, ""))
+		fs(fmt("box", i * size + inv_x + (i * spacing), inv_y, size, size, ""))
 	end
 
 	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing),
@@ -2246,16 +2248,16 @@ local function get_inv_slots(data, fs)
 
 	if bag then
 		if bag == "small" then
-			width, size, spacing, extra = 10, 0.89, 0.1, 0.01
+			width, size = 10, 0.892
 		elseif bag == "medium" then
-			width, size, spacing, extra = 12, 0.72, 0.1, 0.032
+			width, size = 11, 0.8
 		elseif bag == "large" then
-			width, size, spacing, extra = 12, 0.72, 0.1, 0.032
+			width, size = 12, 0.726
 		end
 	end
 
 	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing),
-	   fmt("list[current_player;main;%f,%f;%u,%u;%u]", inv_x + extra, inv_y + 1.15,
+	   fmt("list[current_player;main;%f,%f;%u,%u;%u]", inv_x, inv_y + 1.15,
 		width, (bag and BAG_SIZES[data.bag_size] or INV_SIZE) / width, HOTBAR_COUNT),
 	   "style_type[list;size=1;spacing=0.15]")
 end
@@ -2318,7 +2320,7 @@ local function get_inventory_fs(player, data, fs)
 		scrollbar[%f,0.2;0.2,%f;vertical;scrbar_inv;%u]
 		scrollbaroptions[arrows=default;thumbsize=0;max=1000]
 	]],
-	(max_val * 4) / 15, max_val, 9.79, ctn_hgt, data.scrbar_inv or 0))
+	(max_val * 4) / 15, max_val, 9.8, ctn_hgt, data.scrbar_inv or 0))
 
 	fs(fmt("scroll_container[3.9,0.2;%f,%f;scrbar_inv;vertical]", ctn_len, ctn_hgt))
 
@@ -2525,53 +2527,6 @@ end
 if rawget(_G, "skins") then
 	__skinsdb = true
 	insert(META_SAVES, "skin_id")
-end
-
-if rawget(_G, "worldedit") then
-	i3.new_tab {
-		name = "worldedit",
-		description = "WorldEdit",
-
-		access = function(player)
-			local name = player:get_player_name()
-			return worldedit.pages and check_privs(name, {server = true})
-		end,
-
-		formspec = function(player, _, fs)
-			local name = player:get_player_name()
-			local wfs = split(worldedit.pages.worldedit_gui.get_formspec(name), "]")
-			local new_fs = {}
-
-			for i = 3, 1, -1 do
-				remove(wfs, i)
-			end
-
-			for i, elem in ipairs(wfs) do
-				local ename, field, str = match(elem, "(.*)%[.*%d+;(.*);(.*)$")
-				local X, Y = i % 3, 0
-
-				if X == 2 then
-					Y = 1
-				end
-
-				X = X + (X * 2.1) + 0.5
-				Y = floor((i % #wfs - X) / 3) + 3 + Y
-
-				insert(new_fs, fmt("%s[%f,%f;3,0.8;%s;%s]",
-					ename, X, Y, field, str:gsub("/", " / ")))
-			end
-
-			fs(concat(new_fs))
-		end,
-
-		fields = function(player)
-			i3.set_fs(player)
-		end,
-
-		hide_panels = function()
-			return true
-		end,
-	}
 end
 
 if rawget(_G, "awards") then

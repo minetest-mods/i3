@@ -39,15 +39,19 @@ i3.new_tab {
 - `player` is an `ObjectRef` to the user.
 - `data` are the user data.
 - `fs` is the formspec table which is callable with a metamethod. Each call adds a new entry.
-- `i3.set_fs(player)` must be called to update the formspec.
+
+#### `i3.set_fs(player[, extra_formspec])`
+
+Updates the current formspec. `extra_formspec` adds an additional formspec string.
 
 #### `i3.delete_tab(tabname)`
 
 Deletes a tab by name.
 
-#### `i3.set_tab(player, tabname)`
+#### `i3.set_tab(player[, tabname])`
 
 Sets the current tab by name. `player` is an `ObjectRef` to the user.
+`tabname` can be omitted to get an empty tab.
 
 #### `i3.override_tab(tabname, def)`
 

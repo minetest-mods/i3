@@ -42,7 +42,7 @@ i3.new_tab {
 	end,
 
 	fields = function(player, data, fields)
-		i3.set_fs(player)
+		i3.set_fs(player, "label[3,2;Test extra_fs]")
 	end,
 }
 
