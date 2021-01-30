@@ -2023,7 +2023,7 @@ local function make_fs(player, data)
 
 	local tab = tabs[data.current_tab]
 	local hide_panels = tab and tab.hide_panels and tab.hide_panels(player, data)
-	local show_panels = data.query_item and not hide_panels
+	local show_panels = data.query_item and tab and not hide_panels
 
 	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
 		MIN_FORMSPEC_VERSION, data.xoffset + (show_panels and 8 or 0), full_height), styles)
@@ -2843,7 +2843,10 @@ on_shutdown(function()
 end)
 
 on_receive_fields(function(player, formname, fields)
-	if formname ~= "" then return false end
+	if formname ~= "" then
+		return true
+	end
+
 	local name = player:get_player_name()
 	local data = pdata[name]
 	if not data then return end
@@ -2858,7 +2861,11 @@ on_receive_fields(function(player, formname, fields)
 
 	local tab = tabs[data.current_tab]
 
-	return true, tab and tab.fields and tab.fields(player, data, fields)
+	if tab and tab.fields then
+		return true, tab.fields(player, data, fields)
+	end
+
+	return true, set_fs(player)
 end)
 
 core.register_on_player_hpchange(function(player, hpchange)

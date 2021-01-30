@@ -25,7 +25,7 @@ i3.new_tab {
 	end,
 
 	fields = function(player, data, fields)
-		i3.set_fs(player)
+		
 	end,
 
 	-- Determine if the recipe panels must be hidden or not (must return a boolean)

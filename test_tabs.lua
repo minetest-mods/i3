@@ -6,10 +6,6 @@ i3.new_tab {
 	formspec = function(player, data, fs)
 		fs("label[3,1;Test 1]")
 	end,
-
-	fields = function(player, data, fields)
-		i3.set_fs(player)
-	end,
 }
 
 i3.new_tab {
@@ -19,10 +15,6 @@ i3.new_tab {
 
 	formspec = function(player, data, fs)
 		fs("label[3,1;Test 2]")
-	end,
-
-	fields = function(player, data, fields)
-		i3.set_fs(player)
 	end,
 }
 
@@ -53,9 +45,5 @@ i3.override_tab("test2", {
 
 	formspec = function(player, data, fs)
 		fs("label[3,1;Override!]")
-	end,
-
-	fields = function(player, data, fields)
-		i3.set_fs(player)
 	end,
 })
