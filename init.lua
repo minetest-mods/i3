@@ -1800,12 +1800,12 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 
 		if #title > title_lim then
 			_title = snip(title, title_lim)
-			fs(fmt("tooltip", icon_size + 0.2, y + 0.14, box_len, 0.24, title))
+			fs[#fs + 1] = fmt("tooltip", icon_size + 0.2, y + 0.14, box_len, 0.24, title)
 		end
 
 		if #desc > desc_lim then
 			_desc = snip(desc, desc_lim)
-			fs(fmt("tooltip", icon_size + 0.2, y + 0.68, box_len, 0.26, desc))
+			fs[#fs + 1] = fmt("tooltip", icon_size + 0.2, y + 0.68, box_len, 0.26, desc)
 		end
 
 		if not award.unlocked and def.secret then
@@ -1819,28 +1819,28 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 			icon = fmt("%s^\\[colorize:#000:180", icon)
 		end
 
-		fs(fmt("image", 0, y + 0.01, icon_size, icon_size, icon),
-		   "style_type[box;colors=#bababa30,#bababa30,#bababa05,#bababa05]",
-		   fmt("box", icon_size + 0.1, y, box_len, icon_size, ""))
+		fs[#fs + 1] = fmt("image", 0, y + 0.01, icon_size, icon_size, icon)
+		fs[#fs + 1] = "style_type[box;colors=#bababa30,#bababa30,#bababa05,#bababa05]"
+		fs[#fs + 1] = fmt("box", icon_size + 0.1, y, box_len, icon_size, "")
 
 		if progress then
 			local current, target = progress.current, progress.target
 			local curr_bar = (current * box_len) / target
 
-			fs(fmt("box", icon_size + 0.1, y + 0.8, box_len, 0.3, "#101010"),
-			   "style_type[box;colors=#9dc34c80,#9dc34c,#9dc34c,#9dc34c80]",
-			   fmt("box", icon_size + 0.1, y + 0.8, curr_bar, 0.3, ""),
-			   "style_type[label;font_size=14]",
-			   fmt("label", icon_size + 0.5, y + 0.97, fmt("%u / %u", current, target)))
+			fs[#fs + 1] = fmt("box", icon_size + 0.1, y + 0.8, box_len, 0.3, "#101010")
+			fs[#fs + 1] = "style_type[box;colors=#9dc34c80,#9dc34c,#9dc34c,#9dc34c80]"
+			fs[#fs + 1] = fmt("box", icon_size + 0.1, y + 0.8, curr_bar, 0.3, "")
+			fs[#fs + 1] = "style_type[label;font_size=14]"
+			fs[#fs + 1] = fmt("label", icon_size + 0.5, y + 0.97, fmt("%u / %u", current, target))
 
 			y = y - 0.14
 		end
 
-		fs("style_type[label;font=bold;font_size=17]",
-		   fmt("label", icon_size + 0.2, y + 0.4, _title or title),
-		   "style_type[label;font=normal;font_size=15]",
-		   fmt("label", icon_size + 0.2, y + 0.75, clr("#bbbbbb", _desc or desc)),
-		   "style_type[label;font_size=16]")
+		fs[#fs + 1] = "style_type[label;font=bold;font_size=17]"
+		fs[#fs + 1] = fmt("label", icon_size + 0.2, y + 0.4, _title or title)
+		fs[#fs + 1] = "style_type[label;font=normal;font_size=15]"
+		fs[#fs + 1] = fmt("label", icon_size + 0.2, y + 0.75, clr("#bbbbbb", _desc or desc))
+		fs[#fs + 1] = "style_type[label;font_size=16]"
 	end
 end
 
@@ -2393,7 +2393,7 @@ local function get_items_fs(_, data, fs)
 			fs(fmt("image", X, Y, 1, 1, PNG.slot))
 		end
 
-		fs(fmt("item_image_button", X, Y, 1, 1, item, fmt("%s_inv", item), ""))
+		fs[#fs + 1] = fmt("item_image_button", X, Y, 1, 1, item, fmt("%s_inv", item), "")
 	end
 end
 
