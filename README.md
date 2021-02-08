@@ -37,8 +37,9 @@ To use this mod in the best conditions, it's recommended to follow these recomme
 
 #### Notes
 
-`i3` uses a larger inventory (9 slots wide) than the usual inventories in Minetest.
+`i3` uses a larger inventory than the usual inventories in Minetest games.
 Thus, most chests will be unadapted to this inventory size.
+The `i3`  inventory is 9 slots wide by default (without backpack), such as in Minecraft.
 
 Report any bug on the [**Bug Tracker**](https://github.com/minetest-mods/i3/issues).
 
