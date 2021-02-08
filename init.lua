@@ -2843,7 +2843,7 @@ end)
 
 on_receive_fields(function(player, formname, fields)
 	if formname ~= "" then
-		return true
+		return false
 	end
 
 	local name = player:get_player_name()
