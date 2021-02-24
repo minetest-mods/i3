@@ -2,7 +2,7 @@
 
 [![ContentDB](https://content.minetest.net/packages/jp/i3/shields/title/)](https://content.minetest.net/packages/jp/i3/) [![ContentDB](https://content.minetest.net/packages/jp/i3/shields/downloads/)](https://content.minetest.net/packages/jp/i3/)
 
-#### **`i3`** is the inventory of your wildest dreams.
+#### **`i3`** is a next-generation inventory for Minetest.
 
 This inventory offers a slick, modern UI made with the latest technologies of the Minetest engine.
 **`i3`** provides a rich [**API**](https://github.com/minetest-mods/i3/blob/master/API.md) for mod developers who want to extend it.
@@ -45,6 +45,6 @@ Report any bug on the [**Bug Tracker**](https://github.com/minetest-mods/i3/issu
 
 Love this mod? Donations are appreciated: https://www.paypal.me/jpg84240
 
-Demo video: https://www.youtube.com/watch?v=mwpzKq0zVjg
+Demo video: https://www.youtube.com/watch?v=25nCAaqeacU
 
 ![Preview](https://user-images.githubusercontent.com/7883281/109045805-4f450600-76d4-11eb-90f7-b99ab939246a.png)
