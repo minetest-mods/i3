@@ -1917,14 +1917,15 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 	elseif skins_equip then
 		if __skinsdb then
 			local _skins = skins.get_skinlist_for_player(name)
-			local t = {}
+			local sks = {}
 
 			for _, skin in ipairs(_skins) do
-				t[#t + 1] = skin.name
+				sks[#sks + 1] = skin.name
 			end
 
-			fs(fmt("dropdown[0,%f;3.55,0.6;skins;%s;%u;true]",
-				yextra + 0.7, concat(t, ","), data.skin_id or 1))
+			sks = concat(sks, ","):gsub(";", "")
+
+			fs(fmt("dropdown[0,%f;4,0.6;skins;%s;%u;true]", yextra + 0.7, sks, data.skin_id or 1))
 		else
 			fs(fmt("hypertext", 0, yextra + 0.9, ctn_len, 0.6, "",
 				"<center><style color=#7bf font=mono>skinsdb</style> not installed</center>"))
