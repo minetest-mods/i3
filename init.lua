@@ -2348,15 +2348,11 @@ local function get_inventory_fs(player, data, fs)
 end
 
 local function get_items_fs(_, data, fs)
-	local filtered = data.filter ~= ""
-
 	fs("box[0.2,0.2;4.55,0.6;#bababa25]", "set_focus[filter]")
-	fs(fmt("field[0.3,0.2;%f,0.6;filter;;%s]", filtered and 3.45 or 3.9, ESC(data.filter)))
+	fs(fmt("field[0.3,0.2;3.45,0.6;filter;;%s]", ESC(data.filter)))
 	fs("field_close_on_enter[filter;false]")
 
-	if filtered then
-		fs(fmt("image_button", 3.75, 0.35, 0.3, 0.3, "", "cancel", ""))
-	end
+	fs(fmt("image_button", 3.75, 0.35, 0.3, 0.3, "", "cancel", ""))
 
 	fs(fmt("image_button", 4.25, 0.32, 0.35, 0.35, "", "search", ""))
 
