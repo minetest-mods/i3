@@ -1790,16 +1790,15 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 		local y = yextra - 0.7 + i + (i * 0.3)
 
 		local def, progress = award.def, award.progress
-		local title = def.title
-		local desc = def.description
-
-		local title_lim, _title = 27
-		local desc_lim, _desc = 40
-		local icon_size = 1.1
-		local box_len = ctn_len - icon_size + 0.1
+		local title, desc = def.title, def.description
 
 		title = translate(data.lang_code, title)
 		desc = translate(data.lang_code, desc):gsub("%.$", "")
+
+		local title_lim, _title = 27
+		local desc_lim, _desc = 39
+		local icon_size = 1.1
+		local box_len = ctn_len - icon_size + 0.1
 
 		if #title > title_lim then
 			_title = snip(title, title_lim)
