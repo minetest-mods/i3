@@ -1779,7 +1779,7 @@ local function add_subtitle(fs, title, x, y, ctn_len, font_size)
 	   fmt("box", x, y + 0.3, ctn_len, 0.045, "#"))
 end
 
-local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
+local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
 	local percent = fmt("%.1f%%", (awards_unlocked * 100) / award_list_nb):gsub(".0", "")
 
 	add_subtitle(fs, ES("Achievements: @1 of @2 (@3)", awards_unlocked, award_list_nb, percent),
@@ -1791,21 +1791,22 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 
 		local def, progress = award.def, award.progress
 		local title = def.title
-		local desc = def.description and def.description:gsub("%.$", "") or ""
+		local desc = def.description
 
 		local title_lim, _title = 27
 		local desc_lim, _desc = 40
 		local icon_size = 1.1
 		local box_len = ctn_len - icon_size + 0.1
 
+		title = translate(data.lang_code, title)
+		desc = translate(data.lang_code, desc):gsub("%.$", "")
+
 		if #title > title_lim then
 			_title = snip(title, title_lim)
-			fs[#fs + 1] = fmt("tooltip", icon_size + 0.2, y + 0.14, box_len, 0.24, title)
 		end
 
 		if #desc > desc_lim then
 			_desc = snip(desc, desc_lim)
-			fs[#fs + 1] = fmt("tooltip", icon_size + 0.2, y + 0.68, box_len, 0.26, desc)
 		end
 
 		if not award.unlocked and def.secret then
@@ -1836,10 +1837,13 @@ local function get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, 
 			y = y - 0.14
 		end
 
+		title = _title or title
+		desc = _desc or desc
+
 		fs[#fs + 1] = "style_type[label;font=bold;font_size=17]"
-		fs[#fs + 1] = fmt("label", icon_size + 0.2, y + 0.4, _title or title)
+		fs[#fs + 1] = fmt("label", icon_size + 0.2, y + 0.4, title)
 		fs[#fs + 1] = "style_type[label;font=normal;font_size=15]"
-		fs[#fs + 1] = fmt("label", icon_size + 0.2, y + 0.75, clr("#bbbbbb", _desc or desc))
+		fs[#fs + 1] = fmt("label", icon_size + 0.2, y + 0.75, clr("#bbbbbb", desc))
 		fs[#fs + 1] = "style_type[label;font_size=16]"
 	end
 end
@@ -1940,7 +1944,7 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 			yextra = yextra + 1.9
 		end
 
-		get_award_list(fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
+		get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
 	end
 end
 
