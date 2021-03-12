@@ -1897,8 +1897,7 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 
 		if not data.bag:get_stack("main", 1):is_empty() then
 			fs(fmt("hypertext", 1.2, yextra + 0.89, ctn_len - 1.9, 0.8, "",
-				ES("The inventory is extended by @1 slots",
-					BAG_SIZES[data.bag_size] - INV_SIZE)))
+				ES("The inventory is extended by @1 slots", BAG_SIZES[data.bag_size] - INV_SIZE)))
 		end
 
 	elseif armor_equip then
@@ -1910,7 +1909,7 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 			fs(fmt("label", 3.65, yextra + 1.55, fmt("%s: %s", ES"Level", armor_def.level)),
 			   fmt("label", 3.65, yextra + 2.05, fmt("%s: %s", ES"Heal", armor_def.heal)))
 		else
-			fs(fmt("hypertext", 0, yextra + 0.9, ctn_len, 0.4, "",
+			fs(fmt("hypertext", 0, yextra + 0.9, ctn_len, 0.6, "",
 				"<center><style color=#7bf font=mono>3d_armor</style> not installed</center>"))
 		end
 
