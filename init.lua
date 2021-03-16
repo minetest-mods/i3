@@ -1875,7 +1875,6 @@ local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, awar
 	fs(fmt("list[current_player;craft;%f,%f;3,3;]", xoffset, yoffset + 1.45),
 	   fmt("image", xoffset + 3.47, yoffset + 2.69, 0.85, 0.85, PNG.arrow),
 	   fmt("list[current_player;craftpreview;%f,%f;1,1;]", xoffset + 4.45, yoffset + 2.6),
-	   "listring[detached:i3_trash;main]",
 	   fmt("list[detached:i3_trash;main;%f,%f;1,1;]", xoffset + 4.45, yoffset + 3.75),
 	   fmt("image", xoffset + 4.45, yoffset + 3.75, 1, 1, PNG.trash))
 
@@ -2263,10 +2262,12 @@ local function get_inv_slots(data, fs)
 	   fmt("list[current_player;main;%f,%f;%u,%u;%u]", inv_x, inv_y + 1.15,
 		width, (bag and BAG_SIZES[data.bag_size] or INV_SIZE) / width, HOTBAR_COUNT),
 	   "style_type[list;size=1;spacing=0.15]")
+
+	fs("listring[current_player;craft]listring[current_player;main]")
 end
 
 local function get_inventory_fs(player, data, fs)
-	fs("listcolors[#bababa50;#bababa99]listring[current_player;main]")
+	fs("listcolors[#bababa50;#bababa99]")
 
 	get_inv_slots(data, fs)
 
