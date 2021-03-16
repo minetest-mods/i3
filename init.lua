@@ -1623,7 +1623,8 @@ local function get_header(fs, data)
 	end
 
 	local desc_lim, name_lim = 32, 34
-	local desc = ESC(get_desc(data.query_item))
+	local desc = translate(data.lang_code, get_desc(data.query_item))
+	      desc = ESC(desc)
 	local tech_name = data.query_item
 	local X = data.xoffset + 1.05
 	local Y1 = data.yoffset + 0.47
