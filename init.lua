@@ -1774,10 +1774,10 @@ end
 local function add_subtitle(fs, title, x, y, ctn_len, font_size)
 	font_size = font_size or 18
 
-	fs(fmt("style_type[label;font=bold;font_size=%u]", font_size), fmt("label", x, y, title),
+	fs(fmt("style_type[label;font=bold;font_size=%u]", font_size),
+	   fmt("label", x, y, title),
 	   "style_type[label;font=normal;font_size=16]",
-	   "style_type[box;colors=#bababa,#bababa30,#bababa30,#bababa]",
-	   fmt("box", x, y + 0.3, ctn_len, 0.045, "#"))
+	   fmt("image", x, y + 0.3, ctn_len, 0.035, "i3_bar.png"))
 end
 
 local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
@@ -1848,35 +1848,37 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 	end
 end
 
-local function get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, award_list, awards_unlocked,
-			       award_list_nb)
+local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb)
 	local name = player:get_player_name()
-	add_subtitle(fs, ESC(name), xoffset, yoffset + 0.2, ctn_len, 22)
+
+	fs("style[player_name;font=bold;font_size=22;border=false;content_offset=0]",
+	   fmt("button", 0, 0, ctn_len, 0.5, "player_name", ESC(name)),
+	   fmt("image", 0, 0.55, ctn_len, 0.035, "i3_bar.png"))
 
 	local hp = damage_enabled and (data.hp or player:get_hp()) or 20
 	local half = ceil((hp / 2) % 1)
 	local hearts = (hp / 2) + half
 	local heart_size = 0.35
-	local heart_hgt = yoffset + 0.7
+	local heart_x, heart_h = 0.65, yoffset + 0.75
 
 	for i = 1, 10 do
-		fs(fmt("image", xoffset + ((i - 1) * (heart_size + 0.1)), heart_hgt,
+		fs(fmt("image", heart_x + ((i - 1) * (heart_size + 0.1)), heart_h,
 			heart_size, heart_size, PNG.heart_grey))
 	end
 
 	if damage_enabled then
 		for i = 1, hearts do
-			fs(fmt("image", xoffset + ((i - 1) * (heart_size + 0.1)), heart_hgt,
+			fs(fmt("image", heart_x + ((i - 1) * (heart_size + 0.1)), heart_h,
 				heart_size, heart_size,
 				(half == 1 and i == floor(hearts)) and PNG.heart_half or PNG.heart))
 		end
 	end
 
-	fs(fmt("list[current_player;craft;%f,%f;3,3;]", xoffset, yoffset + 1.45),
-	   fmt("image", xoffset + 3.47, yoffset + 2.69, 0.85, 0.85, PNG.arrow),
-	   fmt("list[current_player;craftpreview;%f,%f;1,1;]", xoffset + 4.45, yoffset + 2.6),
-	   fmt("list[detached:i3_trash;main;%f,%f;1,1;]", xoffset + 4.45, yoffset + 3.75),
-	   fmt("image", xoffset + 4.45, yoffset + 3.75, 1, 1, PNG.trash))
+	fs(fmt("list[current_player;craft;%f,%f;3,3;]", 0, yoffset + 1.45),
+	   fmt("image", 3.47, yoffset + 2.69, 0.85, 0.85, PNG.arrow),
+	   fmt("list[current_player;craftpreview;%f,%f;1,1;]", 4.45, yoffset + 2.6),
+	   fmt("list[detached:i3_trash;main;%f,%f;1,1;]", 4.45, yoffset + 3.75),
+	   fmt("image", 4.45, yoffset + 3.75, 1, 1, PNG.trash))
 
 	local yextra = 5.4
 	local bag_equip = data.equip == "bag"
@@ -2275,7 +2277,7 @@ local function get_inventory_fs(player, data, fs)
 	local name = player:get_player_name()
 
 	local ctn_len, ctn_hgt = 5.7, 6
-	local xoffset, yoffset = 0, 0
+	local yoffset = 0
 
 	if props.mesh ~= "" then
 		local anim = player:get_local_animation()
@@ -2328,8 +2330,7 @@ local function get_inventory_fs(player, data, fs)
 
 	fs(fmt("scroll_container[3.9,0.2;%f,%f;scrbar_inv;vertical]", ctn_len, ctn_hgt))
 
-	get_ctn_content(fs, data, player, xoffset, yoffset, ctn_len, award_list, awards_unlocked,
-			award_list_nb)
+	get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb)
 
 	fs("scroll_container_end[]")
 
