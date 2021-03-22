@@ -99,6 +99,7 @@ local BAG_SIZES = {
 local PNG = {
 	bg = "i3_bg.png",
 	bg_full = "i3_bg_full.png",
+	bar = "i3_bar.png",
 	hotbar = "i3_hotbar.png",
 	search = "i3_search.png",
 	heart = "i3_heart.png",
@@ -1777,7 +1778,7 @@ local function add_subtitle(fs, title, x, y, ctn_len, font_size)
 	fs(fmt("style_type[label;font=bold;font_size=%u]", font_size),
 	   fmt("label", x, y, title),
 	   "style_type[label;font=normal;font_size=16]",
-	   fmt("image", x, y + 0.3, ctn_len, 0.035, "i3_bar.png"))
+	   fmt("image", x, y + 0.3, ctn_len, 0.035, PNG.bar))
 end
 
 local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
@@ -1853,7 +1854,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 
 	fs("style[player_name;font=bold;font_size=22;border=false;content_offset=0]",
 	   fmt("button", 0, 0, ctn_len, 0.5, "player_name", ESC(name)),
-	   fmt("image", 0, 0.55, ctn_len, 0.035, "i3_bar.png"))
+	   fmt("image", 0, 0.55, ctn_len, 0.035, PNG.bar))
 
 	local hp = damage_enabled and (data.hp or player:get_hp()) or 20
 	local half = ceil((hp / 2) % 1)
