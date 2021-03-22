@@ -1772,24 +1772,21 @@ local function get_panels(player, data, fs)
 	end
 end
 
-local function add_subtitle(fs, title, x, y, ctn_len, font_size)
-	font_size = font_size or 18
-
-	fs(fmt("style_type[label;font=bold;font_size=%u]", font_size),
-	   fmt("label", x, y, title),
-	   "style_type[label;font=normal;font_size=16]",
-	   fmt("image", x, y + 0.3, ctn_len, 0.035, PNG.bar))
+local function add_subtitle(fs, name, y, ctn_len, font_size, label)
+	fs(fmt("style[%s;font=bold;font_size=%u;border=false;content_offset=0]", name, font_size),
+	   fmt("button", 0, y, ctn_len, 0.5, name, ESC(label)),
+	   fmt("image", 0, y + 0.55, ctn_len, 0.035, PNG.bar))
 end
 
 local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
 	local percent = fmt("%.1f%%", (awards_unlocked * 100) / award_list_nb):gsub(".0", "")
 
-	add_subtitle(fs, ES("Achievements: @1 of @2 (@3)", awards_unlocked, award_list_nb, percent),
-		0, yextra, ctn_len)
+	add_subtitle(fs, "awards", yextra, ctn_len, 18,
+		ES("Achievements: @1 of @2 (@3)", awards_unlocked, award_list_nb, percent))
 
 	for i = 1, award_list_nb do
 		local award = award_list[i]
-		local y = yextra - 0.7 + i + (i * 0.3)
+		local y = yextra - 0.5 + i + (i * 0.3)
 
 		local def, progress = award.def, award.progress
 		local title, desc = def.title, def.description
@@ -1851,10 +1848,7 @@ end
 
 local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb)
 	local name = player:get_player_name()
-
-	fs("style[player_name;font=bold;font_size=22;border=false;content_offset=0]",
-	   fmt("button", 0, 0, ctn_len, 0.5, "player_name", ESC(name)),
-	   fmt("image", 0, 0.55, ctn_len, 0.035, PNG.bar))
+	add_subtitle(fs, "player_name", 0, ctn_len, 22, ESC(name))
 
 	local hp = damage_enabled and (data.hp or player:get_hp()) or 20
 	local half = ceil((hp / 2) % 1)
@@ -1939,11 +1933,11 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 
 	if __awards then
 		if bag_equip then
-			yextra = yextra + 2.4
+			yextra = yextra + 2.2
 		elseif armor_equip then
-			yextra = yextra + (__3darmor and 3.6 or 1.9)
+			yextra = yextra + (__3darmor and 3.4 or 1.7)
 		elseif skins_equip then
-			yextra = yextra + 1.9
+			yextra = yextra + 1.7
 		end
 
 		get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
