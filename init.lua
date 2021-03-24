@@ -2810,6 +2810,7 @@ end)
 core.register_on_dieplayer(function(player)
 	local name = player:get_player_name()
 	local data = pdata[name]
+	if not data then return end
 
 	data.bag_size = nil
 	data.bag:set_list("main", {})
