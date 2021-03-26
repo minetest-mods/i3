@@ -1,4 +1,9 @@
 i3.register_craft({
+	result = "default:ladder_wood",
+	items = {"default:copper_ingot 7, default:tin_ingot", "default:steel_ingot 2"},
+})
+
+i3.register_craft({
 	grid = {
 		"X  #",
 		" ## ",
@@ -7,7 +12,7 @@ i3.register_craft({
 	},
 	key = {
 		['#'] = "default:wood",
-		['X'] = "default:glass",
+		['X'] = "default:glass 2",
 	},
 	result = "default:mese 3",
 })

@@ -316,7 +316,7 @@ local function fmt(elem, ...)
 end
 
 local function clean_name(item)
-	if sub(item, 1, 1) == ":" then
+	if sub(item, 1, 1) == ":" or sub(item, 1, 1) == " " then
 		item = sub(item, 2)
 	end
 
@@ -454,10 +454,6 @@ function i3.register_craft_type(name, def)
 		def.description = ""
 	end
 
-	if not is_str(def.icon) then
-		def.icon = ""
-	end
-
 	craft_types[name] = def
 end
 
@@ -538,7 +534,6 @@ function i3.register_craft(def)
 		def.items = {}
 
 		for i = 1, len do
-			items[i] = items[i]:gsub(",", ", ")
 			local rlen = #split(items[i], ",")
 
 			if rlen > width then
@@ -548,13 +543,13 @@ function i3.register_craft(def)
 
 		for i = 1, len do
 			while #split(items[i], ",") < width do
-				items[i] = items[i] .. ", "
+				items[i] = fmt("%s,", items[i])
 			end
 		end
 
 		for name in gmatch(concat(items, ","), "[%s%w_:]+") do
 			c = c + 1
-			def.items[c] = match(name, "%S+")
+			def.items[c] = clean_name(name)
 		end
 	end
 
