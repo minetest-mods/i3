@@ -2408,8 +2408,13 @@ i3.new_tab {
 
 		if fields.trash then
 			local inv = player:get_inventory()
+
 			if not inv:is_empty("main") then
 				inv:set_list("main", {})
+			end
+
+			if not inv:is_empty("craft") then
+				inv:set_list("craft", {})
 			end
 
 		elseif fields.compress then
