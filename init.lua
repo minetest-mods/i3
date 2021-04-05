@@ -58,9 +58,9 @@ local ES = function(...)
 	return ESC(S(...))
 end
 
-local maxn, sort, concat, copy, insert, remove =
+local maxn, sort, concat, copy, insert, remove, indexof =
 	table.maxn, table.sort, table.concat, table.copy,
-	table.insert, table.remove
+	table.insert, table.remove, table.indexof
 
 local sprintf, find, gmatch, match, sub, split, upper, lower =
 	string.format, string.find, string.gmatch, string.match,
@@ -96,6 +96,17 @@ local BAG_SIZES = {
 	large  = INV_SIZE + 9,
 }
 
+local SUBCAT = {
+	spacing = 1.18,
+	titles = {
+		"bag",
+		"armor",
+		"skins",
+		"awards",
+		"waypoints",
+	}
+}
+
 local PNG = {
 	bg = "i3_bg.png",
 	bg_full = "i3_bg_full.png",
@@ -122,6 +133,11 @@ local PNG = {
 	tab = "i3_tab.png",
 	tab_top = "i3_tab.png^\\[transformFY",
 	furnace_anim = "i3_furnace_anim.png",
+	bag = "i3_bag.png",
+	armor = "i3_armor.png",
+	awards = "i3_award.png",
+	skins = "i3_skin.png",
+	waypoints = "i3_waypoint.png",
 
 	cancel_hover = "i3_cancel.png^\\[brighten",
 	search_hover = "i3_search.png^\\[brighten",
@@ -134,6 +150,11 @@ local PNG = {
 	next_hover = "i3_next_hover.png",
 	tab_hover = "i3_tab_hover.png",
 	tab_hover_top = "i3_tab_hover.png^\\[transformFY",
+	bag_hover = "i3_bag_hover.png",
+	armor_hover = "i3_armor_hover.png",
+	awards_hover = "i3_award_hover.png",
+	skins_hover = "i3_skin_hover.png",
+	waypoints_hover = "i3_waypoint_hover.png",
 }
 
 local fs_elements = {
@@ -1147,7 +1168,7 @@ local function craft_stack(player, pname, data, craft_rcp)
 	local inv = player:get_inventory()
 	local rcp_usg = craft_rcp and "recipe" or "usage"
 	local output = craft_rcp and data.recipes[data.rnum].output or data.usages[data.unum].output
-	output = ItemStack(output)
+	      output = ItemStack(output)
 	local stackname, stackcount, stackmax = output:get_name(), output:get_count(), output:get_stack_max()
 	local scrbar_val = data[fmt("scrbar_%s", craft_rcp and "rcp" or "usg")] or 1
 
@@ -1869,24 +1890,24 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 	   fmt("list[detached:i3_trash;main;%f,%f;1,1;]", 4.45, yoffset + 3.75))
 	fs("image", 4.45, yoffset + 3.75, 1, 1, PNG.trash)
 
-	local yextra = 5.4
-	local bag_equip = data.equip == "bag"
-	local armor_equip = data.equip == "armor"
-	local skins_equip = data.equip == "skins"
+	local yextra = 5.5
 
-	fs(fmt("style[btn_bag;textcolor=%s]", bag_equip and "#fff" or "#aaa"),
-	   fmt("style[btn_armor;textcolor=%s]", armor_equip and "#fff" or "#aaa"),
-	   fmt("style[btn_skins;textcolor=%s]", skins_equip and "#fff" or "#aaa"),
-	   "style_type[button:hovered;textcolor=#fff]")
-	fs("button", -0.14, yextra - 0.2, 2, 0.6, "btn_bag", ES"Bag")
-	fs("button", 1.87, yextra - 0.2, 2, 0.6, "btn_armor", ES"Armor")
-	fs("button", 3.87, yextra - 0.2, 2, 0.6, "btn_skins", ES"Skins")
+	for i = 1, #SUBCAT.titles do
+		local title = SUBCAT.titles[i]
+		local btn_name = fmt("btn_%s", title)
 
-	fs("box", 0, yextra + 0.4, ctn_len, 0.045, "#bababa50")
-	fs("box", (bag_equip and 0) or (armor_equip and 2) or (skins_equip and 4),
-		yextra + 0.4, 1.7, 0.045, "#f9826c")
+		fs(fmt("style[btn_%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", title,
+			data.equip == i and PNG[fmt("%s_hover", title)] or PNG[title],
+			PNG[fmt("%s_hover", title)]))
 
-	if bag_equip then
+		fs("image_button", 0.2 + ((i - 1) * SUBCAT.spacing), yextra - 0.2, 0.6, 0.6, "", btn_name, "")
+		fs(fmt("tooltip[%s;%s]", btn_name, title:gsub("^%l", upper)))
+	end
+
+	fs("box", 0, yextra + 0.5, ctn_len, 0.045, "#bababa50")
+	fs("box", (data.equip - 1) * SUBCAT.spacing, yextra + 0.5, 1, 0.045, "#f9826c")
+
+	if data.equip == 1 then
 		fs(fmt("list[detached:%s_backpack;main;0,%f;1,1;]", ESC(name), yextra + 0.7))
 
 		if not data.bag:get_stack("main", 1):is_empty() then
@@ -1894,7 +1915,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 				ES("The inventory is extended by @1 slots", BAG_SIZES[data.bag_size] - INV_SIZE))
 		end
 
-	elseif armor_equip then
+	elseif data.equip == 2 then
 		if __3darmor then
 			fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", ESC(name), yextra + 0.7))
 
@@ -1907,7 +1928,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 				"<center><style color=#7bf font=mono>3d_armor</style> not installed</center>")
 		end
 
-	elseif skins_equip then
+	elseif data.equip == 3 then
 		if __skinsdb then
 			local _skins = skins.get_skinlist_for_player(name)
 			local sks = {}
@@ -1923,18 +1944,15 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 			fs("hypertext", 0, yextra + 0.9, ctn_len, 0.6, "",
 				"<center><style color=#7bf font=mono>skinsdb</style> not installed</center>")
 		end
-	end
 
-	if __awards then
-		if bag_equip then
-			yextra = yextra + 2.2
-		elseif armor_equip then
-			yextra = yextra + (__3darmor and 3.4 or 1.7)
-		elseif skins_equip then
-			yextra = yextra + 1.7
+	elseif data.equip == 4 then
+		if __awards then
+			yextra = yextra + 0.8
+			get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
+		else
+			fs("hypertext", 0, yextra + 0.9, ctn_len, 0.6, "",
+				"<center><style color=#7bf font=mono>awards</style> not installed</center>")
 		end
-
-		get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
 	end
 end
 
@@ -2150,7 +2168,7 @@ local function init_data(player, info)
 		favs          = {},
 		export_counts = {},
 		current_tab   = 1,
-		equip         = "bag",
+		equip         = 1,
 		lang_code     = get_lang_code(info),
 	}
 
@@ -2292,18 +2310,16 @@ local function get_inventory_fs(player, data, fs)
 
 	local award_list, award_list_nb
 	local awards_unlocked = 0
+	local max_val = 15
 
-	local max_val = 13
-
-	if __3darmor and data.equip == "armor" then
+	if __3darmor and data.equip == 2 then
 		if data.scrbar_inv == max_val then
 			data.scrbar_inv = data.scrbar_inv + 9
 		end
 
 		max_val = max_val + 9
-	end
 
-	if __awards then
+	elseif __awards and data.equip == 4 then
 		award_list = awards.get_award_states(name)
 		award_list_nb = #award_list
 
@@ -2315,7 +2331,7 @@ local function get_inventory_fs(player, data, fs)
 			end
 		end
 
-		max_val = max_val + (award_list_nb * 13.17)
+		max_val = max_val + (award_list_nb * 13)
 	end
 
 	fs(fmt([[
@@ -2413,16 +2429,17 @@ i3.new_tab {
 			skins.set_player_skin(player, _skins[data.skin_id])
 		end
 
+		for field in pairs(fields) do
+			if sub(field, 1, 4) == "btn_" then
+				data.equip = indexof(SUBCAT.titles, sub(field, 5))
+				break
+			end
+		end
+
 		if fields.trash then
 			local inv = player:get_inventory()
-
-			if not inv:is_empty("main") then
-				inv:set_list("main", {})
-			end
-
-			if not inv:is_empty("craft") then
-				inv:set_list("craft", {})
-			end
+			inv:set_list("main", {})
+			inv:set_list("craft", {})
 
 		elseif fields.compress then
 			compress_items(player)
@@ -2433,14 +2450,6 @@ i3.new_tab {
 		elseif sb_inv and sub(sb_inv, 1, 3) == "CHG" then
 			data.scrbar_inv = tonum(match(sb_inv, "%d+"))
 			return
-
-		elseif fields.btn_bag or fields.btn_armor or fields.btn_skins then
-			for k in pairs(fields) do
-				if sub(k, 1, 4) == "btn_" then
-					data.equip = sub(k, 5)
-					break
-				end
-			end
 		end
 
 		return set_fs(player)
