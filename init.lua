@@ -66,7 +66,8 @@ local sprintf, find, gmatch, match, sub, split, upper, lower =
 	string.format, string.find, string.gmatch, string.match,
 	string.sub, string.split, string.upper, string.lower
 
-local min, max, floor, ceil, abs = math.min, math.max, math.floor, math.ceil, math.abs
+local min, max, floor, ceil, abs, random =
+	math.min, math.max, math.floor, math.ceil, math.abs, math.random
 
 local pairs, ipairs, next, type, setmetatable, tonum, unpack, select =
 	pairs, ipairs, next, type, setmetatable, tonumber, unpack, select
@@ -88,7 +89,7 @@ local HUD_TIMER_MAX = 1.5
 
 local MIN_FORMSPEC_VERSION = 4
 
-local META_SAVES = {"bag_size", "skin_id"}
+local META_SAVES = {"bag_size", "skin_id", "waypoints"}
 
 local BAG_SIZES = {
 	small  = INV_SIZE + 3,
@@ -138,6 +139,8 @@ local PNG = {
 	awards = "i3_award.png",
 	skins = "i3_skin.png",
 	waypoints = "i3_waypoint.png",
+	teleport = "i3_teleport.png",
+	add = "i3_add.png",
 
 	cancel_hover = "i3_cancel.png^\\[brighten",
 	search_hover = "i3_search.png^\\[brighten",
@@ -155,6 +158,8 @@ local PNG = {
 	awards_hover = "i3_award_hover.png",
 	skins_hover = "i3_skin_hover.png",
 	waypoints_hover = "i3_waypoint_hover.png",
+	teleport_hover = "i3_teleport.png^\\[brighten",
+	add_hover = "i3_add.png^\\[brighten",
 }
 
 local fs_elements = {
@@ -174,11 +179,11 @@ local fs_elements = {
 }
 
 local styles = sprintf([[
+	style_type[field;border=false;bgcolor=transparent]
 	style_type[label,field;font_size=16]
 	style_type[image_button;border=false;sound=i3_click]
 	style_type[item_image_button;border=false;bgimg_hovered=%s;sound=i3_click]
 
-	style[filter;border=false]
 	style[cancel;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[search;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[prev_page;fgimg=%s;fgimg_hovered=%s]
@@ -187,6 +192,9 @@ local styles = sprintf([[
 	style[next_recipe;fgimg=%s;fgimg_hovered=%s]
 	style[prev_usage;fgimg=%s;fgimg_hovered=%s]
 	style[next_usage;fgimg=%s;fgimg_hovered=%s]
+	style[waypoint_add;fgimg=%s;fgimg_hovered=%s;content_offset=0]
+	style[waypoint_delete;fgimg=%s;fgimg_hovered=%s;content_offset=0]
+	style[waypoint_teleport;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[pagenum,no_item,no_rcp;border=false;font=bold;font_size=18;content_offset=0]
 	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=18;border=false;content_offset=0;sound=i3_click]
 	style[craft_rcp,craft_usg;border=false;noclip=true;font_size=16;sound=i3_craft;
@@ -201,7 +209,10 @@ PNG.next,     PNG.next_hover,
 PNG.prev,     PNG.prev_hover,
 PNG.next,     PNG.next_hover,
 PNG.prev,     PNG.prev_hover,
-PNG.next,     PNG.next_hover)
+PNG.next,     PNG.next_hover,
+PNG.add,      PNG.add_hover,
+PNG.trash,    PNG.trash_hover,
+PNG.teleport, PNG.teleport_hover)
 
 local function get_lang_code(info)
 	return info and info.lang_code
@@ -1953,6 +1964,36 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 			fs("hypertext", 0, yextra + 0.9, ctn_len, 0.6, "",
 				"<center><style color=#7bf font=mono>awards</style> not installed</center>")
 		end
+
+	elseif data.equip == 5 then
+		local waypoints = {}
+
+		for _, v in ipairs(data.waypoints or {}) do
+			insert(waypoints, v.name)
+		end
+
+		fs(fmt("dropdown[0,%f;4.2,0.6;waypoints;%s;%u;true]",
+			yextra + 0.7, concat(waypoints, ","), data.waypoint_id))
+
+		local no_waypoint = not data.waypoints or #data.waypoints == 0
+
+		if not no_waypoint then
+			fs("image_button", 4.4, yextra + 0.75, 0.5, 0.5, "", "waypoint_delete", "")
+			fs(fmt("tooltip[waypoint_delete;%s]", ES"Delete waypoint"))
+
+			if core.is_creative_enabled(name) then
+				fs("image_button",
+					no_waypoint and 4.4 or 5.1, yextra + 0.77, 0.5, 0.5,
+					"", "waypoint_teleport", "")
+
+				fs(fmt("tooltip[waypoint_teleport;%s]", ES"Teleport to waypoint"))
+			end
+		end
+
+		fs(fmt("box[0,%f;4.2,0.6;#bababa25]", yextra + 1.5))
+		fs(fmt("field[0.1,%f;4.1,0.6;waypoint_name;;]", yextra + 1.5))
+		fs("image_button", 4.4, yextra + 1.55, 0.5, 0.5, "", "waypoint_add", "")
+		fs(fmt("tooltip[waypoint_add;%s]", ES"Add waypoint"))
 	end
 end
 
@@ -2169,16 +2210,16 @@ local function init_data(player, info)
 		export_counts = {},
 		current_tab   = 1,
 		equip         = 1,
+		waypoint_id   = 1,
 		lang_code     = get_lang_code(info),
 	}
 
 	local data = pdata[name]
 	local meta = player:get_meta()
 
-	data.bag_size = dslz(meta:get_string "bag_size")
-
-	if __skinsdb then
-		data.skin_id = tonum(dslz(meta:get_string "skin_id") or 1)
+	for i = 1, #META_SAVES do
+		local recover = META_SAVES[i]
+		data[recover] = dslz(meta:get_string(recover))
 	end
 
 	after(0, set_fs, player)
@@ -2332,6 +2373,9 @@ local function get_inventory_fs(player, data, fs)
 		end
 
 		max_val = max_val + (award_list_nb * 13)
+
+	elseif data.equip == 5 then
+		max_val = max_val + 3
 	end
 
 	fs(fmt([[
@@ -2429,6 +2473,10 @@ i3.new_tab {
 			skins.set_player_skin(player, _skins[data.skin_id])
 		end
 
+		if fields.waypoints then
+			data.waypoint_id = tonumber(fields.waypoints)
+		end
+
 		for field in pairs(fields) do
 			if sub(field, 1, 4) == "btn_" then
 				data.equip = indexof(SUBCAT.titles, sub(field, 5))
@@ -2450,6 +2498,42 @@ i3.new_tab {
 		elseif sb_inv and sub(sb_inv, 1, 3) == "CHG" then
 			data.scrbar_inv = tonum(match(sb_inv, "%d+"))
 			return
+
+		elseif fields.waypoint_add then
+			data.waypoints = data.waypoints or {}
+			data.waypoint_id = data.waypoint_id + 1
+			local waypoint = fields.waypoint_name
+
+			if fields.waypoint_name == "" then
+				waypoint = fmt("Waypoint %u", #data.waypoints + 1)
+			end
+
+			local color = random(0xffffff)
+			local pos = player:get_pos()
+
+			local id = player:hud_add {
+				hud_elem_type = "waypoint",
+				name = waypoint,
+				text = "m",
+				world_pos = pos,
+				number = color,
+				z_index = -300,
+			}
+
+			insert(data.waypoints, {name = waypoint, pos = pos, color = color, id = id})
+
+		elseif fields.waypoint_delete then
+			local waypoint = data.waypoints[data.waypoint_id]
+			player:hud_remove(waypoint.id)
+			remove(data.waypoints, data.waypoint_id)
+
+		elseif fields.waypoint_teleport then
+			local waypoint = data.waypoints[data.waypoint_id]
+			local pos = waypoint.pos
+			pos.y = pos.y + 0.5
+
+			player:set_pos(pos)
+			msg(name, fmt("Teleported to %s", clr("#ff0", waypoint.name)))
 		end
 
 		return set_fs(player)
@@ -2794,6 +2878,24 @@ local function init_backpack(player)
 	end
 end
 
+local function init_waypoints(player)
+	local name = player:get_player_name()
+	local data = pdata[name]
+
+	for _, v in ipairs(data.waypoints or {}) do
+		local id = player:hud_add {
+			hud_elem_type = "waypoint",
+			name = v.name,
+			text = "m",
+			world_pos = v.pos,
+			number = v.color,
+			z_index = -300,
+		}
+
+		v.id = id
+	end
+end
+
 on_joinplayer(function(player)
 	local name = player:get_player_name()
 	local info = get_player_info(name)
@@ -2816,6 +2918,7 @@ on_joinplayer(function(player)
 
 	init_data(player, info)
 	init_backpack(player)
+	init_waypoints(player)
 
 	after(0, function()
 		player:hud_set_hotbar_itemcount(HOTBAR_COUNT)
@@ -2976,7 +3079,7 @@ if progressive_mode then
 
 	local function init_hud(player, data)
 		data.hud = {
-			bg = player:hud_add{
+			bg = player:hud_add {
 				hud_elem_type = "image",
 				position      = {x = 0.78, y = 1},
 				alignment     = {x = 1,    y = 1},
@@ -2985,7 +3088,7 @@ if progressive_mode then
 				z_index       = 0xDEAD,
 			},
 
-			book = player:hud_add{
+			book = player:hud_add {
 				hud_elem_type = "image",
 				position      = {x = 0.79, y = 1.02},
 				alignment     = {x = 1,    y = 1},
@@ -2994,7 +3097,7 @@ if progressive_mode then
 				z_index       = 0xDEAD,
 			},
 
-			text = player:hud_add{
+			text = player:hud_add {
 				hud_elem_type = "text",
 				position      = {x = 0.84, y = 1.04},
 				alignment     = {x = 1,    y = 1},
