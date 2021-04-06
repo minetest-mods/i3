@@ -2351,7 +2351,7 @@ local function get_inventory_fs(player, data, fs)
 	local max_val = 15
 
 	if __3darmor and data.subcat == 2 then
-		if data.scrbar_inv >= max_val then
+		if (data.scrbar_inv or 0) >= max_val then
 			data.scrbar_inv = data.scrbar_inv + 9
 		end
 
