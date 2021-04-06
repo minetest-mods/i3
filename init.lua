@@ -66,8 +66,8 @@ local sprintf, find, gmatch, match, sub, split, upper, lower =
 	string.format, string.find, string.gmatch, string.match,
 	string.sub, string.split, string.upper, string.lower
 
-local min, max, floor, ceil, abs, random =
-	math.min, math.max, math.floor, math.ceil, math.abs, math.random
+local min, max, floor, ceil, random =
+	math.min, math.max, math.floor, math.ceil, math.random
 
 local pairs, ipairs, next, type, setmetatable, tonum, unpack, select =
 	pairs, ipairs, next, type, setmetatable, tonumber, unpack, select
@@ -1559,21 +1559,20 @@ local function get_rcp_lbl(fs, data, panel, rn, is_recipe)
 		lbl = ES("Recipe @1 of @2", data.rnum, rn)
 	end
 
-	local _lbl = translate(data.lang_code, lbl)
-	local lbl_len = #_lbl:gsub("[\128-\191]", "") -- Count chars, not bytes in UTF-8 strings
-	local shift = min(0.9, abs(12 - max(12, lbl_len)) * 0.15)
+	local one = rn == 1
+	local y = data.yoffset + 3.3
 
-	fs("label", data.xoffset + 5.65 - shift, data.yoffset + 3.37, lbl)
+	fs("hypertext", data.xoffset + (one and 4.7 or 3.95), y, 3, 0.6, "",
+		fmt("<global size=16><right>%s</right>", lbl))
 
-	if rn > 1 then
+	if not one then
 		local btn_suffix = is_recipe and "recipe" or "usage"
 		local prev_name = fmt("prev_%s", btn_suffix)
 		local next_name = fmt("next_%s", btn_suffix)
-		local x_arrow = data.xoffset + 5.09
-		local y_arrow = data.yoffset + 3.2
+		local size = 0.3
 
-		fs("image_button", x_arrow - shift, y_arrow, 0.3, 0.3, "", prev_name, "")
-		fs("image_button", x_arrow + 2.3,   y_arrow, 0.3, 0.3, "", next_name, "")
+		fs("image_button", data.xoffset + 7.05, y, size, size, "", prev_name, "")
+		fs("image_button", data.xoffset + 7.5,  y, size, size, "", next_name, "")
 	end
 
 	local rcp = is_recipe and panel.rcp[data.rnum] or panel.rcp[data.unum]
