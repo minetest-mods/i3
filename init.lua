@@ -2501,11 +2501,12 @@ i3.new_tab {
 
 		elseif fields.waypoint_add then
 			data.waypoints = data.waypoints or {}
-			data.waypoint_id = data.waypoint_id + 1
 			local waypoint = fields.waypoint_name
+			local last = #data.waypoints + 1
+			data.waypoint_id = last
 
 			if fields.waypoint_name == "" then
-				waypoint = fmt("Waypoint %u", #data.waypoints + 1)
+				waypoint = fmt("Waypoint %u", last)
 			end
 
 			local color = random(0xffffff)
@@ -2514,7 +2515,7 @@ i3.new_tab {
 			local id = player:hud_add {
 				hud_elem_type = "waypoint",
 				name = waypoint,
-				text = "m",
+				text = " m",
 				world_pos = pos,
 				number = color,
 				z_index = -300,
@@ -2526,6 +2527,7 @@ i3.new_tab {
 			local waypoint = data.waypoints[data.waypoint_id]
 			player:hud_remove(waypoint.id)
 			remove(data.waypoints, data.waypoint_id)
+			data.waypoint_id = data.waypoint_id + (data.waypoint_id == 1 and 0 or -1)
 
 		elseif fields.waypoint_teleport then
 			local waypoint = data.waypoints[data.waypoint_id]
@@ -2886,7 +2888,7 @@ local function init_waypoints(player)
 		local id = player:hud_add {
 			hud_elem_type = "waypoint",
 			name = v.name,
-			text = "m",
+			text = " m",
 			world_pos = v.pos,
 			number = v.color,
 			z_index = -300,
