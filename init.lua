@@ -89,7 +89,7 @@ local HUD_TIMER_MAX = 1.5
 
 local MIN_FORMSPEC_VERSION = 4
 
-local META_SAVES = {"bag_size", "skin_id", "waypoints"}
+local META_SAVES = {"bag_size", "waypoints"}
 
 local BAG_SIZES = {
 	small  = INV_SIZE + 3,
@@ -98,14 +98,11 @@ local BAG_SIZES = {
 }
 
 local SUBCAT = {
-	spacing = 1.18,
-	titles = {
-		"bag",
-		"armor",
-		"skins",
-		"awards",
-		"waypoints",
-	}
+	"bag",
+	"armor",
+	"skins",
+	"awards",
+	"waypoints",
 }
 
 local PNG = {
@@ -1903,20 +1900,24 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 
 	local yextra = 5.5
 
-	for i = 1, #SUBCAT.titles do
-		local title = SUBCAT.titles[i]
+	for i, title in ipairs(SUBCAT) do
 		local btn_name = fmt("btn_%s", title)
 
 		fs(fmt("style[btn_%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", title,
 			data.equip == i and PNG[fmt("%s_hover", title)] or PNG[title],
 			PNG[fmt("%s_hover", title)]))
 
-		fs("image_button", 0.25 + ((i - 1) * SUBCAT.spacing), yextra - 0.2, 0.5, 0.5, "", btn_name, "")
+		fs("image_button", 0.25 + ((i - 1) * 1.18), yextra - 0.2, 0.5, 0.5, "", btn_name, "")
 		fs(fmt("tooltip[%s;%s]", btn_name, title:gsub("^%l", upper)))
 	end
 
 	fs("box", 0, yextra + 0.45, ctn_len, 0.045, "#bababa50")
-	fs("box", (data.equip - 1) * SUBCAT.spacing, yextra + 0.45, 1, 0.045, "#f9826c")
+	fs("box", (data.equip - 1) * 1.18, yextra + 0.45, 1, 0.045, "#f9826c")
+
+	local function not_installed(modname)
+		fs("hypertext", 0, yextra + 0.9, ctn_len, 0.6, "",
+			fmt("<center><style color=#7bf font=mono>%s</style> not installed</center>", modname))
+	end
 
 	if data.equip == 1 then
 		fs(fmt("list[detached:%s_backpack;main;0,%f;1,1;]", ESC(name), yextra + 0.7))
@@ -1935,8 +1936,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 			fs("label", 3.65, yextra + 1.55, fmt("%s: %s", ES"Level", armor_def.level))
 			fs("label", 3.65, yextra + 2.05, fmt("%s: %s", ES"Heal", armor_def.heal))
 		else
-			fs("hypertext", 0, yextra + 0.9, ctn_len, 0.6, "",
-				"<center><style color=#7bf font=mono>3d_armor</style> not installed</center>")
+			not_installed("3d_armor")
 		end
 
 	elseif data.equip == 3 then
@@ -1952,8 +1952,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 
 			fs(fmt("dropdown[0,%f;4,0.6;skins;%s;%u;true]", yextra + 0.7, sks, data.skin_id or 1))
 		else
-			fs("hypertext", 0, yextra + 0.9, ctn_len, 0.6, "",
-				"<center><style color=#7bf font=mono>skinsdb</style> not installed</center>")
+			not_installed("skinsdb")
 		end
 
 	elseif data.equip == 4 then
@@ -1961,8 +1960,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 			yextra = yextra + 0.8
 			get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
 		else
-			fs("hypertext", 0, yextra + 0.9, ctn_len, 0.6, "",
-				"<center><style color=#7bf font=mono>awards</style> not installed</center>")
+			not_installed("awards")
 		end
 
 	elseif data.equip == 5 then
@@ -2032,8 +2030,7 @@ local function get_tabs_fs(player, data, fs, full_height)
 		local Y = btm and full_height or -tab_hgh
 
 		fs("style_type[image_button:hovered;textcolor=#fff]")
-		fs("image_button", X, Y, tab_len, tab_hgh, "", fmt("tab_%s", def.name),
-			ESC(def.description))
+		fs("image_button", X, Y, tab_len, tab_hgh, "", fmt("tab_%s", def.name), ESC(def.description))
 
 		if def.image and def.image ~= "" then
 			local desc = translate(data.lang_code, def.description)
@@ -2479,7 +2476,7 @@ i3.new_tab {
 
 		for field in pairs(fields) do
 			if sub(field, 1, 4) == "btn_" then
-				data.equip = indexof(SUBCAT.titles, sub(field, 5))
+				data.equip = indexof(SUBCAT, sub(field, 5))
 				break
 			end
 		end
