@@ -668,24 +668,24 @@ local function get_desc(item)
 
 	local def = reg_items[item]
 
-	if def then
-		local desc = ItemStack(item):get_short_description()
-
-		if true_str(desc) then
-			desc = desc:trim()
-
-			if not find(desc, "%u") then
-				desc = toupper(desc)
-			end
-
-			return desc
-
-		elseif true_str(item) then
-			return toupper(match(item, ":(.*)"))
-		end
+	if not def then
+		return S("Unknown Item (@1)", item)
 	end
 
-	return S("Unknown Item (@1)", item)
+	local desc = def.description
+
+	if true_str(desc) then
+		desc = desc:trim():match("[^\n]*")
+
+		if not find(desc, "%u") then
+			desc = toupper(desc)
+		end
+
+		return desc
+
+	elseif true_str(item) then
+		return toupper(match(item, ":(.*)"))
+	end
 end
 
 local function item_has_groups(item_groups, groups)
@@ -1646,7 +1646,7 @@ local function get_header(fs, data)
 		fs(fmt("tooltip[nofav;%s]", ES"Cannot mark this item. Bookmark limit reached."))
 	end
 
-	local desc_lim, name_lim = 32, 34
+	local desc_lim, name_lim = 33, 34
 	local desc = translate(data.lang_code, get_desc(data.query_item))
 	      desc = ESC(desc)
 	local tech_name = data.query_item
@@ -1664,7 +1664,7 @@ local function get_header(fs, data)
 		tech_name = snip(tech_name, name_lim)
 	end
 
-	fs("style_type[label;font=bold;font_size=22]")
+	fs("style_type[label;font=bold;font_size=20]")
 	fs("label", X, Y1, desc)
 	fs("style_type[label;font=mono;font_size=16]")
 	fs("label", X, Y2, clr("#7bf", tech_name))
