@@ -1904,7 +1904,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 		local btn_name = fmt("btn_%s", title)
 
 		fs(fmt("style[btn_%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", title,
-			data.equip == i and PNG[fmt("%s_hover", title)] or PNG[title],
+			data.subcat == i and PNG[fmt("%s_hover", title)] or PNG[title],
 			PNG[fmt("%s_hover", title)]))
 
 		fs("image_button", 0.25 + ((i - 1) * 1.18), yextra - 0.2, 0.5, 0.5, "", btn_name, "")
@@ -1912,14 +1912,14 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 	end
 
 	fs("box", 0, yextra + 0.45, ctn_len, 0.045, "#bababa50")
-	fs("box", (data.equip - 1) * 1.18, yextra + 0.45, 1, 0.045, "#f9826c")
+	fs("box", (data.subcat - 1) * 1.18, yextra + 0.45, 1, 0.045, "#f9826c")
 
 	local function not_installed(modname)
 		fs("hypertext", 0, yextra + 0.9, ctn_len, 0.6, "",
 			fmt("<center><style color=#7bf font=mono>%s</style> not installed</center>", modname))
 	end
 
-	if data.equip == 1 then
+	if data.subcat == 1 then
 		fs(fmt("list[detached:%s_backpack;main;0,%f;1,1;]", ESC(name), yextra + 0.7))
 
 		if not data.bag:get_stack("main", 1):is_empty() then
@@ -1927,7 +1927,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 				ES("The inventory is extended by @1 slots", BAG_SIZES[data.bag_size] - INV_SIZE))
 		end
 
-	elseif data.equip == 2 then
+	elseif data.subcat == 2 then
 		if __3darmor then
 			fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", ESC(name), yextra + 0.7))
 
@@ -1939,7 +1939,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 			not_installed("3d_armor")
 		end
 
-	elseif data.equip == 3 then
+	elseif data.subcat == 3 then
 		if __skinsdb then
 			local _skins = skins.get_skinlist_for_player(name)
 			local sks = {}
@@ -1955,7 +1955,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 			not_installed("skinsdb")
 		end
 
-	elseif data.equip == 4 then
+	elseif data.subcat == 4 then
 		if __awards then
 			yextra = yextra + 0.8
 			get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
@@ -1963,7 +1963,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 			not_installed("awards")
 		end
 
-	elseif data.equip == 5 then
+	elseif data.subcat == 5 then
 		local waypoints = {}
 
 		for _, v in ipairs(data.waypoints or {}) do
@@ -2206,7 +2206,7 @@ local function init_data(player, info)
 		favs          = {},
 		export_counts = {},
 		current_tab   = 1,
-		equip         = 1,
+		subcat        = 1,
 		waypoint_id   = 1,
 		lang_code     = get_lang_code(info),
 	}
@@ -2350,14 +2350,14 @@ local function get_inventory_fs(player, data, fs)
 	local awards_unlocked = 0
 	local max_val = 15
 
-	if __3darmor and data.equip == 2 then
+	if __3darmor and data.subcat == 2 then
 		if data.scrbar_inv == max_val then
 			data.scrbar_inv = data.scrbar_inv + 9
 		end
 
 		max_val = max_val + 9
 
-	elseif __awards and data.equip == 4 then
+	elseif __awards and data.subcat == 4 then
 		award_list = awards.get_award_states(name)
 		award_list_nb = #award_list
 
@@ -2371,7 +2371,7 @@ local function get_inventory_fs(player, data, fs)
 
 		max_val = max_val + (award_list_nb * 13)
 
-	elseif data.equip == 5 then
+	elseif data.subcat == 5 then
 		max_val = max_val + 3
 	end
 
@@ -2476,7 +2476,7 @@ i3.new_tab {
 
 		for field in pairs(fields) do
 			if sub(field, 1, 4) == "btn_" then
-				data.equip = indexof(SUBCAT, sub(field, 5))
+				data.subcat = indexof(SUBCAT, sub(field, 5))
 				break
 			end
 		end
