@@ -2352,10 +2352,10 @@ local function get_inventory_fs(player, data, fs)
 
 	if __3darmor and data.subcat == 2 then
 		if (data.scrbar_inv or 0) >= max_val then
-			data.scrbar_inv = data.scrbar_inv + 9
+			data.scrbar_inv = data.scrbar_inv + 10
 		end
 
-		max_val = max_val + 9
+		max_val = max_val + 10
 
 	elseif __awards and data.subcat == 4 then
 		award_list = awards.get_award_states(name)
