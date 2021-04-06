@@ -1,6 +1,15 @@
+minetest.register_craft({
+	output = minetest.itemstring_with_palette("default:wood", 3),
+	type = "shapeless",
+	recipe = {
+		"default:wood",
+		"dye:red",
+	},
+})
+
 i3.register_craft({
 	result = "default:ladder_wood",
-	items = {"default:copper_ingot 7, default:tin_ingot", "default:steel_ingot 2"},
+	items = {"default:copper_ingot 7, default:tin_ingot, default:steel_ingot 2"},
 })
 
 i3.register_craft({

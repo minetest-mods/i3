@@ -675,7 +675,7 @@ local function get_desc(item)
 	local desc = def.description
 
 	if true_str(desc) then
-		desc = desc:trim():match("[^\n]*")
+		desc = desc:trim():match("[^\n]*"):gsub("_", " ")
 
 		if not find(desc, "%u") then
 			desc = toupper(desc)
@@ -1402,7 +1402,7 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 		fs("animated_image", X + 0.05, Y, ITEM_BTN_SIZE, ITEM_BTN_SIZE, PNG.fire_anim, 8, 180)
 	else
 		local item = rcp.output
-		item = ItemStack(clean_name(item))
+		      item = ItemStack(clean_name(item))
 		local name = item:get_name()
 		local count = item:get_count()
 		local bt_s = ITEM_BTN_SIZE * 1.2
