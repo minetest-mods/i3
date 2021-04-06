@@ -17,6 +17,7 @@ This mod requires **Minetest 5.4+**
    - 3D Player Model Preview
    - Inventory Sorting (alphabetical + item stack compression)
    - Item Bookmarks
+   - Waypoints
 
 **¹** *This mode is a Terraria-like system that shows recipes you can craft from items you ever had in your inventory.
 To enable it: `i3_progressive_mode = true` in `minetest.conf`.*
