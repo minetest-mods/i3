@@ -1911,12 +1911,12 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 			data.equip == i and PNG[fmt("%s_hover", title)] or PNG[title],
 			PNG[fmt("%s_hover", title)]))
 
-		fs("image_button", 0.2 + ((i - 1) * SUBCAT.spacing), yextra - 0.2, 0.6, 0.6, "", btn_name, "")
+		fs("image_button", 0.25 + ((i - 1) * SUBCAT.spacing), yextra - 0.2, 0.5, 0.5, "", btn_name, "")
 		fs(fmt("tooltip[%s;%s]", btn_name, title:gsub("^%l", upper)))
 	end
 
-	fs("box", 0, yextra + 0.5, ctn_len, 0.045, "#bababa50")
-	fs("box", (data.equip - 1) * SUBCAT.spacing, yextra + 0.5, 1, 0.045, "#f9826c")
+	fs("box", 0, yextra + 0.45, ctn_len, 0.045, "#bababa50")
+	fs("box", (data.equip - 1) * SUBCAT.spacing, yextra + 0.45, 1, 0.045, "#f9826c")
 
 	if data.equip == 1 then
 		fs(fmt("list[detached:%s_backpack;main;0,%f;1,1;]", ESC(name), yextra + 0.7))
