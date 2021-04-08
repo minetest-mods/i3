@@ -1255,8 +1255,7 @@ local function select_item(player, name, data, _f)
 		local stack = ItemStack(item)
 		local stackmax = stack:get_stack_max()
 		stack = fmt("%s %s", item, stackmax)
-		get_stack(player, name, stack, clr("#ff0", fmt("%u x %s", stackmax, item)))
-		return
+		return get_stack(player, name, stack, clr("#ff0", fmt("%u x %s", stackmax, get_desc(item))))
 	end
 
 	if item == data.query_item then return end
