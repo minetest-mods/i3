@@ -1308,7 +1308,7 @@ local function get_tooltip(item, info)
 			tooltip = S("Any item belonging to the groups: @1", groupstr)
 		end
 	else
-		tooltip = get_desc(item)
+		tooltip = info.meta_desc or get_desc(item)
 	end
 
 	local function add(str)
@@ -1400,8 +1400,8 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 	if rcp.type == "fuel" then
 		fs("animated_image", X + 0.05, Y, ITEM_BTN_SIZE, ITEM_BTN_SIZE, PNG.fire_anim, 8, 180)
 	else
-		local item = rcp.output
-		      item = ItemStack(clean_name(item))
+		local item = ItemStack(rcp.output)
+		local meta = item:get_meta()
 		local name = item:get_name()
 		local count = item:get_count()
 		local bt_s = ITEM_BTN_SIZE * 1.2
@@ -1421,13 +1421,18 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 		local weird = name ~= "" and desc and weird_desc(desc) or nil
 		local burntime = fuel_cache[name] and fuel_cache[name].burntime
 
+		local short_desc = meta:get_string("short_description")
+		local long_desc  = meta:get_string("description")
+		local meta_desc  = (short_desc ~= "" and short_desc) or (long_desc ~= "" and long_desc)
+
 		local infos = {
-			unknown  = unknown,
-			weird    = weird,
-			burntime = burntime,
-			repair   = repairable(name),
-			rarity   = rcp.rarity,
-			tools    = rcp.tools,
+			unknown   = unknown,
+			weird     = weird,
+			burntime  = burntime,
+			repair    = repairable(name),
+			rarity    = rcp.rarity,
+			tools     = rcp.tools,
+			meta_desc = meta_desc,
 		}
 
 		if next(infos) then
@@ -1457,8 +1462,8 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 	end
 
 	for i = 1, width * rows do
-		local item = rcp.items[i] or ""
-		item = clean_name(item)
+		local _item = rcp.items[i] or ""
+		local item = clean_name(_item)
 		local name = match(item, "%S*")
 
 		local X = ceil((i - 1) % width - width)
@@ -1525,18 +1530,24 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 
 		local def = reg_items[name]
 		local unknown = not def or nil
-		unknown = not groups and unknown or nil
+		      unknown = not groups and unknown or nil
 		local desc = def and def.description
 		local weird = name ~= "" and desc and weird_desc(desc) or nil
 		local burntime = fuel_cache[name] and fuel_cache[name].burntime
 
+		local meta = ItemStack(_item):get_meta()
+		local short_desc = meta:get_string("short_description")
+		local long_desc  = meta:get_string("description")
+		local meta_desc  = (short_desc ~= "" and short_desc) or (long_desc ~= "" and long_desc)
+
 		local infos = {
-			unknown  = unknown,
-			weird    = weird,
-			groups   = groups,
-			burntime = burntime,
-			cooktime = cooktime,
-			replace  = replace,
+			unknown   = unknown,
+			weird     = weird,
+			groups    = groups,
+			burntime  = burntime,
+			cooktime  = cooktime,
+			replace   = replace,
+			meta_desc = meta_desc,
 		}
 
 		if next(infos) then

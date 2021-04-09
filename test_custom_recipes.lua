@@ -1,15 +1,18 @@
+local mt = ItemStack("default:wood")
+mt:get_meta():set_string("description", "test wood")
+mt:get_meta():set_string("color", "#000")
+
+local mt2 = ItemStack("dye:red")
+mt2:get_meta():set_string("description", "test red")
+mt2:get_meta():set_string("color", "#ff0")
+
 minetest.register_craft({
-	output = minetest.itemstring_with_palette("default:wood", 3),
+	output = mt:to_string(),
 	type = "shapeless",
 	recipe = {
 		"default:wood",
-		"dye:red",
+		mt2:to_string(),
 	},
-})
-
-i3.register_craft({
-	result = "default:ladder_wood",
-	items = {"default:copper_ingot 7, default:tin_ingot, default:steel_ingot 2"},
 })
 
 i3.register_craft({
