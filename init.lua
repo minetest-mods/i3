@@ -1547,7 +1547,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 
 		local short_desc = meta:get_string("short_description")
 		local long_desc  = meta:get_string("description")
-		local meta_desc  = (short_desc ~= "" and short_desc) or (long_desc ~= "" and long_desc)
+		local meta_desc  = (short_desc ~= "" and short_desc) or (long_desc ~= "" and long_desc) or nil
 
 		local infos = {
 			unknown   = unknown,
