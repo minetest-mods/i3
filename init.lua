@@ -178,9 +178,11 @@ local fs_elements = {
 local styles = sprintf([[
 	style_type[field;border=false;bgcolor=transparent]
 	style_type[label,field;font_size=16]
-	style_type[button,image_button;border=false;sound=i3_click]
-	style_type[item_image_button;border=false;bgimg_hovered=%s;sound=i3_click]
+	style_type[button;border=false;content_offset=0]
+	style_type[image_button,item_image_button;border=false;sound=i3_click]
+	style_type[item_image_button;bgimg_hovered=%s]
 
+	style[pagenum,no_item,no_rcp;font=bold;font_size=18]
 	style[cancel;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[search;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[prev_page;fgimg=%s;fgimg_hovered=%s]
@@ -192,7 +194,6 @@ local styles = sprintf([[
 	style[waypoint_add;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[waypoint_delete;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[waypoint_teleport;fgimg=%s;fgimg_hovered=%s;content_offset=0]
-	style[pagenum,no_item,no_rcp;font=bold;font_size=18;content_offset=0]
 	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=18;content_offset=0;sound=i3_click]
 	style[craft_rcp,craft_usg;noclip=true;font_size=16;sound=i3_craft;
 	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
@@ -1821,7 +1822,7 @@ local function get_panels(player, data, fs)
 end
 
 local function add_subtitle(fs, name, y, ctn_len, font_size, label)
-	fs(fmt("style[%s;font=bold;font_size=%u;border=false;content_offset=0]", name, font_size))
+	fs(fmt("style[%s;font=bold;font_size=%u]", name, font_size))
 	fs("button", 0, y, ctn_len, 0.5, name, ESC(label))
 	fs("image", 0, y + 0.55, ctn_len, 0.035, PNG.bar)
 end
