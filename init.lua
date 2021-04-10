@@ -1409,6 +1409,7 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 
 		if meta:get_string("color") ~= "" then
 			fs(fmt("style_type[list;size=%f]", ITEM_BTN_SIZE))
+			fs("listcolors[#bababa50;#bababa99]")
 			fs(fmt("list[detached:i3_output_rcp;main;%f,%f;1,1;]", X + 0.11, Y))
 			fs("button",  X + 0.11, Y, ITEM_BTN_SIZE, ITEM_BTN_SIZE, _name, "")
 
