@@ -178,7 +178,7 @@ local fs_elements = {
 local styles = sprintf([[
 	style_type[field;border=false;bgcolor=transparent]
 	style_type[label,field;font_size=16]
-	style_type[image_button;border=false;sound=i3_click]
+	style_type[button,image_button;border=false;sound=i3_click]
 	style_type[item_image_button;border=false;bgimg_hovered=%s;sound=i3_click]
 
 	style[cancel;fgimg=%s;fgimg_hovered=%s;content_offset=0]
@@ -192,9 +192,9 @@ local styles = sprintf([[
 	style[waypoint_add;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[waypoint_delete;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[waypoint_teleport;fgimg=%s;fgimg_hovered=%s;content_offset=0]
-	style[pagenum,no_item,no_rcp;border=false;font=bold;font_size=18;content_offset=0]
-	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=18;border=false;content_offset=0;sound=i3_click]
-	style[craft_rcp,craft_usg;border=false;noclip=true;font_size=16;sound=i3_craft;
+	style[pagenum,no_item,no_rcp;font=bold;font_size=18;content_offset=0]
+	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=18;content_offset=0;sound=i3_click]
+	style[craft_rcp,craft_usg;noclip=true;font_size=16;sound=i3_craft;
 	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
 	      bgimg_pressed=i3_btn9_pressed.png;bgimg_middle=4,6]
 ]],
@@ -1405,15 +1405,23 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 		local name = item:get_name()
 		local count = item:get_count()
 		local bt_s = ITEM_BTN_SIZE * 1.2
-
-		fs("image", X, Y - 0.11, bt_s, bt_s, PNG.slot)
-
 		local _name = fmt("_%s", name)
 
-		fs("item_image_button",
-			X + 0.11, Y, ITEM_BTN_SIZE, ITEM_BTN_SIZE,
-			fmt("%s %u", name, count * (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1)),
-			_name, "")
+		if meta:get_string("color") ~= "" then
+			fs(fmt("style_type[list;size=%f]", ITEM_BTN_SIZE))
+			fs(fmt("list[detached:i3_output_rcp;main;%f,%f;1,1;]", X + 0.11, Y))
+			fs("button",  X + 0.11, Y, ITEM_BTN_SIZE, ITEM_BTN_SIZE, _name, "")
+
+			local inv = minetest.get_inventory({type = "detached", name = "i3_output_rcp"})
+			inv:set_stack("main", 1, item)
+		else
+			fs("image", X, Y - 0.11, bt_s, bt_s, PNG.slot)
+
+			fs("item_image_button",
+				X + 0.11, Y, ITEM_BTN_SIZE, ITEM_BTN_SIZE,
+				fmt("%s %u", name, count * (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1)),
+				_name, "")
+		end
 
 		local def = reg_items[name]
 		local unknown = not def or nil
@@ -1462,9 +1470,11 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 	end
 
 	for i = 1, width * rows do
-		local _item = rcp.items[i] or ""
-		local item = clean_name(_item)
-		local name = match(item, "%S*")
+		local item  = rcp.items[i] or ""
+		      item  = ItemStack(item)
+		local meta  = item:get_meta()
+		local name  = item:get_name()
+		local count = item:get_count()
 
 		local X = ceil((i - 1) % width - width)
 		X = X + (X * 0.2) + data.xoffset + 3.9
@@ -1491,7 +1501,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 
 		if is_group(name) then
 			groups = extract_groups(name)
-			item = groups_to_items(groups)
+			name = groups_to_items(groups)
 		end
 
 		local label = groups and "\nG" or ""
@@ -1522,10 +1532,10 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 			fs("image", X, Y, btn_size, btn_size, PNG.slot)
 		end
 
-		local btn_name = groups and fmt("group|%s|%s", groups[1], item) or item
+		local btn_name = groups and fmt("group|%s|%s", groups[1], name) or name
 
 		fs("item_image_button", X, Y, btn_size, btn_size,
-			fmt("%s %u", item, is_recipe and data.scrbar_rcp or data.scrbar_usg or 1),
+			fmt("%s %u", name, count * (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1)),
 			btn_name, label)
 
 		local def = reg_items[name]
@@ -1535,7 +1545,6 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 		local weird = name ~= "" and desc and weird_desc(desc) or nil
 		local burntime = fuel_cache[name] and fuel_cache[name].burntime
 
-		local meta = ItemStack(_item):get_meta()
 		local short_desc = meta:get_string("short_description")
 		local long_desc  = meta:get_string("description")
 		local meta_desc  = (short_desc ~= "" and short_desc) or (long_desc ~= "" and long_desc)
@@ -1563,6 +1572,13 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 end
 
 local function get_rcp_lbl(fs, data, panel, rn, is_recipe)
+	local rcp = is_recipe and panel.rcp[data.rnum] or panel.rcp[data.unum]
+
+	if rcp.custom then
+		fs("hypertext", data.xoffset + 4.8, data.yoffset + 0.2, 3, 0.6, "custom_rcp",
+			fmt("<global size=16><right><i>%s</i></right>", ES"Custom recipe"))
+	end
+
 	local lbl = ES("Usage @1 of @2", data.unum, rn)
 
 	if is_recipe then
@@ -1572,7 +1588,7 @@ local function get_rcp_lbl(fs, data, panel, rn, is_recipe)
 	local one = rn == 1
 	local y = data.yoffset + 3.3
 
-	fs("hypertext", data.xoffset + (one and 4.7 or 3.95), y, 3, 0.6, "",
+	fs("hypertext", data.xoffset + (one and 4.7 or 3.95), y, 3, 0.6, "rcp_num",
 		fmt("<global size=16><right>%s</right>", lbl))
 
 	if not one then
@@ -1585,7 +1601,6 @@ local function get_rcp_lbl(fs, data, panel, rn, is_recipe)
 		fs("image_button", data.xoffset + 7.5,  y, size, size, "", next_name, "")
 	end
 
-	local rcp = is_recipe and panel.rcp[data.rnum] or panel.rcp[data.unum]
 	get_grid_fs(fs, data, rcp, is_recipe)
 end
 
@@ -1631,7 +1646,7 @@ local function get_model_fs(fs, data, def, model_alias)
 		t[#t + 1] = t[#t]
 	end
 
-	fs("model", data.xoffset + 6.6, data.yoffset + 0.05, 1.3, 1.3, "",
+	fs("model", data.xoffset + 6.6, data.yoffset + 0.05, 1.3, 1.3, "preview",
 		def.mesh, concat(t, ","), "0,0", "true", "true",
 		model_alias and model_alias.frames or "")
 end
@@ -1724,16 +1739,16 @@ local function get_rcp_extra(player, data, fs, panel, is_recipe, is_usage)
 	local rn = panel.rcp and #panel.rcp
 
 	if rn then
-		local rcp_normal = is_recipe and panel.rcp[data.rnum].type == "normal"
-		local usg_normal = is_usage and panel.rcp[data.unum].type == "normal"
+		local rcp_ok = is_recipe and panel.rcp[data.rnum].type == "normal"
+		local usg_ok = is_usage and panel.rcp[data.unum].type == "normal"
 		local max_stacks_rcp, max_stacks_usg = 0, 0
 		local inv = player:get_inventory()
 
-		if rcp_normal then
+		if rcp_ok then
 			max_stacks_rcp = get_stack_max(inv, data, is_recipe, panel.rcp[data.rnum])
 		end
 
-		if usg_normal then
+		if usg_ok then
 			max_stacks_usg = get_stack_max(inv, data, is_recipe, panel.rcp[data.unum])
 		end
 
@@ -1924,7 +1939,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 	fs("box", (data.subcat - 1) * 1.18, yextra + 0.45, 1, 0.045, "#f9826c")
 
 	local function not_installed(modname)
-		fs("hypertext", 0, yextra + 0.9, ctn_len, 0.6, "",
+		fs("hypertext", 0, yextra + 0.9, ctn_len, 0.6, "not_installed",
 			fmt("<center><style color=#7bf font=mono>%s</style> not installed</center>", modname))
 	end
 
@@ -1932,7 +1947,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 		fs(fmt("list[detached:%s_backpack;main;0,%f;1,1;]", ESC(name), yextra + 0.7))
 
 		if not data.bag:get_stack("main", 1):is_empty() then
-			fs("hypertext", 1.2, yextra + 0.89, ctn_len - 1.9, 0.8, "",
+			fs("hypertext", 1.2, yextra + 0.89, ctn_len - 1.9, 0.8, "bpk",
 				ES("The inventory is extended by @1 slots", BAG_SIZES[data.bag_size] - INV_SIZE))
 		end
 
@@ -2609,6 +2624,12 @@ local trash = create_inventory("i3_trash", {
 })
 
 trash:set_size("main", 1)
+
+local output_rcp = create_inventory("i3_output_rcp", {})
+output_rcp:set_size("main", 1)
+
+local output_usg = create_inventory("i3_output_usg", {})
+output_usg:set_size("main", 1)
 
 core.register_on_player_inventory_action(function(player, _, _, info)
 	local name = player:get_player_name()
