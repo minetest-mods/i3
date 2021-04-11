@@ -1408,13 +1408,15 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 		local bt_s = ITEM_BTN_SIZE * 1.2
 		local _name = fmt("_%s", name)
 
-		if meta:get_string("color") ~= "" then
+		if meta:get_string("color") ~= "" or meta:get_string("palette_index") ~= "" then
+			local rcp_usg = is_recipe and "rcp" or "usg"
+
 			fs(fmt("style_type[list;size=%f]", ITEM_BTN_SIZE))
 			fs("listcolors[#bababa50;#bababa99]")
-			fs(fmt("list[detached:i3_output_rcp;main;%f,%f;1,1;]", X + 0.11, Y))
+			fs(fmt("list[detached:i3_output_%s;main;%f,%f;1,1;]", rcp_usg, X + 0.11, Y))
 			fs("button",  X + 0.11, Y, ITEM_BTN_SIZE, ITEM_BTN_SIZE, _name, "")
 
-			local inv = minetest.get_inventory({type = "detached", name = "i3_output_rcp"})
+			local inv = minetest.get_inventory({type = "detached", name = fmt("i3_output_%s", rcp_usg)})
 			inv:set_stack("main", 1, item)
 		else
 			fs("image", X, Y - 0.11, bt_s, bt_s, PNG.slot)
