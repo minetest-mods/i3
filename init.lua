@@ -139,6 +139,9 @@ local PNG = {
 	waypoints = "i3_waypoint.png",
 	teleport = "i3_teleport.png",
 	add = "i3_add.png",
+	refresh = "i3_refresh.png",
+	visible = "i3_visible.png^\\[brighten",
+	nonvisible = "i3_non_visible.png",
 
 	cancel_hover = "i3_cancel.png^\\[brighten",
 	search_hover = "i3_search.png^\\[brighten",
@@ -158,6 +161,7 @@ local PNG = {
 	waypoints_hover = "i3_waypoint_hover.png",
 	teleport_hover = "i3_teleport.png^\\[brighten",
 	add_hover = "i3_add.png^\\[brighten",
+	refresh_hover = "i3_refresh.png^\\[brighten",
 }
 
 local fs_elements = {
@@ -193,8 +197,6 @@ local styles = sprintf([[
 	style[prev_usage;fgimg=%s;fgimg_hovered=%s]
 	style[next_usage;fgimg=%s;fgimg_hovered=%s]
 	style[waypoint_add;fgimg=%s;fgimg_hovered=%s;content_offset=0]
-	style[waypoint_delete;fgimg=%s;fgimg_hovered=%s;content_offset=0]
-	style[waypoint_teleport;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=18;content_offset=0;sound=i3_click]
 	style[craft_rcp,craft_usg;noclip=true;font_size=16;sound=i3_craft;
 	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
@@ -209,9 +211,7 @@ PNG.prev,     PNG.prev_hover,
 PNG.next,     PNG.next_hover,
 PNG.prev,     PNG.prev_hover,
 PNG.next,     PNG.next_hover,
-PNG.add,      PNG.add_hover,
-PNG.trash,    PNG.trash_hover,
-PNG.teleport, PNG.teleport_hover)
+PNG.add,      PNG.add_hover)
 
 local function get_lang_code(info)
 	return info and info.lang_code
@@ -1279,6 +1279,14 @@ local function repairable(tool)
 	return toolrepair and def and def.groups and def.groups.disable_repair ~= 1
 end
 
+local function get_waypoint(data, id)
+	for i, v in ipairs(data.waypoints) do
+		if id == v.id then
+			return v, i
+		end
+	end
+end
+
 local function is_fav(favs, query_item)
 	local fav, i
 	for j = 1, #favs do
@@ -1638,11 +1646,10 @@ local function get_model_fs(fs, data, def, model_alias)
 				local hex = fmt("%02x", v.color)
 
 				while #hex < 8 do
-					hex = "0" .. hex
+					hex = hex .. "0"
 				end
 
-				_name = fmt("%s^[multiply:%s", v.name,
-					fmt("#%s%s", sub(hex, 3), sub(hex, 1, 2)))
+				_name = fmt("%s^[multiply:%s", v.name, fmt("#%s", hex))
 			else
 				_name = fmt("%s^[multiply:%s", v.name, v.color)
 			end
@@ -1904,6 +1911,58 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 	end
 end
 
+local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
+	fs(fmt("box[0,%f;4.9,0.6;#bababa25]", yextra + 0.7))
+	fs(fmt("field[0.1,%f;4.8,0.6;waypoint_name;;]", yextra + 0.7))
+	fs("image_button", 5.1, yextra + 0.75, 0.5, 0.5, "", "waypoint_add", "")
+	fs(fmt("tooltip[waypoint_add;%s]", ES"Add waypoint"))
+
+	if #data.waypoints == 0 then return end
+	add_subtitle(fs, name, yextra + 1.5, ctn_len, 18, ES"Waypoints")
+
+	for i, v in ipairs(data.waypoints) do
+		local y = yextra + 1.7 + (i * 0.6)
+
+		fs(fmt("box[0,%f;%f,0.6;#bababa%u]", y, ctn_len, i % 2 == 0 and 15 or 25))
+
+		local waypoint_name, lim = v.name, 18
+
+		if #v.name > lim then
+			waypoint_name = snip(waypoint_name, lim)
+		end
+
+		fs("style_type[label;font_size=17]")
+		fs("label", 0.15, y + 0.35, clr(fmt("#%02x", v.color), waypoint_name))
+
+		local del = fmt("waypoint_%u_delete", v.id)
+		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", del, PNG.trash, PNG.trash_hover))
+		fs("image_button", 5.2, y + 0.12, 0.35, 0.35, "", del, "")
+		fs(fmt("tooltip[%s;%s]", del, ES"Delete waypoint"))
+
+		local rfs = fmt("waypoint_%u_refresh", v.id)
+		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", rfs, PNG.refresh, PNG.refresh_hover))
+		fs("image_button", 4.7, y + 0.12, 0.35, 0.35, "", rfs, "")
+		fs(fmt("tooltip[%s;%s]", rfs, ES"Change color"))
+
+		local vsb = fmt("waypoint_%u_hide", v.id)
+		fs(fmt("style[%s;fgimg=%s;content_offset=0]", vsb, v.hide and PNG.nonvisible or PNG.visible))
+		fs("image_button", 4.2, y + 0.12, 0.35, 0.35, "", vsb, "")
+		fs(fmt("tooltip[%s;%s]", vsb, v.hide and ES"Show waypoint" or ES"Hide waypoint"))
+
+		if core.is_creative_enabled(name) then
+			local tp = fmt("waypoint_%u_teleport", v.id)
+
+			fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
+				tp, PNG.teleport, PNG.teleport_hover))
+
+			fs("image_button", 3.7, y + 0.12, 0.35, 0.35, "", tp, "")
+			fs(fmt("tooltip[%s;%s]", tp, ES"Teleport to waypoint"))
+		end
+	end
+
+	fs("style_type[label;font_size=16]")
+end
+
 local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb)
 	local name = player:get_player_name()
 	add_subtitle(fs, "player_name", 0, ctn_len, 22, ESC(name))
@@ -1999,34 +2058,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 		end
 
 	elseif data.subcat == 5 then
-		local waypoints = {}
-
-		for _, v in ipairs(data.waypoints or {}) do
-			insert(waypoints, v.name)
-		end
-
-		fs(fmt("dropdown[0,%f;4.2,0.6;waypoints;%s;%u;true]",
-			yextra + 0.7, concat(waypoints, ","), data.waypoint_id))
-
-		local no_waypoint = not data.waypoints or #data.waypoints == 0
-
-		if not no_waypoint then
-			fs("image_button", 4.4, yextra + 0.75, 0.5, 0.5, "", "waypoint_delete", "")
-			fs(fmt("tooltip[waypoint_delete;%s]", ES"Delete waypoint"))
-
-			if core.is_creative_enabled(name) then
-				fs("image_button",
-					no_waypoint and 4.4 or 5.1, yextra + 0.77, 0.5, 0.5,
-					"", "waypoint_teleport", "")
-
-				fs(fmt("tooltip[waypoint_teleport;%s]", ES"Teleport to waypoint"))
-			end
-		end
-
-		fs(fmt("box[0,%f;4.2,0.6;#bababa25]", yextra + 1.5))
-		fs(fmt("field[0.1,%f;4.1,0.6;waypoint_name;;]", yextra + 1.5))
-		fs("image_button", 4.4, yextra + 1.55, 0.5, 0.5, "", "waypoint_add", "")
-		fs(fmt("tooltip[waypoint_add;%s]", ES"Add waypoint"))
+		get_waypoint_fs(fs, data, name, yextra, ctn_len)
 	end
 end
 
@@ -2242,7 +2274,7 @@ local function init_data(player, info)
 		export_counts = {},
 		current_tab   = 1,
 		subcat        = 1,
-		waypoint_id   = 1,
+		scrbar_inv    = 0,
 		lang_code     = get_lang_code(info),
 	}
 
@@ -2386,7 +2418,7 @@ local function get_inventory_fs(player, data, fs)
 	local max_val = 15
 
 	if __3darmor and data.subcat == 2 then
-		if (data.scrbar_inv or 0) >= max_val then
+		if data.scrbar_inv >= max_val then
 			data.scrbar_inv = data.scrbar_inv + 10
 		end
 
@@ -2407,7 +2439,11 @@ local function get_inventory_fs(player, data, fs)
 		max_val = max_val + (award_list_nb * 13)
 
 	elseif data.subcat == 5 then
-		max_val = max_val + 3
+		local waypoints_nb = #data.waypoints
+
+		if waypoints_nb > 0 then
+			max_val = max_val + 11 + (waypoints_nb * 6)
+		end
 	end
 
 	fs(fmt([[
@@ -2415,7 +2451,7 @@ local function get_inventory_fs(player, data, fs)
 		scrollbar[%f,0.2;0.2,%f;vertical;scrbar_inv;%u]
 		scrollbaroptions[arrows=default;thumbsize=0;max=1000]
 	]],
-	(max_val * 4) / 15, max_val, 9.8, ctn_hgt, data.scrbar_inv or 0))
+	(max_val * 4) / 15, max_val, 9.8, ctn_hgt, data.scrbar_inv))
 
 	fs(fmt("scroll_container[3.9,0.2;%f,%f;scrbar_inv;vertical]", ctn_len, ctn_hgt))
 
@@ -2505,14 +2541,51 @@ i3.new_tab {
 			skins.set_player_skin(player, _skins[data.skin_id])
 		end
 
-		if fields.waypoints then
-			data.waypoint_id = tonumber(fields.waypoints)
-		end
-
 		for field in pairs(fields) do
 			if sub(field, 1, 4) == "btn_" then
 				data.subcat = indexof(SUBCAT, sub(field, 5))
 				break
+
+			elseif find(field, "waypoint_%d+") then
+				local id, action = match(field, "_(%d+)_(%w+)$")
+				id = tonum(id)
+				local waypoint, _id = get_waypoint(data, id)
+
+				if action == "delete" then
+					player:hud_remove(waypoint.id)
+					remove(data.waypoints, _id)
+
+				elseif action == "teleport" then
+					local pos = waypoint.pos
+					pos.y = pos.y + 0.5
+
+					player:set_pos(pos)
+					msg(name, fmt("Teleported to %s", clr("#ff0", waypoint.name)))
+
+				elseif action == "refresh" then
+					local color = random(0xffffff)
+					waypoint.color = color
+					player:hud_change(id, "number", color)
+
+				elseif action == "hide" then
+					if waypoint.hide then
+						waypoint.hide = nil
+
+						local new_id = player:hud_add {
+							hud_elem_type = "waypoint",
+							name = waypoint.name,
+							text = " m",
+							world_pos = waypoint.pos,
+							number = waypoint.color,
+							z_index = -300,
+						}
+
+						waypoint.id = new_id
+					else
+						waypoint.hide = true
+						player:hud_remove(waypoint.id)
+					end
+				end
 			end
 		end
 
@@ -2532,13 +2605,10 @@ i3.new_tab {
 			return
 
 		elseif fields.waypoint_add then
-			data.waypoints = data.waypoints or {}
 			local waypoint = fields.waypoint_name
-			local last = #data.waypoints + 1
-			data.waypoint_id = last
 
 			if fields.waypoint_name == "" then
-				waypoint = fmt("Waypoint %u", last)
+				waypoint = "Waypoint"
 			end
 
 			local color = random(0xffffff)
@@ -2554,20 +2624,7 @@ i3.new_tab {
 			}
 
 			insert(data.waypoints, {name = waypoint, pos = pos, color = color, id = id})
-
-		elseif fields.waypoint_delete then
-			local waypoint = data.waypoints[data.waypoint_id]
-			player:hud_remove(waypoint.id)
-			remove(data.waypoints, data.waypoint_id)
-			data.waypoint_id = data.waypoint_id + (data.waypoint_id == 1 and 0 or -1)
-
-		elseif fields.waypoint_teleport then
-			local waypoint = data.waypoints[data.waypoint_id]
-			local pos = waypoint.pos
-			pos.y = pos.y + 0.5
-
-			player:set_pos(pos)
-			msg(name, fmt("Teleported to %s", clr("#ff0", waypoint.name)))
+			data.scrbar_inv = data.scrbar_inv + 100
 		end
 
 		return set_fs(player)
@@ -2921,8 +2978,9 @@ end
 local function init_waypoints(player)
 	local name = player:get_player_name()
 	local data = pdata[name]
+	data.waypoints = data.waypoints or {}
 
-	for _, v in ipairs(data.waypoints or {}) do
+	for _, v in ipairs(data.waypoints) do
 		local id = player:hud_add {
 			hud_elem_type = "waypoint",
 			name = v.name,
@@ -2933,6 +2991,10 @@ local function init_waypoints(player)
 		}
 
 		v.id = id
+
+		if v.hide then
+			player:hud_remove(id)
+		end
 	end
 end
 
