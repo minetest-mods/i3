@@ -34,6 +34,7 @@ local clr = core.colorize
 local parse_json = core.parse_json
 local write_json = core.write_json
 
+local get_inv = core.get_inventory
 local chat_send = core.chat_send_player
 local show_formspec = core.show_formspec
 local check_privs = core.check_player_privs
@@ -1421,9 +1422,8 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 			fs(fmt("list[detached:i3_output_%s;main;%f,%f;1,1;]", rcp_usg, X + 0.11, Y))
 			fs("button",  X + 0.11, Y, ITEM_BTN_SIZE, ITEM_BTN_SIZE, _name, "")
 
-			local inv = minetest.get_inventory {type = "detached", name = fmt("i3_output_%s", rcp_usg)}
+			local inv = get_inv {type = "detached", name = fmt("i3_output_%s", rcp_usg)}
 			inv:set_stack("main", 1, item)
-
 			pos = {x = X + 0.11, y = Y}
 		else
 			fs("image", X, Y - 0.11, bt_s, bt_s, PNG.slot)
