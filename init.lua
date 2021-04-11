@@ -1921,9 +1921,11 @@ local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
 	add_subtitle(fs, name, yextra + 1.5, ctn_len, 18, ES"Waypoints")
 
 	for i, v in ipairs(data.waypoints) do
-		local y = yextra + 1.7 + (i * 0.6)
+		local y = yextra + 1.65 + (i - (i * 0.3))
+		local size, yi = 0.35, y + 0.12
 
-		fs(fmt("box[0,%f;%f,0.6;#bababa%u]", y, ctn_len, i % 2 == 0 and 15 or 25))
+		fs("style_type[box;colors=#bababa30,#bababa30,#bababa05,#bababa05]")
+		fs("box", 0, y, ctn_len, 0.6, "")
 
 		local waypoint_name, lim = v.name, 18
 
@@ -1932,21 +1934,21 @@ local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
 		end
 
 		fs("style_type[label;font_size=17]")
-		fs("label", 0.15, y + 0.35, clr(fmt("#%02x", v.color), waypoint_name))
+		fs("label", 0.15, y + 0.33, clr(fmt("#%02x", v.color), waypoint_name))
 
 		local del = fmt("waypoint_%u_delete", v.id)
 		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", del, PNG.trash, PNG.trash_hover))
-		fs("image_button", 5.2, y + 0.12, 0.35, 0.35, "", del, "")
+		fs("image_button", 5.2, yi, size, size, "", del, "")
 		fs(fmt("tooltip[%s;%s]", del, ES"Delete waypoint"))
 
 		local rfs = fmt("waypoint_%u_refresh", v.id)
 		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", rfs, PNG.refresh, PNG.refresh_hover))
-		fs("image_button", 4.7, y + 0.12, 0.35, 0.35, "", rfs, "")
+		fs("image_button", 4.7, yi, size, size, "", rfs, "")
 		fs(fmt("tooltip[%s;%s]", rfs, ES"Change color"))
 
 		local vsb = fmt("waypoint_%u_hide", v.id)
 		fs(fmt("style[%s;fgimg=%s;content_offset=0]", vsb, v.hide and PNG.nonvisible or PNG.visible))
-		fs("image_button", 4.2, y + 0.12, 0.35, 0.35, "", vsb, "")
+		fs("image_button", 4.2, yi, size, size, "", vsb, "")
 		fs(fmt("tooltip[%s;%s]", vsb, v.hide and ES"Show waypoint" or ES"Hide waypoint"))
 
 		if core.is_creative_enabled(name) then
@@ -1955,7 +1957,7 @@ local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
 			fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
 				tp, PNG.teleport, PNG.teleport_hover))
 
-			fs("image_button", 3.7, y + 0.12, 0.35, 0.35, "", tp, "")
+			fs("image_button", 3.7, yi, size, size, "", tp, "")
 			fs(fmt("tooltip[%s;%s]", tp, ES"Teleport to waypoint"))
 		end
 	end
