@@ -2991,19 +2991,17 @@ local function init_waypoints(player)
 	data.waypoints = data.waypoints or {}
 
 	for _, v in ipairs(data.waypoints) do
-		local id = player:hud_add {
-			hud_elem_type = "waypoint",
-			name = v.name,
-			text = " m",
-			world_pos = v.pos,
-			number = v.color,
-			z_index = -300,
-		}
+		if not v.hide then
+			local id = player:hud_add {
+				hud_elem_type = "waypoint",
+				name = v.name,
+				text = " m",
+				world_pos = v.pos,
+				number = v.color,
+				z_index = -300,
+			}
 
-		v.id = id
-
-		if v.hide then
-			player:hud_remove(id)
+			v.id = id
 		end
 	end
 end
