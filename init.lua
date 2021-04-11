@@ -1646,10 +1646,11 @@ local function get_model_fs(fs, data, def, model_alias)
 				local hex = fmt("%02x", v.color)
 
 				while #hex < 8 do
-					hex = hex .. "0"
+					hex = "0" .. hex
 				end
 
-				_name = fmt("%s^[multiply:%s", v.name, fmt("#%s", hex))
+				_name = fmt("%s^[multiply:%s", v.name,
+					fmt("#%s%s", sub(hex, 3), sub(hex, 1, 2)))
 			else
 				_name = fmt("%s^[multiply:%s", v.name, v.color)
 			end
@@ -1934,7 +1935,14 @@ local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
 		end
 
 		fs("style_type[label;font_size=17]")
-		fs("label", 0.15, y + 0.33, clr(fmt("#%02x", v.color), waypoint_name))
+
+		local hex = fmt("%02x", v.color)
+
+		while #hex < 6 do
+			hex = "0" .. hex
+		end
+
+		fs("label", 0.15, y + 0.33, clr(fmt("#%s", hex), waypoint_name))
 
 		local del = fmt("waypoint_%u_delete", v.id)
 		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", del, PNG.trash, PNG.trash_hover))
