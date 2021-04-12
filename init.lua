@@ -2449,10 +2449,11 @@ local function get_inventory_fs(player, data, fs)
 		max_val = max_val + (award_list_nb * 13)
 
 	elseif data.subcat == 5 then
-		local waypoints_nb = #data.waypoints
+		local wp_nb = #data.waypoints
 
-		if waypoints_nb > 0 then
-			max_val = max_val + 11 + (waypoints_nb * 6)
+		if wp_nb > 0 then
+			local mul = wp_nb > 8 and 7 or 6
+			max_val = max_val + 11 + (wp_nb * mul)
 		end
 	end
 
@@ -2634,7 +2635,7 @@ i3.new_tab {
 			}
 
 			insert(data.waypoints, {name = waypoint, pos = pos, color = color, id = id})
-			data.scrbar_inv = data.scrbar_inv + 100
+			data.scrbar_inv = data.scrbar_inv + 1000
 		end
 
 		return set_fs(player)
