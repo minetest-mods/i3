@@ -1913,16 +1913,17 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 end
 
 local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
-	fs(fmt("box[0,%f;4.9,0.6;#bababa25]", yextra + 0.7))
-	fs(fmt("field[0.1,%f;4.8,0.6;waypoint_name;;]", yextra + 0.7))
-	fs("image_button", 5.1, yextra + 0.75, 0.5, 0.5, "", "waypoint_add", "")
+	fs(fmt("box[0,%f;4.9,0.6;#bababa25]", yextra + 1.1))
+	fs("label", 0, yextra + 0.85, ES"Waypoint name:")
+	fs(fmt("field[0.1,%f;4.8,0.6;waypoint_name;;]", yextra + 1.1))
+	fs("image_button", 5.1, yextra + 1.15, 0.5, 0.5, "", "waypoint_add", "")
 	fs(fmt("tooltip[waypoint_add;%s]", ES"Add waypoint"))
 
 	if #data.waypoints == 0 then return end
-	fs("image", 0, yextra + 1.6, ctn_len, 0.035, PNG.bar)
+	fs("image", 0, yextra + 2, ctn_len, 0.035, PNG.bar)
 
 	for i, v in ipairs(data.waypoints) do
-		local y = yextra + 1.25 + (i - (i * 0.3))
+		local y = yextra + 1.65 + (i - (i * 0.3))
 		local icon_size, yi = 0.35, y + 0.12
 
 		fs("style_type[box;colors=#bababa30,#bababa30,#bababa05,#bababa05]")
@@ -2452,7 +2453,7 @@ local function get_inventory_fs(player, data, fs)
 		local wp_nb = #data.waypoints
 
 		if wp_nb > 0 then
-			local mul = (wp_nb > 12 and 7) or (wp_nb > 6 and 6) or 5
+			local mul = (wp_nb > 8 and 7) or (wp_nb > 4 and 6) or 5
 			max_val = max_val + 11 + (wp_nb * mul)
 		end
 	end
