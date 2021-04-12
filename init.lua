@@ -1919,11 +1919,11 @@ local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
 	fs(fmt("tooltip[waypoint_add;%s]", ES"Add waypoint"))
 
 	if #data.waypoints == 0 then return end
-	add_subtitle(fs, name, yextra + 1.5, ctn_len, 18, ES"Waypoints")
+	fs("image", 0, yextra + 1.6, ctn_len, 0.035, PNG.bar)
 
 	for i, v in ipairs(data.waypoints) do
-		local y = yextra + 1.65 + (i - (i * 0.3))
-		local size, yi = 0.35, y + 0.12
+		local y = yextra + 1.25 + (i - (i * 0.3))
+		local icon_size, yi = 0.35, y + 0.12
 
 		fs("style_type[box;colors=#bababa30,#bababa30,#bababa05,#bababa05]")
 		fs("box", 0, y, ctn_len, 0.6, "")
@@ -1946,17 +1946,17 @@ local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
 
 		local del = fmt("waypoint_%u_delete", v.id)
 		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", del, PNG.trash, PNG.trash_hover))
-		fs("image_button", 5.2, yi, size, size, "", del, "")
-		fs(fmt("tooltip[%s;%s]", del, ES"Delete waypoint"))
+		fs("image_button", ctn_len - 0.5, yi, icon_size, icon_size, "", del, "")
+		fs(fmt("tooltip[%s;%s]", del, ES"Remove waypoint"))
 
 		local rfs = fmt("waypoint_%u_refresh", v.id)
 		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", rfs, PNG.refresh, PNG.refresh_hover))
-		fs("image_button", 4.7, yi, size, size, "", rfs, "")
+		fs("image_button", ctn_len - 1, yi, icon_size, icon_size, "", rfs, "")
 		fs(fmt("tooltip[%s;%s]", rfs, ES"Change color"))
 
 		local vsb = fmt("waypoint_%u_hide", v.id)
 		fs(fmt("style[%s;fgimg=%s;content_offset=0]", vsb, v.hide and PNG.nonvisible or PNG.visible))
-		fs("image_button", 4.2, yi, size, size, "", vsb, "")
+		fs("image_button", ctn_len - 1.5, yi, icon_size, icon_size, "", vsb, "")
 		fs(fmt("tooltip[%s;%s]", vsb, v.hide and ES"Show waypoint" or ES"Hide waypoint"))
 
 		if core.is_creative_enabled(name) then
@@ -1965,7 +1965,7 @@ local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
 			fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
 				tp, PNG.teleport, PNG.teleport_hover))
 
-			fs("image_button", 3.7, yi, size, size, "", tp, "")
+			fs("image_button", ctn_len - 2, yi, icon_size, icon_size, "", tp, "")
 			fs(fmt("tooltip[%s;%s]", tp, ES"Teleport to waypoint"))
 		end
 	end
@@ -2452,7 +2452,7 @@ local function get_inventory_fs(player, data, fs)
 		local wp_nb = #data.waypoints
 
 		if wp_nb > 0 then
-			local mul = wp_nb > 8 and 7 or 6
+			local mul = (wp_nb > 12 and 7) or (wp_nb > 6 and 6) or 5
 			max_val = max_val + 11 + (wp_nb * mul)
 		end
 	end
@@ -2580,8 +2580,6 @@ i3.new_tab {
 
 				elseif action == "hide" then
 					if waypoint.hide then
-						waypoint.hide = nil
-
 						local new_id = player:hud_add {
 							hud_elem_type = "waypoint",
 							name = waypoint.name,
@@ -2592,11 +2590,14 @@ i3.new_tab {
 						}
 
 						waypoint.id = new_id
+						waypoint.hide = nil
 					else
-						waypoint.hide = true
 						player:hud_remove(waypoint.id)
+						waypoint.hide = true
 					end
 				end
+
+				break
 			end
 		end
 
