@@ -2055,7 +2055,8 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 
 			sks = concat(sks, ","):gsub(";", "")
 
-			fs(fmt("dropdown[0,%f;4,0.6;skins;%s;%u;true]", yextra + 0.7, sks, data.skin_id or 1))
+			fs("label", 0, yextra + 0.85, fmt("%s:", ES"Select a skin"))
+			fs(fmt("dropdown[0,%f;4,0.6;skins;%s;%u;true]", yextra + 1.1, sks, data.skin_id or 1))
 		else
 			not_installed("skinsdb")
 		end
@@ -2943,30 +2944,32 @@ end)
 local function init_backpack(player)
 	local name = player:get_player_name()
 	local data = pdata[name]
+	local inv = player:get_inventory()
 
-	local player_inv = player:get_inventory()
-	player_inv:set_size("main", INV_SIZE)
+	inv:set_size("main", INV_SIZE)
 
 	data.bag = create_inventory(fmt("%s_backpack", name), {
-		allow_put = function(inv, listname, _, stack)
-			local empty = inv:get_stack(listname, 1):is_empty()
+		allow_put = function(_inv, listname, _, stack)
+			local empty = _inv:get_stack(listname, 1):is_empty()
 
 			if empty and sub(stack:get_name(), 1, 7) == "i3:bag_" then
 				return 1
 			end
+
+			msg(name, ES"This is not a backpack")
 
 			return 0
 		end,
 
 		on_put = function(_, _, _, stack)
 			data.bag_size = match(stack:get_name(), "_(%w+)$")
-			player_inv:set_size("main", BAG_SIZES[data.bag_size])
+			inv:set_size("main", BAG_SIZES[data.bag_size])
 			set_fs(player)
 		end,
 
 		on_take = function()
 			for i = INV_SIZE + 1, BAG_SIZES[data.bag_size] do
-				local stack = player_inv:get_stack("main", i)
+				local stack = inv:get_stack("main", i)
 
 				if not stack:is_empty() then
 					spawn_item(player, stack)
@@ -2974,7 +2977,7 @@ local function init_backpack(player)
 			end
 
 			data.bag_size = nil
-			player_inv:set_size("main", INV_SIZE)
+			inv:set_size("main", INV_SIZE)
 
 			set_fs(player)
 		end,
@@ -2984,7 +2987,7 @@ local function init_backpack(player)
 
 	if data.bag_size then
 		data.bag:set_stack("main", 1, fmt("i3:bag_%s", data.bag_size))
-		player_inv:set_size("main", BAG_SIZES[data.bag_size])
+		inv:set_size("main", BAG_SIZES[data.bag_size])
 	end
 end
 
