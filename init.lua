@@ -2413,12 +2413,18 @@ local function get_inventory_fs(player, data, fs)
 
 	if props.mesh ~= "" then
 		local anim = player:get_local_animation()
-		--fs("style[player_model;bgcolor=black]")
 		local armor_skin = __3darmor or __skinsdb
+		local t = {}
 
+		for _, v in ipairs(props.textures) do
+			t[#t + 1] = ESC(v):gsub(",", "!")
+		end
+
+		local textures = concat(t, ","):gsub("!", ",")
+
+		--fs("style[player_model;bgcolor=black]")
 		fs("model", 0.2, 0.2, armor_skin and 4 or 3.4, armor_skin and ctn_hgt or 5.8,
-			"player_model",
-			props.mesh, concat(props.textures, ","), "0,-150", "false", "false",
+			"player_model", props.mesh, textures, "0,-150", "false", "false",
 			fmt("%u,%u", anim.x, anim.y))
 	else
 		local size = 2.5
