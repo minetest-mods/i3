@@ -1838,21 +1838,24 @@ local function get_panels(player, data, fs)
 	end
 end
 
-local function add_subtitle(fs, name, y, ctn_len, font_size, label)
+local function add_subtitle(fs, name, y, ctn_len, font_size, sep, label)
 	fs(fmt("style[%s;font=bold;font_size=%u]", name, font_size))
 	fs("button", 0, y, ctn_len, 0.5, name, ESC(label))
-	fs("image", 0, y + 0.55, ctn_len, 0.035, PNG.bar)
+
+	if sep then
+		fs("image", 0, y + 0.55, ctn_len, 0.035, PNG.bar)
+	end
 end
 
 local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
 	local percent = fmt("%.1f%%", (awards_unlocked * 100) / award_list_nb):gsub(".0", "")
 
-	add_subtitle(fs, "awards", yextra, ctn_len, 18,
+	add_subtitle(fs, "awards", yextra, ctn_len, 18, false,
 		ES("Achievements: @1 of @2 (@3)", awards_unlocked, award_list_nb, percent))
 
 	for i = 1, award_list_nb do
 		local award = award_list[i]
-		local y = yextra - 0.5 + i + (i * 0.3)
+		local y = yextra - 0.6 + i + (i * 0.3)
 
 		local def, progress = award.def, award.progress
 		local title, desc = def.title, def.description
@@ -1920,10 +1923,9 @@ local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
 	fs(fmt("tooltip[waypoint_add;%s]", ES"Add waypoint"))
 
 	if #data.waypoints == 0 then return end
-	fs("image", 0, yextra + 2, ctn_len, 0.035, PNG.bar)
 
 	for i, v in ipairs(data.waypoints) do
-		local y = yextra + 1.65 + (i - (i * 0.3))
+		local y = yextra + 1.35 + (i - (i * 0.3))
 		local icon_size, yi = 0.35, y + 0.12
 
 		fs("style_type[box;colors=#bababa30,#bababa30,#bababa05,#bababa05]")
@@ -1976,7 +1978,7 @@ end
 
 local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb)
 	local name = player:get_player_name()
-	add_subtitle(fs, "player_name", 0, ctn_len, 22, ESC(name))
+	add_subtitle(fs, "player_name", 0, ctn_len, 22, true, ESC(name))
 
 	local hp = damage_enabled and (data.hp or player:get_hp()) or 20
 	local half = ceil((hp / 2) % 1)
@@ -2063,7 +2065,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 
 	elseif data.subcat == 4 then
 		if __awards then
-			yextra = yextra + 0.8
+			yextra = yextra + 0.7
 			get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
 		else
 			not_installed("awards")
