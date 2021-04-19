@@ -1279,14 +1279,6 @@ local function repairable(tool)
 	return toolrepair and def and def.groups and def.groups.disable_repair ~= 1
 end
 
-local function get_waypoint(data, id)
-	for i, v in ipairs(data.waypoints) do
-		if id == v.id then
-			return v, i
-		end
-	end
-end
-
 local function is_fav(favs, query_item)
 	local fav, i
 	for j = 1, #favs do
@@ -1947,23 +1939,23 @@ local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
 
 		fs("label", 0.15, y + 0.33, clr(fmt("#%s", hex), waypoint_name))
 
-		local del = fmt("waypoint_%u_delete", v.id)
+		local del = fmt("waypoint_%u_delete", i)
 		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", del, PNG.trash, PNG.trash_hover))
 		fs("image_button", ctn_len - 0.5, yi, icon_size, icon_size, "", del, "")
 		fs(fmt("tooltip[%s;%s]", del, ES"Remove waypoint"))
 
-		local rfs = fmt("waypoint_%u_refresh", v.id)
+		local rfs = fmt("waypoint_%u_refresh", i)
 		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", rfs, PNG.refresh, PNG.refresh_hover))
 		fs("image_button", ctn_len - 1, yi, icon_size, icon_size, "", rfs, "")
 		fs(fmt("tooltip[%s;%s]", rfs, ES"Change color"))
 
-		local vsb = fmt("waypoint_%u_hide", v.id)
+		local vsb = fmt("waypoint_%u_hide", i)
 		fs(fmt("style[%s;fgimg=%s;content_offset=0]", vsb, v.hide and PNG.nonvisible or PNG.visible))
 		fs("image_button", ctn_len - 1.5, yi, icon_size, icon_size, "", vsb, "")
 		fs(fmt("tooltip[%s;%s]", vsb, v.hide and ES"Show waypoint" or ES"Hide waypoint"))
 
 		if core.is_creative_enabled(name) then
-			local tp = fmt("waypoint_%u_teleport", v.id)
+			local tp = fmt("waypoint_%u_teleport", i)
 
 			fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
 				tp, PNG.teleport, PNG.teleport_hover))
@@ -2570,11 +2562,12 @@ i3.new_tab {
 			elseif find(field, "waypoint_%d+") then
 				local id, action = match(field, "_(%d+)_(%w+)$")
 				id = tonum(id)
-				local waypoint, _id = get_waypoint(data, id)
+				local waypoint = data.waypoints[id]
+				if not waypoint then return end
 
 				if action == "delete" then
 					player:hud_remove(waypoint.id)
-					remove(data.waypoints, _id)
+					remove(data.waypoints, id)
 
 				elseif action == "teleport" then
 					local pos = waypoint.pos
