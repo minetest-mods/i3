@@ -46,6 +46,6 @@ Report any bug on the [**Bug Tracker**](https://github.com/minetest-mods/i3/issu
 
 Love this mod? Donations are appreciated: https://www.paypal.me/jpg84240
 
-Demo video: https://www.youtube.com/watch?v=25nCAaqeacU
+Demo video (outdated): https://www.youtube.com/watch?v=25nCAaqeacU
 
 ![Preview](https://user-images.githubusercontent.com/7883281/115294125-7827cb80-a158-11eb-89f1-1f533621a9fe.png)

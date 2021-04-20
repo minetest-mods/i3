@@ -2579,7 +2579,7 @@ i3.new_tab {
 				elseif action == "refresh" then
 					local color = random(0xffffff)
 					waypoint.color = color
-					player:hud_change(id, "number", color)
+					player:hud_change(waypoint.id, "number", color)
 
 				elseif action == "hide" then
 					if waypoint.hide then
