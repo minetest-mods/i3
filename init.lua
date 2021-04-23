@@ -1162,19 +1162,20 @@ local function spawn_item(player, stack)
 	core.add_item(look_at, stack)
 end
 
-local function get_stack(player, pname, stack, message)
+local function get_stack(player, stack, str)
 	local inv = player:get_inventory()
+	local name = player:get_player_name()
 
 	if inv:room_for_item("main", stack) then
 		inv:add_item("main", stack)
-		msg(pname, S("@1 added in your inventory", message))
+		msg(name, S("@1 added in your inventory", str))
 	else
 		spawn_item(player, stack)
-		msg(pname, S("@1 spawned", message))
+		msg(name, S("@1 spawned", str))
 	end
 end
 
-local function craft_stack(player, pname, data, craft_rcp)
+local function craft_stack(player, data, craft_rcp)
 	local inv = player:get_inventory()
 	local rcp_usg = craft_rcp and "recipe" or "usage"
 	local output = craft_rcp and data.recipes[data.rnum].output or data.usages[data.unum].output
@@ -1216,16 +1217,16 @@ local function craft_stack(player, pname, data, craft_rcp)
 
 	for _ = 1, iter do
 		local c = min(stackmax, leftover)
-		local message
+		local str
 
 		if c > 1 then
-			message = clr("#ff0", fmt("%s x %s", c, desc))
+			str = clr("#ff0", fmt("%s x %s", c, desc))
 		else
-			message = clr("#ff0", fmt("%s", desc))
+			str = clr("#ff0", fmt("%s", desc))
 		end
 
 		local stack = ItemStack(fmt("%s %s", stackname, c))
-		get_stack(player, pname, stack, message)
+		get_stack(player, stack, str)
 		leftover = leftover - stackmax
 	end
 end
@@ -1257,7 +1258,7 @@ local function select_item(player, name, data, _f)
 		local stack = ItemStack(item)
 		local stackmax = stack:get_stack_max()
 		stack = fmt("%s %s", item, stackmax)
-		return get_stack(player, name, stack, clr("#ff0", fmt("%u x %s", stackmax, get_desc(item))))
+		return get_stack(player, stack, clr("#ff0", fmt("%u x %s", stackmax, get_desc(item))))
 	end
 
 	if item == data.query_item then return end
@@ -2356,7 +2357,7 @@ local function panel_fields(player, data, fields)
 		data.scrbar_usg = sb_usg and tonum(match(sb_usg, "%d+"))
 
 	elseif fields.craft_rcp or fields.craft_usg then
-		craft_stack(player, name, data, fields.craft_rcp)
+		craft_stack(player, data, fields.craft_rcp)
 	else
 		select_item(player, name, data, fields)
 	end
