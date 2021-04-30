@@ -2782,7 +2782,16 @@ if rawget(_G, "awards") then
 	core.register_on_dieplayer(set_fs)
 end
 
-core.register_on_chatcommand(function(name)
+core.register_on_chatcommand(function(name, command, params)
+	if find(command, "grant") or find(command, "revoke") then
+		params = split(params, " ")
+
+		if params[2] and find(params[2], "creative") then
+			local data = pdata[name]
+			reset_data(data)
+		end
+	end
+
 	local player = core.get_player_by_name(name)
 	after(0, set_fs, player)
 end)
