@@ -27,12 +27,6 @@ i3.new_tab {
 	fields = function(player, data, fields)
 		
 	end,
-
-	-- Determine if the recipe panels must be hidden or not (must return a boolean)
-	hide_panels = function(player, data)
-		local name = player:get_player_name()
-		return core.is_creative_enabled(name)
-	end,
 }
 ```
 

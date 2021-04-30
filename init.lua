@@ -75,9 +75,6 @@ local pairs, ipairs, next, type, setmetatable, tonum, unpack, select =
 
 local vec_add, vec_mul = vector.add, vector.multiply
 
-local ROWS = 11
-local LINES = 12
-local IPP = ROWS * LINES
 local MAX_FAVS = 6
 local ITEM_BTN_SIZE = 1.1
 
@@ -142,6 +139,7 @@ local PNG = {
 	refresh = "i3_refresh.png",
 	visible = "i3_visible.png^\\[brighten",
 	nonvisible = "i3_non_visible.png",
+	exit = "i3_exit.png",
 
 	cancel_hover = "i3_cancel.png^\\[brighten",
 	search_hover = "i3_search.png^\\[brighten",
@@ -162,6 +160,7 @@ local PNG = {
 	teleport_hover = "i3_teleport.png^\\[brighten",
 	add_hover = "i3_add.png^\\[brighten",
 	refresh_hover = "i3_refresh.png^\\[brighten",
+	exit_hover = "i3_exit.png^\\[brighten",
 }
 
 local fs_elements = {
@@ -188,6 +187,7 @@ local styles = sprintf([[
 	style_type[item_image_button;bgimg_hovered=%s]
 
 	style[pagenum,no_item,no_rcp;font=bold;font_size=18]
+	style[exit;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[cancel;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[search;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[prev_page;fgimg=%s;fgimg_hovered=%s]
@@ -203,6 +203,7 @@ local styles = sprintf([[
 	      bgimg_pressed=i3_btn9_pressed.png;bgimg_middle=4,6]
 ]],
 PNG.slot,
+PNG.exit,     PNG.exit_hover,
 PNG.cancel,   PNG.cancel_hover,
 PNG.search,   PNG.search_hover,
 PNG.prev,     PNG.prev_hover,
@@ -1671,7 +1672,7 @@ end
 local function get_header(fs, data)
 	local fav = is_fav(data.favs, data.query_item)
 	local nfavs = #data.favs
-	local star_x, star_y, star_size = data.xoffset + 0.4, data.yoffset + 0.5, 0.4
+	local star_x, star_y, star_size = data.xoffset + 0.4, data.yoffset + 0.2, 0.4
 
 	if nfavs < MAX_FAVS or (nfavs == MAX_FAVS and fav) then
 		local fav_marked = fmt("i3_fav%s.png", fav and "_off" or "")
@@ -1686,6 +1687,9 @@ local function get_header(fs, data)
 		fs("image_button", star_x, star_y, star_size, star_size, "", "nofav", "")
 		fs(fmt("tooltip[nofav;%s]", ES"Cannot mark this item. Bookmark limit reached."))
 	end
+
+	fs("image_button", star_x + 0.05, star_y + 0.6, star_size, star_size, "", "exit", "")
+	fs(fmt("tooltip[exit;%s]", ES"Back to item list"))
 
 	local desc_lim, name_lim = 33, 34
 	local desc = translate(data.lang_code, get_desc(data.query_item))
@@ -1752,7 +1756,7 @@ local function get_export_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, max_
 		ES("Craft (x@1)", stack_fs))
 end
 
-local function get_rcp_extra(player, data, fs, panel, is_recipe, is_usage)
+local function get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
 	local rn = panel.rcp and #panel.rcp
 
 	if rn then
@@ -1789,6 +1793,57 @@ local function get_rcp_extra(player, data, fs, panel, is_recipe, is_usage)
 	end
 end
 
+local function get_items_fs(fs, data, creative)
+	local rows = 8
+	local lines = creative and 12 or 9
+	local ipp = rows * lines
+
+	fs(fmt("box[%f,0.2;4.05,0.6;#bababa25]", data.xoffset + 0.3),
+	   "set_focus[filter]",
+	   fmt("field[%f,0.2;2.95,0.6;filter;;%s]", data.xoffset + 0.35, ESC(data.filter)),
+	   "field_close_on_enter[filter;false]")
+
+	fs("image_button", data.xoffset + 3.35, 0.35, 0.3, 0.3, "", "cancel", "")
+	fs("image_button", data.xoffset + 3.85, 0.32, 0.35, 0.35, "", "search", "")
+	fs("image_button", data.xoffset + 5.27, 0.3, 0.35, 0.35, "", "prev_page", "")
+	fs("image_button", data.xoffset + 7.45, 0.3, 0.35, 0.35, "", "next_page", "")
+
+	data.pagemax = max(1, ceil(#data.items / ipp))
+
+	fs("button", data.xoffset + 5.6, 0.14, 1.88, 0.7, "pagenum",
+		fmt("%s / %u", clr("#ff0", data.pagenum), data.pagemax))
+
+	if #data.items == 0 then
+		local lbl = ES"No item to show"
+
+		if next(recipe_filters) and #init_items > 0 and data.filter == "" then
+			lbl = ES"Collect items to reveal more recipes"
+		end
+
+		fs("button", data.xoffset + 0.1, 3, 8, 1, "no_item", lbl)
+	end
+
+	local first_item = (data.pagenum - 1) * ipp
+	local size = 0.85
+
+	for i = first_item, first_item + ipp - 1 do
+		local item = data.items[i + 1]
+		if not item then break end
+
+		local X = i % rows
+		X = X - (X * 0.045) + data.xoffset + 0.28
+
+		local Y = round((i % ipp - X) / rows + 1, 0)
+		Y = Y - (Y * (creative and 0.11 or 0.06)) + 0.9
+
+		if data.query_item == item then
+			fs("image", X, Y, size, size, PNG.slot)
+		end
+
+		fs[#fs + 1] = fmt("item_image_button", X, Y, size, size, item, fmt("%s_inv", item), "")
+	end
+end
+
 local function get_favs(fs, data)
 	fs("label", data.xoffset + 0.4, data.yoffset + 0.4, ES"Bookmarks")
 
@@ -1805,12 +1860,27 @@ local function get_favs(fs, data)
 	end
 end
 
-local function get_panels(player, data, fs)
+local function get_panels(player, data, fs, full_height)
 	local _title   = {name = "title", height = 1.4}
 	local _favs    = {name = "favs",  height = 2.23}
+	local _items   = {name = "items", height = 9.41}
 	local _recipes = {name = "recipes", rcp = data.recipes, height = 3.9}
 	local _usages  = {name = "usages",  rcp = data.usages,  height = 3.9}
-	local panels   = {_title, _recipes, _usages, _favs}
+	local panels
+
+	local name = player:get_player_name()
+	local creative = core.is_creative_enabled(name)
+
+	if data.query_item then
+		panels = {_title, _recipes, _usages, _favs}
+	else
+		panels = {_items, _favs}
+
+		if creative then
+			_items.height = full_height
+			panels = {_items}
+		end
+	end
 
 	for idx = 1, #panels do
 		local panel = panels[idx]
@@ -1827,7 +1897,9 @@ local function get_panels(player, data, fs)
 		local is_recipe, is_usage = panel.name == "recipes", panel.name == "usages"
 
 		if is_recipe or is_usage then
-			get_rcp_extra(player, data, fs, panel, is_recipe, is_usage)
+			get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
+		elseif panel.name == "items" then
+			get_items_fs(fs, data, creative)
 		elseif panel.name == "title" then
 			get_header(fs, data)
 		elseif panel.name == "favs" then
@@ -2158,11 +2230,9 @@ local function make_fs(player, data)
 	local full_height = 11.73
 
 	local tab = tabs[data.current_tab]
-	local hide_panels = tab and tab.hide_panels and tab.hide_panels(player, data)
-	local show_panels = data.query_item and tab and not hide_panels
 
 	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
-		MIN_FORMSPEC_VERSION, data.xoffset + (show_panels and 8 or 0), full_height), styles)
+		MIN_FORMSPEC_VERSION, data.xoffset + 8, full_height), styles)
 
 	fs("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10)
 
@@ -2170,11 +2240,11 @@ local function make_fs(player, data)
 		tab.formspec(player, data, fs)
 	end
 
-	if show_panels then
-		get_panels(player, data, fs)
-	end
+	get_panels(player, data, fs, full_height)
 
-	get_tabs_fs(player, data, fs, full_height)
+	if #tabs > 1 then
+		get_tabs_fs(player, data, fs, full_height)
+	end
 
 	--get_debug_grid(data, fs, full_height)
 	--print("make_fs()", fmt("%.2f ms", (os.clock() - start) * 1000))
@@ -2316,7 +2386,7 @@ local function reset_data(data)
 	data.items       = data.items_raw
 end
 
-local function panel_fields(player, data, fields)
+local function rcp_fields(player, data, fields)
 	local name = player:get_player_name()
 	local sb_rcp, sb_usg = fields.scrbar_rcp, fields.scrbar_usg
 
@@ -2496,52 +2566,6 @@ local function get_inventory_fs(player, data, fs)
 	end
 end
 
-local function get_items_fs(_, data, fs)
-	fs("box[0.2,0.2;4.55,0.6;#bababa25]", "set_focus[filter]",
-	   fmt("field[0.3,0.2;3.45,0.6;filter;;%s]", ESC(data.filter)),
-	   "field_close_on_enter[filter;false]")
-
-	fs("image_button", 3.75, 0.35, 0.3, 0.3, "", "cancel", "")
-	fs("image_button", 4.25, 0.32, 0.35, 0.35, "", "search", "")
-	fs("image_button", data.xoffset - 2.73, 0.3, 0.35, 0.35, "", "prev_page", "")
-	fs("image_button", data.xoffset - 0.55, 0.3, 0.35, 0.35, "", "next_page", "")
-
-	data.pagemax = max(1, ceil(#data.items / IPP))
-
-	fs("button", data.xoffset - 2.4, 0.14, 1.88, 0.7, "pagenum",
-		fmt("%s / %u", clr("#ff0", data.pagenum), data.pagemax))
-
-	if #data.items == 0 then
-		local lbl = ES"No item to show"
-
-		if next(recipe_filters) and #init_items > 0 and data.filter == "" then
-			lbl = ES"Collect items to reveal more recipes"
-		end
-
-		fs("button", 0, 3, data.xoffset, 1, "no_item", lbl)
-	end
-
-	local first_item = (data.pagenum - 1) * IPP
-	local size = 0.8
-
-	for i = first_item, first_item + IPP - 1 do
-		local item = data.items[i + 1]
-		if not item then break end
-
-		local X = i % ROWS
-		X = X - (X * 0.098) + 0.2
-
-		local Y = round((i % IPP - X) / ROWS + 1, 0)
-		Y = Y - (Y * 0.108) + 0.05
-
-		if data.query_item == item then
-			fs("image", X, Y, size, size, PNG.slot)
-		end
-
-		fs[#fs + 1] = fmt("item_image_button", X, Y, size, size, item, fmt("%s_inv", item), "")
-	end
-end
-
 i3.new_tab {
 	name = "inventory",
 	description = S"Inventory",
@@ -2551,9 +2575,7 @@ i3.new_tab {
 		local name = player:get_player_name()
 		local sb_inv = fields.scrbar_inv
 
-		if not core.is_creative_enabled(name) then
-			panel_fields(player, data, fields)
-		end
+		rcp_fields(player, data, fields)
 
 		if fields.skins and data.skin_id ~= tonum(fields.skins) then
 			data.skin_id = tonum(fields.skins)
@@ -2611,7 +2633,37 @@ i3.new_tab {
 			end
 		end
 
-		if fields.trash then
+		if fields.cancel then
+			reset_data(data)
+
+		elseif fields.exit then
+			data.query_item = nil
+
+		elseif fields.key_enter_field == "filter" or fields.search then
+			if fields.filter == "" then
+				reset_data(data)
+				return set_fs(player)
+			end
+
+			local str = lower(fields.filter)
+			if data.filter == str then return end
+
+			data.filter = str
+			data.pagenum = 1
+
+			search(data)
+
+		elseif fields.prev_page or fields.next_page then
+			if data.pagemax == 1 then return end
+			data.pagenum = data.pagenum - (fields.prev_page and 1 or -1)
+
+			if data.pagenum > data.pagemax then
+				data.pagenum = 1
+			elseif data.pagenum == 0 then
+				data.pagenum = data.pagemax
+			end
+
+		elseif fields.trash then
 			local inv = player:get_inventory()
 			inv:set_list("main", {})
 			inv:set_list("craft", {})
@@ -2647,51 +2699,6 @@ i3.new_tab {
 
 			insert(data.waypoints, {name = waypoint, pos = pos, color = color, id = id})
 			data.scrbar_inv = data.scrbar_inv + 1000
-		end
-
-		return set_fs(player)
-	end,
-
-	hide_panels = function(player)
-		local name = player:get_player_name()
-		return core.is_creative_enabled(name)
-	end,
-}
-
-i3.new_tab {
-	name = "items",
-	description = S"Items",
-	formspec = get_items_fs,
-
-	fields = function(player, data, fields)
-		panel_fields(player, data, fields)
-
-		if fields.cancel then
-			reset_data(data)
-
-		elseif fields.key_enter_field == "filter" or fields.search then
-			if fields.filter == "" then
-				reset_data(data)
-				return set_fs(player)
-			end
-
-			local str = lower(fields.filter)
-			if data.filter == str then return end
-
-			data.filter = str
-			data.pagenum = 1
-
-			search(data)
-
-		elseif fields.prev_page or fields.next_page then
-			if data.pagemax == 1 then return end
-			data.pagenum = data.pagenum - (fields.prev_page and 1 or -1)
-
-			if data.pagenum > data.pagemax then
-				data.pagenum = 1
-			elseif data.pagenum == 0 then
-				data.pagenum = data.pagemax
-			end
 		end
 
 		return set_fs(player)
