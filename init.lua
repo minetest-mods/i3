@@ -75,8 +75,8 @@ local pairs, ipairs, next, type, setmetatable, tonum, unpack, select =
 
 local vec_add, vec_mul = vector.add, vector.multiply
 
-local ROWS = 9
-local LINES = 10
+local ROWS = 11
+local LINES = 12
 local IPP = ROWS * LINES
 local MAX_FAVS = 6
 local ITEM_BTN_SIZE = 1.1
@@ -352,6 +352,11 @@ local function clean_name(item)
 	end
 
 	return item
+end
+
+local function round(num, decimal)
+	local mul = 10 ^ decimal
+	return floor(num * mul + 0.5) / mul
 end
 
 local function array_diff(t1, t2)
@@ -2149,8 +2154,8 @@ local function make_fs(player, data)
 		end
 	})
 
-	data.xoffset = ROWS + 1.23
-	local full_height = LINES + 1.73
+	data.xoffset = 10.23
+	local full_height = 11.73
 
 	local tab = tabs[data.current_tab]
 	local hide_panels = tab and tab.hide_panels and tab.hide_panels(player, data)
@@ -2517,22 +2522,23 @@ local function get_items_fs(_, data, fs)
 	end
 
 	local first_item = (data.pagenum - 1) * IPP
+	local size = 0.8
 
 	for i = first_item, first_item + IPP - 1 do
 		local item = data.items[i + 1]
 		if not item then break end
 
 		local X = i % ROWS
-		X = X + (X * 0.1) + 0.2
+		X = X - (X * 0.098) + 0.2
 
-		local Y = floor((i % IPP - X) / ROWS + 1)
-		Y = Y + (Y * 0.06) + 1
+		local Y = round((i % IPP - X) / ROWS + 1, 0)
+		Y = Y - (Y * 0.108) + 0.05
 
 		if data.query_item == item then
-			fs("image", X, Y, 1, 1, PNG.slot)
+			fs("image", X, Y, size, size, PNG.slot)
 		end
 
-		fs[#fs + 1] = fmt("item_image_button", X, Y, 1, 1, item, fmt("%s_inv", item), "")
+		fs[#fs + 1] = fmt("item_image_button", X, Y, size, size, item, fmt("%s_inv", item), "")
 	end
 end
 
