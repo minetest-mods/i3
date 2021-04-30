@@ -1793,9 +1793,9 @@ local function get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
 	end
 end
 
-local function get_items_fs(fs, data, creative)
+local function get_items_fs(fs, data, extend)
 	local rows = 8
-	local lines = creative and 12 or 9
+	local lines = extend and 12 or 9
 	local ipp = rows * lines
 	local size = 0.85
 
@@ -1834,7 +1834,7 @@ local function get_items_fs(fs, data, creative)
 		X = X - (X * 0.045) + data.xoffset + 0.28
 
 		local Y = round((i % ipp - X) / rows + 1, 0)
-		Y = Y - (Y * (creative and 0.11 or 0.06)) + 0.9
+		Y = Y - (Y * (extend and 0.11 or 0.06)) + 0.9
 
 		if data.query_item == item then
 			fs("image", X, Y, size, size, PNG.slot)
@@ -1870,15 +1870,25 @@ local function get_panels(player, data, fs, full_height)
 
 	local name = player:get_player_name()
 	local creative = core.is_creative_enabled(name)
+	local extend
 
 	if data.query_item then
 		panels = {_title, _recipes, _usages, _favs}
 	else
-		panels = {_items, _favs}
+		panels = {_items}
 
-		if creative then
+		if #data.favs == 0 then
+			extend = true
+		else
+			insert(panels, _favs)
+		end
+
+		if creative or extend then
 			_items.height = full_height
-			panels = {_items}
+
+			if creative then
+				panels = {_items}
+			end
 		end
 	end
 
@@ -1899,7 +1909,7 @@ local function get_panels(player, data, fs, full_height)
 		if is_recipe or is_usage then
 			get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
 		elseif panel.name == "items" then
-			get_items_fs(fs, data, creative)
+			get_items_fs(fs, data, extend)
 		elseif panel.name == "title" then
 			get_header(fs, data)
 		elseif panel.name == "favs" then
