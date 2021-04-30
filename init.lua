@@ -1672,7 +1672,7 @@ end
 local function get_header(fs, data)
 	local fav = is_fav(data.favs, data.query_item)
 	local nfavs = #data.favs
-	local star_x, star_y, star_size = data.xoffset + 0.4, data.yoffset + 0.2, 0.4
+	local star_x, star_y, star_size = data.xoffset + 0.3, data.yoffset + 0.2, 0.4
 
 	if nfavs < MAX_FAVS or (nfavs == MAX_FAVS and fav) then
 		local fav_marked = fmt("i3_fav%s.png", fav and "_off" or "")
@@ -1691,11 +1691,11 @@ local function get_header(fs, data)
 	fs("image_button", star_x + 0.05, star_y + 0.6, star_size, star_size, "", "exit", "")
 	fs(fmt("tooltip[exit;%s]", ES"Back to item list"))
 
-	local desc_lim, name_lim = 33, 34
+	local desc_lim, name_lim = 34, 35
 	local desc = translate(data.lang_code, get_desc(data.query_item))
 	      desc = ESC(desc)
 	local tech_name = data.query_item
-	local X = data.xoffset + 1.05
+	local X = data.xoffset + 0.95
 	local Y1 = data.yoffset + 0.47
 	local Y2 = Y1 + 0.5
 
@@ -1797,6 +1797,7 @@ local function get_items_fs(fs, data, creative)
 	local rows = 8
 	local lines = creative and 12 or 9
 	local ipp = rows * lines
+	local size = 0.85
 
 	fs(fmt("box[%f,0.2;4.05,0.6;#bababa25]", data.xoffset + 0.3),
 	   "set_focus[filter]",
@@ -1824,7 +1825,6 @@ local function get_items_fs(fs, data, creative)
 	end
 
 	local first_item = (data.pagenum - 1) * ipp
-	local size = 0.85
 
 	for i = first_item, first_item + ipp - 1 do
 		local item = data.items[i + 1]
