@@ -1593,7 +1593,7 @@ local function get_rcp_lbl(fs, data, panel, rn, is_recipe)
 	local rcp = is_recipe and panel.rcp[data.rnum] or panel.rcp[data.unum]
 
 	if rcp.custom then
-		fs("hypertext", data.xoffset + 4.8, data.yoffset + 0.2, 3, 0.6, "custom_rcp",
+		fs("hypertext", data.xoffset + 4.8, data.yoffset + 0.1, 3, 0.6, "custom_rcp",
 			fmt("<global size=16><right><i>%s</i></right>", ES"Custom recipe"))
 	end
 
@@ -1757,6 +1757,7 @@ local function get_export_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, max_
 end
 
 local function get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
+	fs("container[0,0.075]")
 	local rn = panel.rcp and #panel.rcp
 
 	if rn then
@@ -1791,6 +1792,8 @@ local function get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
 		fs("button", data.xoffset + 0.1, data.yoffset + (panel.height / 2) - 0.5,
 			7.8, 1, "no_rcp", lbl)
 	end
+
+	fs("container_end[]")
 end
 
 local function get_items_fs(fs, data, extend)
@@ -1834,11 +1837,7 @@ local function get_items_fs(fs, data, extend)
 		X = X - (X * 0.045) + data.xoffset + 0.28
 
 		local Y = round((i % ipp - X) / rows + 1, 0)
-		Y = Y - (Y * (extend and 0.11 or 0.06)) + 0.9
-
-		if data.query_item == item then
-			fs("image", X, Y, size, size, PNG.slot)
-		end
+		Y = Y - (Y * (extend and 0.085 or 0.035)) + 0.95
 
 		fs[#fs + 1] = fmt("item_image_button", X, Y, size, size, item, fmt("%s_inv", item), "")
 	end
@@ -1863,9 +1862,9 @@ end
 local function get_panels(player, data, fs, full_height)
 	local _title   = {name = "title", height = 1.4}
 	local _favs    = {name = "favs",  height = 2.23}
-	local _items   = {name = "items", height = 9.41}
-	local _recipes = {name = "recipes", rcp = data.recipes, height = 3.9}
-	local _usages  = {name = "usages",  rcp = data.usages,  height = 3.9}
+	local _items   = {name = "items", height = 9.69}
+	local _recipes = {name = "recipes", rcp = data.recipes, height = 4.045}
+	local _usages  = {name = "usages",  rcp = data.usages,  height = 4.045}
 	local panels
 
 	local name = player:get_player_name()
@@ -2208,12 +2207,12 @@ end
 local function get_debug_grid(data, fs, full_height)
 	local spacing = 0.2
 
-	for x = 0, data.xoffset, spacing do
+	for x = 0, data.xoffset + 8, spacing do
 		fs("box", x, 0, 0.01, full_height, "#ff0")
 	end
 
 	for y = 0, full_height, spacing do
-		fs("box", 0, y, data.xoffset, 0.01, "#ff0")
+		fs("box", 0, y, data.xoffset + 8, 0.01, "#ff0")
 	end
 
 	fs("box", data.xoffset / 2, 0, 0.01, full_height, "#f00")
@@ -2237,7 +2236,7 @@ local function make_fs(player, data)
 	})
 
 	data.xoffset = 10.23
-	local full_height = 11.73
+	local full_height = 12
 
 	local tab = tabs[data.current_tab]
 
@@ -2449,7 +2448,7 @@ local function rcp_fields(player, data, fields)
 end
 
 local function get_inv_slots(data, fs)
-	local inv_x, inv_y = 0.22, 6.6
+	local inv_x, inv_y = 0.22, 6.9
 	local width, size, spacing = HOTBAR_COUNT, 1, 0.1
 	local bag = data.bag_size
 
@@ -2488,7 +2487,7 @@ local function get_inventory_fs(player, data, fs)
 	local props = player:get_properties()
 	local name = player:get_player_name()
 
-	local ctn_len, ctn_hgt = 5.7, 6
+	local ctn_len, ctn_hgt = 5.7, 6.3
 	local yoffset = 0
 
 	if props.mesh ~= "" then
@@ -2503,7 +2502,7 @@ local function get_inventory_fs(player, data, fs)
 		local textures = concat(t, ","):gsub("!", ",")
 
 		--fs("style[player_model;bgcolor=black]")
-		fs("model", 0.2, 0.2, armor_skin and 4 or 3.4, armor_skin and ctn_hgt or 5.8,
+		fs("model", 0.2, 0.2, armor_skin and 4 or 3.4, armor_skin and ctn_hgt or 6.1,
 			"player_model", props.mesh, textures, "0,-150", "false", "false",
 			fmt("%u,%u", anim.x, anim.y))
 	else
@@ -2513,7 +2512,7 @@ local function get_inventory_fs(player, data, fs)
 
 	local award_list, award_list_nb
 	local awards_unlocked = 0
-	local max_val = 15
+	local max_val = 12
 
 	if __3darmor and data.subcat == 2 then
 		if data.scrbar_inv >= max_val then
@@ -2571,7 +2570,7 @@ local function get_inventory_fs(player, data, fs)
 		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
 			btn_name, PNG[btn_name], PNG[fmt("%s_hover", btn_name)]))
 
-		fs("image_button", i + 3.447 - (i * 0.4), 11.13, 0.35, 0.35, "", btn_name, "")
+		fs("image_button", i + 3.447 - (i * 0.4), 11.43, 0.35, 0.35, "", btn_name, "")
 		fs(fmt("tooltip[%s;%s]", btn_name, tooltip))
 	end
 end
