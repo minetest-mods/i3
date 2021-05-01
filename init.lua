@@ -1593,7 +1593,7 @@ local function get_rcp_lbl(fs, data, panel, rn, is_recipe)
 	local rcp = is_recipe and panel.rcp[data.rnum] or panel.rcp[data.unum]
 
 	if rcp.custom then
-		fs("hypertext", data.xoffset + 4.8, data.yoffset + 0.1, 3, 0.6, "custom_rcp",
+		fs("hypertext", data.xoffset + 4.8, data.yoffset + 0.12, 3, 0.6, "custom_rcp",
 			fmt("<global size=16><right><i>%s</i></right>", ES"Custom recipe"))
 	end
 
@@ -2041,7 +2041,7 @@ local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
 		fs("image_button", ctn_len - 1.5, yi, icon_size, icon_size, "", vsb, "")
 		fs(fmt("tooltip[%s;%s]", vsb, v.hide and ES"Show waypoint" or ES"Hide waypoint"))
 
-		if core.is_creative_enabled(name) then
+		if check_privs(name, {teleport = true}) then
 			local tp = fmt("waypoint_%u_teleport", i)
 
 			fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
@@ -2780,7 +2780,7 @@ if rawget(_G, "awards") then
 end
 
 core.register_on_chatcommand(function(name, command, params)
-	if sub(command, 1, 5) == "grant" or sub(command, 1, 6) == "revoke" then
+	if sub(command, 1, 5) == "grant" then
 		params = split(params, " ")
 
 		for _, v in ipairs(params) do
