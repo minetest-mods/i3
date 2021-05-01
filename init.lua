@@ -1495,7 +1495,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 		local count = item:get_count()
 
 		local X = ceil((i - 1) % width - width)
-		X = X + (X * 0.2) + data.xoffset + 3.9
+		X = X + (X * 0.2) + data.inv_width + 3.9
 
 		local Y = ceil(i / width) - min(2, rows)
 		Y = Y + (Y * 0.15)  + data.yoffset + 1.4
@@ -1507,7 +1507,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 			local xi = (i - 1) % width
 			local yi = floor((i - 1) / width)
 
-			X = btn_size * xi + data.xoffset + 0.3 + (xi * 0.05)
+			X = btn_size * xi + data.inv_width + 0.3 + (xi * 0.05)
 			Y = btn_size * yi + data.yoffset + 0.2 + (yi * 0.05)
 		end
 
@@ -1593,7 +1593,7 @@ local function get_rcp_lbl(fs, data, panel, rn, is_recipe)
 	local rcp = is_recipe and panel.rcp[data.rnum] or panel.rcp[data.unum]
 
 	if rcp.custom then
-		fs("hypertext", data.xoffset + 4.8, data.yoffset + 0.12, 3, 0.6, "custom_rcp",
+		fs("hypertext", data.inv_width + 4.8, data.yoffset + 0.12, 3, 0.6, "custom_rcp",
 			fmt("<global size=16><right><i>%s</i></right>", ES"Custom recipe"))
 	end
 
@@ -1606,7 +1606,7 @@ local function get_rcp_lbl(fs, data, panel, rn, is_recipe)
 	local one = rn == 1
 	local y = data.yoffset + 3.3
 
-	fs("hypertext", data.xoffset + (one and 4.7 or 3.95), y, 3, 0.6, "rcp_num",
+	fs("hypertext", data.inv_width + (one and 4.7 or 3.95), y, 3, 0.6, "rcp_num",
 		fmt("<global size=16><right>%s</right>", lbl))
 
 	if not one then
@@ -1615,8 +1615,8 @@ local function get_rcp_lbl(fs, data, panel, rn, is_recipe)
 		local next_name = fmt("next_%s", btn_suffix)
 		local size = 0.3
 
-		fs("image_button", data.xoffset + 7.05, y, size, size, "", prev_name, "")
-		fs("image_button", data.xoffset + 7.5,  y, size, size, "", next_name, "")
+		fs("image_button", data.inv_width + 7.05, y, size, size, "", prev_name, "")
+		fs("image_button", data.inv_width + 7.5,  y, size, size, "", next_name, "")
 	end
 
 	get_grid_fs(fs, data, rcp, is_recipe)
@@ -1664,7 +1664,7 @@ local function get_model_fs(fs, data, def, model_alias)
 		t[#t + 1] = t[#t]
 	end
 
-	fs("model", data.xoffset + 6.6, data.yoffset + 0.05, 1.3, 1.3, "preview",
+	fs("model", data.inv_width + 6.6, data.yoffset + 0.05, 1.3, 1.3, "preview",
 		def.mesh, concat(t, ","), "0,0", "true", "true",
 		model_alias and model_alias.frames or "")
 end
@@ -1672,7 +1672,7 @@ end
 local function get_header(fs, data)
 	local fav = is_fav(data.favs, data.query_item)
 	local nfavs = #data.favs
-	local star_x, star_y, star_size = data.xoffset + 0.3, data.yoffset + 0.2, 0.4
+	local star_x, star_y, star_size = data.inv_width + 0.3, data.yoffset + 0.2, 0.4
 
 	if nfavs < MAX_FAVS or (nfavs == MAX_FAVS and fav) then
 		local fav_marked = fmt("i3_fav%s.png", fav and "_off" or "")
@@ -1695,7 +1695,7 @@ local function get_header(fs, data)
 	local desc = translate(data.lang_code, get_desc(data.query_item))
 	      desc = ESC(desc)
 	local tech_name = data.query_item
-	local X = data.xoffset + 0.95
+	local X = data.inv_width + 0.95
 	local Y1 = data.yoffset + 0.47
 	local Y2 = Y1 + 0.5
 
@@ -1721,7 +1721,7 @@ local function get_header(fs, data)
 	if def.drawtype == "mesh" or model_alias then
 		get_model_fs(fs, data, def, model_alias)
 	else
-		fs("item_image", data.xoffset + 6.8, data.yoffset + 0.17, 1.1, 1.1, data.query_item)
+		fs("item_image", data.inv_width + 6.8, data.yoffset + 0.17, 1.1, 1.1, data.query_item)
 	end
 end
 
@@ -1731,7 +1731,7 @@ local function get_export_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, max_
 
 	fs(fmt("style[export_%s;fgimg=%s;fgimg_hovered=%s]",
 		name, fmt("%s", show_export and PNG.export_hover or PNG.export), PNG.export_hover))
-	fs("image_button", data.xoffset + 7.35, data.yoffset + 0.2, 0.45, 0.45, "", fmt("export_%s", name), "")
+	fs("image_button", data.inv_width + 7.35, data.yoffset + 0.2, 0.45, 0.45, "", fmt("export_%s", name), "")
 	fs(fmt("tooltip[export_%s;%s]", name, ES"Quick crafting"))
 
 	if not show_export then return end
@@ -1751,8 +1751,8 @@ local function get_export_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, max_
 
 	fs(fmt("style[scrbar_%s;noclip=true]", name),
 	   fmt("scrollbaroptions[min=1;max=%u;smallstep=1]", craft_max))
-	fs("scrollbar", data.xoffset + 8.1, data.yoffset, 3, 0.35, "horizontal", fmt("scrbar_%s", name), stack_fs)
-	fs("button", data.xoffset + 8.1, data.yoffset + 0.4, 3, 0.7, fmt("craft_%s", name),
+	fs("scrollbar", data.inv_width + 8.1, data.yoffset, 3, 0.35, "horizontal", fmt("scrbar_%s", name), stack_fs)
+	fs("button", data.inv_width + 8.1, data.yoffset + 0.4, 3, 0.7, fmt("craft_%s", name),
 		ES("Craft (x@1)", stack_fs))
 end
 
@@ -1789,7 +1789,7 @@ local function get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
 		get_rcp_lbl(fs, data, panel, rn, is_recipe)
 	else
 		local lbl = is_recipe and ES"No recipes" or ES"No usages"
-		fs("button", data.xoffset + 0.1, data.yoffset + (panel.height / 2) - 0.5,
+		fs("button", data.inv_width + 0.1, data.yoffset + (panel.height / 2) - 0.5,
 			7.8, 1, "no_rcp", lbl)
 	end
 
@@ -1802,19 +1802,19 @@ local function get_items_fs(fs, data, extend)
 	local ipp = rows * lines
 	local size = 0.85
 
-	fs(fmt("box[%f,0.2;4.05,0.6;#bababa25]", data.xoffset + 0.3),
+	fs(fmt("box[%f,0.2;4.05,0.6;#bababa25]", data.inv_width + 0.3),
 	   "set_focus[filter]",
-	   fmt("field[%f,0.2;2.95,0.6;filter;;%s]", data.xoffset + 0.35, ESC(data.filter)),
+	   fmt("field[%f,0.2;2.95,0.6;filter;;%s]", data.inv_width + 0.35, ESC(data.filter)),
 	   "field_close_on_enter[filter;false]")
 
-	fs("image_button", data.xoffset + 3.35, 0.35, 0.3, 0.3, "", "cancel", "")
-	fs("image_button", data.xoffset + 3.85, 0.32, 0.35, 0.35, "", "search", "")
-	fs("image_button", data.xoffset + 5.27, 0.3, 0.35, 0.35, "", "prev_page", "")
-	fs("image_button", data.xoffset + 7.45, 0.3, 0.35, 0.35, "", "next_page", "")
+	fs("image_button", data.inv_width + 3.35, 0.35, 0.3, 0.3, "", "cancel", "")
+	fs("image_button", data.inv_width + 3.85, 0.32, 0.35, 0.35, "", "search", "")
+	fs("image_button", data.inv_width + 5.27, 0.3, 0.35, 0.35, "", "prev_page", "")
+	fs("image_button", data.inv_width + 7.45, 0.3, 0.35, 0.35, "", "next_page", "")
 
 	data.pagemax = max(1, ceil(#data.items / ipp))
 
-	fs("button", data.xoffset + 5.6, 0.14, 1.88, 0.7, "pagenum",
+	fs("button", data.inv_width + 5.6, 0.14, 1.88, 0.7, "pagenum",
 		fmt("%s / %u", clr("#ff0", data.pagenum), data.pagemax))
 
 	if #data.items == 0 then
@@ -1824,7 +1824,7 @@ local function get_items_fs(fs, data, extend)
 			lbl = ES"Collect items to reveal more recipes"
 		end
 
-		fs("button", data.xoffset + 0.1, 3, 8, 1, "no_item", lbl)
+		fs("button", data.inv_width + 0.1, 3, 8, 1, "no_item", lbl)
 	end
 
 	local first_item = (data.pagenum - 1) * ipp
@@ -1834,7 +1834,7 @@ local function get_items_fs(fs, data, extend)
 		if not item then break end
 
 		local X = i % rows
-		X = X - (X * 0.045) + data.xoffset + 0.28
+		X = X - (X * 0.045) + data.inv_width + 0.28
 
 		local Y = round((i % ipp - X) / rows + 1, 0)
 		Y = Y - (Y * (extend and 0.085 or 0.035)) + 0.95
@@ -1844,11 +1844,11 @@ local function get_items_fs(fs, data, extend)
 end
 
 local function get_favs(fs, data)
-	fs("label", data.xoffset + 0.4, data.yoffset + 0.4, ES"Bookmarks")
+	fs("label", data.inv_width + 0.4, data.yoffset + 0.4, ES"Bookmarks")
 
 	for i = 1, #data.favs do
 		local item = data.favs[i]
-		local X = data.xoffset - 0.7 + (i * 1.2)
+		local X = data.inv_width - 0.7 + (i * 1.2)
 		local Y = data.yoffset + 0.8
 
 		if data.query_item == item then
@@ -1901,7 +1901,7 @@ local function get_panels(player, data, fs, full_height)
 			end
 		end
 
-		fs("bg9", data.xoffset + 0.1, data.yoffset, 7.9, panel.height, PNG.bg_full, 10)
+		fs("bg9", data.inv_width + 0.1, data.yoffset, 7.9, panel.height, PNG.bg_full, 10)
 
 		local is_recipe, is_usage = panel.name == "recipes", panel.name == "usages"
 
@@ -2186,7 +2186,7 @@ local function get_tabs_fs(player, data, fs, full_height)
 		selected and (btm and PNG.tab_hover or PNG.tab_hover_top) or (btm and PNG.tab or PNG.tab_top),
 		btm and PNG.tab_hover or PNG.tab_hover_top, selected and "#fff" or "#ddd"))
 
-		local X = (data.xoffset / 2) + (c * (tab_len + 0.1)) - ((tab_len + 0.05) * (shift / 2))
+		local X = (data.inv_width / 2) + (c * (tab_len + 0.1)) - ((tab_len + 0.05) * (shift / 2))
 		local Y = btm and full_height or -tab_hgh
 
 		fs("style_type[image_button:hovered;textcolor=#fff]")
@@ -2207,16 +2207,16 @@ end
 local function get_debug_grid(data, fs, full_height)
 	local spacing = 0.2
 
-	for x = 0, data.xoffset + 8, spacing do
+	for x = 0, data.inv_width + 8, spacing do
 		fs("box", x, 0, 0.01, full_height, "#ff0")
 	end
 
 	for y = 0, full_height, spacing do
-		fs("box", 0, y, data.xoffset + 8, 0.01, "#ff0")
+		fs("box", 0, y, data.inv_width + 8, 0.01, "#ff0")
 	end
 
-	fs("box", data.xoffset / 2, 0, 0.01, full_height, "#f00")
-	fs("box", 0, full_height / 2, data.xoffset, 0.01, "#f00")
+	fs("box", data.inv_width / 2, 0, 0.01, full_height, "#f00")
+	fs("box", 0, full_height / 2, data.inv_width, 0.01, "#f00")
 end
 
 local function make_fs(player, data)
@@ -2235,15 +2235,15 @@ local function make_fs(player, data)
 		end
 	})
 
-	data.xoffset = 10.23
+	data.inv_width = 10.23
 	local full_height = 12
 
 	local tab = tabs[data.current_tab]
 
 	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
-		MIN_FORMSPEC_VERSION, data.xoffset + 8, full_height), styles)
+		MIN_FORMSPEC_VERSION, data.inv_width + 8, full_height), styles)
 
-	fs("bg9", 0, 0, data.xoffset, full_height, PNG.bg_full, 10)
+	fs("bg9", 0, 0, data.inv_width, full_height, PNG.bg_full, 10)
 
 	if tab then
 		tab.formspec(player, data, fs)
