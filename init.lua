@@ -1672,23 +1672,23 @@ end
 local function get_header(fs, data)
 	local fav = is_fav(data.favs, data.query_item)
 	local nfavs = #data.favs
-	local star_x, star_y, star_size = data.inv_width + 0.3, data.yoffset + 0.2, 0.4
+	local star_x, star_y, size = data.inv_width + 0.3, data.yoffset + 0.2, 0.4
 
 	if nfavs < MAX_FAVS or (nfavs == MAX_FAVS and fav) then
 		local fav_marked = fmt("i3_fav%s.png", fav and "_off" or "")
 
 		fs(fmt("style[fav;fgimg=%s;fgimg_hovered=%s;fgimg_pressed=%s]",
 			fmt("i3_fav%s.png", fav and "" or "_off"), fav_marked, fav_marked))
-		fs("image_button", star_x, star_y, star_size, star_size, "", "fav", "")
+		fs("image_button", star_x, star_y, size, size, "", "fav", "")
 		fs(fmt("tooltip[fav;%s]", fav and ES"Unmark this item" or ES"Mark this item"))
 	else
 		fs(fmt("style[nofav;fgimg=%s;fgimg_hovered=%s;fgimg_pressed=%s]",
 			"i3_fav_off.png", PNG.cancel, PNG.cancel))
-		fs("image_button", star_x, star_y, star_size, star_size, "", "nofav", "")
+		fs("image_button", star_x, star_y, size, size, "", "nofav", "")
 		fs(fmt("tooltip[nofav;%s]", ES"Cannot mark this item. Bookmark limit reached."))
 	end
 
-	fs("image_button", star_x + 0.05, star_y + 0.6, star_size, star_size, "", "exit", "")
+	fs("image_button", star_x + 0.05, star_y + 0.6, size, size, "", "exit", "")
 	fs(fmt("tooltip[exit;%s]", ES"Back to item list"))
 
 	local desc_lim, name_lim = 34, 35
@@ -1865,29 +1865,17 @@ local function get_panels(player, data, fs, full_height)
 	local _items   = {name = "items", height = 9.69}
 	local _recipes = {name = "recipes", rcp = data.recipes, height = 4.045}
 	local _usages  = {name = "usages",  rcp = data.usages,  height = 4.045}
-	local panels
-
-	local name = player:get_player_name()
-	local creative = core.is_creative_enabled(name)
-	local extend
+	local panels, extend
 
 	if data.query_item then
 		panels = {_title, _recipes, _usages, _favs}
 	else
-		panels = {_items}
+		panels = {_items, _favs}
 
 		if #data.favs == 0 then
 			extend = true
-		else
-			insert(panels, _favs)
-		end
-
-		if creative or extend then
+			remove(panels, 2)
 			_items.height = full_height
-
-			if creative then
-				panels = {_items}
-			end
 		end
 	end
 
@@ -2787,6 +2775,7 @@ core.register_on_chatcommand(function(name, command, params)
 			if find(v, "creative") then
 				local data = pdata[name]
 				reset_data(data)
+				data.favs = {}
 				break
 			end
 		end
