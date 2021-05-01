@@ -2399,7 +2399,37 @@ local function rcp_fields(player, data, fields)
 	local name = player:get_player_name()
 	local sb_rcp, sb_usg = fields.scrbar_rcp, fields.scrbar_usg
 
-	if fields.prev_recipe or fields.next_recipe then
+	if fields.cancel then
+		reset_data(data)
+
+	elseif fields.exit then
+		data.query_item = nil
+
+	elseif fields.key_enter_field == "filter" or fields.search then
+		if fields.filter == "" then
+			reset_data(data)
+			return set_fs(player)
+		end
+
+		local str = lower(fields.filter)
+		if data.filter == str then return end
+
+		data.filter = str
+		data.pagenum = 1
+
+		search(data)
+
+	elseif fields.prev_page or fields.next_page then
+		if data.pagemax == 1 then return end
+		data.pagenum = data.pagenum - (fields.prev_page and 1 or -1)
+
+		if data.pagenum > data.pagemax then
+			data.pagenum = 1
+		elseif data.pagenum == 0 then
+			data.pagenum = data.pagemax
+		end
+
+	elseif fields.prev_recipe or fields.next_recipe then
 		local num = data.rnum + (fields.prev_recipe and -1 or 1)
 		data.rnum = data.recipes[num] and num or (fields.prev_recipe and #data.recipes or 1)
 		data.export_rcp = nil
@@ -2584,8 +2614,6 @@ i3.new_tab {
 		local name = player:get_player_name()
 		local sb_inv = fields.scrbar_inv
 
-		rcp_fields(player, data, fields)
-
 		if fields.skins and data.skin_id ~= tonum(fields.skins) then
 			data.skin_id = tonum(fields.skins)
 			local _skins = skins.get_skinlist_for_player(name)
@@ -2642,37 +2670,7 @@ i3.new_tab {
 			end
 		end
 
-		if fields.cancel then
-			reset_data(data)
-
-		elseif fields.exit then
-			data.query_item = nil
-
-		elseif fields.key_enter_field == "filter" or fields.search then
-			if fields.filter == "" then
-				reset_data(data)
-				return set_fs(player)
-			end
-
-			local str = lower(fields.filter)
-			if data.filter == str then return end
-
-			data.filter = str
-			data.pagenum = 1
-
-			search(data)
-
-		elseif fields.prev_page or fields.next_page then
-			if data.pagemax == 1 then return end
-			data.pagenum = data.pagenum - (fields.prev_page and 1 or -1)
-
-			if data.pagenum > data.pagemax then
-				data.pagenum = 1
-			elseif data.pagenum == 0 then
-				data.pagenum = data.pagemax
-			end
-
-		elseif fields.trash then
+		if fields.trash then
 			local inv = player:get_inventory()
 			inv:set_list("main", {})
 			inv:set_list("craft", {})
@@ -3121,6 +3119,8 @@ on_receive_fields(function(player, formname, fields)
 			break
 		end
 	end
+
+	rcp_fields(player, data, fields)
 
 	local tab = tabs[data.current_tab]
 
