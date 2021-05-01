@@ -48,4 +48,4 @@ Love this mod? Donations are appreciated: https://www.paypal.me/jpg84240
 
 Demo video (outdated): https://www.youtube.com/watch?v=25nCAaqeacU
 
-![Preview](https://user-images.githubusercontent.com/7883281/115294125-7827cb80-a158-11eb-89f1-1f533621a9fe.png)
+![Preview](https://user-images.githubusercontent.com/7883281/116791813-0edf7b00-aabd-11eb-90b3-11c604af34dc.png)
