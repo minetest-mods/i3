@@ -2780,12 +2780,15 @@ if rawget(_G, "awards") then
 end
 
 core.register_on_chatcommand(function(name, command, params)
-	if find(command, "grant") or find(command, "revoke") then
+	if sub(command, 1, 5) == "grant" or sub(command, 1, 6) == "revoke" then
 		params = split(params, " ")
 
-		if params[2] and find(params[2], "creative") then
-			local data = pdata[name]
-			reset_data(data)
+		for _, v in ipairs(params) do
+			if find(v, "creative") then
+				local data = pdata[name]
+				reset_data(data)
+				break
+			end
 		end
 	end
 
