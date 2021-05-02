@@ -12,7 +12,7 @@ local toolrepair
 
 local tabs = {}
 
-local progressive_mode = core.settings:get_bool "i3_progressive_mode"
+local progressive_mode = core.settings:get_bool "i3_progressive_mode" and not(core.is_creative_enabled())
 local damage_enabled = core.settings:get_bool "enable_damage"
 
 local __3darmor, __skinsdb, __awards
@@ -2068,9 +2068,13 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 
 	fs(fmt("list[current_player;craft;%f,%f;3,3;]", 0, yoffset + 1.45))
 	fs("image", 3.47, yoffset + 2.69, 0.85, 0.85, PNG.arrow)
-	fs(fmt("list[current_player;craftpreview;%f,%f;1,1;]", 4.45, yoffset + 2.6),
-	   fmt("list[detached:i3_trash;main;%f,%f;1,1;]", 4.45, yoffset + 3.75))
-	fs("image", 4.45, yoffset + 3.75, 1, 1, PNG.trash)
+	fs(fmt("list[current_player;craftpreview;%f,%f;1,1;]", 4.45, yoffset + 2.6))--,
+	--   fmt("list[detached:i3_trash;main;%f,%f;1,1;]", 4.45, yoffset + 3.75))
+	--fs("image", 4.45, yoffset + 3.75, 1, 1, PNG.trash)
+	if core.is_creative_enabled(name) then
+		fs(fmt("list[detached:i3_trash;main;%f,%f;1,1;]", 4.45, yoffset + 3.75))
+		fs("image", 4.45, yoffset + 3.75, 1, 1, PNG.trash)
+	end
 
 	local yextra = 5.5
 
@@ -2576,11 +2580,12 @@ local function get_inventory_fs(player, data, fs)
 	fs("scroll_container_end[]")
 
 	local btn = {
-		{"trash", ES"Trash all items"},
+		--{"trash", ES"Trash all items"},
 		{"sort_az", ES"Sort items (A-Z)"},
 		{"sort_za", ES"Sort items (Z-A)"},
 		{"compress", ES"Compress items"},
 	}
+	if core.is_creative_enabled(name) then table.insert(btn, 1, {"trash", ES"Trash all items"}) end
 
 	for i, v in ipairs(btn) do
 		local btn_name, tooltip = unpack(v)
