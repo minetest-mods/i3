@@ -1249,8 +1249,6 @@ local function select_item(player, name, data, _f)
 
 	if not item then
 		return
-	elseif sub(item, -4) == "_inv" then
-		item = sub(item, 1, -5)
 	elseif sub(item, 1, 1) == "_" then
 		item = sub(item, 2)
 	elseif sub(item, 1, 6) == "group|" then
@@ -1839,7 +1837,7 @@ local function get_items_fs(fs, data, extend)
 		local Y = round((i % ipp - X) / rows + 1, 0)
 		Y = Y - (Y * (extend and 0.085 or 0.035)) + 0.95
 
-		fs[#fs + 1] = fmt("item_image_button", X, Y, size, size, item, fmt("%s_inv", item), "")
+		fs[#fs + 1] = fmt("item_image_button", X, Y, size, size, item, item, "")
 	end
 end
 
