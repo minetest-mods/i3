@@ -2770,7 +2770,7 @@ core.register_on_chatcommand(function(name, command, params)
 		params = split(params, " ")
 
 		for _, v in ipairs(params) do
-			if find(v, "creative") then
+			if find(v, "creative") or find(v, "all") then
 				local data = pdata[name]
 				reset_data(data)
 				data.favs = {}
