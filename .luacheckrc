@@ -6,7 +6,6 @@ ignore = {
 
 read_globals = {
 	"minetest",
-	"default",
 	"armor",
 	"skins",
 	"awards",
@@ -19,4 +18,6 @@ read_globals = {
 globals = {
 	"i3",
 	"core",
+	"sfinv",
+	"unified_inventory",
 }

@@ -16,7 +16,8 @@ local progressive_mode = core.settings:get_bool "i3_progressive_mode"
 local damage_enabled = core.settings:get_bool "enable_damage"
 
 local __3darmor, __skinsdb, __awards
-local sfinv, unified_inventory, old_unified_inventory_fn
+local __sfinv, old_sfinv_fn
+local __unified_inventory, old_unified_inventory_fn
 
 local http = core.request_http_api()
 local singleplayer = core.is_singleplayer()
@@ -2948,15 +2949,17 @@ end
 on_mods_loaded(function()
 	get_init_items()
 
-	sfinv = rawget(_G, "sfinv")
+	__sfinv = rawget(_G, "sfinv")
 
-	if sfinv then
+	if __sfinv then
+		old_sfinv_fn = sfinv.set_player_inventory_formspec
+		function sfinv.set_player_inventory_formspec() return end
 		sfinv.enabled = false
 	end
 
-	unified_inventory = rawget(_G, "unified_inventory")
+	__unified_inventory = rawget(_G, "unified_inventory")
 
-	if unified_inventory then
+	if __unified_inventory then
 		old_unified_inventory_fn = unified_inventory.set_inventory_formspec
 		function unified_inventory.set_inventory_formspec() return end
 	end
@@ -3038,14 +3041,15 @@ on_joinplayer(function(player)
 	local info = get_player_info(name)
 
 	if get_formspec_version(info) < MIN_FORMSPEC_VERSION then
-		if sfinv then
+		if __sfinv then
+			sfinv.set_player_inventory_formspec = old_sfinv_fn
 			sfinv.enabled = true
 		end
 
-		if unified_inventory then
+		if __unified_inventory then
 			unified_inventory.set_inventory_formspec = old_unified_inventory_fn
 
-			if sfinv then
+			if __sfinv then
 				sfinv.enabled = false
 			end
 		end
