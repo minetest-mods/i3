@@ -2046,23 +2046,25 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 	local name = player:get_player_name()
 	add_subtitle(fs, "player_name", 0, ctn_len, 22, true, ESC(name))
 
-	local hp = damage_enabled and (data.hp or player:get_hp()) or 20
-	local half = ceil((hp / 2) % 1)
-	local hearts = (hp / 2) + half
-	local heart_size = 0.35
-	local heart_x, heart_h = 0.65, yoffset + 0.75
-
-	for i = 1, 10 do
-		fs("image", heart_x + ((i - 1) * (heart_size + 0.1)), heart_h,
-			heart_size, heart_size, PNG.heart_grey)
-	end
-
 	if damage_enabled then
+		local hp = data.hp or player:get_hp() or 20
+		local half = ceil((hp / 2) % 1)
+		local hearts = (hp / 2) + half
+		local heart_size = 0.35
+		local heart_x, heart_h = 0.65, yoffset + 0.75
+
+		for i = 1, 10 do
+			fs("image", heart_x + ((i - 1) * (heart_size + 0.1)), heart_h,
+				heart_size, heart_size, PNG.heart_grey)
+		end
+
 		for i = 1, hearts do
 			fs("image", heart_x + ((i - 1) * (heart_size + 0.1)), heart_h,
 				heart_size, heart_size,
 				(half == 1 and i == floor(hearts)) and PNG.heart_half or PNG.heart)
 		end
+	else
+		yoffset = yoffset - 0.5
 	end
 
 	fs(fmt("list[current_player;craft;%f,%f;3,3;]", 0, yoffset + 1.45))
@@ -2071,7 +2073,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 	   fmt("list[detached:i3_trash;main;%f,%f;1,1;]", 4.45, yoffset + 3.75))
 	fs("image", 4.45, yoffset + 3.75, 1, 1, PNG.trash)
 
-	local yextra = 5.5
+	local yextra = damage_enabled and 5.5 or 5
 
 	for i, title in ipairs(SUBCAT) do
 		local btn_name = fmt("btn_%s", title)
@@ -2529,7 +2531,7 @@ local function get_inventory_fs(player, data, fs)
 
 	local award_list, award_list_nb
 	local awards_unlocked = 0
-	local max_val = 12
+	local max_val = damage_enabled and 12 or 7
 
 	if __3darmor and data.subcat == 2 then
 		if data.scrbar_inv >= max_val then
@@ -2566,7 +2568,7 @@ local function get_inventory_fs(player, data, fs)
 		scrollbar[%f,0.2;0.2,%f;vertical;scrbar_inv;%u]
 		scrollbaroptions[arrows=default;thumbsize=0;max=1000]
 	]],
-	(max_val * 4) / 15, max_val, 9.8, ctn_hgt, data.scrbar_inv))
+	(max_val * 4) / 12, max_val, 9.8, ctn_hgt, data.scrbar_inv))
 
 	fs(fmt("scroll_container[3.9,0.2;%f,%f;scrbar_inv;vertical]", ctn_len, ctn_hgt))
 
