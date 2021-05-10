@@ -2251,6 +2251,7 @@ local function make_fs(player, data)
 end
 
 function i3.set_fs(player, _fs)
+	if not player or player.is_fake_player then return end
 	local name = player:get_player_name()
 	local data = pdata[name]
 	if not data then return end
