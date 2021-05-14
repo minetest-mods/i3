@@ -2769,22 +2769,20 @@ if rawget(_G, "awards") then
 	core.register_on_dieplayer(set_fs)
 end
 
-local _privs = {"creative", "teleport", "all"}
-
-core.register_on_chatcommand(function(name, command, params)
-	if sub(command, 1, 5) == "grant" or sub(command, 1, 6) == "revoke" then
-		for _, priv in ipairs(_privs) do
-			if sub(params, -#priv) == priv then
-				local data = pdata[name]
-				reset_data(data)
-				data.favs = {}
-				break
-			end
-		end
-	end
-
+core.register_on_chatcommand(function(name)
 	local player = core.get_player_by_name(name)
 	after(0, set_fs, player)
+end)
+
+core.register_on_priv_grant(function(name, _, priv)
+	if priv == "creative" or priv == "all" then
+		local data = pdata[name]
+		reset_data(data)
+		data.favs = {}
+
+		local player = core.get_player_by_name(name)
+		after(0, set_fs, player)
+	end
 end)
 
 i3.register_craft_type("digging", {
