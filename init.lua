@@ -2769,12 +2769,12 @@ if rawget(_G, "awards") then
 	core.register_on_dieplayer(set_fs)
 end
 
-core.register_on_chatcommand(function(name, command, params)
-	if sub(command, 1, 5) == "grant" then
-		params = split(params, " ")
+local _privs = {"creative", "teleport", "all"}
 
-		for _, v in ipairs(params) do
-			if find(v, "creative") or find(v, "all") then
+core.register_on_chatcommand(function(name, command, params)
+	if sub(command, 1, 5) == "grant" or sub(command, 1, 6) == "revoke" then
+		for _, priv in ipairs(_privs) do
+			if sub(params, -#priv) == priv then
 				local data = pdata[name]
 				reset_data(data)
 				data.favs = {}
