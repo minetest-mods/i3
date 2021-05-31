@@ -49,6 +49,7 @@ local get_craft_result = core.get_craft_result
 local translate = minetest.get_translated_string
 local on_joinplayer = core.register_on_joinplayer
 local get_all_recipes = core.get_all_craft_recipes
+local on_leaveplayer = core.register_on_leaveplayer
 local on_mods_loaded = core.register_on_mods_loaded
 local get_player_info = core.get_player_information
 local create_inventory = core.create_detached_inventory
@@ -83,6 +84,9 @@ local ITEM_BTN_SIZE = 1.1
 
 local INV_SIZE = 36
 local HOTBAR_COUNT = 9
+
+-- Players data interval
+local SAVE_INTERVAL = 600
 
 -- Progressive mode
 local POLL_FREQ = 0.25
@@ -3079,17 +3083,37 @@ local META_SAVES = {
 	known_recipes = true,
 }
 
-on_shutdown(function()
-	for name, v in pairs(pdata) do
+local function save_data(player_name)
+	local _pdata = copy(pdata)
+
+	for name, v in pairs(_pdata) do
 	for dat in pairs(v) do
 		if not META_SAVES[dat] then
-			pdata[name][dat] = nil
+			_pdata[name][dat] = nil
+
+			if player_name then
+				pdata[player_name][dat] = nil -- To free up some memory
+			end
 		end
 	end
 	end
 
-	storage:set_string("pdata", slz(pdata))
+	storage:set_string("pdata", slz(_pdata))
+end
+
+on_leaveplayer(function(player)
+	local name = player:get_player_name()
+	save_data(name)
 end)
+
+on_shutdown(save_data)
+
+local function routine()
+	save_data()
+	after(SAVE_INTERVAL, routine)
+end
+
+after(SAVE_INTERVAL, routine)
 
 on_receive_fields(function(player, formname, fields)
 	if formname ~= "" then
