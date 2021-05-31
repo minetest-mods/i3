@@ -74,7 +74,7 @@ local min, max, floor, ceil, random =
 local pairs, ipairs, next, type, setmetatable, tonum, unpack, select =
 	pairs, ipairs, next, type, setmetatable, tonumber, unpack, select
 
-local vec_add, vec_mul = vector.add, vector.multiply
+local vec_add, vec_mul, vec_eq, vec_round = vector.add, vector.multiply, vector.equals, vector.round
 
 local MAX_FAVS = 6
 local ITEM_BTN_SIZE = 1.1
@@ -2676,6 +2676,14 @@ i3.new_tab {
 			return
 
 		elseif fields.waypoint_add then
+			local pos = player:get_pos()
+
+			for _, v in ipairs(data.waypoints) do
+				if vec_eq(vec_round(pos), vec_round(v.pos)) then
+					return msg(name, "You already set a waypoint at this position")
+				end
+			end
+
 			local waypoint = fields.waypoint_name
 
 			if fields.waypoint_name == "" then
@@ -2683,7 +2691,6 @@ i3.new_tab {
 			end
 
 			local color = random(0xffffff)
-			local pos = player:get_pos()
 
 			local id = player:hud_add {
 				hud_elem_type = "waypoint",
