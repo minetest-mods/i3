@@ -2609,7 +2609,10 @@ i3.new_tab {
 					local pos = vec_new(waypoint.pos)
 					pos.y = pos.y + 0.5
 
+					local vel = player:get_velocity()
+					player:add_velocity(vec_mul(vel, -1))
 					player:set_pos(pos)
+
 					msg(name, fmt("Teleported to %s", clr("#ff0", waypoint.name)))
 
 				elseif action == "refresh" then
