@@ -1,7 +1,10 @@
 i3 = {}
 
+local storage = core.get_mod_storage()
+local slz, dslz = core.serialize, core.deserialize
+local pdata = dslz(storage:get_string "pdata") or {}
+
 -- Caches
-local pdata         = {}
 local init_items    = {}
 local searches      = {}
 local recipes_cache = {}
@@ -46,9 +49,7 @@ local get_craft_result = core.get_craft_result
 local translate = minetest.get_translated_string
 local on_joinplayer = core.register_on_joinplayer
 local get_all_recipes = core.get_all_craft_recipes
-local slz, dslz = core.serialize, core.deserialize
 local on_mods_loaded = core.register_on_mods_loaded
-local on_leaveplayer = core.register_on_leaveplayer
 local get_player_info = core.get_player_information
 local create_inventory = core.create_detached_inventory
 local on_receive_fields = core.register_on_player_receive_fields
@@ -87,8 +88,6 @@ local POLL_FREQ = 0.25
 local HUD_TIMER_MAX = 1.5
 
 local MIN_FORMSPEC_VERSION = 4
-
-local META_SAVES = {"bag_size", "waypoints"}
 
 local BAG_SIZES = {
 	small  = INV_SIZE + 3,
@@ -466,18 +465,6 @@ local function table_replace(t, val, new)
 		if v == val then
 			t[k] = new
 		end
-	end
-end
-
-local function save_meta(player, entries)
-	local name = player:get_player_name()
-	local data = pdata[name]
-	if not data then return end
-
-	local meta = player:get_meta()
-
-	for _, entry in ipairs(entries) do
-		meta:set_string(entry, slz(data[entry]))
 	end
 end
 
@@ -2345,27 +2332,19 @@ end
 
 local function init_data(player, info)
 	local name = player:get_player_name()
-
-	pdata[name] = {
-		filter        = "",
-		pagenum       = 1,
-		items         = init_items,
-		items_raw     = init_items,
-		favs          = {},
-		export_counts = {},
-		current_tab   = 1,
-		subcat        = 1,
-		scrbar_inv    = 0,
-		lang_code     = get_lang_code(info),
-	}
-
+	pdata[name] = pdata[name] or {}
 	local data = pdata[name]
-	local meta = player:get_meta()
 
-	for i = 1, #META_SAVES do
-		local recover = META_SAVES[i]
-		data[recover] = dslz(meta:get_string(recover))
-	end
+	data.filter        = ""
+	data.pagenum       = 1
+	data.items         = init_items
+	data.items_raw     = init_items
+	data.favs          = {}
+	data.export_counts = {}
+	data.current_tab   = 1
+	data.subcat        = 1
+	data.scrbar_inv    = 0
+	data.lang_code     = get_lang_code(info)
 
 	after(0, set_fs, player)
 end
@@ -2750,7 +2729,6 @@ end
 
 if rawget(_G, "skins") then
 	__skinsdb = true
-	insert(META_SAVES, "skin_id")
 end
 
 if rawget(_G, "awards") then
@@ -3089,20 +3067,24 @@ core.register_on_dieplayer(function(player)
 	set_fs(player)
 end)
 
-on_leaveplayer(function(player)
-	save_meta(player, META_SAVES)
-
-	local name = player:get_player_name()
-	pdata[name] = nil
-end)
+local META_SAVES = {
+	bag_size = true,
+	waypoints = true,
+	skin_id = true,
+	inv_items = true,
+	known_recipes = true,
+}
 
 on_shutdown(function()
-	local players = get_players()
-
-	for i = 1, #players do
-		local player = players[i]
-		save_meta(player, META_SAVES)
+	for name, v in pairs(pdata) do
+	for dat in pairs(v) do
+		if not META_SAVES[dat] then
+			pdata[name][dat] = nil
+		end
 	end
+	end
+
+	storage:set_string("pdata", slz(pdata))
 end)
 
 on_receive_fields(function(player, formname, fields)
@@ -3353,11 +3335,10 @@ if progressive_mode then
 
 	on_joinplayer(function(player)
 		local name = player:get_player_name()
-		local meta = player:get_meta()
 		local data = pdata[name]
 
-		data.inv_items = dslz(meta:get_string "inv_items") or {}
-		data.known_recipes = dslz(meta:get_string "known_recipes") or 0
+		data.inv_items = data.inv_items or {}
+		data.known_recipes = data.known_recipes or 0
 
 		local items = get_filtered_items(player, data)
 		data.items_raw = items
@@ -3367,8 +3348,6 @@ if progressive_mode then
 			init_hud(player, data)
 		end
 	end)
-
-	table_merge(META_SAVES, {"inv_items", "known_recipes"})
 end
 
 local bag_recipes = {
