@@ -75,7 +75,8 @@ local min, max, floor, ceil, random =
 local pairs, ipairs, next, type, setmetatable, tonum, unpack, select =
 	pairs, ipairs, next, type, setmetatable, tonumber, unpack, select
 
-local vec_add, vec_mul, vec_eq, vec_round = vector.add, vector.multiply, vector.equals, vector.round
+local vec_new, vec_add, vec_mul, vec_eq, vec_round =
+	vector.new, vector.add, vector.multiply, vector.equals, vector.round
 
 local MAX_FAVS = 6
 local ITEM_BTN_SIZE = 1.1
@@ -2605,7 +2606,7 @@ i3.new_tab {
 					remove(data.waypoints, id)
 
 				elseif action == "teleport" then
-					local pos = waypoint.pos
+					local pos = vec_new(waypoint.pos)
 					pos.y = pos.y + 0.5
 
 					player:set_pos(pos)
