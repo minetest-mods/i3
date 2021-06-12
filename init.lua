@@ -41,6 +41,7 @@ local write_json = core.write_json
 local get_inv = core.get_inventory
 local chat_send = core.chat_send_player
 local show_formspec = core.show_formspec
+local pos_to_string = core.pos_to_string
 local check_privs = core.check_player_privs
 local globalstep = core.register_globalstep
 local on_shutdown = core.register_on_shutdown
@@ -1973,7 +1974,7 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 	end
 end
 
-local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
+local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 	fs(fmt("box[0,%f;4.9,0.6;#bababa25]", yextra + 1.1))
 	fs("label", 0, yextra + 0.85, ES"Waypoint name:")
 	fs(fmt("field[0.1,%f;4.8,0.6;waypoint_name;;]", yextra + 1.1))
@@ -2005,6 +2006,10 @@ local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
 
 		fs("label", 0.15, y + 0.33, clr(fmt("#%s", hex), waypoint_name))
 
+		fs("tooltip", 0, y, ctn_len - 2.5, 0.65,
+			fmt("Name: %s\nPosition:%s", clr("#ff0", v.name),
+				pos_to_string(v.pos, 0):sub(2,-2):gsub("(%-*%d+)", clr("#ff0", " %1"))))
+
 		local del = fmt("waypoint_%u_delete", i)
 		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", del, PNG.trash, PNG.trash_hover))
 		fs("image_button", ctn_len - 0.5, yi, icon_size, icon_size, "", del, "")
@@ -2020,7 +2025,7 @@ local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
 		fs("image_button", ctn_len - 1.5, yi, icon_size, icon_size, "", vsb, "")
 		fs(fmt("tooltip[%s;%s]", vsb, v.hide and ES"Show waypoint" or ES"Hide waypoint"))
 
-		if check_privs(name, {teleport = true}) then
+		if check_privs(player, {teleport = true}) then
 			local tp = fmt("waypoint_%u_teleport", i)
 
 			fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
@@ -2132,7 +2137,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 		end
 
 	elseif data.subcat == 5 then
-		get_waypoint_fs(fs, data, name, yextra, ctn_len)
+		get_waypoint_fs(fs, data, player, yextra, ctn_len)
 	end
 end
 
