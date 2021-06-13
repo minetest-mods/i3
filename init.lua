@@ -1,7 +1,10 @@
 i3 = {}
 
+local storage = core.get_mod_storage()
+local slz, dslz = core.serialize, core.deserialize
+local pdata = dslz(storage:get_string "pdata") or {}
+
 -- Caches
-local pdata         = {}
 local init_items    = {}
 local searches      = {}
 local recipes_cache = {}
@@ -16,7 +19,8 @@ local progressive_mode = core.settings:get_bool "i3_progressive_mode" and not(co
 local damage_enabled = core.settings:get_bool "enable_damage"
 
 local __3darmor, __skinsdb, __awards
-local sfinv, unified_inventory, old_unified_inventory_fn
+local __sfinv, old_sfinv_fn
+local __unified_inventory, old_unified_inventory_fn
 
 local http = core.request_http_api()
 local singleplayer = core.is_singleplayer()
@@ -37,6 +41,7 @@ local write_json = core.write_json
 local get_inv = core.get_inventory
 local chat_send = core.chat_send_player
 local show_formspec = core.show_formspec
+local pos_to_string = core.pos_to_string
 local check_privs = core.check_player_privs
 local globalstep = core.register_globalstep
 local on_shutdown = core.register_on_shutdown
@@ -45,9 +50,8 @@ local get_craft_result = core.get_craft_result
 local translate = minetest.get_translated_string
 local on_joinplayer = core.register_on_joinplayer
 local get_all_recipes = core.get_all_craft_recipes
-local slz, dslz = core.serialize, core.deserialize
-local on_mods_loaded = core.register_on_mods_loaded
 local on_leaveplayer = core.register_on_leaveplayer
+local on_mods_loaded = core.register_on_mods_loaded
 local get_player_info = core.get_player_information
 local create_inventory = core.create_detached_inventory
 local on_receive_fields = core.register_on_player_receive_fields
@@ -73,7 +77,8 @@ local min, max, floor, ceil, random =
 local pairs, ipairs, next, type, setmetatable, tonum, unpack, select =
 	pairs, ipairs, next, type, setmetatable, tonumber, unpack, select
 
-local vec_add, vec_mul = vector.add, vector.multiply
+local vec_new, vec_add, vec_mul, vec_eq, vec_round =
+	vector.new, vector.add, vector.multiply, vector.equals, vector.round
 
 local MAX_FAVS = 6
 local ITEM_BTN_SIZE = 1.1
@@ -81,13 +86,14 @@ local ITEM_BTN_SIZE = 1.1
 local INV_SIZE = 36
 local HOTBAR_COUNT = 9
 
+-- Players data interval
+local SAVE_INTERVAL = 600
+
 -- Progressive mode
 local POLL_FREQ = 0.25
 local HUD_TIMER_MAX = 1.5
 
 local MIN_FORMSPEC_VERSION = 4
-
-local META_SAVES = {"bag_size", "waypoints"}
 
 local BAG_SIZES = {
 	small  = INV_SIZE + 3,
@@ -465,18 +471,6 @@ local function table_replace(t, val, new)
 		if v == val then
 			t[k] = new
 		end
-	end
-end
-
-local function save_meta(player, entries)
-	local name = player:get_player_name()
-	local data = pdata[name]
-	if not data then return end
-
-	local meta = player:get_meta()
-
-	for _, entry in ipairs(entries) do
-		meta:set_string(entry, slz(data[entry]))
 	end
 end
 
@@ -1249,8 +1243,6 @@ local function select_item(player, name, data, _f)
 
 	if not item then
 		return
-	elseif sub(item, -4) == "_inv" then
-		item = sub(item, 1, -5)
 	elseif sub(item, 1, 1) == "_" then
 		item = sub(item, 2)
 	elseif sub(item, 1, 6) == "group|" then
@@ -1839,7 +1831,7 @@ local function get_items_fs(fs, data, extend)
 		local Y = round((i % ipp - X) / rows + 1, 0)
 		Y = Y - (Y * (extend and 0.085 or 0.035)) + 0.95
 
-		fs[#fs + 1] = fmt("item_image_button", X, Y, size, size, item, fmt("%s_inv", item), "")
+		fs[#fs + 1] = fmt("item_image_button", X, Y, size, size, item, item, "")
 	end
 end
 
@@ -1982,7 +1974,7 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 	end
 end
 
-local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
+local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 	fs(fmt("box[0,%f;4.9,0.6;#bababa25]", yextra + 1.1))
 	fs("label", 0, yextra + 0.85, ES"Waypoint name:")
 	fs(fmt("field[0.1,%f;4.8,0.6;waypoint_name;;]", yextra + 1.1))
@@ -2014,6 +2006,10 @@ local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
 
 		fs("label", 0.15, y + 0.33, clr(fmt("#%s", hex), waypoint_name))
 
+		fs("tooltip", 0, y, ctn_len - 2.5, 0.65,
+			fmt("Name: %s\nPosition:%s", clr("#ff0", v.name),
+				pos_to_string(v.pos, 0):sub(2,-2):gsub("(%-*%d+)", clr("#ff0", " %1"))))
+
 		local del = fmt("waypoint_%u_delete", i)
 		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", del, PNG.trash, PNG.trash_hover))
 		fs("image_button", ctn_len - 0.5, yi, icon_size, icon_size, "", del, "")
@@ -2029,7 +2025,7 @@ local function get_waypoint_fs(fs, data, name, yextra, ctn_len)
 		fs("image_button", ctn_len - 1.5, yi, icon_size, icon_size, "", vsb, "")
 		fs(fmt("tooltip[%s;%s]", vsb, v.hide and ES"Show waypoint" or ES"Hide waypoint"))
 
-		if check_privs(name, {teleport = true}) then
+		if check_privs(player, {teleport = true}) then
 			local tp = fmt("waypoint_%u_teleport", i)
 
 			fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
@@ -2047,23 +2043,25 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 	local name = player:get_player_name()
 	add_subtitle(fs, "player_name", 0, ctn_len, 22, true, ESC(name))
 
-	local hp = damage_enabled and (data.hp or player:get_hp()) or 20
-	local half = ceil((hp / 2) % 1)
-	local hearts = (hp / 2) + half
-	local heart_size = 0.35
-	local heart_x, heart_h = 0.65, yoffset + 0.75
-
-	for i = 1, 10 do
-		fs("image", heart_x + ((i - 1) * (heart_size + 0.1)), heart_h,
-			heart_size, heart_size, PNG.heart_grey)
-	end
-
 	if damage_enabled then
+		local hp = data.hp or player:get_hp() or 20
+		local half = ceil((hp / 2) % 1)
+		local hearts = (hp / 2) + half
+		local heart_size = 0.35
+		local heart_x, heart_h = 0.65, yoffset + 0.75
+
+		for i = 1, 10 do
+			fs("image", heart_x + ((i - 1) * (heart_size + 0.1)), heart_h,
+				heart_size, heart_size, PNG.heart_grey)
+		end
+
 		for i = 1, hearts do
 			fs("image", heart_x + ((i - 1) * (heart_size + 0.1)), heart_h,
 				heart_size, heart_size,
 				(half == 1 and i == floor(hearts)) and PNG.heart_half or PNG.heart)
 		end
+	else
+		yoffset = yoffset - 0.5
 	end
 
 	fs(fmt("list[current_player;craft;%f,%f;3,3;]", 0, yoffset + 1.45))
@@ -2076,7 +2074,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 		fs("image", 4.45, yoffset + 3.75, 1, 1, PNG.trash)
 	end
 
-	local yextra = 5.5
+	local yextra = damage_enabled and 5.5 or 5
 
 	for i, title in ipairs(SUBCAT) do
 		local btn_name = fmt("btn_%s", title)
@@ -2143,7 +2141,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 		end
 
 	elseif data.subcat == 5 then
-		get_waypoint_fs(fs, data, name, yextra, ctn_len)
+		get_waypoint_fs(fs, data, player, yextra, ctn_len)
 	end
 end
 
@@ -2254,6 +2252,7 @@ local function make_fs(player, data)
 end
 
 function i3.set_fs(player, _fs)
+	if not player or player.is_fake_player then return end
 	local name = player:get_player_name()
 	local data = pdata[name]
 	if not data then return end
@@ -2347,27 +2346,19 @@ end
 
 local function init_data(player, info)
 	local name = player:get_player_name()
-
-	pdata[name] = {
-		filter        = "",
-		pagenum       = 1,
-		items         = init_items,
-		items_raw     = init_items,
-		favs          = {},
-		export_counts = {},
-		current_tab   = 1,
-		subcat        = 1,
-		scrbar_inv    = 0,
-		lang_code     = get_lang_code(info),
-	}
-
+	pdata[name] = pdata[name] or {}
 	local data = pdata[name]
-	local meta = player:get_meta()
 
-	for i = 1, #META_SAVES do
-		local recover = META_SAVES[i]
-		data[recover] = dslz(meta:get_string(recover))
-	end
+	data.filter        = ""
+	data.pagenum       = 1
+	data.items         = init_items
+	data.items_raw     = init_items
+	data.favs          = {}
+	data.export_counts = {}
+	data.current_tab   = 1
+	data.subcat        = 1
+	data.scrbar_inv    = 0
+	data.lang_code     = get_lang_code(info)
 
 	after(0, set_fs, player)
 end
@@ -2534,7 +2525,7 @@ local function get_inventory_fs(player, data, fs)
 
 	local award_list, award_list_nb
 	local awards_unlocked = 0
-	local max_val = 12
+	local max_val = damage_enabled and 12 or 7
 
 	if __3darmor and data.subcat == 2 then
 		if data.scrbar_inv >= max_val then
@@ -2571,7 +2562,7 @@ local function get_inventory_fs(player, data, fs)
 		scrollbar[%f,0.2;0.2,%f;vertical;scrbar_inv;%u]
 		scrollbaroptions[arrows=default;thumbsize=0;max=1000]
 	]],
-	(max_val * 4) / 15, max_val, 9.8, ctn_hgt, data.scrbar_inv))
+	(max_val * 4) / 12, max_val, 9.8, ctn_hgt, data.scrbar_inv))
 
 	fs(fmt("scroll_container[3.9,0.2;%f,%f;scrbar_inv;vertical]", ctn_len, ctn_hgt))
 
@@ -2629,10 +2620,13 @@ i3.new_tab {
 					remove(data.waypoints, id)
 
 				elseif action == "teleport" then
-					local pos = waypoint.pos
+					local pos = vec_new(waypoint.pos)
 					pos.y = pos.y + 0.5
 
+					local vel = player:get_velocity()
+					player:add_velocity(vec_mul(vel, -1))
 					player:set_pos(pos)
+
 					msg(name, fmt("Teleported to %s", clr("#ff0", waypoint.name)))
 
 				elseif action == "refresh" then
@@ -2679,6 +2673,14 @@ i3.new_tab {
 			return
 
 		elseif fields.waypoint_add then
+			local pos = player:get_pos()
+
+			for _, v in ipairs(data.waypoints) do
+				if vec_eq(vec_round(pos), vec_round(v.pos)) then
+					return msg(name, "You already set a waypoint at this position")
+				end
+			end
+
 			local waypoint = fields.waypoint_name
 
 			if fields.waypoint_name == "" then
@@ -2686,7 +2688,6 @@ i3.new_tab {
 			end
 
 			local color = random(0xffffff)
-			local pos = player:get_pos()
 
 			local id = player:hud_add {
 				hud_elem_type = "waypoint",
@@ -2746,7 +2747,6 @@ end
 
 if rawget(_G, "skins") then
 	__skinsdb = true
-	insert(META_SAVES, "skin_id")
 end
 
 if rawget(_G, "awards") then
@@ -2772,22 +2772,20 @@ if rawget(_G, "awards") then
 	core.register_on_dieplayer(set_fs)
 end
 
-core.register_on_chatcommand(function(name, command, params)
-	if sub(command, 1, 5) == "grant" then
-		params = split(params, " ")
-
-		for _, v in ipairs(params) do
-			if find(v, "creative") then
-				local data = pdata[name]
-				reset_data(data)
-				data.favs = {}
-				break
-			end
-		end
-	end
-
+core.register_on_chatcommand(function(name)
 	local player = core.get_player_by_name(name)
 	after(0, set_fs, player)
+end)
+
+core.register_on_priv_grant(function(name, _, priv)
+	if priv == "creative" or priv == "all" then
+		local data = pdata[name]
+		reset_data(data)
+		data.favs = {}
+
+		local player = core.get_player_by_name(name)
+		after(0, set_fs, player)
+	end
 end)
 
 i3.register_craft_type("digging", {
@@ -2955,15 +2953,17 @@ end
 on_mods_loaded(function()
 	get_init_items()
 
-	sfinv = rawget(_G, "sfinv")
+	__sfinv = rawget(_G, "sfinv")
 
-	if sfinv then
+	if __sfinv then
+		old_sfinv_fn = sfinv.set_player_inventory_formspec
+		function sfinv.set_player_inventory_formspec() return end
 		sfinv.enabled = false
 	end
 
-	unified_inventory = rawget(_G, "unified_inventory")
+	__unified_inventory = rawget(_G, "unified_inventory")
 
-	if unified_inventory then
+	if __unified_inventory then
 		old_unified_inventory_fn = unified_inventory.set_inventory_formspec
 		function unified_inventory.set_inventory_formspec() return end
 	end
@@ -3045,14 +3045,15 @@ on_joinplayer(function(player)
 	local info = get_player_info(name)
 
 	if get_formspec_version(info) < MIN_FORMSPEC_VERSION then
-		if sfinv then
+		if __sfinv then
+			sfinv.set_player_inventory_formspec = old_sfinv_fn
 			sfinv.enabled = true
 		end
 
-		if unified_inventory then
+		if __unified_inventory then
 			unified_inventory.set_inventory_formspec = old_unified_inventory_fn
 
-			if sfinv then
+			if __sfinv then
 				sfinv.enabled = false
 			end
 		end
@@ -3084,21 +3085,45 @@ core.register_on_dieplayer(function(player)
 	set_fs(player)
 end)
 
-on_leaveplayer(function(player)
-	save_meta(player, META_SAVES)
+local META_SAVES = {
+	bag_size = true,
+	waypoints = true,
+	skin_id = true,
+	inv_items = true,
+	known_recipes = true,
+}
 
-	local name = player:get_player_name()
-	pdata[name] = nil
-end)
+local function save_data(player_name)
+	local _pdata = copy(pdata)
 
-on_shutdown(function()
-	local players = get_players()
+	for name, v in pairs(_pdata) do
+	for dat in pairs(v) do
+		if not META_SAVES[dat] then
+			_pdata[name][dat] = nil
 
-	for i = 1, #players do
-		local player = players[i]
-		save_meta(player, META_SAVES)
+			if player_name then
+				pdata[player_name][dat] = nil -- To free up some memory
+			end
+		end
 	end
+	end
+
+	storage:set_string("pdata", slz(_pdata))
+end
+
+on_leaveplayer(function(player)
+	local name = player:get_player_name()
+	save_data(name)
 end)
+
+on_shutdown(save_data)
+
+local function routine()
+	save_data()
+	after(SAVE_INTERVAL, routine)
+end
+
+after(SAVE_INTERVAL, routine)
 
 on_receive_fields(function(player, formname, fields)
 	if formname ~= "" then
@@ -3348,11 +3373,10 @@ if progressive_mode then
 
 	on_joinplayer(function(player)
 		local name = player:get_player_name()
-		local meta = player:get_meta()
 		local data = pdata[name]
 
-		data.inv_items = dslz(meta:get_string "inv_items") or {}
-		data.known_recipes = dslz(meta:get_string "known_recipes") or 0
+		data.inv_items = data.inv_items or {}
+		data.known_recipes = data.known_recipes or 0
 
 		local items = get_filtered_items(player, data)
 		data.items_raw = items
@@ -3362,8 +3386,6 @@ if progressive_mode then
 			init_hud(player, data)
 		end
 	end)
-
-	table_merge(META_SAVES, {"inv_items", "known_recipes"})
 end
 
 local bag_recipes = {
