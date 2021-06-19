@@ -2561,9 +2561,7 @@ local function get_inventory_fs(player, data, fs)
 	(max_val * 4) / 12, max_val, 9.8, ctn_hgt, data.scrbar_inv))
 
 	fs(fmt("scroll_container[3.9,0.2;%f,%f;scrbar_inv;vertical]", ctn_len, ctn_hgt))
-
-	get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb)
-
+		get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb)
 	fs("scroll_container_end[]")
 
 	local btn = {
@@ -2969,7 +2967,7 @@ local function init_backpack(player)
 	local data = pdata[name]
 	local inv = player:get_inventory()
 
-	inv:set_size("main", INV_SIZE)
+	inv:set_size("main", data.bag_size and BAG_SIZES[data.bag_size] or INV_SIZE)
 
 	data.bag = create_inventory(fmt("%s_backpack", name), {
 		allow_put = function(_inv, listname, _, stack)
@@ -3010,7 +3008,6 @@ local function init_backpack(player)
 
 	if data.bag_size then
 		data.bag:set_stack("main", 1, fmt("i3:bag_%s", data.bag_size))
-		inv:set_size("main", BAG_SIZES[data.bag_size])
 	end
 end
 
