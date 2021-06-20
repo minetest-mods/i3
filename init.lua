@@ -2355,6 +2355,7 @@ local function init_data(player, info)
 	data.subcat        = 1
 	data.scrbar_inv    = 0
 	data.lang_code     = get_lang_code(info)
+	data.fs_version    = info.formspec_version
 
 	after(0, set_fs, player)
 end
@@ -2513,7 +2514,7 @@ local function get_inventory_fs(player, data, fs)
 		--fs("style[player_model;bgcolor=black]")
 		fs("model", 0.2, 0.2, armor_skin and 4 or 3.4, ctn_hgt,
 			"player_model", props.mesh, textures, "0,-150", "false", "false",
-			fmt("%u,%u", anim.x, anim.y))
+			fmt("%u,%u%s", anim.x, anim.y, data.fs_version >= 5 and ";30" or ""))
 	else
 		local size = 2.5
 		fs("image", 0.7, 0.2, size, size * props.visual_size.y, props.textures[1])
