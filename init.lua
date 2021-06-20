@@ -2511,7 +2511,7 @@ local function get_inventory_fs(player, data, fs)
 		local textures = concat(t, ","):gsub("!", ",")
 
 		--fs("style[player_model;bgcolor=black]")
-		fs("model", 0.2, 0.2, armor_skin and 4 or 3.4, armor_skin and ctn_hgt or 6.1,
+		fs("model", 0.2, 0.2, armor_skin and 4 or 3.4, ctn_hgt,
 			"player_model", props.mesh, textures, "0,-150", "false", "false",
 			fmt("%u,%u", anim.x, anim.y))
 	else
@@ -3034,9 +3034,9 @@ end
 
 on_joinplayer(function(player)
 	local name = player:get_player_name()
-	local info = get_player_info(name)
+	local info = get_player_info and get_player_info(name)
 
-	if get_formspec_version(info) < MIN_FORMSPEC_VERSION then
+	if not info or get_formspec_version(info) < MIN_FORMSPEC_VERSION then
 		if __sfinv then
 			sfinv.set_player_inventory_formspec = old_sfinv_fn
 			sfinv.enabled = true
@@ -3049,6 +3049,8 @@ on_joinplayer(function(player)
 				sfinv.enabled = false
 			end
 		end
+
+		pdata[name] = nil
 
 		return outdated(name)
 	end
