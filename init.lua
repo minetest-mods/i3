@@ -163,7 +163,7 @@ local function fmt(elem, ...)
 end
 
 local function clean_name(item)
-	if sub(item, 1, 1) == ":" or sub(item, 1, 1) == " " then
+	if sub(item, 1, 1) == ":" or sub(item, 1, 1) == " " or sub(item, 1, 1) == "_" then
 		item = sub(item, 2)
 	end
 
@@ -801,12 +801,13 @@ local function groups_to_items(groups, get_all)
 		local stereotype = group_stereotypes[group]
 		local def = reg_items[stereotype]
 
-		if def and show_item(def) then
+		if show_item(def) then
 			return stereotype
 		end
 	end
 
 	local names = {}
+
 	for name, def in pairs(reg_items) do
 		if show_item(def) and item_has_groups(def.groups, groups) then
 			if get_all then
@@ -1102,8 +1103,10 @@ local function select_item(player, name, data, _f)
 				local i = 1
 
 				for _, v in ipairs(items) do
-					insert(data.alt_items, idx + i, v)
-					i = i + 1
+					if show_item(reg_items[clean_name(v)]) then
+						insert(data.alt_items, idx + i, v)
+						i = i + 1
+					end
 				end
 			end
 		end
