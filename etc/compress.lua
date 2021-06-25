@@ -31,9 +31,29 @@ local to_compress = {
 		by = {"lava", "river_water", "water"}
 	},
 
+	["butterflies:butterfly_white"] = {
+		replace = "white",
+		by = {"red", "violet"}
+	},
+
 	["default:wood"] = {
 		replace = "wood",
 		by = wood_types,
+	},
+
+	["default:tree"] = {
+		replace = "tree",
+		by = {"acacia_tree", "aspen_tree", "jungletree", "pine_tree"},
+	},
+
+	["default:grass_1"] = {
+		replace = "grass_1",
+		by = {"dry_grass_1", "junglegrass", "marram_grass_1", "fern_1"},
+	},
+
+	["carts:rail"] = {
+		replace = "rail",
+		by = {"brakerail", "powerrail"},
 	},
 
 	["default:sapling"] = {
@@ -56,6 +76,11 @@ local to_compress = {
 		by = {"clay", "coal", "copper", "iron", "tin"}
 	},
 
+	["default:gold_ingot"] = {
+		replace = "gold_ingot",
+		by = {"bronze_ingot", "copper_ingot", "steel_ingot", "tin_ingot", "clay_brick"}
+	},
+
 	["default:leaves"] = {
 		replace = "leaves",
 		by = {
@@ -66,6 +91,8 @@ local to_compress = {
 			"blueberry_bush_leaves_with_berries",
 			"bush_leaves",
 			"jungleleaves",
+			"pine_bush_needles",
+			"pine_needles",
 		},
 	},
 
@@ -147,6 +174,11 @@ local to_compress = {
 		by = material_tools
 	},
 
+	["farming:hoe_steel"] = {
+		replace = "steel",
+		by = {"wood", "stone"}
+	},
+
 	["stairs:slab_wood"] = {
 		replace = "wood",
 		by = material_stairs
@@ -166,6 +198,11 @@ local to_compress = {
 		replace = "wood",
 		by = material_stairs
 	},
+
+	["walls:cobble"] = {
+		replace = "cobble",
+		by = {"desertcobble", "mossycobble"}
+	},
 }
 
 local compressed = {}
@@ -173,9 +210,8 @@ local compressed = {}
 for k, v in pairs(to_compress) do
 	compressed[k] = compressed[k] or {}
 
-	for _, str in ipairs(v.by) do		
-		local a, b = k:match("(.*):(.*)")
-		local it = fmt("%s:%s", a, b:gsub(v.replace, str))
+	for _, str in ipairs(v.by) do
+		local it = k:gsub(v.replace, str)
 		insert(compressed[k], it)
 	end
 end

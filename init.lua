@@ -460,12 +460,12 @@ function i3.get_search_filters()
 	return search_filters
 end
 
-local function compression_active()
-	return item_compression and not next(recipe_filters)
+local function compression_active(data)
+	return item_compression and not next(recipe_filters) and data.filter == ""
 end
 
-local function compressible(item)
-	return compression_active() and compress_groups[item]
+local function compressible(item, data)
+	return compression_active(data) and compress_groups[item]
 end
 
 local function weird_desc(str)
@@ -1064,7 +1064,7 @@ local function select_item(player, name, data, _f)
 
 	if not item then return end
 
-	if compressible(item) then
+	if compressible(item, data) then
 		local idx
 
 		for i = 1, #data.items do
@@ -1662,7 +1662,7 @@ local function get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
 end
 
 local function get_items_fs(fs, data, extend)
-	if compression_active() then
+	if compression_active(data) then
 		local new = {}
 
 		for i = 1, #data.items do
@@ -1722,7 +1722,7 @@ local function get_items_fs(fs, data, extend)
 
 			fs[#fs + 1] = fmt("item_image_button", X, Y, size, size, name, item, "")
 
-			if compressible(item) then
+			if compressible(item, data) then
 				local expand = data.expand == name
 
 				fs(fmt("tooltip[%s;%s]", item, expand and ES"Click to hide" or ES"Click to expand"))
