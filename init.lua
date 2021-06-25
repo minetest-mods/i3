@@ -1,6 +1,6 @@
 i3 = {}
 
-local modpath = minetest.get_modpath "i3"
+local modpath = core.get_modpath "i3"
 local storage = core.get_mod_storage()
 local slz, dslz = core.serialize, core.deserialize
 local pdata = dslz(storage:get_string "pdata") or {}
@@ -15,7 +15,11 @@ local replacements  = {fuel = {}}
 local toolrepair
 
 local tabs = {}
-local compress_groups, compressed = loadfile(modpath .. "/compress.lua")()
+
+local model_aliases = loadfile(modpath .. "/etc/model_aliases.lua")()
+local PNG, styles, fs_elements = loadfile(modpath .. "/etc/styles.lua")()
+local compress_groups, compressed = loadfile(modpath .. "/etc/compress.lua")()
+local group_stereotypes, group_names = loadfile(modpath .. "/etc/groups.lua")()
 
 local progressive_mode = core.settings:get_bool "i3_progressive_mode"
 local item_compression = core.settings:get_bool "i3_item_compression"
@@ -40,7 +44,7 @@ local reg_entities = core.registered_entities
 local reg_aliases = core.registered_aliases
 
 local check_privs = core.check_player_privs
-local translate = minetest.get_translated_string
+local translate = core.get_translated_string
 local create_inventory = core.create_detached_inventory
 
 local ESC = core.formspec_escape
@@ -96,117 +100,6 @@ local SUBCAT = {
 	"waypoints",
 }
 
-local PNG = {
-	bg = "i3_bg.png",
-	bg_full = "i3_bg_full.png",
-	bar = "i3_bar.png",
-	hotbar = "i3_hotbar.png",
-	search = "i3_search.png",
-	heart = "i3_heart.png",
-	heart_half = "i3_heart_half.png",
-	heart_grey = "i3_heart_grey.png",
-	prev = "i3_next.png^\\[transformFX",
-	next = "i3_next.png",
-	arrow = "i3_arrow.png",
-	trash = "i3_trash.png",
-	sort_az = "i3_sort_az.png",
-	sort_za = "i3_sort_za.png",
-	compress = "i3_compress.png",
-	fire = "i3_fire.png",
-	fire_anim = "i3_fire_anim.png",
-	book = "i3_book.png",
-	sign = "i3_sign.png",
-	cancel = "i3_cancel.png",
-	export = "i3_export.png",
-	slot = "i3_slot.png",
-	tab = "i3_tab.png",
-	tab_top = "i3_tab.png^\\[transformFY",
-	furnace_anim = "i3_furnace_anim.png",
-	bag = "i3_bag.png",
-	armor = "i3_armor.png",
-	awards = "i3_award.png",
-	skins = "i3_skin.png",
-	waypoints = "i3_waypoint.png",
-	teleport = "i3_teleport.png",
-	add = "i3_add.png",
-	refresh = "i3_refresh.png",
-	visible = "i3_visible.png^\\[brighten",
-	nonvisible = "i3_non_visible.png",
-	exit = "i3_exit.png",
-
-	cancel_hover = "i3_cancel.png^\\[brighten",
-	search_hover = "i3_search.png^\\[brighten",
-	export_hover = "i3_export.png^\\[brighten",
-	trash_hover = "i3_trash.png^\\[brighten^\\[colorize:#f00:100",
-	compress_hover = "i3_compress.png^\\[brighten",
-	sort_az_hover = "i3_sort_az.png^\\[brighten",
-	sort_za_hover = "i3_sort_za.png^\\[brighten",
-	prev_hover = "i3_next_hover.png^\\[transformFX",
-	next_hover = "i3_next_hover.png",
-	tab_hover = "i3_tab_hover.png",
-	tab_hover_top = "i3_tab_hover.png^\\[transformFY",
-	bag_hover = "i3_bag_hover.png",
-	armor_hover = "i3_armor_hover.png",
-	awards_hover = "i3_award_hover.png",
-	skins_hover = "i3_skin_hover.png",
-	waypoints_hover = "i3_waypoint_hover.png",
-	teleport_hover = "i3_teleport.png^\\[brighten",
-	add_hover = "i3_add.png^\\[brighten",
-	refresh_hover = "i3_refresh.png^\\[brighten",
-	exit_hover = "i3_exit.png^\\[brighten",
-}
-
-local fs_elements = {
-	label = "label[%f,%f;%s]",
-	box = "box[%f,%f;%f,%f;%s]",
-	image = "image[%f,%f;%f,%f;%s]",
-	tooltip = "tooltip[%f,%f;%f,%f;%s]",
-	button = "button[%f,%f;%f,%f;%s;%s]",
-	item_image = "item_image[%f,%f;%f,%f;%s]",
-	hypertext = "hypertext[%f,%f;%f,%f;%s;%s]",
-	bg9 = "background9[%f,%f;%f,%f;%s;false;%u]",
-	scrollbar = "scrollbar[%f,%f;%f,%f;%s;%s;%u]",
-	model = "model[%f,%f;%f,%f;%s;%s;%s;%s;%s;%s;%s]",
-	image_button = "image_button[%f,%f;%f,%f;%s;%s;%s]",
-	animated_image = "animated_image[%f,%f;%f,%f;;%s;%u;%u]",
-	item_image_button = "item_image_button[%f,%f;%f,%f;%s;%s;%s]",
-}
-
-local styles = sprintf([[
-	style_type[field;border=false;bgcolor=transparent]
-	style_type[label,field;font_size=16]
-	style_type[button;border=false;content_offset=0]
-	style_type[image_button,item_image_button;border=false;sound=i3_click]
-	style_type[item_image_button;bgimg_hovered=%s]
-
-	style[pagenum,no_item,no_rcp;font=bold;font_size=18]
-	style[exit;fgimg=%s;fgimg_hovered=%s;content_offset=0]
-	style[cancel;fgimg=%s;fgimg_hovered=%s;content_offset=0]
-	style[search;fgimg=%s;fgimg_hovered=%s;content_offset=0]
-	style[prev_page;fgimg=%s;fgimg_hovered=%s]
-	style[next_page;fgimg=%s;fgimg_hovered=%s]
-	style[prev_recipe;fgimg=%s;fgimg_hovered=%s]
-	style[next_recipe;fgimg=%s;fgimg_hovered=%s]
-	style[prev_usage;fgimg=%s;fgimg_hovered=%s]
-	style[next_usage;fgimg=%s;fgimg_hovered=%s]
-	style[waypoint_add;fgimg=%s;fgimg_hovered=%s;content_offset=0]
-	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=18;content_offset=0;sound=i3_click]
-	style[craft_rcp,craft_usg;noclip=true;font_size=16;sound=i3_craft;
-	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
-	      bgimg_pressed=i3_btn9_pressed.png;bgimg_middle=4,6]
-]],
-PNG.slot,
-PNG.exit,     PNG.exit_hover,
-PNG.cancel,   PNG.cancel_hover,
-PNG.search,   PNG.search_hover,
-PNG.prev,     PNG.prev_hover,
-PNG.next,     PNG.next_hover,
-PNG.prev,     PNG.prev_hover,
-PNG.next,     PNG.next_hover,
-PNG.prev,     PNG.prev_hover,
-PNG.next,     PNG.next_hover,
-PNG.add,      PNG.add_hover)
-
 local function get_lang_code(info)
 	return info and info.lang_code
 end
@@ -228,77 +121,6 @@ local old_is_creative_enabled = core.is_creative_enabled
 function core.is_creative_enabled(name)
 	return check_privs(name, {creative = true}) or old_is_creative_enabled(name)
 end
-
-i3.group_stereotypes = {
-	dye = "dye:white",
-	wool = "wool:white",
-	wood = "default:wood",
-	tree = "default:tree",
-	sand = "default:sand",
-	glass = "default:glass",
-	stick = "default:stick",
-	stone = "default:stone",
-	leaves = "default:leaves",
-	coal = "default:coal_lump",
-	vessel = "vessels:glass_bottle",
-	flower = "flowers:dandelion_yellow",
-	water_bucket = "bucket:bucket_water",
-	mesecon_conductor_craftable = "mesecons:wire_00000000_off",
-}
-
-local group_names = {
-	dye = S"Any dye",
-	coal = S"Any coal",
-	sand = S"Any sand",
-	tree = S"Any tree",
-	wool = S"Any wool",
-	glass = S"Any glass",
-	stick = S"Any stick",
-	stone = S"Any stone",
-	carpet = S"Any carpet",
-	flower = S"Any flower",
-	leaves = S"Any leaves",
-	vessel = S"Any vessel",
-	wood = S"Any wood planks",
-	mushroom = S"Any mushroom",
-
-	["color_red,flower"] = S"Any red flower",
-	["color_blue,flower"] = S"Any blue flower",
-	["color_black,flower"] = S"Any black flower",
-	["color_white,flower"] = S"Any white flower",
-	["color_green,flower"] = S"Any green flower",
-	["color_orange,flower"] = S"Any orange flower",
-	["color_yellow,flower"] = S"Any yellow flower",
-	["color_violet,flower"] = S"Any violet flower",
-
-	["color_red,dye"] = S"Any red dye",
-	["color_blue,dye"] = S"Any blue dye",
-	["color_grey,dye"] = S"Any grey dye",
-	["color_pink,dye"] = S"Any pink dye",
-	["color_cyan,dye"] = S"Any cyan dye",
-	["color_black,dye"] = S"Any black dye",
-	["color_white,dye"] = S"Any white dye",
-	["color_brown,dye"] = S"Any brown dye",
-	["color_green,dye"] = S"Any green dye",
-	["color_orange,dye"] = S"Any orange dye",
-	["color_yellow,dye"] = S"Any yellow dye",
-	["color_violet,dye"] = S"Any violet dye",
-	["color_magenta,dye"] = S"Any magenta dye",
-	["color_dark_grey,dye"] = S"Any dark grey dye",
-	["color_dark_green,dye"] = S"Any dark green dye",
-}
-
-i3.model_alias = {
-	["boats:boat"] = {name = "boats:boat", drawtype = "entity"},
-	["carts:cart"] = {name = "carts:cart", drawtype = "entity", frames = "0,0"},
-	["default:chest"] = {name = "default:chest_open"},
-	["default:chest_locked"] = {name = "default:chest_locked_open"},
-	["doors:door_wood"] = {name = "doors:door_wood_a"},
-	["doors:door_glass"] = {name = "doors:door_glass_a"},
-	["doors:door_obsidian_glass"] = {name = "doors:door_obsidian_glass_a"},
-	["doors:door_steel"] = {name = "doors:door_steel_a"},
-	["xpanes:door_steel_bar"] = {name = "xpanes:door_steel_bar_a"},
-}
 
 local function err(str)
 	return log("error", str)
@@ -976,7 +798,7 @@ end
 local function groups_to_items(groups, get_all)
 	if not get_all and #groups == 1 then
 		local group = groups[1]
-		local stereotype = i3.group_stereotypes[group]
+		local stereotype = group_stereotypes[group]
 		local def = reg_items[stereotype]
 
 		if def and show_item(def) then
@@ -1756,7 +1578,7 @@ local function get_header(fs, data)
 	fs("style_type[label;font=normal;font_size=16]")
 
 	local def = reg_items[data.query_item]
-	local model_alias = i3.model_alias[data.query_item]
+	local model_alias = model_aliases[data.query_item]
 
 	if def.drawtype == "mesh" or model_alias then
 		get_model_fs(fs, data, def, model_alias)
@@ -3492,5 +3314,5 @@ for size, rcp in pairs(bag_recipes) do
 	core.register_craft {type = "fuel", recipe = bagname, burntime = 3}
 end
 
---dofile(modpath .. "/test_tabs.lua")
---dofile(modpath .. "/test_custom_recipes.lua")
+--dofile(modpath .. "/etc/test_tabs.lua")
+--dofile(modpath .. "/etc/test_custom_recipes.lua")

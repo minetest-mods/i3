@@ -141,7 +141,7 @@ Recipes can be registered from a given URL containing a JSON file (HTTP support 
 
 ```Lua
 i3.register_craft({
-	url = "https://raw.githubusercontent.com/minetest-mods/i3/main/test_online_recipe.json"
+	url = "https://raw.githubusercontent.com/minetest-mods/i3/main/etc/test_online_recipe.json"
 })
 ```
 
@@ -236,15 +236,6 @@ Returns a map of search filters, indexed by name.
 ---
 
 ### Miscellaneous
-
-#### `i3.group_stereotypes`
-
-This is the table indexing the item groups by stereotypes.
-You can add a stereotype like so:
-
-```Lua
-i3.group_stereotypes.radioactive = "mod:item"
-```
 
 #### `i3.export_url`
 
