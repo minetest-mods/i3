@@ -1,5 +1,6 @@
 i3 = {}
 
+local modpath = minetest.get_modpath "i3"
 local storage = core.get_mod_storage()
 local slz, dslz = core.serialize, core.deserialize
 local pdata = dslz(storage:get_string "pdata") or {}
@@ -14,8 +15,10 @@ local replacements  = {fuel = {}}
 local toolrepair
 
 local tabs = {}
+local compress_groups, compressed = loadfile(modpath .. "/compress.lua")()
 
 local progressive_mode = core.settings:get_bool "i3_progressive_mode"
+local item_compression = core.settings:get_bool "i3_item_compression"
 local damage_enabled = core.settings:get_bool "enable_damage"
 
 local __3darmor, __skinsdb, __awards
@@ -25,6 +28,10 @@ local __unified_inventory, old_unified_inventory_fn
 local http = core.request_http_api()
 local singleplayer = core.is_singleplayer()
 
+local log = core.log
+local after = core.after
+local clr = core.colorize
+
 local reg_items = core.registered_items
 local reg_nodes = core.registered_nodes
 local reg_craftitems = core.registered_craftitems
@@ -32,29 +39,9 @@ local reg_tools = core.registered_tools
 local reg_entities = core.registered_entities
 local reg_aliases = core.registered_aliases
 
-local log = core.log
-local after = core.after
-local clr = core.colorize
-local parse_json = core.parse_json
-local write_json = core.write_json
-
-local get_inv = core.get_inventory
-local chat_send = core.chat_send_player
-local show_formspec = core.show_formspec
-local pos_to_string = core.pos_to_string
 local check_privs = core.check_player_privs
-local globalstep = core.register_globalstep
-local on_shutdown = core.register_on_shutdown
-local get_players = core.get_connected_players
-local get_craft_result = core.get_craft_result
 local translate = minetest.get_translated_string
-local on_joinplayer = core.register_on_joinplayer
-local get_all_recipes = core.get_all_craft_recipes
-local on_leaveplayer = core.register_on_leaveplayer
-local on_mods_loaded = core.register_on_mods_loaded
-local get_player_info = core.get_player_information
 local create_inventory = core.create_detached_inventory
-local on_receive_fields = core.register_on_player_receive_fields
 
 local ESC = core.formspec_escape
 local S = core.get_translator "i3"
@@ -233,7 +220,7 @@ local function outdated(name)
 		PNG.book,
 		"Your Minetest client is outdated.\nGet the latest version on minetest.net to use i3")
 
-	show_formspec(name, "i3", fs)
+	core.show_formspec(name, "i3", fs)
 end
 
 local old_is_creative_enabled = core.is_creative_enabled
@@ -318,7 +305,7 @@ local function err(str)
 end
 
 local function msg(name, str)
-	return chat_send(name, sprintf("[i3] %s", str))
+	return core.chat_send_player(name, sprintf("[i3] %s", str))
 end
 
 local function is_num(x)
@@ -500,7 +487,7 @@ function i3.register_craft(def)
 
 		http.fetch({url = def.url}, function(result)
 			if result.succeeded then
-				local t = parse_json(result.data)
+				local t = core.parse_json(result.data)
 				if is_table(t) then
 					return i3.register_craft(t)
 				end
@@ -651,6 +638,14 @@ function i3.get_search_filters()
 	return search_filters
 end
 
+local function compression_active()
+	return item_compression and not next(recipe_filters)
+end
+
+local function compressible(item)
+	return compression_active() and compress_groups[item]
+end
+
 local function weird_desc(str)
 	return not true_str(str) or find(str, "\n") or not find(str, "%u")
 end
@@ -734,7 +729,7 @@ local function get_filtered_items(player, data)
 end
 
 local function get_burntime(item)
-	return get_craft_result{method = "fuel", items = {item}}.time
+	return core.get_craft_result{method = "fuel", items = {item}}.time
 end
 
 local function cache_fuel(item)
@@ -755,6 +750,9 @@ local function show_item(def)
 end
 
 local function search(data)
+	data.alt_items = nil
+	data.expand = ""
+
 	local filter = data.filter
 
 	if searches[filter] then
@@ -923,7 +921,7 @@ local function cache_drops(name, drop)
 end
 
 local function cache_recipes(item)
-	local recipes = get_all_recipes(item)
+	local recipes = core.get_all_craft_recipes(item)
 
 	if replacements[item] then
 		local _recipes = {}
@@ -1241,36 +1239,82 @@ local function select_item(player, name, data, _f)
 		end
 	end
 
-	if not item then
-		return
-	elseif sub(item, 1, 1) == "_" then
-		item = sub(item, 2)
-	elseif sub(item, 1, 6) == "group|" then
-		item = match(item, "([%w:_]+)$")
+	if not item then return end
+
+	if compressible(item) then
+		local idx
+
+		for i = 1, #data.items do
+			local it = data.items[i]
+			if it == item then
+				idx = i
+				break
+			end
+		end
+
+		if data.expand ~= "" then
+			data.alt_items = nil
+
+			if item == data.expand then
+				data.expand = nil
+				return
+			end
+		end
+
+		if idx and item ~= data.expand then
+			data.alt_items = copy(data.items)
+			data.expand = item
+
+			if compress_groups[item] then
+				local items = copy(compress_groups[item])
+				insert(items, fmt("_%s", item))
+
+				sort(items, function(a, b)
+					if a:sub(1, 1) == "_" then
+						a = a:sub(2)
+					end
+
+					return a < b
+				end)
+
+				local i = 1
+
+				for _, v in ipairs(items) do
+					insert(data.alt_items, idx + i, v)
+					i = i + 1
+				end
+			end
+		end
+	else
+		if sub(item, 1, 1) == "_" then
+			item = sub(item, 2)
+		elseif sub(item, 1, 6) == "group|" then
+			item = match(item, "([%w:_]+)$")
+		end
+
+		item = reg_aliases[item] or item
+		if not reg_items[item] then return end
+
+		if core.is_creative_enabled(name) then
+			local stack = ItemStack(item)
+			local stackmax = stack:get_stack_max()
+			stack = fmt("%s %s", item, stackmax)
+			return get_stack(player, stack, clr("#ff0", fmt("%u x %s", stackmax, get_desc(item))))
+		end
+
+		if item == data.query_item then return end
+		local recipes, usages = get_recipes(player, item)
+
+		data.query_item = item
+		data.recipes    = recipes
+		data.usages     = usages
+		data.rnum       = 1
+		data.unum       = 1
+		data.scrbar_rcp = 1
+		data.scrbar_usg = 1
+		data.export_rcp = nil
+		data.export_usg = nil
 	end
-
-	item = reg_aliases[item] or item
-	if not reg_items[item] then return end
-
-	if core.is_creative_enabled(name) then
-		local stack = ItemStack(item)
-		local stackmax = stack:get_stack_max()
-		stack = fmt("%s %s", item, stackmax)
-		return get_stack(player, stack, clr("#ff0", fmt("%u x %s", stackmax, get_desc(item))))
-	end
-
-	if item == data.query_item then return end
-	local recipes, usages = get_recipes(player, item)
-
-	data.query_item = item
-	data.recipes    = recipes
-	data.usages     = usages
-	data.rnum       = 1
-	data.unum       = 1
-	data.scrbar_rcp = 1
-	data.scrbar_usg = 1
-	data.export_rcp = nil
-	data.export_usg = nil
 end
 
 local function repairable(tool)
@@ -1421,7 +1465,11 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 			fs(fmt("list[detached:i3_output_%s;main;%f,%f;1,1;]", rcp_usg, X + 0.11, Y))
 			fs("button",  X + 0.11, Y, ITEM_BTN_SIZE, ITEM_BTN_SIZE, _name, "")
 
-			local inv = get_inv {type = "detached", name = fmt("i3_output_%s", rcp_usg)}
+			local inv = core.get_inventory {
+				type = "detached",
+				name = fmt("i3_output_%s", rcp_usg)
+			}
+
 			inv:set_stack("main", 1, item)
 			pos = {x = X + 0.11, y = Y}
 		else
@@ -1789,6 +1837,20 @@ local function get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
 end
 
 local function get_items_fs(fs, data, extend)
+	if compression_active() then
+		local new = {}
+
+		for i = 1, #data.items do
+			local item = data.items[i]
+			if not compressed[item] then
+				new[#new + 1] = item
+			end
+		end
+
+		data.items = new
+	end
+
+	local items = data.alt_items or data.items
 	local rows = 8
 	local lines = extend and 12 or 9
 	local ipp = rows * lines
@@ -1799,17 +1861,17 @@ local function get_items_fs(fs, data, extend)
 	   fmt("field[%f,0.2;2.95,0.6;filter;;%s]", data.inv_width + 0.35, ESC(data.filter)),
 	   "field_close_on_enter[filter;false]")
 
-	fs("image_button", data.inv_width + 3.35, 0.35, 0.3, 0.3, "", "cancel", "")
+	fs("image_button", data.inv_width + 3.35, 0.35, 0.3,  0.3,  "", "cancel", "")
 	fs("image_button", data.inv_width + 3.85, 0.32, 0.35, 0.35, "", "search", "")
-	fs("image_button", data.inv_width + 5.27, 0.3, 0.35, 0.35, "", "prev_page", "")
-	fs("image_button", data.inv_width + 7.45, 0.3, 0.35, 0.35, "", "next_page", "")
+	fs("image_button", data.inv_width + 5.27, 0.3,  0.35, 0.35, "", "prev_page", "")
+	fs("image_button", data.inv_width + 7.45, 0.3,  0.35, 0.35, "", "next_page", "")
 
-	data.pagemax = max(1, ceil(#data.items / ipp))
+	data.pagemax = max(1, ceil(#items / ipp))
 
 	fs("button", data.inv_width + 5.6, 0.14, 1.88, 0.7, "pagenum",
 		fmt("%s / %u", clr("#ff0", data.pagenum), data.pagemax))
 
-	if #data.items == 0 then
+	if #items == 0 then
 		local lbl = ES"No item to show"
 
 		if next(recipe_filters) and #init_items > 0 and data.filter == "" then
@@ -1817,21 +1879,33 @@ local function get_items_fs(fs, data, extend)
 		end
 
 		fs("button", data.inv_width + 0.1, 3, 8, 1, "no_item", lbl)
-	end
+	else
+		local first_item = (data.pagenum - 1) * ipp
 
-	local first_item = (data.pagenum - 1) * ipp
+		for i = first_item, first_item + ipp - 1 do
+			local item = items[i + 1]
+			if not item then break end
 
-	for i = first_item, first_item + ipp - 1 do
-		local item = data.items[i + 1]
-		if not item then break end
+			local _compressed = item:sub(1, 1) == "_"
+			local name = _compressed and item:sub(2) or item
 
-		local X = i % rows
-		X = X - (X * 0.045) + data.inv_width + 0.28
+			local X = i % rows
+			      X = X - (X * 0.045) + data.inv_width + 0.28
 
-		local Y = round((i % ipp - X) / rows + 1, 0)
-		Y = Y - (Y * (extend and 0.085 or 0.035)) + 0.95
+			local Y = round((i % ipp - X) / rows + 1, 0)
+			      Y = Y - (Y * (extend and 0.085 or 0.035)) + 0.95
 
-		fs[#fs + 1] = fmt("item_image_button", X, Y, size, size, item, item, "")
+			fs[#fs + 1] = fmt("item_image_button", X, Y, size, size, name, item, "")
+
+			if compressible(item) then
+				local expand = data.expand == name
+
+				fs(fmt("tooltip[%s;%s]", item, expand and ES"Click to hide" or ES"Click to expand"))
+				fs("style_type[label;font=bold;font_size=20]")
+				fs("label", X + 0.65, Y + 0.7, expand and "-" or "+")
+				fs("style_type[label;font=normal;font_size=16]")
+			end
+		end
 	end
 end
 
@@ -2008,7 +2082,7 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 
 		fs("tooltip", 0, y, ctn_len - 2.5, 0.65,
 			fmt("Name: %s\nPosition:%s", clr("#ff0", v.name),
-				pos_to_string(v.pos, 0):sub(2,-2):gsub("(%-*%d+)", clr("#ff0", " %1"))))
+				core.pos_to_string(v.pos, 0):sub(2,-2):gsub("(%-*%d+)", clr("#ff0", " %1"))))
 
 		local del = fmt("waypoint_%u_delete", i)
 		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", del, PNG.trash, PNG.trash_hover))
@@ -2362,6 +2436,7 @@ end
 
 local function reset_data(data)
 	data.filter      = ""
+	data.expand      = ""
 	data.pagenum     = 1
 	data.rnum        = 1
 	data.unum        = 1
@@ -2372,6 +2447,7 @@ local function reset_data(data)
 	data.usages      = nil
 	data.export_rcp  = nil
 	data.export_usg  = nil
+	data.alt_items   = nil
 	data.items       = data.items_raw
 end
 
@@ -2937,14 +3013,14 @@ local function get_init_items()
 			usages  = usages_cache,
 		}
 
-		http.fetch_async{
+		http.fetch_async {
 			url = i3.export_url,
-			post_data = write_json(post_data),
+			post_data = core.write_json(post_data),
 		}
 	end
 end
 
-on_mods_loaded(function()
+core.register_on_mods_loaded(function()
 	get_init_items()
 
 	__sfinv = rawget(_G, "sfinv")
@@ -3033,9 +3109,9 @@ local function init_waypoints(player)
 	end
 end
 
-on_joinplayer(function(player)
+core.register_on_joinplayer(function(player)
 	local name = player:get_player_name()
-	local info = get_player_info and get_player_info(name)
+	local info = core.get_player_information and core.get_player_information(name)
 
 	if not info or get_formspec_version(info) < MIN_FORMSPEC_VERSION then
 		if __sfinv then
@@ -3106,12 +3182,12 @@ local function save_data(player_name)
 	storage:set_string("pdata", slz(_pdata))
 end
 
-on_leaveplayer(function(player)
+core.register_on_leaveplayer(function(player)
 	local name = player:get_player_name()
 	save_data(name)
 end)
 
-on_shutdown(save_data)
+core.register_on_shutdown(save_data)
 
 local function routine()
 	save_data()
@@ -3120,7 +3196,7 @@ end
 
 after(SAVE_INTERVAL, routine)
 
-on_receive_fields(function(player, formname, fields)
+core.register_on_player_receive_fields(function(player, formname, fields)
 	if formname ~= "" then
 		return false
 	end
@@ -3165,6 +3241,7 @@ if progressive_mode then
 
 		if is_group(item) then
 			local groups = extract_groups(item)
+
 			for i = 1, inv_items_size do
 				local def = reg_items[inv_items[i]]
 
@@ -3231,6 +3308,7 @@ if progressive_mode then
 
 		for i = 1, #stacks do
 			local stack = stacks[i]
+
 			if not stack:is_empty() then
 				local name = stack:get_name()
 				if reg_items[name] then
@@ -3321,7 +3399,8 @@ if progressive_mode then
 	-- Workaround. Need an engine call to detect when the contents of
 	-- the player inventory changed, instead.
 	local function poll_new_items()
-		local players = get_players()
+		local players = core.get_connected_players()
+
 		for i = 1, #players do
 			local player = players[i]
 			local name = player:get_player_name()
@@ -3351,8 +3430,9 @@ if progressive_mode then
 
 	poll_new_items()
 
-	globalstep(function()
-		local players = get_players()
+	core.register_globalstep(function()
+		local players = core.get_connected_players()
+
 		for i = 1, #players do
 			local player = players[i]
 			local name = player:get_player_name()
@@ -3366,7 +3446,7 @@ if progressive_mode then
 
 	i3.add_recipe_filter("Default progressive filter", progressive_filter)
 
-	on_joinplayer(function(player)
+	core.register_on_joinplayer(function(player)
 		local name = player:get_player_name()
 		local data = pdata[name]
 
@@ -3412,5 +3492,5 @@ for size, rcp in pairs(bag_recipes) do
 	core.register_craft {type = "fuel", recipe = bagname, burntime = 3}
 end
 
---dofile(core.get_modpath("i3") .. "/test_tabs.lua")
---dofile(core.get_modpath("i3") .. "/test_custom_recipes.lua")
+--dofile(modpath .. "/test_tabs.lua")
+--dofile(modpath .. "/test_custom_recipes.lua")
