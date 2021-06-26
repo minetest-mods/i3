@@ -631,11 +631,11 @@ end
 
 local function sort_by_category(data)
 	reset_compression(data)
-	local items = copy(data.items_raw)
+	local items = data.items_raw
 
 	if data.filter ~= "" then
 		search(data)
-		items = copy(data.items)
+		items = data.items
 	end
 
 	local new = {}
@@ -2301,6 +2301,10 @@ local function reset_data(data)
 	data.export_usg  = nil
 	data.alt_items   = nil
 	data.items       = data.items_raw
+
+	if data.current_itab > 1 then
+		sort_by_category(data)
+	end
 end
 
 local function rcp_fields(player, data, fields)
@@ -2326,6 +2330,10 @@ local function rcp_fields(player, data, fields)
 		data.pagenum = 1
 
 		search(data)
+
+		if data.current_itab > 1 then
+			sort_by_category(data)
+		end
 
 	elseif fields.prev_page or fields.next_page then
 		if data.pagemax == 1 then return end
@@ -3275,6 +3283,8 @@ if progressive_mode then
 				end
 
 				data.items_raw = items
+				data.current_itab = 1
+
 				search(data)
 				set_fs(player)
 			end
