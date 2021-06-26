@@ -3317,5 +3317,5 @@ for size, rcp in pairs(bag_recipes) do
 	core.register_craft {type = "fuel", recipe = bagname, burntime = 3}
 end
 
---dofile(modpath .. "/etc/test_tabs.lua")
---dofile(modpath .. "/etc/test_custom_recipes.lua")
+--dofile(modpath .. "/tests/test_tabs.lua")
+--dofile(modpath .. "/tests/test_custom_recipes.lua")

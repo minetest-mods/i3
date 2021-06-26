@@ -141,7 +141,7 @@ Recipes can be registered from a given URL containing a JSON file (HTTP support 
 
 ```Lua
 i3.register_craft({
-	url = "https://raw.githubusercontent.com/minetest-mods/i3/main/etc/test_online_recipe.json"
+	url = "https://raw.githubusercontent.com/minetest-mods/i3/main/tests/test_online_recipe.json"
 })
 ```
 
