@@ -26,79 +26,9 @@ local colors = {
 }
 
 local to_compress = {
-	["bucket:bucket_empty"] = {
-		replace = "empty",
-		by = {"lava", "river_water", "water"}
-	},
-
-	["butterflies:butterfly_white"] = {
-		replace = "white",
-		by = {"red", "violet"}
-	},
-
 	["default:wood"] = {
 		replace = "wood",
 		by = wood_types,
-	},
-
-	["default:tree"] = {
-		replace = "tree",
-		by = {"acacia_tree", "aspen_tree", "jungletree", "pine_tree"},
-	},
-
-	["default:grass_1"] = {
-		replace = "grass_1",
-		by = {"dry_grass_1", "junglegrass", "marram_grass_1", "fern_1"},
-	},
-
-	["carts:rail"] = {
-		replace = "rail",
-		by = {"brakerail", "powerrail"},
-	},
-
-	["default:sapling"] = {
-		replace = "sapling",
-		by = {
-			"acacia_bush_sapling",
-			"acacia_sapling",
-			"aspen_sapling",
-			"blueberry_bush_sapling",
-			"bush_sapling",
-			"emergent_jungle_sapling",
-			"junglesapling",
-			"pine_bush_sapling",
-			"pine_sapling"
-		}
-	},
-
-	["default:gold_lump"] = {
-		replace = "gold",
-		by = {"clay", "coal", "copper", "iron", "tin"}
-	},
-
-	["default:gold_ingot"] = {
-		replace = "gold_ingot",
-		by = {"bronze_ingot", "copper_ingot", "steel_ingot", "tin_ingot", "clay_brick"}
-	},
-
-	["default:leaves"] = {
-		replace = "leaves",
-		by = {
-			"acacia_bush_leaves",
-			"acacia_leaves",
-			"aspen_leaves",
-			"blueberry_bush_leaves",
-			"blueberry_bush_leaves_with_berries",
-			"bush_leaves",
-			"jungleleaves",
-			"pine_bush_needles",
-			"pine_needles",
-		},
-	},
-
-	["default:stone_with_diamond"] = {
-		replace = "diamond",
-		by = {"coal", "copper", "gold", "iron", "mese", "tin"},
 	},
 
 	["default:fence_wood"] = {
@@ -124,24 +54,6 @@ local to_compress = {
 	["doors:gate_wood_closed"] = {
 		replace = "wood",
 		by = wood_types,
-	},
-
-	["doors:door_wood"] = {
-		replace = "wood",
-		by = {"glass", "obsidian_glass", "steel"}
-	},
-
-	["flowers:geranium"] = {
-		replace = "geranium",
-		by = {
-			"chrysanthemum_green",
-			"dandelion_white",
-			"dandelion_yellow",
-			"rose",
-			"tulip",
-			"tulip_black",
-			"viola",
-		}
 	},
 
 	["wool:white"] = {

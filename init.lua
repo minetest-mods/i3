@@ -3059,6 +3059,7 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 			set_tab(player, tabname)
 			break
 		elseif sub(f, 1, 5) == "itab_" then
+			data.pagenum = 1
 			data.current_itab = tonum(f:sub(-1))
 			sort_by_category(data)
 		end
