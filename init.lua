@@ -7,7 +7,6 @@ local pdata = dslz(storage:get_string "pdata") or {}
 
 -- Caches
 local init_items    = {}
-local searches      = {}
 local recipes_cache = {}
 local usages_cache  = {}
 local fuel_cache    = {}
@@ -571,17 +570,15 @@ local function show_item(def)
 		def.description and def.description ~= ""
 end
 
-local function search(data)
+local function reset_compression(data)
 	data.alt_items = nil
 	data.expand = ""
+end
+
+local function search(data)
+	reset_compression(data)
 
 	local filter = data.filter
-
-	if searches[filter] then
-		data.items = searches[filter]
-		return
-	end
-
 	local opt = "^(.-)%+([%w_]+)=([%w_,]+)"
 	local search_filter = next(search_filters) and match(filter, opt)
 	local filters = {}
@@ -629,16 +626,36 @@ local function search(data)
 		end
 	end
 
-	if not next(recipe_filters) then
-		-- Cache the results only if searched 2 times
-		if searches[filter] == nil then
-			searches[filter] = false
-		else
-			searches[filter] = filtered_list
+	data.items = filtered_list
+end
+
+local function sort_by_category(data)
+	reset_compression(data)
+	local items = copy(data.items_raw)
+
+	if data.filter ~= "" then
+		search(data)
+		items = copy(data.items)
+	end
+
+	local new = {}
+
+	for i = 1, #items do
+		local item = items[i]
+		local to_add = true
+
+		if data.current_itab == 2 then
+			to_add = reg_nodes[item]
+		elseif data.current_itab == 3 then
+			to_add = reg_craftitems[item] or reg_tools[item]
+		end
+
+		if to_add then
+			new[#new + 1] = item
 		end
 	end
 
-	data.items = filtered_list
+	data.items = new
 end
 
 local function get_item_usages(item, recipe, added)
@@ -1661,7 +1678,7 @@ local function get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
 	fs("container_end[]")
 end
 
-local function get_items_fs(fs, data, extend)
+local function get_items_fs(fs, data, full_height)
 	if compression_active(data) then
 		local new = {}
 
@@ -1676,8 +1693,7 @@ local function get_items_fs(fs, data, extend)
 	end
 
 	local items = data.alt_items or data.items
-	local rows = 8
-	local lines = extend and 12 or 9
+	local rows, lines = 8, 12
 	local ipp = rows * lines
 	local size = 0.85
 
@@ -1718,7 +1734,7 @@ local function get_items_fs(fs, data, extend)
 			      X = X - (X * 0.045) + data.inv_width + 0.28
 
 			local Y = round((i % ipp - X) / rows + 1, 0)
-			      Y = Y - (Y * (extend and 0.085 or 0.035)) + 0.95
+			      Y = Y - (Y * 0.085) + 0.95
 
 			fs[#fs + 1] = fmt("item_image_button", X, Y, size, size, name, item, "")
 
@@ -1731,6 +1747,22 @@ local function get_items_fs(fs, data, extend)
 				fs("style_type[label;font=normal;font_size=16]")
 			end
 		end
+	end
+
+	local _tabs = {"All", "Nodes", "Items"}
+	local tab_len, tab_hgh = 1.8, 0.5
+
+	for i, title in ipairs(_tabs) do
+		local selected = i == data.current_itab
+
+		fs(fmt([[style_type[image_button;fgimg=%s;fgimg_hovered=%s;noclip=true;
+			font_size=16;textcolor=%s;content_offset=0;sound=i3_tab] ]],
+		selected and PNG.tab_small_hover or PNG.tab_small,
+		PNG.tab_small_hover, selected and "#fff" or "#ddd"))
+
+		fs("style_type[image_button:hovered;textcolor=#fff]")
+		fs("image_button", (data.inv_width - 0.65) + (i * (tab_len + 0.1)),
+			full_height, tab_len, tab_hgh, "", fmt("itab_%u", i), title)
 	end
 end
 
@@ -1753,21 +1785,15 @@ end
 local function get_panels(player, data, fs, full_height)
 	local _title   = {name = "title", height = 1.4}
 	local _favs    = {name = "favs",  height = 2.23}
-	local _items   = {name = "items", height = 9.69}
+	local _items   = {name = "items", height = full_height}
 	local _recipes = {name = "recipes", rcp = data.recipes, height = 4.045}
 	local _usages  = {name = "usages",  rcp = data.usages,  height = 4.045}
-	local panels, extend
+	local panels
 
 	if data.query_item then
 		panels = {_title, _recipes, _usages, _favs}
 	else
-		panels = {_items, _favs}
-
-		if #data.favs == 0 then
-			extend = true
-			remove(panels, 2)
-			_items.height = full_height
-		end
+		panels = {_items}
 	end
 
 	for idx = 1, #panels do
@@ -1787,7 +1813,7 @@ local function get_panels(player, data, fs, full_height)
 		if is_recipe or is_usage then
 			get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
 		elseif panel.name == "items" then
-			get_items_fs(fs, data, extend)
+			get_items_fs(fs, data, full_height)
 		elseif panel.name == "title" then
 			get_header(fs, data)
 		elseif panel.name == "favs" then
@@ -2251,6 +2277,7 @@ local function init_data(player, info)
 	data.favs          = {}
 	data.export_counts = {}
 	data.current_tab   = 1
+	data.current_itab  = 1
 	data.subcat        = 1
 	data.scrbar_inv    = 0
 	data.lang_code     = get_lang_code(info)
@@ -3035,6 +3062,9 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 			local tabname = sub(f, 5)
 			set_tab(player, tabname)
 			break
+		elseif sub(f, 1, 5) == "itab_" then
+			data.current_itab = tonum(f:sub(-1))
+			sort_by_category(data)
 		end
 	end
 
