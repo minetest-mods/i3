@@ -197,12 +197,12 @@ They can be used like so: `<optional_name> +<filter name>=<value1>,<value2>,<...
 Example usages:
 
 - `+groups=cracky,crumbly`: search for groups `cracky` and `crumbly` in all items.
-- `wood +groups=flammable +types=node`: search for group `flammable` amongst items which contain
-  `wood` in their names AND have a `node` drawtype.
+- `wood +groups=flammable`: search for group `flammable` amongst items which contain
+  `wood` in their names.
 
 Notes:
 - If `optional_name` is omitted, the search filter will apply to all items, without pre-filtering.
-- The `+groups` and `+types` filters are currently implemented by default.
+- The `+groups` filter is currently implemented by default.
 
 #### `i3.add_search_filter(name, function(item, values))`
 
