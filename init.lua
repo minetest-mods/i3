@@ -31,7 +31,6 @@ local __unified_inventory, old_unified_inventory_fn
 local http = core.request_http_api()
 local singleplayer = core.is_singleplayer()
 
-local log = core.log
 local after = core.after
 local clr = core.colorize
 
@@ -122,7 +121,7 @@ function core.is_creative_enabled(name)
 end
 
 local function err(str)
-	return log("error", str)
+	return core.log("error", str)
 end
 
 local function msg(name, str)
