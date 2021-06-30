@@ -38,7 +38,7 @@ i3.new_tab {
 
 Updates the current formspec. `extra_formspec` adds an additional formspec string.
 
-#### `i3.delete_tab(tabname)`
+#### `i3.remove_tab(tabname)`
 
 Deletes a tab by name.
 
@@ -178,7 +178,7 @@ end)
 
 Removes all recipe filters and adds a new one.
 
-#### `i3.delete_recipe_filter(name)`
+#### `i3.remove_recipe_filter(name)`
 
 Removes the recipe filter with the given `name`.
 

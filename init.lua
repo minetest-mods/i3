@@ -426,7 +426,7 @@ function i3.set_recipe_filter(name, f)
 	recipe_filters = {[name] = f}
 end
 
-function i3.delete_recipe_filter(name)
+function i3.remove_recipe_filter(name)
 	recipe_filters[name] = nil
 end
 
@@ -2224,9 +2224,9 @@ function i3.get_tabs()
 	return tabs
 end
 
-function i3.delete_tab(tabname)
+function i3.remove_tab(tabname)
 	if not true_str(tabname) then
-		return err "i3.delete_tab: tab name missing"
+		return err "i3.remove_tab: tab name missing"
 	end
 
 	for i, def in ipairs(tabs) do
