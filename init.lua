@@ -587,6 +587,8 @@ local function search(data)
 	local filters = {}
 
 	if search_filter then
+		search_filter = search_filter:trim()
+
 		for filter_name, values in gmatch(filter, sub(opt, 6)) do
 			if search_filters[filter_name] then
 				values = split(values, ",")
