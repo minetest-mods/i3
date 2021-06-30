@@ -117,6 +117,10 @@ end
 local old_is_creative_enabled = core.is_creative_enabled
 
 function core.is_creative_enabled(name)
+	if name == "" then
+		return old_is_creative_enabled(name)
+	end
+
 	return check_privs(name, {creative = true}) or old_is_creative_enabled(name)
 end
 
@@ -616,7 +620,18 @@ local function search(data)
 				end
 			end
 		else
-			to_add = find(search_in, filter, 1, true)
+			local ok = true
+
+			for keyword in gmatch(filter, "%S+") do
+				if not find(search_in, keyword, 1, true) then
+					ok = nil
+					break
+				end
+			end
+
+			if ok then
+				to_add = true
+			end
 		end
 
 		if to_add then
