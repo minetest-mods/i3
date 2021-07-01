@@ -20,7 +20,7 @@ local PNG, styles, fs_elements = loadfile(modpath .. "/etc/styles.lua")()
 local compress_groups, compressed = loadfile(modpath .. "/etc/compress.lua")()
 local group_stereotypes, group_names = loadfile(modpath .. "/etc/groups.lua")()
 
-local progressive_mode = core.settings:get_bool "i3_progressive_mode" and not(core.is_creative_enabled())
+local progressive_mode = core.settings:get_bool "i3_progressive_mode"
 local item_compression = core.settings:get_bool "i3_item_compression"
 local damage_enabled = core.settings:get_bool "enable_damage"
 
@@ -2736,6 +2736,12 @@ core.register_on_priv_grant(function(name, _, priv)
 
 		local player = core.get_player_by_name(name)
 		after(0, set_fs, player)
+		
+		-- remove recipe filter to suppress progressive_mode in creative
+		-- aftre creative privilege is added
+		if progressive_mode then
+			i3.set_progressive_mode(name, false)
+		end
 	end
 end)
 
@@ -3320,11 +3326,47 @@ if progressive_mode then
 	end)
 
 	i3.add_recipe_filter("Default progressive filter", progressive_filter)
+	
+	-- change progresive_mode function
+	function i3.set_progressive_mode(name, enable)
+		local player = core.get_player_by_name(name)
+		local data = pdata[name]
+		
+		if enable then
+			i3.add_recipe_filter("Default progressive filter", progressive_filter)
+		else
+			i3.remove_recipe_filter("Default progressive filter")
+		end
+		
+		data.inv_items = data.inv_items or {}
+		data.known_recipes = data.known_recipes or 0
 
+		local items = get_filtered_items(player, data)
+		data.items_raw = items
+		search(data)
+
+		if singleplayer then
+			init_hud(player, data)
+		end
+	end
+	
+	-- add recipe filter for progressive_mode when creative priv is revoked
+	core.register_on_priv_revoke(function(name, _, priv)
+		if (priv == "creative" or priv == "all") and not old_is_creative_enabled(name) then
+			i3.set_progressive_mode(name, true)
+		end
+	end)
+	
 	core.register_on_joinplayer(function(player)
 		local name = player:get_player_name()
 		local data = pdata[name]
-
+		
+		-- remove recipe filter to suppress progressive_mode in creative
+		-- on player join
+		if core.is_creative_enabled(name) then
+			i3.set_progressive_mode(name, false)
+		end
+		
 		data.inv_items = data.inv_items or {}
 		data.known_recipes = data.known_recipes or 0
 
