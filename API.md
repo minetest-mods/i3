@@ -38,7 +38,7 @@ i3.new_tab {
 
 Updates the current formspec. `extra_formspec` adds an additional formspec string.
 
-#### `i3.delete_tab(tabname)`
+#### `i3.remove_tab(tabname)`
 
 Deletes a tab by name.
 
@@ -141,7 +141,7 @@ Recipes can be registered from a given URL containing a JSON file (HTTP support 
 
 ```Lua
 i3.register_craft({
-	url = "https://raw.githubusercontent.com/minetest-mods/i3/main/test_online_recipe.json"
+	url = "https://raw.githubusercontent.com/minetest-mods/i3/main/tests/test_online_recipe.json"
 })
 ```
 
@@ -178,7 +178,7 @@ end)
 
 Removes all recipe filters and adds a new one.
 
-#### `i3.delete_recipe_filter(name)`
+#### `i3.remove_recipe_filter(name)`
 
 Removes the recipe filter with the given `name`.
 
@@ -197,12 +197,12 @@ They can be used like so: `<optional_name> +<filter name>=<value1>,<value2>,<...
 Example usages:
 
 - `+groups=cracky,crumbly`: search for groups `cracky` and `crumbly` in all items.
-- `wood +groups=flammable +types=node`: search for group `flammable` amongst items which contain
-  `wood` in their names AND have a `node` drawtype.
+- `wood +groups=flammable`: search for group `flammable` amongst items which contain
+  `wood` in their names.
 
 Notes:
 - If `optional_name` is omitted, the search filter will apply to all items, without pre-filtering.
-- The `+groups` and `+types` filters are currently implemented by default.
+- The `+groups` filter is currently implemented by default.
 
 #### `i3.add_search_filter(name, function(item, values))`
 
@@ -236,15 +236,6 @@ Returns a map of search filters, indexed by name.
 ---
 
 ### Miscellaneous
-
-#### `i3.group_stereotypes`
-
-This is the table indexing the item groups by stereotypes.
-You can add a stereotype like so:
-
-```Lua
-i3.group_stereotypes.radioactive = "mod:item"
-```
 
 #### `i3.export_url`
 
