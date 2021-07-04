@@ -20,8 +20,8 @@ local PNG, styles, fs_elements = loadfile(modpath .. "/etc/styles.lua")()
 local compress_groups, compressed = loadfile(modpath .. "/etc/compress.lua")()
 local group_stereotypes, group_names = loadfile(modpath .. "/etc/groups.lua")()
 
-local progressive_mode = core.settings:get_bool "i3_progressive_mode"
-local item_compression = core.settings:get_bool "i3_item_compression"
+local progressive_mode = core.settings:get_bool("i3_progressive_mode", false)
+local item_compression = core.settings:get_bool("i3_item_compression", true)
 local damage_enabled = core.settings:get_bool "enable_damage"
 
 local __3darmor, __skinsdb, __awards
@@ -2010,7 +2010,9 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 	fs(fmt("list[current_player;craftpreview;%f,%f;1,1;]", 4.45, yoffset + 2.6))--,
 	--   fmt("list[detached:i3_trash;main;%f,%f;1,1;]", 4.45, yoffset + 3.75))
 	--fs("image", 4.45, yoffset + 3.75, 1, 1, PNG.trash)
-	if core.is_creative_enabled(name) then
+	
+	local creative_trash_only = core.settings:get_bool("i3_no_trash_in_survival", true)
+	if core.is_creative_enabled(name) or not creative_trash_only then
 		fs(fmt("list[detached:i3_trash;main;%f,%f;1,1;]", 4.45, yoffset + 3.75))
 		fs("image", 4.45, yoffset + 3.75, 1, 1, PNG.trash)
 	end
