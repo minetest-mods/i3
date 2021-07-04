@@ -21,7 +21,7 @@ local compress_groups, compressed = loadfile(modpath .. "/etc/compress.lua")()
 local group_stereotypes, group_names = loadfile(modpath .. "/etc/groups.lua")()
 
 local progressive_mode = core.settings:get_bool "i3_progressive_mode"
-local item_compression = core.settings:get_bool "i3_item_compression"
+local item_compression = core.settings:get_bool("i3_item_compression", true)
 local damage_enabled = core.settings:get_bool "enable_damage"
 
 local __3darmor, __skinsdb, __awards
