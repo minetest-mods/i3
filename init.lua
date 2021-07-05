@@ -25,8 +25,6 @@ local item_compression = core.settings:get_bool("i3_item_compression", true)
 local damage_enabled = core.settings:get_bool "enable_damage"
 
 local __3darmor, __skinsdb, __awards
-local __sfinv, old_sfinv_fn
-local __unified_inventory, old_unified_inventory_fn
 
 local http = core.request_http_api()
 local singleplayer = core.is_singleplayer()
@@ -107,11 +105,11 @@ local function get_formspec_version(info)
 end
 
 local function outdated(name)
-	local fs = sprintf("size[5.8,1.3]image[0,0;1,1;%s]label[1,0;%s]button_exit[2.4,0.8;1,1;;OK]",
+	local fs = sprintf("size[6.3,1.3]image[0,0;1,1;%s]label[1,0;%s]button_exit[2.6,0.8;1,1;;OK]",
 		PNG.book,
-		"Your Minetest client is outdated.\nGet the latest version on minetest.net to use i3")
+		"Your Minetest client is outdated.\nGet the latest version on minetest.net to play the game.")
 
-	core.show_formspec(name, "i3", fs)
+	core.show_formspec(name, "i3_outdated", fs)
 end
 
 local old_is_creative_enabled = core.is_creative_enabled
@@ -2518,7 +2516,7 @@ local function get_inventory_fs(player, data, fs)
 	fs("scroll_container_end[]")
 
 	local btn = {
-		{"trash", ES"Trash all items"},
+		{"trash", ES"Clear inventory"},
 		{"sort_az", ES"Sort items (A-Z)"},
 		{"sort_za", ES"Sort items (Z-A)"},
 		{"compress", ES"Compress items"},
@@ -2887,18 +2885,12 @@ end
 core.register_on_mods_loaded(function()
 	get_init_items()
 
-	__sfinv = rawget(_G, "sfinv")
-
-	if __sfinv then
-		old_sfinv_fn = sfinv.set_player_inventory_formspec
+	if rawget(_G, "sfinv") then
 		function sfinv.set_player_inventory_formspec() return end
 		sfinv.enabled = false
 	end
 
-	__unified_inventory = rawget(_G, "unified_inventory")
-
-	if __unified_inventory then
-		old_unified_inventory_fn = unified_inventory.set_inventory_formspec
+	if rawget(_G, "unified_inventory") then
 		function unified_inventory.set_inventory_formspec() return end
 	end
 end)
@@ -2978,21 +2970,7 @@ core.register_on_joinplayer(function(player)
 	local info = core.get_player_information and core.get_player_information(name)
 
 	if not info or get_formspec_version(info) < MIN_FORMSPEC_VERSION then
-		if __sfinv then
-			sfinv.set_player_inventory_formspec = old_sfinv_fn
-			sfinv.enabled = true
-		end
-
-		if __unified_inventory then
-			unified_inventory.set_inventory_formspec = old_unified_inventory_fn
-
-			if __sfinv then
-				sfinv.enabled = false
-			end
-		end
-
 		pdata[name] = nil
-
 		return outdated(name)
 	end
 
@@ -3061,11 +3039,14 @@ end
 after(SAVE_INTERVAL, routine)
 
 core.register_on_player_receive_fields(function(player, formname, fields)
-	if formname ~= "" then
+	local name = player:get_player_name()
+
+	if formname == "i3_outdated" then
+		return false, core.kick_player(name, "Come back when your client is up-to-date.")
+	elseif formname ~= "" then
 		return false
 	end
 
-	local name = player:get_player_name()
 	local data = pdata[name]
 	if not data then return end
 
