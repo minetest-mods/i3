@@ -2130,18 +2130,26 @@ local function get_tabs_fs(player, data, fs, full_height)
 end
 
 local function get_debug_grid(data, fs, full_height)
-	local spacing = 0.2
+	fs("style_type[label;font_size=8;noclip=true]")
+	local spacing, i = 0.2, 1
 
 	for x = 0, data.inv_width + 8, spacing do
 		fs("box", x, 0, 0.01, full_height, "#ff0")
+		fs("label", x, full_height + 0.1, tostring(i))
+		i = i + 1
 	end
+
+	i = 61
 
 	for y = 0, full_height, spacing do
 		fs("box", 0, y, data.inv_width + 8, 0.01, "#ff0")
+		fs("label", -0.15, y, tostring(i))
+		i = i - 1
 	end
 
 	fs("box", data.inv_width / 2, 0, 0.01, full_height, "#f00")
 	fs("box", 0, full_height / 2, data.inv_width, 0.01, "#f00")
+	fs("style_type[label;font_size=16]")
 end
 
 local function make_fs(player, data)
@@ -2537,12 +2545,12 @@ local function get_inventory_fs(player, data, fs)
 		fs("style_type[box;colors=#999,#999,#808080,#808080]")
 
 		for _ = 1, 3 do
-			fs("box", 2.95, 10.75, 4.35, 0.5, "")
+			fs("box", 2.97, 10.75, 4.3, 0.5, "")
 		end
 
-		fs("label", 3.1, 11, "Confirm trash?")
-		fs("image_button", 5.2, 10.75, 1, 0.5, "", "confirm_trash_yes", "Yes")
-		fs("image_button", 6.3, 10.75, 1, 0.5, "", "confirm_trash_no", "No")
+		fs("label", 3.12, 11, "Confirm trash?")
+		fs("image_button", 5.17, 10.75, 1, 0.5, "", "confirm_trash_yes", "Yes")
+		fs("image_button", 6.27, 10.75, 1, 0.5, "", "confirm_trash_no", "No")
 	end
 end
 
