@@ -3273,6 +3273,7 @@ if progressive_mode then
 			local player = players[i]
 			local name = player:get_player_name()
 			local data = pdata[name]
+			if not data then return end
 
 			local inv_items = get_inv_items(player)
 			local diff = array_diff(inv_items, data.inv_items)
@@ -3308,7 +3309,7 @@ if progressive_mode then
 			local name = player:get_player_name()
 			local data = pdata[name]
 
-			if data.show_hud ~= nil and singleplayer then
+			if data and data.show_hud ~= nil and singleplayer then
 				show_hud_success(player, data)
 			end
 		end
@@ -3319,6 +3320,7 @@ if progressive_mode then
 	core.register_on_joinplayer(function(player)
 		local name = player:get_player_name()
 		local data = pdata[name]
+		if not data then return end
 
 		data.inv_items = data.inv_items or {}
 		data.known_recipes = data.known_recipes or 0
