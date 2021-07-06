@@ -2059,16 +2059,21 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 	elseif data.subcat == 3 then
 		if __skinsdb then
 			local _skins = skins.get_skinlist_for_player(name)
-			local sks = {}
+			local skin_name = skins.get_player_skin(player).name
+			local sks, id = {}, 1
 
-			for _, skin in ipairs(_skins) do
+			for i, skin in ipairs(_skins) do
+				if skin.name == skin_name then
+					id = i
+				end
+
 				sks[#sks + 1] = skin.name
 			end
 
 			sks = concat(sks, ","):gsub(";", "")
 
 			fs("label", 0, yextra + 0.85, fmt("%s:", ES"Select a skin"))
-			fs(fmt("dropdown[0,%f;4,0.6;skins;%s;%u;true]", yextra + 1.1, sks, data.skin_id or 1))
+			fs(fmt("dropdown[0,%f;4,0.6;skins;%s;%u;true]", yextra + 1.1, sks, id))
 		else
 			not_installed("skinsdb")
 		end
@@ -2570,10 +2575,10 @@ i3.new_tab {
 		local name = player:get_player_name()
 		local sb_inv = fields.scrbar_inv
 
-		if fields.skins and data.skin_id ~= tonum(fields.skins) then
-			data.skin_id = tonum(fields.skins)
+		if fields.skins then
+			local id = tonum(fields.skins)
 			local _skins = skins.get_skinlist_for_player(name)
-			skins.set_player_skin(player, _skins[data.skin_id])
+			skins.set_player_skin(player, _skins[id])
 		end
 
 		for field in pairs(fields) do
@@ -3042,7 +3047,6 @@ end)
 local META_SAVES = {
 	bag_size = true,
 	waypoints = true,
-	skin_id = true,
 	inv_items = true,
 	known_recipes = true,
 }
