@@ -84,6 +84,9 @@ local styles = fmt([[
 	style[craft_rcp,craft_usg;noclip=true;font_size=16;sound=i3_craft;
 	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
 	      bgimg_pressed=i3_btn9_pressed.png;bgimg_middle=4,6]
+	style[confirm_trash_yes,confirm_trash_no;noclip=true;font_size=16;
+	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
+	      bgimg_pressed=i3_btn9_pressed.png;bgimg_middle=4,6]
 ]],
 PNG.slot,
 PNG.exit,     PNG.exit_hover,

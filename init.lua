@@ -25,8 +25,6 @@ local item_compression = core.settings:get_bool("i3_item_compression", true)
 local damage_enabled = core.settings:get_bool "enable_damage"
 
 local __3darmor, __skinsdb, __awards
-local __sfinv, old_sfinv_fn
-local __unified_inventory, old_unified_inventory_fn
 
 local http = core.request_http_api()
 local singleplayer = core.is_singleplayer()
@@ -107,11 +105,11 @@ local function get_formspec_version(info)
 end
 
 local function outdated(name)
-	local fs = sprintf("size[5.8,1.3]image[0,0;1,1;%s]label[1,0;%s]button_exit[2.4,0.8;1,1;;OK]",
+	local fs = sprintf("size[6.3,1.3]image[0,0;1,1;%s]label[1,0;%s]button_exit[2.6,0.8;1,1;;OK]",
 		PNG.book,
-		"Your Minetest client is outdated.\nGet the latest version on minetest.net to use i3")
+		"Your Minetest client is outdated.\nGet the latest version on minetest.net to play the game.")
 
-	core.show_formspec(name, "i3", fs)
+	core.show_formspec(name, "i3_outdated", fs)
 end
 
 local old_is_creative_enabled = core.is_creative_enabled
@@ -2138,18 +2136,26 @@ local function get_tabs_fs(player, data, fs, full_height)
 end
 
 local function get_debug_grid(data, fs, full_height)
-	local spacing = 0.2
+	fs("style_type[label;font_size=8;noclip=true]")
+	local spacing, i = 0.2, 1
 
 	for x = 0, data.inv_width + 8, spacing do
 		fs("box", x, 0, 0.01, full_height, "#ff0")
+		fs("label", x, full_height + 0.1, tostring(i))
+		i = i + 1
 	end
+
+	i = 61
 
 	for y = 0, full_height, spacing do
 		fs("box", 0, y, data.inv_width + 8, 0.01, "#ff0")
+		fs("label", -0.15, y, tostring(i))
+		i = i - 1
 	end
 
 	fs("box", data.inv_width / 2, 0, 0.01, full_height, "#f00")
 	fs("box", 0, full_height / 2, data.inv_width, 0.01, "#f00")
+	fs("style_type[label;font_size=16]")
 end
 
 local function make_fs(player, data)
@@ -2309,20 +2315,21 @@ local function init_data(player, info)
 end
 
 local function reset_data(data)
-	data.filter      = ""
-	data.expand      = ""
-	data.pagenum     = 1
-	data.rnum        = 1
-	data.unum        = 1
-	data.scrbar_rcp  = 1
-	data.scrbar_usg  = 1
-	data.query_item  = nil
-	data.recipes     = nil
-	data.usages      = nil
-	data.export_rcp  = nil
-	data.export_usg  = nil
-	data.alt_items   = nil
-	data.items       = data.items_raw
+	data.filter        = ""
+	data.expand        = ""
+	data.pagenum       = 1
+	data.rnum          = 1
+	data.unum          = 1
+	data.scrbar_rcp    = 1
+	data.scrbar_usg    = 1
+	data.query_item    = nil
+	data.recipes       = nil
+	data.usages        = nil
+	data.export_rcp    = nil
+	data.export_usg    = nil
+	data.alt_items     = nil
+	data.confirm_trash = nil
+	data.items         = data.items_raw
 
 	if data.current_itab > 1 then
 		sort_by_category(data)
@@ -2524,12 +2531,12 @@ local function get_inventory_fs(player, data, fs)
 	fs("scroll_container_end[]")
 
 	local btn = {
-		--{"trash", ES"Trash all items"},
+		--{"trash", ES"Clear inventory"},
 		{"sort_az", ES"Sort items (A-Z)"},
 		{"sort_za", ES"Sort items (Z-A)"},
 		{"compress", ES"Compress items"},
 	}
-	if core.is_creative_enabled(name) then table.insert(btn, 1, {"trash", ES"Trash all items"}) end
+	if core.is_creative_enabled(name) then table.insert(btn, 1, {"trash", ES"Clear inventory"}) end
 
 	for i, v in ipairs(btn) do
 		local btn_name, tooltip = unpack(v)
@@ -2539,6 +2546,18 @@ local function get_inventory_fs(player, data, fs)
 
 		fs("image_button", i + 3.447 - (i * 0.4), 11.43, 0.35, 0.35, "", btn_name, "")
 		fs(fmt("tooltip[%s;%s]", btn_name, tooltip))
+	end
+
+	if data.confirm_trash then
+		fs("style_type[box;colors=#999,#999,#808080,#808080]")
+
+		for _ = 1, 3 do
+			fs("box", 2.97, 10.75, 4.3, 0.5, "")
+		end
+
+		fs("label", 3.12, 11, "Confirm trash?")
+		fs("image_button", 5.17, 10.75, 1, 0.5, "", "confirm_trash_yes", "Yes")
+		fs("image_button", 6.27, 10.75, 1, 0.5, "", "confirm_trash_no", "No")
 	end
 end
 
@@ -2611,9 +2630,16 @@ i3.new_tab {
 		end
 
 		if fields.trash then
-			local inv = player:get_inventory()
-			inv:set_list("main", {})
-			inv:set_list("craft", {})
+			data.confirm_trash = true
+
+		elseif fields.confirm_trash_yes or fields.confirm_trash_no then
+			if fields.confirm_trash_yes then
+				local inv = player:get_inventory()
+				inv:set_list("main", {})
+				inv:set_list("craft", {})
+			end
+
+			data.confirm_trash = nil
 
 		elseif fields.compress then
 			compress_items(player)
@@ -2900,18 +2926,12 @@ end
 core.register_on_mods_loaded(function()
 	get_init_items()
 
-	__sfinv = rawget(_G, "sfinv")
-
-	if __sfinv then
-		old_sfinv_fn = sfinv.set_player_inventory_formspec
+	if rawget(_G, "sfinv") then
 		function sfinv.set_player_inventory_formspec() return end
 		sfinv.enabled = false
 	end
 
-	__unified_inventory = rawget(_G, "unified_inventory")
-
-	if __unified_inventory then
-		old_unified_inventory_fn = unified_inventory.set_inventory_formspec
+	if rawget(_G, "unified_inventory") then
 		function unified_inventory.set_inventory_formspec() return end
 	end
 end)
@@ -2991,21 +3011,7 @@ core.register_on_joinplayer(function(player)
 	local info = core.get_player_information and core.get_player_information(name)
 
 	if not info or get_formspec_version(info) < MIN_FORMSPEC_VERSION then
-		if __sfinv then
-			sfinv.set_player_inventory_formspec = old_sfinv_fn
-			sfinv.enabled = true
-		end
-
-		if __unified_inventory then
-			unified_inventory.set_inventory_formspec = old_unified_inventory_fn
-
-			if __sfinv then
-				sfinv.enabled = false
-			end
-		end
-
 		pdata[name] = nil
-
 		return outdated(name)
 	end
 
@@ -3074,11 +3080,14 @@ end
 after(SAVE_INTERVAL, routine)
 
 core.register_on_player_receive_fields(function(player, formname, fields)
-	if formname ~= "" then
+	local name = player:get_player_name()
+
+	if formname == "i3_outdated" then
+		return false, core.kick_player(name, "Come back when your client is up-to-date.")
+	elseif formname ~= "" then
 		return false
 	end
 
-	local name = player:get_player_name()
 	local data = pdata[name]
 	if not data then return end
 
@@ -3286,6 +3295,7 @@ if progressive_mode then
 			local player = players[i]
 			local name = player:get_player_name()
 			local data = pdata[name]
+			if not data then return end
 
 			local inv_items = get_inv_items(player)
 			local diff = array_diff(inv_items, data.inv_items)
@@ -3321,7 +3331,7 @@ if progressive_mode then
 			local name = player:get_player_name()
 			local data = pdata[name]
 
-			if data.show_hud ~= nil and singleplayer then
+			if data and data.show_hud ~= nil and singleplayer then
 				show_hud_success(player, data)
 			end
 		end
@@ -3362,6 +3372,7 @@ if progressive_mode then
 	core.register_on_joinplayer(function(player)
 		local name = player:get_player_name()
 		local data = pdata[name]
+		if not data then return end
 		
 		-- remove recipe filter to suppress progressive_mode in creative
 		-- on player join
