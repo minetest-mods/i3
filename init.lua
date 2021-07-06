@@ -3428,3 +3428,7 @@ end
 
 --dofile(modpath .. "/tests/test_tabs.lua")
 --dofile(modpath .. "/tests/test_custom_recipes.lua")
+
+if __skinsdb then
+	dofile(modpath .. "/i3_mods_tabs.lua")
+end
