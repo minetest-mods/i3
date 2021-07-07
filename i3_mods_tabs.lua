@@ -133,7 +133,11 @@ i3.new_tab {
 			local formspec = get_skin_info_formspec(skin, 3, 2)
 			fs(formspec)
 			
+<<<<<<< HEAD
 			--core.log("fs skins: ",dump(formspec))
+=======
+			core.log("fs skins: ",dump(formspec))
+>>>>>>> 54ed8e700d73a97b03df92a2e0a9d1b6225ce6b4
 	end,
 	
 	fields = function(player, data, fields)
