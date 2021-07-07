@@ -69,6 +69,88 @@ local function get_skin_info_formspec(skin, xoffset, yoffset)
 	return formspec
 end
 
+local function get_skin_selection_formspec(player, context)
+	context.skins_list = skins.get_skinlist_for_player(player:get_player_name())
+	context.total_pages = 1
+	local xoffs = 0.8
+	local yoffs = 6.5
+	local xspc = 1.1
+	local yspc = 2.1
+	local skinwidth = 1
+	local skinheight = 2
+	local xscale = 1
+	local btn_y = yoffs + 4.5
+	local drop_y = yoffs + 4.5
+	local btn_width = 1
+	local droppos = xoffs + 1.3
+	local droplen = 6.2
+	local btn_left = droppos - 1
+	local btn_right = droppos + droplen
+	local maxdisp = 16
+
+	local ctrls_height = 0.5
+
+	for i, skin in ipairs(context.skins_list ) do
+		local page = math.floor((i-1) / maxdisp)+1
+		skin:set_meta("inv_page", page)
+		skin:set_meta("inv_page_index", (i-1)%maxdisp+1)
+		context.total_pages = page
+	end
+	context.skins_page = context.skins_page or skins.get_player_skin(player):get_meta("inv_page") or 1
+	context.dropdown_values = nil
+
+	local page = context.skins_page
+	local formspec = ""
+	
+	for i = (page-1)*maxdisp+1, page*maxdisp do
+		local skin = context.skins_list[i]
+		if not skin then
+			break
+		end
+
+		local index_p = skin:get_meta("inv_page_index")
+		local x = ((index_p-1) % 8) * xspc + xoffs
+		local y
+		if index_p > 8 then
+			y = yoffs + yspc
+		else
+			y = yoffs
+		end
+		formspec = formspec..
+			string.format("image_button[%f,%f;%f,%f;%s;skins_set$%i;]",
+				x, y, skinwidth, skinheight,
+				minetest.formspec_escape(skin:get_preview()), i)..
+			"tooltip[skins_set$"..i..";"..minetest.formspec_escape(skin:get_meta_string("name")).."]"
+	end
+	
+		if context.total_pages > 1 then
+			local page_prev = page - 1
+			local page_next = page + 1
+			if page_prev < 1 then
+				page_prev = context.total_pages
+			end
+			if page_next > context.total_pages then
+				page_next = 1
+			end
+			local page_list = ""
+			context.dropdown_values = {}
+			for pg=1, context.total_pages do
+				local pagename = S("Page").." "..pg.."/"..context.total_pages
+				context.dropdown_values[pagename] = pg
+				if pg > 1 then page_list = page_list.."," end
+				page_list = page_list..pagename
+			end
+			formspec = formspec..
+				string.format("button[%f,%f;%f,%f;skins_page$%i;<<]",
+					btn_left, btn_y, btn_width, ctrls_height, page_prev)..
+				string.format("button[%f,%f;%f,%f;skins_page$%i;>>]",
+					btn_right, btn_y, btn_width, ctrls_height, page_next)..
+				string.format("dropdown[%f,%f;%f,%f;skins_selpg;%s;%i]",
+					droppos, drop_y, droplen, ctrls_height, page_list, page)
+		end
+		return formspec
+end
+	
 -- ****************************************************************************
 -- i3 Tab definition
 
@@ -132,18 +214,21 @@ i3.new_tab {
 			local skin = skins.get_player_skin(player)
 			local formspec = get_skin_info_formspec(skin, 3, 2)
 			fs(formspec)
+			--core.log("fs skins: "..dump(formspec))
 			
-<<<<<<< HEAD
-			--core.log("fs skins: ",dump(formspec))
-=======
-			core.log("fs skins: ",dump(formspec))
->>>>>>> 54ed8e700d73a97b03df92a2e0a9d1b6225ce6b4
+			local context = skins.get_formspec_context(player)
+			local formspec = get_skin_selection_formspec(player, context)
+			--core.log("skins context: "..dump(context))
+			--core.log("fs skins: "..dump(formspec))
+			fs(formspec)
 	end,
 	
 	fields = function(player, data, fields)
 	 	local name = player:get_player_name()
 		local sb_inv = fields.scrbar_inv
-	
+		
+		core.log("fields: "..dump(fields))
+		
 		if fields.skins then
 			local id = tonumber(fields.skins)
 			local _skins = skins.get_skinlist_for_player(name)
