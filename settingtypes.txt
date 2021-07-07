@@ -1,8 +1,15 @@
 # The progressive mode shows recipes you can craft from items you ever had in your inventory.
-i3_progressive_mode    (Learn crafting recipes progressively)    bool false
+i3_progressive_mode    (Learn crafting recipes progressively)    bool true
 
 # Regroup the items of the same type in the item list.
 i3_item_compression    (Regroup items of the same type)    bool true
 
+
 # ------------ NEW SETTINGS ------------
+# not in original i3 available
+
+# Show trash only in creative mode, or with creative privileges
 i3_no_trash_in_survival    (Trash is available only in creative)    bool true
+
+# For skin choice use tab instead of inventory dropdown only
+i3_skinsdb_tab (Use tab for skins)    bool true

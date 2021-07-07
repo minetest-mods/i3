@@ -69,6 +69,7 @@ local function get_skin_info_formspec(skin, xoffset, yoffset)
 	return formspec
 end
 
+-- skin images and pages
 local function get_skin_selection_formspec(player, context)
 	context.skins_list = skins.get_skinlist_for_player(player:get_player_name())
 	context.total_pages = 1
@@ -223,17 +224,25 @@ i3.new_tab {
 			fs(formspec)
 	end,
 	
+	-- click button handlers - giving fields
 	fields = function(player, data, fields)
 	 	local name = player:get_player_name()
 		local sb_inv = fields.scrbar_inv
 		
-		core.log("fields: "..dump(fields))
+		--core.log("fields: "..dump(fields))
 		
+		-- set skin with dropdown from original i3 inventory
 		if fields.skins then
 			local id = tonumber(fields.skins)
 			local _skins = skins.get_skinlist_for_player(name)
 			skins.set_player_skin(player, _skins[id])
 		end
+		
+		-- set skin with skinddb image an page change
+		local context = skins.get_formspec_context(player)
+		local action = skins.on_skin_selection_receive_fields(player, context, fields)
+		
+		-- update formspec
 		return i3.set_fs(player)
 	end,
 }

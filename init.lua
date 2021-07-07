@@ -20,9 +20,15 @@ local PNG, styles, fs_elements = loadfile(modpath .. "/etc/styles.lua")()
 local compress_groups, compressed = loadfile(modpath .. "/etc/compress.lua")()
 local group_stereotypes, group_names = loadfile(modpath .. "/etc/groups.lua")()
 
-local progressive_mode = core.settings:get_bool("i3_progressive_mode", false)
+local progressive_mode = core.settings:get_bool("i3_progressive_mode", true)
 local item_compression = core.settings:get_bool("i3_item_compression", true)
 local damage_enabled = core.settings:get_bool "enable_damage"
+
+-- new settings
+local creative_trash_only = core.settings:get_bool("i3_no_trash_in_survival", true)
+local use_skinsdb_tab = core.settings:get_bool("i3_skinsdb_tab", true)
+
+-- ************
 
 local __3darmor, __skinsdb, __awards
 
@@ -2009,7 +2015,6 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 	--   fmt("list[detached:i3_trash;main;%f,%f;1,1;]", 4.45, yoffset + 3.75))
 	--fs("image", 4.45, yoffset + 3.75, 1, 1, PNG.trash)
 	
-	local creative_trash_only = core.settings:get_bool("i3_no_trash_in_survival", true)
 	if core.is_creative_enabled(name) or not creative_trash_only then
 		fs(fmt("list[detached:i3_trash;main;%f,%f;1,1;]", 4.45, yoffset + 3.75))
 		fs("image", 4.45, yoffset + 3.75, 1, 1, PNG.trash)
@@ -2018,6 +2023,8 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 	local yextra = damage_enabled and 5.5 or 5
 
 	for i, title in ipairs(SUBCAT) do
+		if title ~= "skins" or not use_skinsdb_tab then
+			
 		local btn_name = fmt("btn_%s", title)
 
 		fs(fmt("style[btn_%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", title,
@@ -2026,6 +2033,8 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 
 		fs("image_button", 0.25 + ((i - 1) * 1.18), yextra - 0.2, 0.5, 0.5, "", btn_name, "")
 		fs(fmt("tooltip[%s;%s]", btn_name, title:gsub("^%l", upper)))
+		
+		end
 	end
 
 	fs("box", 0, yextra + 0.45, ctn_len, 0.045, "#bababa50")
@@ -2057,7 +2066,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 		end
 
 	elseif data.subcat == 3 then
-		if __skinsdb then
+		if __skinsdb and not use_skinsdb_tab then
 			local _skins = skins.get_skinlist_for_player(name)
 			local skin_name = skins.get_player_skin(player).name
 			local sks, id = {}, 1
@@ -2074,7 +2083,7 @@ local function get_ctn_content(fs, data, player, yoffset, ctn_len, award_list, a
 
 			fs("label", 0, yextra + 0.85, fmt("%s:", ES"Select a skin"))
 			fs(fmt("dropdown[0,%f;4,0.6;skins;%s;%u;true]", yextra + 1.1, sks, id))
-		else
+		elseif not use_skinsdb_tab then
 			not_installed("skinsdb")
 		end
 
@@ -3429,6 +3438,6 @@ end
 --dofile(modpath .. "/tests/test_tabs.lua")
 --dofile(modpath .. "/tests/test_custom_recipes.lua")
 
-if __skinsdb then
+if __skinsdb and use_skinsdb_tab then
 	dofile(modpath .. "/i3_mods_tabs.lua")
 end
