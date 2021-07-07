@@ -82,14 +82,15 @@ local function get_skin_selection_formspec(player, context)
 	local xscale = 1
 	local btn_y = yoffs + 4.5
 	local drop_y = yoffs + 4.5
-	local btn_width = 1
+	local btn_width = 0.35
+	local btn_heigh = 0.35
 	local droppos = xoffs + 1.3
 	local droplen = 6.2
-	local btn_left = droppos - 1
+	local btn_left = droppos - btn_width
 	local btn_right = droppos + droplen
 	local maxdisp = 16
 
-	local ctrls_height = 0.5
+	local ctrls_height = 0.4
 
 	for i, skin in ipairs(context.skins_list ) do
 		local page = math.floor((i-1) / maxdisp)+1
@@ -142,10 +143,10 @@ local function get_skin_selection_formspec(player, context)
 				page_list = page_list..pagename
 			end
 			formspec = formspec..
-				string.format("button[%f,%f;%f,%f;skins_page$%i;<<]",
-					btn_left, btn_y, btn_width, ctrls_height, page_prev)..
-				string.format("button[%f,%f;%f,%f;skins_page$%i;>>]",
-					btn_right, btn_y, btn_width, ctrls_height, page_next)..
+				string.format("image_button[%f,%f;%f,%f;%s;skins_page$%i;]",
+					btn_left, btn_y, btn_width, btn_heigh, PNG.prev, page_prev)..
+				string.format("image_button[%f,%f;%f,%f;%s;skins_page$%i;]",
+					btn_right, btn_y, btn_width, btn_heigh, PNG.next, page_next)..
 				string.format("dropdown[%f,%f;%f,%f;skins_selpg;%s;%i]",
 					droppos, drop_y, droplen, ctrls_height, page_list, page)
 		end
