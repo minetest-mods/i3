@@ -738,7 +738,7 @@ local function drop_table(name, drop)
 				if not empty and (dname ~= name or (dname == name and dcount > 1)) then
 					local rarity = valid_rarity and di.rarity
 
-					i3.register_craft{
+					i3.register_craft {
 						type   = rarity and "digging_chance" or "digging",
 						items  = {name},
 						output = fmt("%s %u", dname, dcount),
@@ -762,7 +762,7 @@ local function cache_drops(name, drop)
 		local empty  = dstack:is_empty()
 
 		if not empty and dname ~= name then
-			i3.register_craft{
+			i3.register_craft {
 				type = "digging",
 				items = {name},
 				output = drop,
@@ -3229,6 +3229,7 @@ if progressive_mode then
 				number        = 0xffffff,
 				text          = "",
 				z_index       = 0xDEAD,
+				style         = 1,
 			},
 		}
 	end
@@ -3256,7 +3257,8 @@ if progressive_mode then
 			end
 
 			player:hud_change(data.hud.text, "text",
-				S("@1 new recipe(s) discovered!", data.discovered))
+				fmt("%u new recipe%s discovered!",
+					data.discovered, data.discovered > 1 and "s" or ""))
 
 		elseif data.show_hud == false then
 			if data.hud_timer >= HUD_TIMER_MAX then
@@ -3314,19 +3316,17 @@ if progressive_mode then
 
 	poll_new_items()
 
-	core.register_globalstep(function()
-		local players = core.get_connected_players()
-
-		for i = 1, #players do
-			local player = players[i]
-			local name = player:get_player_name()
+	if singleplayer then
+		core.register_globalstep(function()
+			local name = "singleplayer"
+			local player = core.get_player_by_name(name)
 			local data = pdata[name]
 
-			if data and data.show_hud ~= nil and singleplayer then
+			if data and data.show_hud ~= nil then
 				show_hud_success(player, data)
 			end
-		end
-	end)
+		end)
+	end
 
 	i3.add_recipe_filter("Default progressive filter", progressive_filter)
 
@@ -3338,12 +3338,19 @@ if progressive_mode then
 		data.inv_items = data.inv_items or {}
 		data.known_recipes = data.known_recipes or 0
 
+		local oldknown = data.known_recipes
 		local items = get_filtered_items(player, data)
+		data.discovered = data.known_recipes - oldknown
+
 		data.items_raw = items
 		search(data)
 
 		if singleplayer then
 			init_hud(player, data)
+
+			if data.show_hud == nil and data.discovered > 0 then
+				data.show_hud = true
+			end
 		end
 	end)
 end
