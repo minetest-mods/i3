@@ -2745,8 +2745,6 @@ if rawget(_G, "awards") then
 		local player = core.get_player_by_name(name)
 		set_fs(player)
 	end)
-
-	core.register_on_dieplayer(set_fs)
 end
 
 core.register_on_chatcommand(function(name)
@@ -3022,11 +3020,13 @@ core.register_on_dieplayer(function(player)
 	local data = pdata[name]
 	if not data then return end
 
-	data.bag_size = nil
-	data.bag:set_list("main", {})
+	if data.bag_size then
+		data.bag_size = nil
+		data.bag:set_list("main", {})
 
-	local inv = player:get_inventory()
-	inv:set_size("main", INV_SIZE)
+		local inv = player:get_inventory()
+		inv:set_size("main", INV_SIZE)
+	end
 
 	set_fs(player)
 end)
