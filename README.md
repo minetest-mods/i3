@@ -31,7 +31,7 @@ To enable it: `i3_progressive_mode = true` in `minetest.conf`.*
 
 #### Recommendations
 
-To use this mod in the best conditions, it's recommended to follow these recommendations:
+To use this mod in the best conditions:
 
    - Use LuaJIT
    - Use a HiDPI widescreen display
