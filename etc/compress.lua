@@ -44,7 +44,7 @@ local to_compress = {
 	["default:mese_post_light"] = {
 		replace = "mese_post_light",
 		by = {
-			"mese_post_light_acacia",
+			"mese_post_light_acacia_wood",
 			"mese_post_light_aspen_wood",
 			"mese_post_light_junglewood",
 			"mese_post_light_pine_wood",
