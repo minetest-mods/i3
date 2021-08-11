@@ -1550,7 +1550,7 @@ local function get_model_fs(fs, data, def, model_alias)
 				_name = fmt("%s^[multiply:%s", v.name, v.color)
 			end
 		elseif v.animation then
-			_name = fmt("%s^[verticalframe:%u:0", v.name, v.animation.aspect_h)
+			_name = fmt("%s^[verticalframe:%u:0", v.name, v.animation.frames_h or v.animation.aspect_h)
 		end
 
 		t[#t + 1] = _name or v.name or v
