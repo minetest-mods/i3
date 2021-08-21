@@ -3046,7 +3046,7 @@ local function save_data(player_name)
 		if not META_SAVES[dat] then
 			_pdata[name][dat] = nil
 
-			if player_name then
+			if player_name and pdata[player_name] then
 				pdata[player_name][dat] = nil -- To free up some memory
 			end
 		end
