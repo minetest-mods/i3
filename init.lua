@@ -2416,6 +2416,14 @@ local function rcp_fields(player, data, fields)
 
 	elseif fields.craft_rcp or fields.craft_usg then
 		craft_stack(player, data, fields.craft_rcp)
+
+		if fields.craft_rcp then
+			data.export_rcp = nil
+			data.scrbar_rcp = 1
+		else
+			data.export_usg = nil
+			data.scrbar_usg = 1
+		end
 	else
 		select_item(player, name, data, fields)
 	end
