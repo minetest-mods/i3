@@ -1706,7 +1706,7 @@ local function get_items_fs(fs, data, full_height)
 		data.items = new
 	end
 
-	local items = data.alt_items or data.items
+	local items = data.alt_items or data.items or {}
 	local rows, lines = 8, 12
 	local ipp = rows * lines
 	local size = 0.85
