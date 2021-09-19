@@ -22,6 +22,139 @@ i3.register_craft({
 
 i3.register_craft({
 	grid = {
+		"X",
+		"#",
+		"X",
+		"X",
+	},
+	key = {
+		['#'] = "default:wood",
+		['X'] = "default:glass 2",
+	},
+	result = "default:mese 3",
+})
+
+i3.register_craft({
+	grid = {
+		"X",
+		"#X",
+		"X",
+		"X",
+	},
+	key = {
+		['#'] = "default:wood",
+		['X'] = "default:glass 2",
+	},
+	result = "default:mese 3",
+})
+
+i3.register_craft({
+	grid = {
+		"X",
+	},
+	key = {
+		['#'] = "default:wood",
+		['X'] = "default:glass 2",
+	},
+	result = "default:mese 3",
+})
+
+
+i3.register_craft({
+	grid = {
+		"X#",
+	},
+	key = {
+		['#'] = "default:wood",
+		['X'] = "default:glass 2",
+	},
+	result = "default:mese 3",
+})
+
+i3.register_craft({
+	grid = {
+		"X#X",
+	},
+	key = {
+		['#'] = "default:wood",
+		['X'] = "default:glass 2",
+	},
+	result = "default:mese 3",
+})
+
+i3.register_craft({
+	grid = {
+		"X#XX",
+	},
+	key = {
+		['#'] = "default:wood",
+		['X'] = "default:glass 2",
+	},
+	result = "default:mese 3",
+})
+
+i3.register_craft({
+	grid = {
+		"X#XX",
+		"X#X",
+	},
+	key = {
+		['#'] = "default:wood",
+		['X'] = "default:glass 2",
+	},
+	result = "default:mese 3",
+})
+
+i3.register_craft({
+	grid = {
+		"X#XX",
+		"X#X",
+		"#",
+	},
+	key = {
+		['#'] = "default:wood",
+		['X'] = "default:glass 2",
+	},
+	result = "default:mese 3",
+})
+
+i3.register_craft({
+	grid = {
+		"X##XX",
+	},
+	key = {
+		['#'] = "default:wood",
+		['X'] = "default:glass 2",
+	},
+	result = "default:mese 3",
+})
+
+i3.register_craft({
+	grid = {
+		"X##X#X",
+	},
+	key = {
+		['#'] = "default:wood",
+		['X'] = "default:glass 2",
+	},
+	result = "default:mese 3",
+})
+
+i3.register_craft({
+	grid = {
+		"X##X#X",
+		"",
+		"X",
+	},
+	key = {
+		['#'] = "default:wood",
+		['X'] = "default:glass 2",
+	},
+	result = "default:mese 3",
+})
+
+i3.register_craft({
+	grid = {
 		"X  #",
 		" ## ",
 		"X#X#",

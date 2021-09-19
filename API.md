@@ -42,6 +42,10 @@ Updates the current formspec. `extra_formspec` adds an additional formspec strin
 
 Deletes a tab by name.
 
+#### `i3.get_current_tab(player)`
+
+Returns the current player tab. `player` is an `ObjectRef` to the user.
+
 #### `i3.set_tab(player[, tabname])`
 
 Sets the current tab by name. `player` is an `ObjectRef` to the user.

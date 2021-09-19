@@ -1014,16 +1014,13 @@ local function spawn_item(player, stack)
 	core.add_item(look_at, stack)
 end
 
-local function get_stack(player, stack, str)
+local function get_stack(player, stack)
 	local inv = player:get_inventory()
-	local name = player:get_player_name()
 
 	if inv:room_for_item("main", stack) then
 		inv:add_item("main", stack)
-		msg(name, S("@1 added in your inventory", str))
 	else
 		spawn_item(player, stack)
-		msg(name, S("@1 spawned", str))
 	end
 end
 
@@ -1063,22 +1060,13 @@ local function craft_stack(player, data, craft_rcp)
 	end
 
 	local count = stackcount * scrbar_val
-	local desc = get_desc(stackname)
 	local iter = ceil(count / stackmax)
 	local leftover = count
 
 	for _ = 1, iter do
 		local c = min(stackmax, leftover)
-		local str
-
-		if c > 1 then
-			str = clr("#ff0", fmt("%s x %s", c, desc))
-		else
-			str = clr("#ff0", fmt("%s", desc))
-		end
-
 		local stack = ItemStack(fmt("%s %s", stackname, c))
-		get_stack(player, stack, str)
+		get_stack(player, stack)
 		leftover = leftover - stackmax
 	end
 end
@@ -1154,8 +1142,9 @@ local function select_item(player, name, data, _f)
 		if core.is_creative_enabled(name) then
 			local stack = ItemStack(item)
 			local stackmax = stack:get_stack_max()
-			stack = fmt("%s %s", item, stackmax)
-			return get_stack(player, stack, clr("#ff0", fmt("%u x %s", stackmax, get_desc(item))))
+			      stack = fmt("%s %s", item, stackmax)
+
+			return get_stack(player, stack)
 		end
 
 		if item == data.query_item then return end
@@ -1389,22 +1378,34 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 		local meta  = item:get_meta()
 		local name  = item:get_name()
 		local count = item:get_count()
-
-		local X = ceil((i - 1) % width - width)
-		X = X + (X * 0.2) + data.inv_width + 3.9
-
-		local Y = ceil(i / width) - min(2, rows)
-		Y = Y + (Y * 0.15)  + data.yoffset + 1.4
+		local X, Y
 
 		if large_recipe then
-			btn_size = (3 / width) * (3 / rows) + 0.3
+			local a, b = 3, 3
+			local add_x, add_y = 0, 0
+
+			if width < 3 then
+				a, b = width * 2, 1
+				add_x = 2
+			elseif rows < 3 then
+				a, b = 1, rows * 2
+				add_y = 1.4
+			end
+
+			btn_size = (a / width) * (b / rows) + 0.3
 			_btn_size = btn_size
 
 			local xi = (i - 1) % width
 			local yi = floor((i - 1) / width)
 
-			X = btn_size * xi + data.inv_width + 0.3 + (xi * 0.05)
-			Y = btn_size * yi + data.yoffset + 0.2 + (yi * 0.05)
+			X = btn_size * xi + data.inv_width + 0.3 + (xi * 0.05) + add_x
+			Y = btn_size * yi + data.yoffset + 0.2 + (yi * 0.05) + add_y
+		else
+			X = ceil((i - 1) % width - width)
+			X = X + (X * 0.2) + data.inv_width + 3.9
+
+			Y = ceil(i / width) - min(2, rows)
+			Y = Y + (Y * 0.15) + data.yoffset + 1.4
 		end
 
 		if X > right then
@@ -2245,6 +2246,13 @@ function i3.remove_tab(tabname)
 			remove(tabs, i)
 		end
 	end
+end
+
+function i3.get_current_tab(player)
+	local name = player:get_player_name()
+	local data = pdata[name]
+
+	return data.current_tab
 end
 
 function i3.set_tab(player, tabname)
@@ -3265,7 +3273,7 @@ if progressive_mode then
 			end
 
 			player:hud_change(data.hud.text, "text",
-				fmt("%u new recipe%s discovered!",
+				fmt("%u new recipe%s unlocked!",
 					data.discovered, data.discovered > 1 and "s" or ""))
 
 		elseif data.show_hud == false then
