@@ -84,7 +84,7 @@ local MIN_FORMSPEC_VERSION = 4
 
 local BAG_SIZES = {
 	[1]  = INV_SIZE + 3,
-	[2] = INV_SIZE + 6,
+	[2]  = INV_SIZE + 6,
 	[3]  = INV_SIZE + 9,
 }
 
@@ -3394,21 +3394,21 @@ local bag_recipes = {
 			{"group:wool", "group:wool", "group:wool"},
 			{"group:wool", "group:wool", "group:wool"},
 		},
-		group = 1,
+		bag_size = 1,
 	},
 	medium = {
 		rcp = {
 			{"farming:string", "i3:bag_small", "farming:string"},
 			{"farming:string", "i3:bag_small", "farming:string"},
 		},
-		group = 2,
+		bag_size = 2,
 	},
 	large = {
 		rcp = {
 			{"farming:string", "i3:bag_medium", "farming:string"},
 			{"farming:string", "i3:bag_medium", "farming:string"},
 		},
-		group = 3,
+		bag_size = 3,
 	},
 }
 
@@ -3419,7 +3419,7 @@ for size, item in pairs(bag_recipes) do
 		description = fmt("%s Backpack", size:gsub("^%l", upper)),
 		inventory_image = fmt("i3_bag_%s.png", size),
 		stack_max = 1,
-		groups = {i3_bag = item.group}
+		groups = {i3_bag = item.bag_size}
 	})
 
 	core.register_craft {output = bagname, recipe = item.rcp}
