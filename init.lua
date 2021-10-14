@@ -83,9 +83,9 @@ local HUD_TIMER_MAX = 1.5
 local MIN_FORMSPEC_VERSION = 4
 
 local BAG_SIZES = {
-	[1]  = INV_SIZE + 3,
-	[2]  = INV_SIZE + 6,
-	[3]  = INV_SIZE + 9,
+	[1] = INV_SIZE + 3,
+	[2] = INV_SIZE + 6,
+	[3] = INV_SIZE + 9,
 }
 
 local SUBCAT = {
