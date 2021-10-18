@@ -807,6 +807,13 @@ local function cache_recipes(item)
 	end
 end
 
+function i3.get_recipes(item)
+	return {
+		recipes = recipes_cache[item],
+		usages = usages_cache[item]
+	}
+end
+
 local function get_recipes(player, item)
 	local clean_item = reg_aliases[item] or item
 	local recipes = recipes_cache[clean_item]
@@ -2966,7 +2973,7 @@ local function init_backpack(player)
 			local empty = _inv:get_stack(listname, 1):is_empty()
 			local item_group = minetest.get_item_group(stack:get_name(), "bag")
 
-			if empty and item_group > 0 and item_group < 4 then
+			if empty and item_group > 0 and item_group <= #BAG_SIZES then
 				return 1
 			end
 
@@ -2995,9 +3002,8 @@ local function init_backpack(player)
 
 			data.bag_item = nil
 			data.bag_size = nil
-			
-			inv:set_size("main", INV_SIZE)
 
+			inv:set_size("main", INV_SIZE)
 			set_fs(player)
 		end,
 	})

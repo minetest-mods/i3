@@ -241,6 +241,10 @@ Returns a map of search filters, indexed by name.
 
 ### Miscellaneous
 
+#### `i3.get_recipes(item)`
+
+Returns a table of recipes and usages of given `item` name.
+
 #### `i3.export_url`
 
 If set, the mod will export all the cached recipes and usages in a JSON format
