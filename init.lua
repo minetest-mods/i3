@@ -83,9 +83,9 @@ local HUD_TIMER_MAX = 1.5
 local MIN_FORMSPEC_VERSION = 4
 
 local BAG_SIZES = {
-	small  = INV_SIZE + 3,
-	medium = INV_SIZE + 6,
-	large  = INV_SIZE + 9,
+	[1] = INV_SIZE + 3,
+	[2] = INV_SIZE + 6,
+	[3] = INV_SIZE + 9,
 }
 
 local SUBCAT = {
@@ -2452,11 +2452,11 @@ local function get_inv_slots(data, fs)
 	   fmt("list[current_player;main;%f,%f;%u,1;]", inv_x, inv_y, HOTBAR_COUNT))
 
 	if bag then
-		if bag == "small" then
+		if bag == 1 then
 			width, size = 10, 0.892
-		elseif bag == "medium" then
+		elseif bag == 2 then
 			width, size = 11, 0.8
-		elseif bag == "large" then
+		elseif bag == 3 then
 			width, size = 12, 0.726
 		end
 	end
@@ -2947,13 +2947,25 @@ local function init_backpack(player)
 	local data = pdata[name]
 	local inv = player:get_inventory()
 
+	--legacy compat
+	if data.bag_size and type(data.bag_size) == "string" then
+		local convert = {
+			small = 1,
+			medium = 2,
+			large = 3,
+		}
+		data.bag_item = fmt("i3:bag_%s", data.bag_size)
+		data.bag_size = convert[data.bag_size]
+	end
+
 	inv:set_size("main", data.bag_size and BAG_SIZES[data.bag_size] or INV_SIZE)
 
 	data.bag = create_inventory(fmt("%s_backpack", name), {
 		allow_put = function(_inv, listname, _, stack)
 			local empty = _inv:get_stack(listname, 1):is_empty()
+			local item_group = minetest.get_item_group(stack:get_name(), "i3_bag")
 
-			if empty and sub(stack:get_name(), 1, 7) == "i3:bag_" then
+			if empty and item_group > 0 and item_group < 4 then
 				return 1
 			end
 
@@ -2963,7 +2975,8 @@ local function init_backpack(player)
 		end,
 
 		on_put = function(_, _, _, stack)
-			data.bag_size = match(stack:get_name(), "_(%w+)$")
+			data.bag_size = minetest.get_item_group(stack:get_name(), "i3_bag")
+			data.bag_item = stack:get_name()
 			inv:set_size("main", BAG_SIZES[data.bag_size])
 			set_fs(player)
 		end,
@@ -2978,6 +2991,7 @@ local function init_backpack(player)
 			end
 
 			data.bag_size = nil
+			data.bag_item = nil
 			inv:set_size("main", INV_SIZE)
 
 			set_fs(player)
@@ -2986,8 +3000,8 @@ local function init_backpack(player)
 
 	data.bag:set_size("main", 1)
 
-	if data.bag_size then
-		data.bag:set_stack("main", 1, fmt("i3:bag_%s", data.bag_size))
+	if data.bag_item then
+		data.bag:set_stack("main", 1, data.bag_item)
 	end
 end
 
@@ -3038,6 +3052,7 @@ core.register_on_dieplayer(function(player)
 
 	if data.bag_size then
 		data.bag_size = nil
+		data.bag_item = nil
 		data.bag:set_list("main", {})
 
 		local inv = player:get_inventory()
@@ -3049,6 +3064,7 @@ end)
 
 local META_SAVES = {
 	bag_size = true,
+	bag_item = true,
 	waypoints = true,
 	inv_items = true,
 	known_recipes = true,
@@ -3373,30 +3389,40 @@ end
 
 local bag_recipes = {
 	small = {
-		{"", "farming:string", ""},
-		{"group:wool", "group:wool", "group:wool"},
-		{"group:wool", "group:wool", "group:wool"},
+		rcp = {
+			{"", "farming:string", ""},
+			{"group:wool", "group:wool", "group:wool"},
+			{"group:wool", "group:wool", "group:wool"},
+		},
+		bag_size = 1,
 	},
 	medium = {
-		{"farming:string", "i3:bag_small", "farming:string"},
-		{"farming:string", "i3:bag_small", "farming:string"},
+		rcp = {
+			{"farming:string", "i3:bag_small", "farming:string"},
+			{"farming:string", "i3:bag_small", "farming:string"},
+		},
+		bag_size = 2,
 	},
 	large = {
-		{"farming:string", "i3:bag_medium", "farming:string"},
-		{"farming:string", "i3:bag_medium", "farming:string"},
+		rcp = {
+			{"farming:string", "i3:bag_medium", "farming:string"},
+			{"farming:string", "i3:bag_medium", "farming:string"},
+		},
+		bag_size = 3,
 	},
 }
 
-for size, rcp in pairs(bag_recipes) do
+for size, item in pairs(bag_recipes) do
 	local bagname = fmt("i3:bag_%s", size)
 
 	core.register_craftitem(bagname, {
 		description = fmt("%s Backpack", size:gsub("^%l", upper)),
 		inventory_image = fmt("i3_bag_%s.png", size),
 		stack_max = 1,
+		groups = {i3_bag = item.bag_size}
 	})
 
-	core.register_craft {output = bagname, recipe = rcp}
+	core.register_craft {output = bagname, recipe = item.rcp}
 	core.register_craft {type = "fuel", recipe = bagname, burntime = 3}
 end
 
