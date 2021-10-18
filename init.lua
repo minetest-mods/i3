@@ -83,9 +83,9 @@ local HUD_TIMER_MAX = 1.5
 local MIN_FORMSPEC_VERSION = 4
 
 local BAG_SIZES = {
-	[1] = INV_SIZE + 3,
-	[2] = INV_SIZE + 6,
-	[3] = INV_SIZE + 9,
+	INV_SIZE + 3,
+	INV_SIZE + 6,
+	INV_SIZE + 9,
 }
 
 local SUBCAT = {
@@ -2954,6 +2954,7 @@ local function init_backpack(player)
 			medium = 2,
 			large = 3,
 		}
+
 		data.bag_item = fmt("i3:bag_%s", data.bag_size)
 		data.bag_size = convert[data.bag_size]
 	end
@@ -2975,8 +2976,10 @@ local function init_backpack(player)
 		end,
 
 		on_put = function(_, _, _, stack)
-			data.bag_size = minetest.get_item_group(stack:get_name(), "i3_bag")
-			data.bag_item = stack:get_name()
+			local stackname = stack:get_name()
+			data.bag_item = stackname
+			data.bag_size = minetest.get_item_group(stackname, "i3_bag")
+
 			inv:set_size("main", BAG_SIZES[data.bag_size])
 			set_fs(player)
 		end,
@@ -2990,8 +2993,9 @@ local function init_backpack(player)
 				end
 			end
 
-			data.bag_size = nil
 			data.bag_item = nil
+			data.bag_size = nil
+			
 			inv:set_size("main", INV_SIZE)
 
 			set_fs(player)
@@ -3051,8 +3055,8 @@ core.register_on_dieplayer(function(player)
 	if not data then return end
 
 	if data.bag_size then
-		data.bag_size = nil
 		data.bag_item = nil
+		data.bag_size = nil
 		data.bag:set_list("main", {})
 
 		local inv = player:get_inventory()
@@ -3063,8 +3067,8 @@ core.register_on_dieplayer(function(player)
 end)
 
 local META_SAVES = {
-	bag_size = true,
 	bag_item = true,
+	bag_size = true,
 	waypoints = true,
 	inv_items = true,
 	known_recipes = true,
@@ -3394,21 +3398,21 @@ local bag_recipes = {
 			{"group:wool", "group:wool", "group:wool"},
 			{"group:wool", "group:wool", "group:wool"},
 		},
-		bag_size = 1,
+		size = 1,
 	},
 	medium = {
 		rcp = {
 			{"farming:string", "i3:bag_small", "farming:string"},
 			{"farming:string", "i3:bag_small", "farming:string"},
 		},
-		bag_size = 2,
+		size = 2,
 	},
 	large = {
 		rcp = {
 			{"farming:string", "i3:bag_medium", "farming:string"},
 			{"farming:string", "i3:bag_medium", "farming:string"},
 		},
-		bag_size = 3,
+		size = 3,
 	},
 }
 
@@ -3419,7 +3423,7 @@ for size, item in pairs(bag_recipes) do
 		description = fmt("%s Backpack", size:gsub("^%l", upper)),
 		inventory_image = fmt("i3_bag_%s.png", size),
 		stack_max = 1,
-		groups = {i3_bag = item.bag_size}
+		groups = {i3_bag = item.size}
 	})
 
 	core.register_craft {output = bagname, recipe = item.rcp}
