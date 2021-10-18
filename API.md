@@ -246,6 +246,11 @@ Returns a map of search filters, indexed by name.
 If set, the mod will export all the cached recipes and usages in a JSON format
 to the given URL (HTTP support is required¹).
 
+#### `groups = {bag = <1-3>}`
+
+The `bag` group in the item definition allows to extend the player inventory size
+according to a number between 1 and 3.
+
 ---
 
 **¹** Add `i3` to the `secure.http_mods` or `secure.trusted_mods` setting in `minetest.conf`.

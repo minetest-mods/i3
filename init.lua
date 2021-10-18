@@ -2964,7 +2964,7 @@ local function init_backpack(player)
 	data.bag = create_inventory(fmt("%s_backpack", name), {
 		allow_put = function(_inv, listname, _, stack)
 			local empty = _inv:get_stack(listname, 1):is_empty()
-			local item_group = minetest.get_item_group(stack:get_name(), "i3_bag")
+			local item_group = minetest.get_item_group(stack:get_name(), "bag")
 
 			if empty and item_group > 0 and item_group < 4 then
 				return 1
@@ -2978,7 +2978,7 @@ local function init_backpack(player)
 		on_put = function(_, _, _, stack)
 			local stackname = stack:get_name()
 			data.bag_item = stackname
-			data.bag_size = minetest.get_item_group(stackname, "i3_bag")
+			data.bag_size = minetest.get_item_group(stackname, "bag")
 
 			inv:set_size("main", BAG_SIZES[data.bag_size])
 			set_fs(player)
@@ -3423,7 +3423,7 @@ for size, item in pairs(bag_recipes) do
 		description = fmt("%s Backpack", size:gsub("^%l", upper)),
 		inventory_image = fmt("i3_bag_%s.png", size),
 		stack_max = 1,
-		groups = {i3_bag = item.size}
+		groups = {bag = item.size}
 	})
 
 	core.register_craft {output = bagname, recipe = item.rcp}
