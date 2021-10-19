@@ -186,9 +186,9 @@ Removes all recipe filters and adds a new one.
 
 Removes the recipe filter with the given `name`.
 
-#### `i3.get_recipe_filters()`
+#### `i3.recipe_filters`
 
-Returns a map of recipe filters, indexed by name.
+A map of recipe filters, indexed by name.
 
 ---
 
@@ -233,9 +233,9 @@ end)
 
 Removes the search filter with the given `name`.
 
-#### `i3.get_search_filters()`
+#### `i3.search_filters`
 
-Returns a map of search filters, indexed by name.
+A map of search filters, indexed by name.
 
 ---
 
