@@ -55,9 +55,9 @@ Sets the current tab by name. `player` is an `ObjectRef` to the user.
 
 Overrides a tab by name. `def` is the tab definition like seen in `i3.set_tab`.
 
-#### `i3.get_tabs()`
+#### `i3.tabs`
 
-Returns the list of registered tabs.
+A list of registered tabs.
 
 ---
 
@@ -81,28 +81,28 @@ i3.register_craft_type("digging", {
 #### Registering a custom crafting recipe (examples)
 
 ```Lua
-i3.register_craft({
+i3.register_craft {
 	type   = "digging",
 	result = "default:cobble 2",
 	items  = {"default:stone"},
-})
+}
 ```
 
 ```Lua
-i3.register_craft({
+i3.register_craft {
 	result = "default:cobble 16",
 	items = {
 		"default:stone, default:stone, default:stone",
 		"default:stone,              , default:stone",
 		"default:stone, default:stone, default:stone",
 	}
-})
+}
 ```
 
 Recipes can be registered in a Minecraft-like way:
 
 ```Lua
-i3.register_craft({
+i3.register_craft {
 	grid = {
 		"X  #",
 		" ## ",
@@ -114,13 +114,13 @@ i3.register_craft({
 		['X'] = "default:glass",
 	},
 	result = "default:mese 3",
-})
+}
 ```
 
 Multiples recipes can also be registered:
 
 ```Lua
-i3.register_craft({
+i3.register_craft {
 	{
 		result = "default:mese",
 		items = {
@@ -138,15 +138,15 @@ i3.register_craft({
 			"default:mese_crystal, default:mese_crystal",
 		}
 	},
-})
+}
 ```
 
 Recipes can be registered from a given URL containing a JSON file (HTTP support is required¹):
 
 ```Lua
-i3.register_craft({
+i3.register_craft {
 	url = "https://raw.githubusercontent.com/minetest-mods/i3/main/tests/test_online_recipe.json"
-})
+}
 ```
 
 ---
@@ -181,10 +181,6 @@ end)
 #### `i3.set_recipe_filter(name, function(recipe, player))`
 
 Removes all recipe filters and adds a new one.
-
-#### `i3.remove_recipe_filter(name)`
-
-Removes the recipe filter with the given `name`.
 
 #### `i3.recipe_filters`
 
@@ -228,10 +224,6 @@ i3.add_search_filter("types", function(item, drawtypes)
 	return #t > 0
 end)
 ```
-
-#### `i3.remove_search_filter(name)`
-
-Removes the search filter with the given `name`.
 
 #### `i3.search_filters`
 

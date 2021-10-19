@@ -3,6 +3,7 @@ local HUD_TIMER_MAX = 1.5
 
 local set_fs = i3.set_fs
 local modpath = core.get_modpath "i3"
+
 local search, table_merge, is_group, extract_groups, item_has_groups, apply_recipe_filters =
 	unpack(dofile(modpath .. "/etc/common.lua").progressive)
 

@@ -1,4 +1,3 @@
-local modpath = core.get_modpath "i3"
 local item_compression = core.settings:get_bool("i3_item_compression", true)
 local reg_items, translate = core.registered_items, core.get_translated_string
 

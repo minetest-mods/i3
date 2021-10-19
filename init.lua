@@ -184,8 +184,7 @@ local function get_formspec_version(info)
 end
 
 local function outdated(name)
-	local fs = fmt("size[6.3,1.3]image[0,0;1,1;%s]label[1,0;%s]button_exit[2.6,0.8;1,1;;OK]",
-		"i3_book.png",
+	local fs = fmt("size[6.3,1.3]image[0,0;1,1;i3_book.png]label[1,0;%s]button_exit[2.6,0.8;1,1;;OK]",
 		"Your Minetest client is outdated.\nGet the latest version on minetest.net to play the game.")
 
 	core.show_formspec(name, "i3_outdated", fs)
@@ -336,10 +335,6 @@ function i3.set_recipe_filter(name, f)
 	end
 
 	i3.recipe_filters = {[name] = f}
-end
-
-function i3.remove_recipe_filter(name)
-	i3.recipe_filters[name] = nil
 end
 
 function i3.add_search_filter(name, f)
