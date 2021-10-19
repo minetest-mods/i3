@@ -4,7 +4,7 @@
 
 #### **`i3`** is a next-generation inventory for Minetest.
 
-This inventory offers a slick, modern UI made with the latest technologies of the Minetest engine.
+This mod features a modern, powerful inventory menu with a good user experience.
 **`i3`** provides a rich [**API**](https://github.com/minetest-mods/i3/blob/master/API.md) for mod developers who want to extend it.
 
 This mod requires **Minetest 5.4+**
@@ -37,11 +37,16 @@ To use this mod in the best conditions:
    - Use a HiDPI widescreen display
    - Use the default Freetype font style
 
+#### Troubleshooting
+
+If the inventory's font size is too big on certain setups (namely Windows 10/11 or 144 DPI display), you should lower the
+value of the setting `display_density_factor` in your `minetest.conf`. Note that the change is applied after restart.
+
 #### Notes
 
 `i3` uses a larger inventory than the usual inventories in Minetest games.
 Thus, most chests will be unadapted to this inventory size.
-The `i3`  inventory is 9 slots wide by default (without backpack), such as in Minecraft.
+The `i3`  inventory is 9 slots wide by default (without backpack), such as Minecraft.
 
 Report any bug on the [**Bug Tracker**](https://github.com/minetest-mods/i3/issues).
 

@@ -20,8 +20,8 @@ local min, max, floor, ceil = math.min, math.max, math.floor, math.ceil
 local clr, ESC, check_privs, translate =
 	core.colorize, core.formspec_escape, core.check_player_privs, core.get_translated_string
 
-local model_aliases = loadfile(modpath .. "/etc/model_aliases.lua")()
-local PNG, styles, fs_elements = loadfile(modpath .. "/etc/styles.lua")()
+local model_aliases = dofile(modpath .. "/etc/model_aliases.lua")
+local PNG, styles, fs_elements = dofile(modpath .. "/etc/styles.lua")
 
 local _, _, is_group, extract_groups, item_has_groups =
 	unpack(dofile(modpath .. "/etc/common.lua").progressive)

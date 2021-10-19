@@ -49,8 +49,8 @@ i3.S = core.get_translator "i3"
 local S, slz, dslz = i3.S, core.serialize, core.deserialize
 
 i3.data = dslz(storage:get_string "data") or {}
-i3.compress_groups, i3.compressed = loadfile(modpath .. "/etc/compress.lua")()
-i3.group_stereotypes, i3.group_names = loadfile(modpath .. "/etc/groups.lua")()
+i3.compress_groups, i3.compressed = dofile(modpath .. "/etc/compress.lua")
+i3.group_stereotypes, i3.group_names = dofile(modpath .. "/etc/groups.lua")
 
 local is_str, show_item, reset_compression = unpack(dofile(modpath .. "/etc/common.lua").init)
 local groups_to_items, _, compressible, true_str, is_fav = unpack(dofile(modpath .. "/etc/common.lua").gui)
