@@ -1,4 +1,3 @@
-local modpath = core.get_modpath "i3"
 local damage_enabled = core.settings:get_bool "enable_damage"
 
 local reg_items = core.registered_items
@@ -20,14 +19,10 @@ local min, max, floor, ceil = math.min, math.max, math.floor, math.ceil
 local clr, ESC, check_privs, translate =
 	core.colorize, core.formspec_escape, core.check_player_privs, core.get_translated_string
 
-local model_aliases = dofile(modpath .. "/etc/model_aliases.lua")
-local PNG, styles, fs_elements = dofile(modpath .. "/etc/styles.lua")
-
-local _, _, is_group, extract_groups, item_has_groups =
-	unpack(dofile(modpath .. "/etc/common.lua").progressive)
-
-local groups_to_items, compression_active, compressible, true_str, is_fav =
-	unpack(dofile(modpath .. "/etc/common.lua").gui)
+local model_aliases = i3.files.model_alias()
+local PNG, styles, fs_elements = i3.files.styles()
+local _, _, is_group, extract_groups, item_has_groups = unpack(i3.files.common().progressive)
+local groups_to_items, compression_active, compressible, true_str, is_fav = unpack(i3.files.common().gui)
 
 local S = i3.S
 

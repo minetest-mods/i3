@@ -1,14 +1,12 @@
 local POLL_FREQ = 0.25
 local HUD_TIMER_MAX = 1.5
 
-local set_fs = i3.set_fs
-local modpath = core.get_modpath "i3"
-
 local search, table_merge, is_group, extract_groups, item_has_groups, apply_recipe_filters =
-	unpack(dofile(modpath .. "/etc/common.lua").progressive)
+	unpack(i3.files.common().progressive)
 
 local singleplayer = core.is_singleplayer()
-local fmt, after = string.format, core.after
+local fmt, after, pairs = string.format, core.after, pairs
+local set_fs = i3.set_fs
 
 local function array_diff(t1, t2)
 	local hash = {}
@@ -204,8 +202,7 @@ local function show_hud_success(player, data)
 		end
 
 		player:hud_change(data.hud.text, "text",
-			fmt("%u new recipe%s unlocked!",
-				data.discovered, data.discovered > 1 and "s" or ""))
+			fmt("%u new recipe%s unlocked!", data.discovered, data.discovered > 1 and "s" or ""))
 
 	elseif data.show_hud == false then
 		if data.hud_timer >= HUD_TIMER_MAX then

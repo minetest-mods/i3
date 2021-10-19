@@ -1,3 +1,9 @@
+local modpath = core.get_modpath "i3"
+
+local function lf(path)
+	return loadfile(modpath .. path)
+end
+
 i3 = {
 	modules = {},
 
@@ -39,9 +45,18 @@ i3 = {
 	search_filters = {},
 	craft_types    = {},
 	tabs           = {},
+
+	files = {
+		common = lf("/etc/common.lua"),
+		compress = lf("/etc/compress.lua"),
+		groups = lf("/etc/groups.lua"),
+		gui = lf("/etc/gui.lua"),
+		model_alias = lf("/etc/model_aliases.lua"),
+		progressive = lf("/etc/progressive.lua"),
+		styles = lf("/etc/styles.lua"),
+	}
 }
 
-local modpath = core.get_modpath "i3"
 local http = core.request_http_api()
 local storage = core.get_mod_storage()
 
@@ -49,16 +64,16 @@ i3.S = core.get_translator "i3"
 local S, slz, dslz = i3.S, core.serialize, core.deserialize
 
 i3.data = dslz(storage:get_string "data") or {}
-i3.compress_groups, i3.compressed = dofile(modpath .. "/etc/compress.lua")
-i3.group_stereotypes, i3.group_names = dofile(modpath .. "/etc/groups.lua")
+i3.compress_groups, i3.compressed = i3.files.compress()
+i3.group_stereotypes, i3.group_names = i3.files.groups()
 
-local is_str, show_item, reset_compression = unpack(dofile(modpath .. "/etc/common.lua").init)
-local groups_to_items, _, compressible, true_str, is_fav = unpack(dofile(modpath .. "/etc/common.lua").gui)
+local is_str, show_item, reset_compression = unpack(i3.files.common().init)
+local groups_to_items, _, compressible, true_str, is_fav = unpack(i3.files.common().gui)
 
 local search, table_merge, is_group, extract_groups, item_has_groups, apply_recipe_filters =
-	unpack(dofile(modpath .. "/etc/common.lua").progressive)
+	unpack(i3.files.common().progressive)
 
-local make_fs, get_inventory_fs = dofile(modpath .. "/etc/gui.lua")
+local make_fs, get_inventory_fs = i3.files.gui()
 
 local progressive_mode = core.settings:get_bool "i3_progressive_mode"
 
@@ -82,9 +97,7 @@ local fmt, find, gmatch, match, sub, split, upper, lower =
 	string.sub, string.split, string.upper, string.lower
 
 local min, ceil, random = math.min, math.ceil, math.random
-
-local pairs, ipairs, next, type, tonum =
-	pairs, ipairs, next, type, tonumber
+local pairs, ipairs, next, type, tonum = pairs, ipairs, next, type, tonumber
 
 local vec_new, vec_add, vec_mul, vec_eq, vec_round =
 	vector.new, vector.add, vector.multiply, vector.equals, vector.round
@@ -1618,7 +1631,7 @@ core.register_on_player_hpchange(function(player, hpchange)
 end)
 
 if progressive_mode then
-	dofile(modpath .. "/etc/progressive.lua")
+	i3.files.progressive()
 end
 
 local bag_recipes = {
