@@ -291,4 +291,5 @@ if i3.progressive_mode then
 end
 
 --dofile(modpath .. "/tests/test_tabs.lua")
+--dofile(modpath .. "/tests/test_compression.lua")
 --dofile(modpath .. "/tests/test_custom_recipes.lua")

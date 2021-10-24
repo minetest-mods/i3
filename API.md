@@ -231,6 +231,33 @@ A map of search filters, indexed by name.
 
 ---
 
+### Item compression
+
+`i3` is capable of reducing the item list size by compressing a group of items.
+
+#### `i3.compress(item, def)`
+
+Adds a new group of items to compress.
+
+- `item` is the item that serve as stereotype for the group of compressed items.
+- `def` is a table specifying the substring replace patterns to be used.
+
+Example:
+
+```Lua
+i3.compress("default:diamondblock", {
+	replace = "diamond",
+	by = {"bronze", "copper", "gold", "steel", "tin"}
+})
+
+```
+
+#### `i3.get_compress_groups()`
+
+Returns a map of all compressed item groups, indexed by stereotypes.
+
+---
+
 ### Miscellaneous
 
 #### `i3.get_recipes(item)`

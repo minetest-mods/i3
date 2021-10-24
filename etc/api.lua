@@ -285,4 +285,38 @@ i3.add_search_filter("groups", function(item, groups)
 	return has_groups
 end)
 
+function i3.compress(item, def)
+	if not true_str(item) then
+		return err "i3.compress: item name missing"
+	end
+
+	if not is_table(def) then
+		return err "i3.compress: replace definition missing"
+	end
+
+	if not true_str(def.replace) then
+		return err "i3.compress: replace string missing"
+	end
+
+	if not is_table(def.by) then
+		return err "i3.compress: replace substrings missing"
+	end
+
+	local t = {}
+	i3.compress_groups[item] = i3.compress_groups[item] or {}
+
+	for _, str in ipairs(def.by) do
+		local it = item:gsub(def.replace, str)
+
+		insert(t, it)
+		insert(i3.compress_groups[item], it)
+
+		i3.compressed[it] = true
+	end
+end
+
+function i3.get_compress_groups()
+	return i3.compress_groups
+end
+
 return set_fs, i3.set_tab
