@@ -1,34 +1,18 @@
 local damage_enabled = core.settings:get_bool "enable_damage"
 
-local reg_items = core.registered_items
-local reg_entities = core.registered_entities
-local reg_tools = core.registered_tools
-
-local pairs, ipairs, next, type, setmetatable, unpack, select =
-	pairs, ipairs, next, type, setmetatable, unpack, select
-
-local sprintf, sub, find, match, upper =
-	string.format, string.sub, string.find, string.match, string.upper
-
-local concat, sort, insert, remove, maxn, copy =
-	table.concat, table.sort, table.insert, table.remove, table.maxn,
-	table.copy
-
-local min, max, floor, ceil = math.min, math.max, math.floor, math.ceil
-
-local clr, ESC, check_privs, translate =
-	core.colorize, core.formspec_escape, core.check_player_privs, core.get_translated_string
-
 local model_aliases = i3.files.model_alias()
 local PNG, styles, fs_elements = i3.files.styles()
-local _, _, is_group, extract_groups, item_has_groups = unpack(i3.files.common().progressive)
-local groups_to_items, compression_active, compressible, true_str, is_fav = unpack(i3.files.common().gui)
 
-local S = i3.S
+local clr, ESC = i3.need("clr", "ESC")
+local S, ES, translate = i3.need("S", "ES", "translate")
+local min, max, floor, ceil = i3.need("min", "max", "floor", "ceil")
+local sprintf, find, match, sub, upper = i3.need("fmt", "find", "match", "sub", "upper")
+local reg_items, reg_tools, reg_entities = i3.need("reg_items", "reg_tools", "reg_entities")
+local maxn, sort, concat, copy, insert, remove = i3.need("maxn", "sort", "concat", "copy", "insert", "remove")
 
-local ES = function(...)
-	return ESC(S(...))
-end
+local is_group, extract_groups, item_has_groups = i3.need("is_group", "extract_groups", "item_has_groups")
+local groups_to_items, compression_active, compressible, true_str, is_fav =
+	i3.need("groups_to_items", "compression_active", "compressible", "true_str", "is_fav")
 
 local function is_num(x)
 	return type(x) == "number"
@@ -306,7 +290,7 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 		fs("image_button", ctn_len - 1.5, yi, icon_size, icon_size, "", vsb, "")
 		fs(fmt("tooltip[%s;%s]", vsb, v.hide and ES"Show waypoint" or ES"Hide waypoint"))
 
-		if check_privs(player, {teleport = true}) then
+		if core.check_player_privs(player, {teleport = true}) then
 			local tp = fmt("waypoint_%u_teleport", i)
 
 			fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",

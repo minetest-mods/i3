@@ -1,5 +1,3 @@
-local fmt = string.format
-
 local PNG = {
 	bg = "i3_bg.png",
 	bg_full = "i3_bg_full.png",
@@ -62,7 +60,7 @@ local PNG = {
 	exit_hover = "i3_exit.png^\\[brighten",
 }
 
-local styles = fmt([[
+local styles = string.format([[
 	style_type[field;border=false;bgcolor=transparent]
 	style_type[label,field;font_size=16]
 	style_type[button;border=false;content_offset=0]

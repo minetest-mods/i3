@@ -1,9 +1,8 @@
-local item_compression = core.settings:get_bool("i3_item_compression", true)
-local reg_items, translate = core.registered_items, core.get_translated_string
-
+local translate = core.get_translated_string
 local fmt, find, gmatch, match, sub, split, lower =
-	string.format, string.find, string.gmatch, string.match,
-	string.sub, string.split, string.lower
+	string.format, string.find, string.gmatch, string.match, string.sub, string.split, string.lower
+local reg_items, reg_nodes, reg_craftitems, reg_tools =
+	core.registered_items, core.registered_nodes, core.registered_craftitems, core.registered_tools
 
 local function reset_compression(data)
 	data.alt_items = nil
@@ -156,7 +155,7 @@ local function apply_recipe_filters(recipes, player)
 end
 
 local function compression_active(data)
-	return item_compression and not next(i3.recipe_filters) and data.filter == ""
+	return i3.item_compression and not next(i3.recipe_filters) and data.filter == ""
 end
 
 local function compressible(item, data)
@@ -165,6 +164,10 @@ end
 
 local function is_str(x)
 	return type(x) == "string"
+end
+
+local function is_table(x)
+	return type(x) == "table"
 end
 
 local function true_str(str)
@@ -184,27 +187,147 @@ local function is_fav(favs, query_item)
 	return fav, i
 end
 
+local function sort_by_category(data)
+	reset_compression(data)
+	local items = data.items_raw
+
+	if data.filter ~= "" then
+		search(data)
+		items = data.items
+	end
+
+	local new = {}
+
+	for i = 1, #items do
+		local item = items[i]
+		local to_add = true
+
+		if data.current_itab == 2 then
+			to_add = reg_nodes[item]
+		elseif data.current_itab == 3 then
+			to_add = reg_craftitems[item] or reg_tools[item]
+		end
+
+		if to_add then
+			new[#new + 1] = item
+		end
+	end
+
+	data.items = new
+end
+
+local function clean_name(item)
+	if sub(item, 1, 1) == ":" or sub(item, 1, 1) == " " or sub(item, 1, 1) == "_" then
+		item = sub(item, 2)
+	end
+
+	return item
+end
+
+local function msg(name, str)
+	return core.chat_send_player(name, fmt("[i3] %s", str))
+end
+
+local function spawn_item(player, stack)
+	local dir     = player:get_look_dir()
+	local ppos    = player:get_pos()
+	      ppos.y  = ppos.y + 1.625
+	local look_at = vector.add(ppos, vector.multiply(dir, 1))
+
+	core.add_item(look_at, stack)
+end
+
+local S = core.get_translator "i3"
+local ES = function(...) return core.formspec_escape(S(...)) end
+
 return {
-	init = {
-		is_str,
-		show_item,
-		reset_compression,
+	groups = {
+		is_group = is_group,
+		extract_groups = extract_groups,
+		item_has_groups = item_has_groups,
+		groups_to_items = groups_to_items,
 	},
 
-	progressive = {
-		search,
-		table_merge,
-		is_group,
-		extract_groups,
-		item_has_groups,
-		apply_recipe_filters,
+	compression = {
+		compressible = compressible,
+		compression_active = compression_active,
 	},
 
-	gui = {
-		groups_to_items,
-		compression_active,
-		compressible,
-		true_str,
-		is_fav,
+	sorting = {
+		search = search,
+		sort_by_category = sort_by_category,
+		apply_recipe_filters = apply_recipe_filters,
+	},
+
+	misc = {
+		msg = msg,
+		is_fav = is_fav,
+		show_item = show_item,
+		spawn_item = spawn_item,
+		table_merge = table_merge,
+	},
+
+	core = {
+		clr = core.colorize,
+		ESC = core.formspec_escape,
+		check_privs = core.check_player_privs,
+	},
+
+	reg = {
+		reg_items = core.registered_items,
+		reg_nodes = core.registered_nodes,
+		reg_craftitems = core.registered_craftitems,
+		reg_tools = core.registered_tools,
+		reg_entities = core.registered_entities,
+		reg_aliases = core.registered_aliases,
+	},
+
+	i18n = {
+		S = S,
+		ES = ES,
+		translate = core.get_translated_string,
+	},
+
+	string = {
+		fmt = string.format,
+		find = string.find,
+		gmatch = string.gmatch,
+		match = string.match,
+		sub = string.sub,
+		split = string.split,
+		upper = string.upper,
+		lower = string.lower,
+
+		is_str = is_str,
+		true_str = true_str,
+		clean_name = clean_name,
+	},
+
+	table = {
+		maxn = table.maxn,
+		sort = table.sort,
+		concat = table.concat,
+		copy = table.copy,
+		insert = table.insert,
+		remove = table.remove,
+		indexof = table.indexof,
+
+		is_table = is_table,
+	},
+
+	math = {
+		min = math.min,
+		max = math.max,
+		floor = math.floor,
+		ceil = math.ceil,
+		random = math.random,
+	},
+
+	vec = {
+		vec_new = vector.new,
+		vec_add = vector.add,
+		vec_mul = vector.multiply,
+		vec_eq = vector.equals,
+		vec_round = vector.round,
 	},
 }

@@ -1,12 +1,11 @@
+local set_fs = i3.files.api()
+local singleplayer = core.is_singleplayer()
+
+local fmt, search, table_merge, is_group, extract_groups, item_has_groups, apply_recipe_filters =
+	i3.need("fmt", "search", "table_merge", "is_group", "extract_groups", "item_has_groups", "apply_recipe_filters")
+
 local POLL_FREQ = 0.25
 local HUD_TIMER_MAX = 1.5
-
-local search, table_merge, is_group, extract_groups, item_has_groups, apply_recipe_filters =
-	unpack(i3.files.common().progressive)
-
-local singleplayer = core.is_singleplayer()
-local fmt, after, pairs = string.format, core.after, pairs
-local set_fs = i3.set_fs
 
 local function array_diff(t1, t2)
 	local hash = {}
@@ -255,7 +254,7 @@ local function poll_new_items()
 		end
 	end
 
-	after(POLL_FREQ, poll_new_items)
+	core.after(POLL_FREQ, poll_new_items)
 end
 
 poll_new_items()

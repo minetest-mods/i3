@@ -1,4 +1,4 @@
-local S = core.get_translator "i3"
+local S = i3.need("S")
 
 local group_stereotypes = {
 	dye = "dye:white",

@@ -1,4 +1,4 @@
-local fmt, insert, copy, pairs, ipairs = string.format, table.insert, table.copy, pairs, ipairs
+local fmt, copy, insert = i3.need("fmt", "copy", "insert")
 
 local wood_types = {
 	"acacia_wood", "aspen_wood", "junglewood", "pine_wood",
