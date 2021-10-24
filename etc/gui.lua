@@ -161,18 +161,12 @@ local function get_inv_slots(data, fs)
 	   fmt("list[current_player;main;%f,%f;%u,1;]", inv_x, inv_y, i3.HOTBAR_LEN))
 
 	if bag then
-		if bag == 1 then
-			width, size = 10, 0.892
-		elseif bag == 2 then
-			width, size = 11, 0.8
-		elseif bag == 3 then
-			width, size = 12, 0.726
-		end
+		width, size = i3.BAG_DEFS[bag].fs_width, i3.BAG_DEFS[bag].fs_size
 	end
 
 	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing),
 	   fmt("list[current_player;main;%f,%f;%u,%u;%u]", inv_x, inv_y + 1.15,
-		width, (bag and i3.BAG_SIZES[data.bag_size] or i3.INV_SIZE) / width, i3.HOTBAR_LEN),
+		width, (bag and i3.BAG_DEFS[data.bag_size].size or i3.INV_SIZE) / width, i3.HOTBAR_LEN),
 	   "style_type[list;size=1;spacing=0.15]")
 
 	fs("listring[current_player;craft]listring[current_player;main]")
@@ -377,7 +371,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 
 		if not data.bag:get_stack("main", 1):is_empty() then
 			fs("hypertext", 1.2, yextra + 0.89, ctn_len - 1.9, 0.8, "bpk",
-				ES("The inventory is extended by @1 slots", i3.BAG_SIZES[data.bag_size] - i3.INV_SIZE))
+				ES("The inventory is extended by @1 slots", i3.BAG_DEFS[data.bag_size].size - i3.INV_SIZE))
 		end
 
 	elseif data.subcat == 2 then

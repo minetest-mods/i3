@@ -14,10 +14,22 @@ i3 = {
 	MIN_FORMSPEC_VERSION = 4,
 	SAVE_INTERVAL = 600, -- Player data save interval (in seconds)
 
-	BAG_SIZES = {
-		4*9 + 3,
-		4*9 + 6,
-		4*9 + 9,
+	BAG_DEFS = {
+		{
+			size = 4*9 + 3,
+			fs_size = 0.892,
+			fs_width = 10,
+		},
+		{
+			size = 4*9 + 6,
+			fs_size = 0.8,
+			fs_width = 11,
+		},
+		{
+			size = 4*9 + 9,
+			fs_size = 0.726,
+			fs_width = 12,
+		}
 	},
 
 	SUBCAT = {
@@ -925,6 +937,21 @@ function i3.override_tab(tabname, newdef)
 	end
 end
 
+function i3.register_backpack_group(def)
+	local slots = def.slots
+	local width = 9 + (slots/3)
+	assert(slots, "i3.register_backpack: slots definition missing")
+	assert(slots%3 == 0, "i3.register_backpack: slots not divisable by 3")
+
+	i3.BAG_DEFS[#i3.BAG_DEFS+1] = {
+		size = 4*9 + slots,
+		fs_size = 8/width,
+		fs_width = width,
+	}
+
+	return #i3.BAG_DEFS
+end
+
 local function init_data(player, info)
 	local name = player:get_player_name()
 	i3.data[name] = i3.data[name] or {}
@@ -1446,14 +1473,14 @@ local function init_backpack(player)
 		data.bag_size = convert[data.bag_size]
 	end
 
-	inv:set_size("main", data.bag_size and i3.BAG_SIZES[data.bag_size] or i3.INV_SIZE)
+	inv:set_size("main", data.bag_size and i3.BAG_DEFS[data.bag_size].size or i3.INV_SIZE)
 
 	data.bag = create_inventory(fmt("%s_backpack", name), {
 		allow_put = function(_inv, listname, _, stack)
 			local empty = _inv:get_stack(listname, 1):is_empty()
 			local item_group = minetest.get_item_group(stack:get_name(), "bag")
 
-			if empty and item_group > 0 and item_group <= #i3.BAG_SIZES then
+			if empty and item_group > 0 and item_group <= #i3.BAG_DEFS then
 				return 1
 			end
 
@@ -1467,12 +1494,12 @@ local function init_backpack(player)
 			data.bag_item = stackname
 			data.bag_size = minetest.get_item_group(stackname, "bag")
 
-			inv:set_size("main", i3.BAG_SIZES[data.bag_size])
+			inv:set_size("main", i3.BAG_DEFS[data.bag_size].size)
 			set_fs(player)
 		end,
 
 		on_take = function()
-			for i = i3.INV_SIZE + 1, i3.BAG_SIZES[data.bag_size] do
+			for i = i3.INV_SIZE + 1, i3.BAG_DEFS[data.bag_size].size do
 				local stack = inv:get_stack("main", i)
 
 				if not stack:is_empty() then
