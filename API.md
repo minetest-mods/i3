@@ -24,6 +24,7 @@ i3.new_tab {
 		fs("label[3,1;This is just a test]")
 	end,
 
+	-- Events handling happens here
 	fields = function(player, data, fields)
 		
 	end,
@@ -190,9 +191,9 @@ A map of recipe filters, indexed by name.
 
 ### Search filters
 
-Search filters are used to perform specific searches inside the search field.
-These filters are cumulative to perform a specific search.
-They can be used like so: `<optional_name> +<filter name>=<value1>,<value2>,<...>`
+Search filters are used to perform specific searches from the search field.
+The filters can be cumulated to perform a specific search.
+They are used like so: `<optional_name> +<filter name>=<value1>,<value2>,<...>`
 
 Example usages:
 
@@ -206,8 +207,11 @@ Notes:
 
 #### `i3.add_search_filter(name, function(item, values))`
 
-Adds a search filter with the given `name`. `values` is a table of all possible values.
+Adds a search filter.
 The search function must return a boolean value (whether the given item should be listed or not).
+
+- `name` is the filter name.
+- `values` is a table of all possible values.
 
 Example function sorting items by drawtype:
 
@@ -231,9 +235,9 @@ A map of search filters, indexed by name.
 
 ---
 
-### Item compression
+### Item list compression
 
-`i3` is capable of reducing the item list size by compressing a group of items.
+`i3` can reduce the item list size by compressing a group of items.
 
 #### `i3.compress(item, def)`
 
@@ -262,7 +266,7 @@ A map of all compressed item groups, indexed by stereotypes.
 
 #### `i3.get_recipes(item)`
 
-Returns a table of recipes and usages of given `item` name.
+Returns a table of recipes and usages of `item`.
 
 #### `i3.export_url`
 
@@ -272,7 +276,7 @@ to the given URL (HTTP support is required¹).
 #### `groups = {bag = <1-3>}`
 
 The `bag` group in the item definition allows to extend the player inventory size
-according to a number between 1 and 3.
+given a number between 1 and 3.
 
 ---
 
