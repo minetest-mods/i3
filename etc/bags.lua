@@ -1,5 +1,5 @@
 local set_fs = i3.files.api()
-local S, fmt, msg, spawn_item = i3.need("S", "fmt", "msg", "spawn_item")
+local S, fmt, msg, spawn_item = i3.get("S", "fmt", "msg", "spawn_item")
 
 local function init_backpack(player)
 	local name = player:get_player_name()

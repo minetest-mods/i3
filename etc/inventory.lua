@@ -1,20 +1,20 @@
 local set_fs, set_tab = i3.files.api()
 local _, get_inventory_fs = i3.files.gui()
 
-local S, clr = i3.need("S", "clr")
-local min, ceil, random = i3.need("min", "ceil", "random")
-local reg_items, reg_aliases = i3.need("reg_items", "reg_aliases")
-local fmt, find, match, sub, lower = i3.need("fmt", "find", "match", "sub", "lower")
-local vec_new, vec_mul, vec_eq, vec_round = i3.need("vec_new", "vec_mul", "vec_eq", "vec_round")
-local sort, copy, insert, remove, indexof = i3.need("sort", "copy", "insert", "remove", "indexof")
+local S, clr = i3.get("S", "clr")
+local min, ceil, random = i3.get("min", "ceil", "random")
+local reg_items, reg_aliases = i3.get("reg_items", "reg_aliases")
+local fmt, find, match, sub, lower = i3.get("fmt", "find", "match", "sub", "lower")
+local vec_new, vec_mul, vec_eq, vec_round = i3.get("vec_new", "vec_mul", "vec_eq", "vec_round")
+local sort, copy, insert, remove, indexof = i3.get("sort", "copy", "insert", "remove", "indexof")
 
-local msg, is_str, is_fav = i3.need("msg", "is_str", "is_fav")
+local msg, is_str, is_fav = i3.get("msg", "is_str", "is_fav")
 local is_group, extract_groups, groups_to_items =
-	i3.need("is_group", "extract_groups", "groups_to_items")
+	i3.get("is_group", "extract_groups", "groups_to_items")
 local search, sort_by_category, apply_recipe_filters =
-	i3.need("search", "sort_by_category", "apply_recipe_filters")
+	i3.get("search", "sort_by_category", "apply_recipe_filters")
 local show_item, spawn_item, clean_name, compressible, check_privs =
-	i3.need("show_item", "spawn_item", "clean_name", "compressible", "check_privs")
+	i3.get("show_item", "spawn_item", "clean_name", "compressible", "check_privs")
 
 local old_is_creative_enabled = core.is_creative_enabled
 

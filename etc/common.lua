@@ -351,7 +351,9 @@ local function spawn_item(player, stack)
 	core.add_item(look_at, stack)
 end
 
-return {
+-------------------------------------------------------------------------------
+
+local registry = {
 	-- Groups
 	is_group = is_group,
 	extract_groups = extract_groups,
@@ -382,6 +384,8 @@ return {
 
 	-- Core functions
 	clr = core.colorize,
+	slz = core.serialize,
+	dslz = core.deserialize,
 	ESC = core.formspec_escape,
 	check_privs = core.check_player_privs,
 
@@ -437,3 +441,13 @@ return {
 	vec_eq = vector.equals,
 	vec_mul = vector.multiply,
 }
+
+function i3.get(...)
+	local t = {}
+
+	for i, var in ipairs{...} do
+		t[i] = registry[var]
+	end
+
+	return unpack(t)
+end

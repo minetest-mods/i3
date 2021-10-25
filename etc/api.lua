@@ -1,10 +1,10 @@
 local make_fs = i3.files.gui()
 
-local gmatch, match, split = i3.need("gmatch", "match", "split")
-local S, err, fmt, reg_items = i3.need("S", "err", "fmt", "reg_items")
-local sort, concat, copy, insert, remove = i3.need("sort", "concat", "copy", "insert", "remove")
+local gmatch, match, split = i3.get("gmatch", "match", "split")
+local S, err, fmt, reg_items = i3.get("S", "err", "fmt", "reg_items")
+local sort, concat, copy, insert, remove = i3.get("sort", "concat", "copy", "insert", "remove")
 local true_str, true_table, is_str, is_func, is_table, clean_name =
-	i3.need("true_str", "true_table", "is_str", "is_func", "is_table", "clean_name")
+	i3.get("true_str", "true_table", "is_str", "is_func", "is_table", "clean_name")
 
 function i3.register_craft_type(name, def)
 	if not true_str(name) then
@@ -170,8 +170,6 @@ function i3.set_fs(player, _fs)
 	player:set_inventory_formspec(fs)
 end
 
-local set_fs = i3.set_fs
-
 function i3.new_tab(def)
 	if not true_table(def) then
 		return err "i3.new_tab: tab definition missing"
@@ -308,4 +306,4 @@ function i3.compress(item, def)
 	end
 end
 
-return set_fs, i3.set_tab
+return i3.set_fs, i3.set_tab

@@ -3,17 +3,17 @@ local damage_enabled = core.settings:get_bool "enable_damage"
 local model_aliases = i3.files.model_alias()
 local PNG, styles, fs_elements = i3.files.styles()
 
-local S, ES, translate = i3.need("S", "ES", "translate")
-local clr, ESC, check_privs = i3.need("clr", "ESC", "check_privs")
-local min, max, floor, ceil, round = i3.need("min", "max", "floor", "ceil", "round")
-local sprintf, find, match, sub, upper = i3.need("fmt", "find", "match", "sub", "upper")
-local reg_items, reg_tools, reg_entities = i3.need("reg_items", "reg_tools", "reg_entities")
-local maxn, sort, concat, copy, insert, remove = i3.need("maxn", "sort", "concat", "copy", "insert", "remove")
+local S, ES, translate = i3.get("S", "ES", "translate")
+local clr, ESC, check_privs = i3.get("clr", "ESC", "check_privs")
+local min, max, floor, ceil, round = i3.get("min", "max", "floor", "ceil", "round")
+local sprintf, find, match, sub, upper = i3.get("fmt", "find", "match", "sub", "upper")
+local reg_items, reg_tools, reg_entities = i3.get("reg_items", "reg_tools", "reg_entities")
+local maxn, sort, concat, copy, insert, remove = i3.get("maxn", "sort", "concat", "copy", "insert", "remove")
 
-local true_str, is_fav, is_num = i3.need("true_str", "is_fav", "is_num")
-local is_group, extract_groups, item_has_groups = i3.need("is_group", "extract_groups", "item_has_groups")
+local true_str, is_fav, is_num = i3.get("true_str", "is_fav", "is_num")
+local is_group, extract_groups, item_has_groups = i3.get("is_group", "extract_groups", "item_has_groups")
 local groups_to_items, compression_active, compressible =
-	i3.need("groups_to_items", "compression_active", "compressible")
+	i3.get("groups_to_items", "compression_active", "compressible")
 
 local function fmt(elem, ...)
 	if not fs_elements[elem] then

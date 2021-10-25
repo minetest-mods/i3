@@ -1,13 +1,12 @@
 local replacements = {fuel = {}}
 
-local fmt, match = i3.need("fmt", "match")
-local reg_items, reg_aliases = i3.need("reg_items", "reg_aliases")
-local maxn, copy, insert = i3.need("maxn", "copy", "insert")
+local fmt, reg_items, reg_aliases = i3.get("fmt", "reg_items", "reg_aliases")
+local maxn, copy, insert, sort, match = i3.get("maxn", "copy", "insert", "sort", "match")
 
 local is_group, extract_groups, item_has_groups, groups_to_items =
-	i3.need("is_group", "extract_groups", "item_has_groups", "groups_to_items")
+	i3.get("is_group", "extract_groups", "item_has_groups", "groups_to_items")
 local true_str, is_table, show_item, table_merge, table_replace, table_eq =
-	i3.need("true_str", "is_table", "show_item", "table_merge", "table_replace", "table_eq")
+	i3.get("true_str", "is_table", "show_item", "table_merge", "table_replace", "table_eq")
 
 local function get_burntime(item)
 	return core.get_craft_result{method = "fuel", items = {item}}.time
@@ -250,4 +249,40 @@ local function resolve_aliases(hash)
 	end
 end
 
-return cache_drops, cache_fuel, cache_recipes, cache_usages, resolve_aliases
+local function init_recipes()
+	local _select, _preselect = {}, {}
+
+	for name, def in pairs(reg_items) do
+		if name ~= "" and show_item(def) then
+			cache_drops(name, def.drop)
+			cache_fuel(name)
+			cache_recipes(name)
+
+			_preselect[name] = true
+		end
+	end
+
+	for name in pairs(_preselect) do
+		cache_usages(name)
+
+		i3.init_items[#i3.init_items + 1] = name
+		_select[name] = true
+	end
+
+	resolve_aliases(_select)
+	sort(i3.init_items)
+
+	if i3.http and type(i3.export_url) == "string" then
+		local post_data = {
+			recipes = i3.recipes_cache,
+			usages  = i3.usages_cache,
+		}
+
+		i3.http.fetch_async {
+			url = i3.export_url,
+			post_data = core.write_json(post_data),
+		}
+	end
+end
+
+return init_recipes

@@ -1,4 +1,4 @@
-local S = i3.need("S")
+local S = i3.get("S")
 
 local group_stereotypes = {
 	dye = "dye:white",

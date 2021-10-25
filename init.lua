@@ -65,25 +65,9 @@ i3 = {
 	item_compression = core.settings:get_bool("i3_item_compression", true),
 }
 
-local common = i3.files.common()
-
-function i3.need(...)
-	local t = {}
-
-	for _, var in ipairs {...} do
-		for name, func in pairs(common) do
-			if var == name then
-				t[#t + 1] = func
-				break
-			end
-		end
-	end
-
-	return unpack(t)
-end
-
+i3.files.common()
 local storage = core.get_mod_storage()
-local slz, dslz = core.serialize, core.deserialize
+local fmt, copy, slz, dslz = i3.get("fmt", "copy", "slz", "dslz")
 
 i3.data = dslz(storage:get_string "data") or {}
 i3.compress_groups, i3.compressed = i3.files.compress()
@@ -91,11 +75,8 @@ i3.group_stereotypes, i3.group_names = i3.files.groups()
 
 local set_fs = i3.files.api()
 local init_backpack = i3.files.bags()
+local init_recipes = i3.files.recipes()
 i3.files.inventory()
-local cache_drops, cache_fuel, cache_recipes, cache_usages, resolve_aliases = i3.files.recipes()
-
-local fmt, sort, copy = i3.need("fmt", "sort", "copy")
-local show_item, reg_items = i3.need("show_item", "reg_items")
 
 local function get_lang_code(info)
 	return info and info.lang_code
@@ -140,42 +121,6 @@ if rawget(_G, "awards") then
 		local player = core.get_player_by_name(name)
 		set_fs(player)
 	end)
-end
-
-local function get_init_items()
-	local _select, _preselect = {}, {}
-
-	for name, def in pairs(reg_items) do
-		if name ~= "" and show_item(def) then
-			cache_drops(name, def.drop)
-			cache_fuel(name)
-			cache_recipes(name)
-
-			_preselect[name] = true
-		end
-	end
-
-	for name in pairs(_preselect) do
-		cache_usages(name)
-
-		i3.init_items[#i3.init_items + 1] = name
-		_select[name] = true
-	end
-
-	resolve_aliases(_select)
-	sort(i3.init_items)
-
-	if i3.http and type(i3.export_url) == "string" then
-		local post_data = {
-			recipes = i3.recipes_cache,
-			usages  = i3.usages_cache,
-		}
-
-		i3.http.fetch_async {
-			url = i3.export_url,
-			post_data = core.write_json(post_data),
-		}
-	end
 end
 
 local function disable_inventories()
@@ -257,7 +202,7 @@ local function save_data(player_name)
 end
 
 core.register_on_mods_loaded(function()
-	get_init_items()
+	init_recipes()
 	disable_inventories()
 end)
 

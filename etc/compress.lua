@@ -1,4 +1,4 @@
-local fmt, copy, insert = i3.need("fmt", "copy", "insert")
+local fmt, copy, insert = i3.get("fmt", "copy", "insert")
 
 local wood_types = {
 	"acacia_wood", "aspen_wood", "junglewood", "pine_wood",
