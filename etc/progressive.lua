@@ -1,37 +1,12 @@
 local set_fs = i3.files.api()
 local singleplayer = core.is_singleplayer()
 
-local fmt, search, table_merge, is_group, extract_groups, item_has_groups, apply_recipe_filters =
-	i3.need("fmt", "search", "table_merge", "is_group", "extract_groups", "item_has_groups", "apply_recipe_filters")
+local fmt, search, table_merge, array_diff = i3.need("fmt", "search", "table_merge", "array_diff")
+local is_group, extract_groups, item_has_groups, apply_recipe_filters =
+	i3.need("is_group", "extract_groups", "item_has_groups", "apply_recipe_filters")
 
 local POLL_FREQ = 0.25
 local HUD_TIMER_MAX = 1.5
-
-local function array_diff(t1, t2)
-	local hash = {}
-
-	for i = 1, #t1 do
-		local v = t1[i]
-		hash[v] = true
-	end
-
-	for i = 1, #t2 do
-		local v = t2[i]
-		hash[v] = nil
-	end
-
-	local diff, c = {}, 0
-
-	for i = 1, #t1 do
-		local v = t1[i]
-		if hash[v] then
-			c = c + 1
-			diff[c] = v
-		end
-	end
-
-	return diff
-end
 
 local function get_filtered_items(player, data)
 	local items, known, c = {}, 0, 0

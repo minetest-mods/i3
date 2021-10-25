@@ -2,73 +2,12 @@ local replacements = {fuel = {}}
 
 local fmt, match = i3.need("fmt", "match")
 local reg_items, reg_aliases = i3.need("reg_items", "reg_aliases")
-local maxn, copy, insert, remove = i3.need("maxn", "copy", "insert", "remove")
+local maxn, copy, insert = i3.need("maxn", "copy", "insert")
 
-local true_str, is_table, show_item, table_merge = i3.need("true_str", "is_table", "show_item", "table_merge")
 local is_group, extract_groups, item_has_groups, groups_to_items =
 	i3.need("is_group", "extract_groups", "item_has_groups", "groups_to_items")
-
-local function table_replace(t, val, new)
-	for k, v in pairs(t) do
-		if v == val then
-			t[k] = new
-		end
-	end
-end
-
-local function table_eq(T1, T2)
-	local avoid_loops = {}
-
-	local function recurse(t1, t2)
-		if type(t1) ~= type(t2) then return end
-
-		if not is_table(t1) then
-			return t1 == t2
-		end
-
-		if avoid_loops[t1] then
-			return avoid_loops[t1] == t2
-		end
-
-		avoid_loops[t1] = t2
-		local t2k, t2kv = {}, {}
-
-		for k in pairs(t2) do
-			if is_table(k) then
-				insert(t2kv, k)
-			end
-
-			t2k[k] = true
-		end
-
-		for k1, v1 in pairs(t1) do
-			local v2 = t2[k1]
-			if type(k1) == "table" then
-				local ok
-				for i = 1, #t2kv do
-					local tk = t2kv[i]
-					if table_eq(k1, tk) and recurse(v1, t2[tk]) then
-						remove(t2kv, i)
-						t2k[tk] = nil
-						ok = true
-						break
-					end
-				end
-
-				if not ok then return end
-			else
-				if v2 == nil then return end
-				t2k[k1] = nil
-				if not recurse(v1, v2) then return end
-			end
-		end
-
-		if next(t2k) then return end
-		return true
-	end
-
-	return recurse(T1, T2)
-end
+local true_str, is_table, show_item, table_merge, table_replace, table_eq =
+	i3.need("true_str", "is_table", "show_item", "table_merge", "table_replace", "table_eq")
 
 local function get_burntime(item)
 	return core.get_craft_result{method = "fuel", items = {item}}.time

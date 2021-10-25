@@ -71,13 +71,11 @@ function i3.need(...)
 	local t = {}
 
 	for _, var in ipairs {...} do
-		for _, cat in pairs(common) do
-		for name, func in pairs(cat) do
+		for name, func in pairs(common) do
 			if var == name then
 				t[#t + 1] = func
 				break
 			end
-		end
 		end
 	end
 
@@ -112,27 +110,6 @@ local function outdated(name)
 		"Your Minetest client is outdated.\nGet the latest version on minetest.net to play the game.")
 
 	core.show_formspec(name, "i3_outdated", fs)
-end
-
-local function init_data(player, info)
-	local name = player:get_player_name()
-	i3.data[name] = i3.data[name] or {}
-	local data = i3.data[name]
-
-	data.filter        = ""
-	data.pagenum       = 1
-	data.items         = i3.init_items
-	data.items_raw     = i3.init_items
-	data.favs          = {}
-	data.export_counts = {}
-	data.current_tab   = 1
-	data.current_itab  = 1
-	data.subcat        = 1
-	data.scrbar_inv    = 0
-	data.lang_code     = get_lang_code(info)
-	data.fs_version    = info.formspec_version
-
-	core.after(0, set_fs, player)
 end
 
 if rawget(_G, "armor") then
@@ -201,9 +178,7 @@ local function get_init_items()
 	end
 end
 
-core.register_on_mods_loaded(function()
-	get_init_items()
-
+local function disable_inventories()
 	if rawget(_G, "sfinv") then
 		function sfinv.set_player_inventory_formspec() return end
 		sfinv.enabled = false
@@ -212,7 +187,28 @@ core.register_on_mods_loaded(function()
 	if rawget(_G, "unified_inventory") then
 		function unified_inventory.set_inventory_formspec() return end
 	end
-end)
+end
+
+local function init_data(player, info)
+	local name = player:get_player_name()
+	i3.data[name] = i3.data[name] or {}
+	local data = i3.data[name]
+
+	data.filter        = ""
+	data.pagenum       = 1
+	data.items         = i3.init_items
+	data.items_raw     = i3.init_items
+	data.favs          = {}
+	data.export_counts = {}
+	data.current_tab   = 1
+	data.current_itab  = 1
+	data.subcat        = 1
+	data.scrbar_inv    = 0
+	data.lang_code     = get_lang_code(info)
+	data.fs_version    = info.formspec_version
+
+	core.after(0, set_fs, player)
+end
 
 local function init_waypoints(player)
 	local name = player:get_player_name()
@@ -235,24 +231,12 @@ local function init_waypoints(player)
 	end
 end
 
-core.register_on_joinplayer(function(player)
-	local name = player:get_player_name()
-	local info = core.get_player_information and core.get_player_information(name)
-
-	if not info or get_formspec_version(info) < i3.MIN_FORMSPEC_VERSION then
-		i3.data[name] = nil
-		return outdated(name)
-	end
-
-	init_data(player, info)
-	init_backpack(player)
-	init_waypoints(player)
-
+local function init_hudbar(player)
 	core.after(0, function()
 		player:hud_set_hotbar_itemcount(i3.HOTBAR_LEN)
 		player:hud_set_hotbar_image("i3_hotbar.png")
 	end)
-end)
+end
 
 local function save_data(player_name)
 	local _data = copy(i3.data)
@@ -271,6 +255,26 @@ local function save_data(player_name)
 
 	storage:set_string("data", slz(_data))
 end
+
+core.register_on_mods_loaded(function()
+	get_init_items()
+	disable_inventories()
+end)
+
+core.register_on_joinplayer(function(player)
+	local name = player:get_player_name()
+	local info = core.get_player_information and core.get_player_information(name)
+
+	if not info or get_formspec_version(info) < i3.MIN_FORMSPEC_VERSION then
+		i3.data[name] = nil
+		return outdated(name)
+	end
+
+	init_data(player, info)
+	init_backpack(player)
+	init_waypoints(player)
+	init_hudbar(player)
+end)
 
 core.register_on_leaveplayer(function(player)
 	local name = player:get_player_name()

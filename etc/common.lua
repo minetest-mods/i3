@@ -1,8 +1,37 @@
 local translate = core.get_translated_string
+local insert, remove, floor, vec_add, vec_mul =
+	table.insert, table.remove, math.floor, vector.add, vector.mul
 local fmt, find, gmatch, match, sub, split, lower =
 	string.format, string.find, string.gmatch, string.match, string.sub, string.split, string.lower
 local reg_items, reg_nodes, reg_craftitems, reg_tools =
 	core.registered_items, core.registered_nodes, core.registered_craftitems, core.registered_tools
+
+local S = core.get_translator "i3"
+local ES = function(...) return core.formspec_escape(S(...)) end
+
+local function is_num(x)
+	return type(x) == "number"
+end
+
+local function is_str(x)
+	return type(x) == "string"
+end
+
+local function is_table(x)
+	return type(x) == "table"
+end
+
+local function is_func(x)
+	return type(x) == "function"
+end
+
+local function true_str(str)
+	return is_str(str) and str ~= ""
+end
+
+local function true_table(x)
+	return is_table(x) and next(x)
+end
 
 local function reset_compression(data)
 	data.alt_items = nil
@@ -76,6 +105,14 @@ local function search(data)
 	data.items = filtered_list
 end
 
+local function table_replace(t, val, new)
+	for k, v in pairs(t) do
+		if v == val then
+			t[k] = new
+		end
+	end
+end
+
 local function table_merge(t1, t2, hash)
 	t1 = t1 or {}
 	t2 = t2 or {}
@@ -94,6 +131,86 @@ local function table_merge(t1, t2, hash)
 	end
 
 	return t1
+end
+
+local function array_diff(t1, t2)
+	local hash = {}
+
+	for i = 1, #t1 do
+		local v = t1[i]
+		hash[v] = true
+	end
+
+	for i = 1, #t2 do
+		local v = t2[i]
+		hash[v] = nil
+	end
+
+	local diff, c = {}, 0
+
+	for i = 1, #t1 do
+		local v = t1[i]
+		if hash[v] then
+			c = c + 1
+			diff[c] = v
+		end
+	end
+
+	return diff
+end
+
+local function table_eq(T1, T2)
+	local avoid_loops = {}
+
+	local function recurse(t1, t2)
+		if type(t1) ~= type(t2) then return end
+
+		if not is_table(t1) then
+			return t1 == t2
+		end
+
+		if avoid_loops[t1] then
+			return avoid_loops[t1] == t2
+		end
+
+		avoid_loops[t1] = t2
+		local t2k, t2kv = {}, {}
+
+		for k in pairs(t2) do
+			if is_table(k) then
+				insert(t2kv, k)
+			end
+
+			t2k[k] = true
+		end
+
+		for k1, v1 in pairs(t1) do
+			local v2 = t2[k1]
+			if type(k1) == "table" then
+				local ok
+				for i = 1, #t2kv do
+					local tk = t2kv[i]
+					if table_eq(k1, tk) and recurse(v1, t2[tk]) then
+						remove(t2kv, i)
+						t2k[tk] = nil
+						ok = true
+						break
+					end
+				end
+
+				if not ok then return end
+			else
+				if v2 == nil then return end
+				t2k[k1] = nil
+				if not recurse(v1, v2) then return end
+			end
+		end
+
+		if next(t2k) then return end
+		return true
+	end
+
+	return recurse(T1, T2)
 end
 
 local function is_group(item)
@@ -162,16 +279,25 @@ local function compressible(item, data)
 	return compression_active(data) and i3.compress_groups[item]
 end
 
-local function is_str(x)
-	return type(x) == "string"
+local function clean_name(item)
+	if sub(item, 1, 1) == ":" or sub(item, 1, 1) == " " or sub(item, 1, 1) == "_" then
+		item = sub(item, 2)
+	end
+
+	return item
 end
 
-local function is_table(x)
-	return type(x) == "table"
+local function msg(name, str)
+	return core.chat_send_player(name, fmt("[i3] %s", str))
 end
 
-local function true_str(str)
-	return is_str(str) and str ~= ""
+local function err(str)
+	return core.log("error", str)
+end
+
+local function round(num, decimal)
+	local mul = 10 ^ decimal
+	return floor(num * mul + 0.5) / mul
 end
 
 local function is_fav(favs, query_item)
@@ -216,118 +342,98 @@ local function sort_by_category(data)
 	data.items = new
 end
 
-local function clean_name(item)
-	if sub(item, 1, 1) == ":" or sub(item, 1, 1) == " " or sub(item, 1, 1) == "_" then
-		item = sub(item, 2)
-	end
-
-	return item
-end
-
-local function msg(name, str)
-	return core.chat_send_player(name, fmt("[i3] %s", str))
-end
-
 local function spawn_item(player, stack)
 	local dir     = player:get_look_dir()
 	local ppos    = player:get_pos()
 	      ppos.y  = ppos.y + 1.625
-	local look_at = vector.add(ppos, vector.multiply(dir, 1))
+	local look_at = vec_add(ppos, vec_mul(dir, 1))
 
 	core.add_item(look_at, stack)
 end
 
-local S = core.get_translator "i3"
-local ES = function(...) return core.formspec_escape(S(...)) end
-
 return {
-	groups = {
-		is_group = is_group,
-		extract_groups = extract_groups,
-		item_has_groups = item_has_groups,
-		groups_to_items = groups_to_items,
-	},
+	-- Groups
+	is_group = is_group,
+	extract_groups = extract_groups,
+	item_has_groups = item_has_groups,
+	groups_to_items = groups_to_items,
 
-	compression = {
-		compressible = compressible,
-		compression_active = compression_active,
-	},
+	-- Compression
+	compressible = compressible,
+	compression_active = compression_active,
 
-	sorting = {
-		search = search,
-		sort_by_category = sort_by_category,
-		apply_recipe_filters = apply_recipe_filters,
-	},
+	-- Sorting
+	search = search,
+	sort_by_category = sort_by_category,
+	apply_recipe_filters = apply_recipe_filters,
 
-	misc = {
-		msg = msg,
-		is_fav = is_fav,
-		show_item = show_item,
-		spawn_item = spawn_item,
-		table_merge = table_merge,
-	},
+	-- Misc. functions
+	err = err,
+	msg = msg,
+	is_fav = is_fav,
+	is_str = is_str,
+	is_num = is_num,
+	is_func = is_func,
+	show_item = show_item,
+	spawn_item = spawn_item,
+	true_str = true_str,
+	true_table = true_table,
+	clean_name = clean_name,
 
-	core = {
-		clr = core.colorize,
-		ESC = core.formspec_escape,
-		check_privs = core.check_player_privs,
-	},
+	-- Core functions
+	clr = core.colorize,
+	ESC = core.formspec_escape,
+	check_privs = core.check_player_privs,
 
-	reg = {
-		reg_items = core.registered_items,
-		reg_nodes = core.registered_nodes,
-		reg_craftitems = core.registered_craftitems,
-		reg_tools = core.registered_tools,
-		reg_entities = core.registered_entities,
-		reg_aliases = core.registered_aliases,
-	},
+	-- Registered items
+	reg_items = core.registered_items,
+	reg_nodes = core.registered_nodes,
+	reg_tools = core.registered_tools,
+	reg_aliases = core.registered_aliases,
+	reg_entities = core.registered_entities,
+	reg_craftitems = core.registered_craftitems,
 
-	i18n = {
-		S = S,
-		ES = ES,
-		translate = core.get_translated_string,
-	},
+	-- i18n
+	S = S,
+	ES = ES,
+	translate = core.get_translated_string,
 
-	string = {
-		fmt = string.format,
-		find = string.find,
-		gmatch = string.gmatch,
-		match = string.match,
-		sub = string.sub,
-		split = string.split,
-		upper = string.upper,
-		lower = string.lower,
+	-- String
+	sub = string.sub,
+	find = string.find,
+	fmt = string.format,
+	upper = string.upper,
+	lower = string.lower,
+	split = string.split,
+	match = string.match,
+	gmatch = string.gmatch,
 
-		is_str = is_str,
-		true_str = true_str,
-		clean_name = clean_name,
-	},
+	-- Table
+	maxn = table.maxn,
+	sort = table.sort,
+	copy = table.copy,
+	concat = table.concat,
+	insert = table.insert,
+	remove = table.remove,
+	indexof = table.indexof,
+	is_table = is_table,
+	table_eq = table_eq,
+	table_merge = table_merge,
+	table_replace = table_replace,
+	array_diff = array_diff,
 
-	table = {
-		maxn = table.maxn,
-		sort = table.sort,
-		concat = table.concat,
-		copy = table.copy,
-		insert = table.insert,
-		remove = table.remove,
-		indexof = table.indexof,
+	-- Math
+	round = round,
+	min = math.min,
+	max = math.max,
+	ceil = math.ceil,
+	floor = math.floor,
+	random = math.random,
 
-		is_table = is_table,
-	},
-
-	math = {
-		min = math.min,
-		max = math.max,
-		floor = math.floor,
-		ceil = math.ceil,
-		random = math.random,
-	},
-
-	vec = {
-		vec_new = vector.new,
-		vec_add = vector.add,
-		vec_mul = vector.multiply,
-		vec_eq = vector.equals,
-		vec_round = vector.round,
-	},
+	-- Vectors
+	vec_new = vector.new,
+	vec_add = vector.add,
+	vec_round = vector.round,
+	vec_eq = vector.equals,
+	vec_mul = vector.multiply,
 }

@@ -196,8 +196,8 @@ They can be used like so: `<optional_name> +<filter name>=<value1>,<value2>,<...
 
 Example usages:
 
-- `+groups=cracky,crumbly`: search for groups `cracky` and `crumbly` in all items.
-- `wood +groups=flammable`: search for group `flammable` amongst items which contain
+- `+groups=cracky,crumbly` -> search for groups `cracky` and `crumbly` in all items.
+- `wood +groups=flammable` -> search for group `flammable` amongst items which contain
   `wood` in their names.
 
 Notes:
@@ -252,9 +252,9 @@ i3.compress("default:diamondblock", {
 
 ```
 
-#### `i3.get_compress_groups()`
+#### `i3.compress_groups`
 
-Returns a map of all compressed item groups, indexed by stereotypes.
+A map of all compressed item groups, indexed by stereotypes.
 
 ---
 

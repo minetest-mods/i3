@@ -1,17 +1,10 @@
 local make_fs = i3.files.gui()
 
-local S, fmt, reg_items = i3.need("S", "fmt", "reg_items")
 local gmatch, match, split = i3.need("gmatch", "match", "split")
+local S, err, fmt, reg_items = i3.need("S", "err", "fmt", "reg_items")
 local sort, concat, copy, insert, remove = i3.need("sort", "concat", "copy", "insert", "remove")
-local true_str, is_str, is_table, clean_name = i3.need("true_str", "is_str", "is_table", "clean_name")
-
-local function err(str)
-	return core.log("error", str)
-end
-
-local function is_func(x)
-	return type(x) == "function"
-end
+local true_str, true_table, is_str, is_func, is_table, clean_name =
+	i3.need("true_str", "true_table", "is_str", "is_func", "is_table", "clean_name")
 
 function i3.register_craft_type(name, def)
 	if not true_str(name) then
@@ -47,7 +40,7 @@ function i3.register_craft(def)
 		return
 	end
 
-	if not is_table(def) or not next(def) then
+	if not true_table(def) then
 		return err "i3.register_craft: craft definition missing"
 	end
 
@@ -180,7 +173,7 @@ end
 local set_fs = i3.set_fs
 
 function i3.new_tab(def)
-	if not is_table(def) or not next(def) then
+	if not true_table(def) then
 		return err "i3.new_tab: tab definition missing"
 	end
 
@@ -242,7 +235,7 @@ function i3.set_tab(player, tabname)
 end
 
 function i3.override_tab(tabname, newdef)
-	if not is_table(newdef) or not next(newdef) then
+	if not true_table(newdef) then
 		return err "i3.override_tab: tab definition missing"
 	end
 
@@ -290,7 +283,7 @@ function i3.compress(item, def)
 		return err "i3.compress: item name missing"
 	end
 
-	if not is_table(def) then
+	if not true_table(def) then
 		return err "i3.compress: replace definition missing"
 	end
 
@@ -313,10 +306,6 @@ function i3.compress(item, def)
 
 		i3.compressed[it] = true
 	end
-end
-
-function i3.get_compress_groups()
-	return i3.compress_groups
 end
 
 return set_fs, i3.set_tab

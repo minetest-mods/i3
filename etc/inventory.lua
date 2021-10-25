@@ -8,10 +8,13 @@ local fmt, find, match, sub, lower = i3.need("fmt", "find", "match", "sub", "low
 local vec_new, vec_mul, vec_eq, vec_round = i3.need("vec_new", "vec_mul", "vec_eq", "vec_round")
 local sort, copy, insert, remove, indexof = i3.need("sort", "copy", "insert", "remove", "indexof")
 
-local is_group, extract_groups, groups_to_items = i3.need("is_group", "extract_groups", "groups_to_items")
-local search, sort_by_category, apply_recipe_filters = i3.need("search", "sort_by_category", "apply_recipe_filters")
-local msg, is_str, is_fav, show_item, spawn_item, clean_name, compressible =
-	i3.need("msg", "is_str", "is_fav", "show_item", "spawn_item", "clean_name", "compressible")
+local msg, is_str, is_fav = i3.need("msg", "is_str", "is_fav")
+local is_group, extract_groups, groups_to_items =
+	i3.need("is_group", "extract_groups", "groups_to_items")
+local search, sort_by_category, apply_recipe_filters =
+	i3.need("search", "sort_by_category", "apply_recipe_filters")
+local show_item, spawn_item, clean_name, compressible, check_privs =
+	i3.need("show_item", "spawn_item", "clean_name", "compressible", "check_privs")
 
 local old_is_creative_enabled = core.is_creative_enabled
 
@@ -20,7 +23,7 @@ function core.is_creative_enabled(name)
 		return old_is_creative_enabled(name)
 	end
 
-	return core.check_player_privs(name, {creative = true}) or old_is_creative_enabled(name)
+	return check_privs(name, {creative = true}) or old_is_creative_enabled(name)
 end
 
 local function reset_data(data)
