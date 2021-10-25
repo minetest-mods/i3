@@ -1,4 +1,3 @@
-local set_fs, set_tab = i3.files.api()
 local _, get_inventory_fs = i3.files.gui()
 
 local S, clr = i3.get("S", "clr")
@@ -295,7 +294,7 @@ i3.new_tab {
 			data.scrbar_inv = data.scrbar_inv + 1000
 		end
 
-		return set_fs(player)
+		return i3.set_fs(player)
 	end,
 }
 
@@ -450,7 +449,7 @@ local function rcp_fields(player, data, fields)
 	elseif fields.key_enter_field == "filter" or fields.search then
 		if fields.filter == "" then
 			reset_data(data)
-			return set_fs(player)
+			return i3.set_fs(player)
 		end
 
 		local str = lower(fields.filter)
@@ -546,7 +545,7 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 	for f in pairs(fields) do
 		if sub(f, 1, 4) == "tab_" then
 			local tabname = sub(f, 5)
-			set_tab(player, tabname)
+			i3.set_tab(player, tabname)
 			break
 		elseif sub(f, 1, 5) == "itab_" then
 			data.pagenum = 1
@@ -563,7 +562,7 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 		return true, tab.fields(player, data, fields)
 	end
 
-	return true, set_fs(player)
+	return true, i3.set_fs(player)
 end)
 
 core.register_on_player_hpchange(function(player, hpchange)
@@ -574,7 +573,7 @@ core.register_on_player_hpchange(function(player, hpchange)
 	local hp_max = player:get_properties().hp_max
 	data.hp = min(hp_max, player:get_hp() + hpchange)
 
-	set_fs(player)
+	i3.set_fs(player)
 end)
 
 core.register_on_dieplayer(function(player)
@@ -591,12 +590,12 @@ core.register_on_dieplayer(function(player)
 		inv:set_size("main", i3.INV_SIZE)
 	end
 
-	set_fs(player)
+	i3.set_fs(player)
 end)
 
 core.register_on_chatcommand(function(name)
 	local player = core.get_player_by_name(name)
-	core.after(0, set_fs, player)
+	core.after(0, i3.set_fs, player)
 end)
 
 core.register_on_priv_grant(function(name, _, priv)
@@ -606,7 +605,7 @@ core.register_on_priv_grant(function(name, _, priv)
 		data.favs = {}
 
 		local player = core.get_player_by_name(name)
-		core.after(0, set_fs, player)
+		core.after(0, i3.set_fs, player)
 	end
 end)
 
@@ -617,7 +616,7 @@ core.register_on_player_inventory_action(function(player, _, _, info)
 	  ((info.from_list == "main"  and info.to_list == "craft") or
 	   (info.from_list == "craft" and info.to_list == "main")  or
 	   (info.from_list == "craftresult" and info.to_list == "main")) then
-		set_fs(player)
+		i3.set_fs(player)
 	end
 end)
 
@@ -631,7 +630,7 @@ local trash = core.create_detached_inventory("i3_trash", {
 		local name = player:get_player_name()
 
 		if not core.is_creative_enabled(name) then
-			set_fs(player)
+			i3.set_fs(player)
 		end
 	end,
 })

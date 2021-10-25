@@ -11,7 +11,8 @@ local reg_items, reg_tools, reg_entities = i3.get("reg_items", "reg_tools", "reg
 local maxn, sort, concat, copy, insert, remove = i3.get("maxn", "sort", "concat", "copy", "insert", "remove")
 
 local true_str, is_fav, is_num = i3.get("true_str", "is_fav", "is_num")
-local is_group, extract_groups, item_has_groups = i3.get("is_group", "extract_groups", "item_has_groups")
+local is_group, extract_groups, item_has_groups =
+	i3.get("is_group", "extract_groups", "item_has_groups")
 local groups_to_items, compression_active, compressible =
 	i3.get("groups_to_items", "compression_active", "compressible")
 

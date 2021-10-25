@@ -1,4 +1,3 @@
-local set_fs = i3.files.api()
 local S, fmt, msg, spawn_item = i3.get("S", "fmt", "msg", "spawn_item")
 
 local function init_backpack(player)
@@ -28,7 +27,7 @@ local function init_backpack(player)
 			data.bag_size = minetest.get_item_group(stackname, "bag")
 
 			inv:set_size("main", i3.BAG_SIZES[data.bag_size])
-			set_fs(player)
+			i3.set_fs(player)
 		end,
 
 		on_take = function()
@@ -44,7 +43,7 @@ local function init_backpack(player)
 			data.bag_size = nil
 
 			inv:set_size("main", i3.INV_SIZE)
-			set_fs(player)
+			i3.set_fs(player)
 		end,
 	})
 

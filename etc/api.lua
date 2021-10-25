@@ -9,9 +9,9 @@ local true_str, true_table, is_str, is_func, is_table, clean_name =
 function i3.register_craft_type(name, def)
 	if not true_str(name) then
 		return err "i3.register_craft_type: name missing"
-	end
-
-	if not is_str(def.description) then
+	elseif not true_table(def) then
+		return err "i3.register_craft_type: definition missing"
+	elseif not is_str(def.description) then
 		def.description = ""
 	end
 
@@ -173,17 +173,11 @@ end
 function i3.new_tab(def)
 	if not true_table(def) then
 		return err "i3.new_tab: tab definition missing"
-	end
-
-	if not true_str(def.name) then
+	elseif not true_str(def.name) then
 		return err "i3.new_tab: tab name missing"
-	end
-
-	if not true_str(def.description) then
+	elseif not true_str(def.description) then
 		return err "i3.new_tab: description missing"
-	end
-
-	if #i3.tabs == 6 then
+	elseif #i3.tabs == 6 then
 		return err(fmt("i3.new_tab: cannot add '%s' tab. Limit reached (6).", def.name))
 	end
 
@@ -235,13 +229,9 @@ end
 function i3.override_tab(tabname, newdef)
 	if not true_table(newdef) then
 		return err "i3.override_tab: tab definition missing"
-	end
-
-	if not true_str(newdef.name) then
+	elseif not true_str(newdef.name) then
 		return err "i3.override_tab: tab name missing"
-	end
-
-	if not true_str(newdef.description) then
+	elseif not true_str(newdef.description) then
 		return err "i3.override_tab: description missing"
 	end
 
@@ -279,17 +269,11 @@ end)
 function i3.compress(item, def)
 	if not true_str(item) then
 		return err "i3.compress: item name missing"
-	end
-
-	if not true_table(def) then
+	elseif not true_table(def) then
 		return err "i3.compress: replace definition missing"
-	end
-
-	if not true_str(def.replace) then
+	elseif not true_str(def.replace) then
 		return err "i3.compress: replace string missing"
-	end
-
-	if not is_table(def.by) then
+	elseif not is_table(def.by) then
 		return err "i3.compress: replace substrings missing"
 	end
 
@@ -305,5 +289,3 @@ function i3.compress(item, def)
 		i3.compressed[it] = true
 	end
 end
-
-return i3.set_fs, i3.set_tab

@@ -316,4 +316,4 @@ for _, v2 in ipairs(v) do
 end
 end
 
-return compressed, _compressed
+i3.compress_groups, i3.compressed = compressed, _compressed

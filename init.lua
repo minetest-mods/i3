@@ -66,17 +66,18 @@ i3 = {
 }
 
 i3.files.common()
+i3.files.api()
+i3.files.compress()
+i3.files.groups()
+i3.files.inventory()
+
 local storage = core.get_mod_storage()
 local fmt, copy, slz, dslz = i3.get("fmt", "copy", "slz", "dslz")
 
 i3.data = dslz(storage:get_string "data") or {}
-i3.compress_groups, i3.compressed = i3.files.compress()
-i3.group_stereotypes, i3.group_names = i3.files.groups()
 
-local set_fs = i3.files.api()
 local init_backpack = i3.files.bags()
 local init_recipes = i3.files.recipes()
-i3.files.inventory()
 
 local function get_lang_code(info)
 	return info and info.lang_code
@@ -95,7 +96,7 @@ end
 
 if rawget(_G, "armor") then
 	i3.modules.armor = true
-	armor:register_on_update(set_fs)
+	armor:register_on_update(i3.set_fs)
 end
 
 if rawget(_G, "skins") then
@@ -106,20 +107,20 @@ if rawget(_G, "awards") then
 	i3.modules.awards = true
 
 	core.register_on_craft(function(_, player)
-		set_fs(player)
+		i3.set_fs(player)
 	end)
 
 	core.register_on_dignode(function(_, _, player)
-		set_fs(player)
+		i3.set_fs(player)
 	end)
 
 	core.register_on_placenode(function(_, _, player)
-		set_fs(player)
+		i3.set_fs(player)
 	end)
 
 	core.register_on_chat_message(function(name)
 		local player = core.get_player_by_name(name)
-		set_fs(player)
+		i3.set_fs(player)
 	end)
 end
 
@@ -152,7 +153,7 @@ local function init_data(player, info)
 	data.lang_code     = get_lang_code(info)
 	data.fs_version    = info.formspec_version
 
-	core.after(0, set_fs, player)
+	core.after(0, i3.set_fs, player)
 end
 
 local function init_waypoints(player)

@@ -1,6 +1,6 @@
 local S = i3.get("S")
 
-local group_stereotypes = {
+i3.group_stereotypes = {
 	dye = "dye:white",
 	wool = "wool:white",
 	wood = "default:wood",
@@ -17,7 +17,7 @@ local group_stereotypes = {
 	mesecon_conductor_craftable = "mesecons:wire_00000000_off",
 }
 
-local group_names = {
+i3.group_names = {
 	dye = S"Any dye",
 	coal = S"Any coal",
 	sand = S"Any sand",
@@ -58,5 +58,3 @@ local group_names = {
 	["color_dark_grey,dye"] = S"Any dark grey dye",
 	["color_dark_green,dye"] = S"Any dark green dye",
 }
-
-return group_stereotypes, group_names
