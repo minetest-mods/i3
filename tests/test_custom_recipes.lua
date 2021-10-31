@@ -15,6 +15,10 @@ minetest.register_craft({
 	},
 })
 
+i3.register_craft {
+	url = "https://raw.githubusercontent.com/minetest-mods/i3/main/tests/test_online_recipe.json"
+}
+
 i3.register_craft({
 	result = "default:ladder_wood 2",
 	items = {"default:copper_ingot 7, default:tin_ingot, default:steel_ingot 2"},
