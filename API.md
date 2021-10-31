@@ -235,6 +235,40 @@ A map of search filters, indexed by name.
 
 ---
 
+### Sorting methods
+
+Sorting methods are used to filter the player's main inventory.
+
+#### `i3.add_sorting_method(def)`
+
+Adds a player inventory sorting method.
+
+- `def` is the method definition.
+
+Example:
+
+```Lua
+i3.add_sorting_method {
+	name = "test",
+	description = "Cool sorting method",
+	func = function(player, data)
+		local inv = player:get_inventory()
+		local list = inv:get_list("main")
+		table.sort(list)
+
+		-- An array of items must be returned
+		return list
+	end,
+}
+
+```
+
+#### `i3.sorting_methods`
+
+A table containing all sorting methods.
+
+---
+
 ### Item list compression
 
 `i3` can reduce the item list size by compressing a group of items.

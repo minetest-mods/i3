@@ -11,8 +11,8 @@ local PNG = {
 	next = "i3_next.png",
 	arrow = "i3_arrow.png",
 	trash = "i3_trash.png",
-	sort_az = "i3_sort_az.png",
-	sort_za = "i3_sort_za.png",
+	sort = "i3_sort.png",
+	settings = "i3_settings.png",
 	compress = "i3_compress.png",
 	fire = "i3_fire.png",
 	fire_anim = "i3_fire_anim.png",
@@ -36,14 +36,15 @@ local PNG = {
 	visible = "i3_visible.png^\\[brighten",
 	nonvisible = "i3_non_visible.png",
 	exit = "i3_exit.png",
+	home = "i3_home.png",
 
 	cancel_hover = "i3_cancel.png^\\[brighten",
 	search_hover = "i3_search.png^\\[brighten",
 	export_hover = "i3_export.png^\\[brighten",
 	trash_hover = "i3_trash.png^\\[brighten^\\[colorize:#f00:100",
 	compress_hover = "i3_compress.png^\\[brighten",
-	sort_az_hover = "i3_sort_az.png^\\[brighten",
-	sort_za_hover = "i3_sort_za.png^\\[brighten",
+	sort_hover = "i3_sort.png^\\[brighten",
+	settings_hover = "i3_settings.png^\\[brighten",
 	prev_hover = "i3_next_hover.png^\\[transformFX",
 	next_hover = "i3_next_hover.png",
 	tab_hover = "i3_tab_hover.png",
@@ -58,13 +59,14 @@ local PNG = {
 	add_hover = "i3_add.png^\\[brighten",
 	refresh_hover = "i3_refresh.png^\\[brighten",
 	exit_hover = "i3_exit.png^\\[brighten",
+	home_hover = "i3_home.png^\\[brighten",
 }
 
 local styles = string.format([[
 	style_type[field;border=false;bgcolor=transparent]
 	style_type[label,field;font_size=16]
 	style_type[button;border=false;content_offset=0]
-	style_type[image_button,item_image_button;border=false;sound=i3_click]
+	style_type[image_button,item_image_button,checkbox;border=false;sound=i3_click]
 	style_type[item_image_button;bgimg_hovered=%s]
 
 	style[pagenum,no_item,no_rcp;font=bold;font_size=18]
@@ -82,7 +84,7 @@ local styles = string.format([[
 	style[craft_rcp,craft_usg;noclip=true;font_size=16;sound=i3_craft;
 	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
 	      bgimg_pressed=i3_btn9_pressed.png;bgimg_middle=4,6]
-	style[confirm_trash_yes,confirm_trash_no;noclip=true;font_size=16;
+	style[confirm_trash_yes,confirm_trash_no,set_home;noclip=true;font_size=16;
 	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
 	      bgimg_pressed=i3_btn9_pressed.png;bgimg_middle=4,6]
 ]],
@@ -104,6 +106,7 @@ local fs_elements = {
 	image = "image[%f,%f;%f,%f;%s]",
 	tooltip = "tooltip[%f,%f;%f,%f;%s]",
 	button = "button[%f,%f;%f,%f;%s;%s]",
+	checkbox = "checkbox[%f,%f;%s;%s;%s]",
 	item_image = "item_image[%f,%f;%f,%f;%s]",
 	hypertext = "hypertext[%f,%f;%f,%f;%s;%s]",
 	bg9 = "background9[%f,%f;%f,%f;%s;false;%u]",

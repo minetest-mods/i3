@@ -15,10 +15,10 @@ This mod requires **Minetest 5.4+**
    - Quick Crafting
    - Backpacks
    - 3D Player Model Preview
-   - Inventory Sorting (alphabetical + item stack compression)
+   - Inventory Sorting (with optional compression)
    - Item Bookmarks
    - Waypoints
-   - Item List Compression (**`moreblocks`** supported)
+   - Item List Compression (**`moreblocks`** is supported)
 
 **¹** *This mode is a Terraria-like system that shows recipes you can craft from items you ever had in your inventory.
 To enable it: `i3_progressive_mode = true` in `minetest.conf`.*

@@ -8,13 +8,14 @@ local clr, ESC, check_privs = i3.get("clr", "ESC", "check_privs")
 local min, max, floor, ceil, round = i3.get("min", "max", "floor", "ceil", "round")
 local sprintf, find, match, sub, upper = i3.get("fmt", "find", "match", "sub", "upper")
 local reg_items, reg_tools, reg_entities = i3.get("reg_items", "reg_tools", "reg_entities")
-local maxn, sort, concat, copy, insert, remove = i3.get("maxn", "sort", "concat", "copy", "insert", "remove")
+local maxn, sort, concat, copy, insert, remove =
+	i3.get("maxn", "sort", "concat", "copy", "insert", "remove")
 
 local true_str, is_fav, is_num = i3.get("true_str", "is_fav", "is_num")
-local is_group, extract_groups, item_has_groups =
-	i3.get("is_group", "extract_groups", "item_has_groups")
 local groups_to_items, compression_active, compressible =
 	i3.get("groups_to_items", "compression_active", "compressible")
+local get_sorting_idx, is_group, extract_groups, item_has_groups =
+	i3.get("get_sorting_idx", "is_group", "extract_groups", "item_has_groups")
 
 local function fmt(elem, ...)
 	if not fs_elements[elem] then
@@ -404,6 +405,84 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 	end
 end
 
+local function show_popup(fs, data)
+	if data.confirm_trash then
+		fs("style_type[box;colors=#999,#999,#808080,#808080]")
+
+		for _ = 1, 3 do
+			fs("box", 2.97, 10.75, 4.3, 0.5, "")
+		end
+
+		fs("label", 3.12, 11, "Confirm trash?")
+		fs("image_button", 5.17, 10.75, 1, 0.5, "", "confirm_trash_yes", "Yes")
+		fs("image_button", 6.27, 10.75, 1, 0.5, "", "confirm_trash_no", "No")
+
+	elseif data.show_settings then
+		fs("style_type[box;colors=#999,#999,#808080,#808080]")
+
+		for _ = 1, 3 do
+			fs("box", 2.1, 9.25, 6, 2, "")
+		end
+
+		for _ = 1, 3 do
+			fs("box", 2.1, 9.25, 6, 0.5, "#707070")
+		end
+
+		fs("image_button", 7.75, 9.35, 0.25, 0.25, PNG.cancel_hover .. "^\\[brighten", "close_settings", "")
+
+		local show_home = data.show_setting == "home"
+		local show_sorting = data.show_setting == "sorting"
+		local show_misc = data.show_setting == "misc"
+
+		fs(fmt("style[setting_home;textcolor=%s;sound=i3_click]", show_home and "#ff0" or "#fff"))
+		fs(fmt("style[setting_sorting;textcolor=%s;sound=i3_click]", show_sorting and "#ff0" or "#fff"))
+		fs(fmt("style[setting_misc;textcolor=%s;sound=i3_click]", show_misc and "#ff0" or "#fff"))
+
+		fs("button", 2.2, 9.25, 1.8, 0.55, "setting_home", "Home")
+		fs("button", 4,   9.25, 1.8, 0.55, "setting_sorting", "Sorting")
+		fs("button", 5.8, 9.25, 1.8, 0.55, "setting_misc", "Misc.")
+
+		if show_home then
+			local home_pos = data.home or ""
+			      home_pos = home_pos:gsub(",", ",  "):gsub("%(", ""):gsub("%)", "")
+			local home_str = fmt("Home position:  %s", home_pos)
+			      home_str = data.home and home_str or ES"No home set"
+
+			fs("button", 2.1, 9.7, 6, 0.8, "", home_str)
+			fs("image_button", 4.2, 10.4, 1.8, 0.7, "", "set_home", "Set home")
+
+		elseif show_sorting then
+			fs("button", 2.1, 9.7, 6, 0.8, "", ES"Select the inventory sorting method:")
+
+			fs(fmt("style[prev_sort;fgimg=%s;fgimg_hovered=%s]", PNG.prev, PNG.prev_hover))
+			fs(fmt("style[next_sort;fgimg=%s;fgimg_hovered=%s]", PNG.next, PNG.next_hover))
+
+			fs("image_button", 2.2, 10.6, 0.35, 0.35, "",  "prev_sort", "")
+			fs("image_button", 7.65, 10.6, 0.35, 0.35, "", "next_sort", "")
+
+			fs("style[sort_method;font=bold;font_size=20]")
+			fs("button", 2.55, 10.35, 5.1, 0.8, "sort_method", data.sort:gsub("^%l", upper))
+
+			local idx = get_sorting_idx(data.sort)
+			local desc = i3.sorting_methods[idx].description
+
+			if desc then
+				fs(fmt("tooltip[%s;%s]", "sort_method", desc))
+			end
+
+		elseif show_misc then
+			fs("checkbox", 2.4, 10.05,
+				"inv_compress", ES"Inventory compression", tostring(data.inv_compress))
+
+			fs("checkbox", 2.4, 10.5,
+				"auto_sorting", ES"Automatic sorting", tostring(data.auto_sorting))
+
+			fs("checkbox", 2.4, 10.95,
+				"reverse_sorting", ES"Reverse sorting", tostring(data.reverse_sorting))
+		end
+	end
+end
+
 local function get_inventory_fs(player, data, fs)
 	fs("listcolors[#bababa50;#bababa99]")
 
@@ -481,10 +560,10 @@ local function get_inventory_fs(player, data, fs)
 	fs("scroll_container_end[]")
 
 	local btn = {
-		{"trash", ES"Clear inventory"},
-		{"sort_az", ES"Sort items (A-Z)"},
-		{"sort_za", ES"Sort items (Z-A)"},
-		{"compress", ES"Compress items"},
+		{"trash",    ES"Clear inventory"},
+		{"sort",     ES"Sort items"},
+		{"settings", ES"Settings"},
+		{"home",     ES"Go home"},
 	}
 
 	for i, v in ipairs(btn) do
@@ -493,21 +572,11 @@ local function get_inventory_fs(player, data, fs)
 		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
 			btn_name, PNG[btn_name], PNG[fmt("%s_hover", btn_name)]))
 
-		fs("image_button", i + 3.447 - (i * 0.4), 11.43, 0.35, 0.35, "", btn_name, "")
+		fs("image_button", i + 3.43 - (i * 0.4), 11.43, 0.35, 0.35, "", btn_name, "")
 		fs(fmt("tooltip[%s;%s]", btn_name, tooltip))
 	end
 
-	if data.confirm_trash then
-		fs("style_type[box;colors=#999,#999,#808080,#808080]")
-
-		for _ = 1, 3 do
-			fs("box", 2.97, 10.75, 4.3, 0.5, "")
-		end
-
-		fs("label", 3.12, 11, "Confirm trash?")
-		fs("image_button", 5.17, 10.75, 1, 0.5, "", "confirm_trash_yes", "Yes")
-		fs("image_button", 6.27, 10.75, 1, 0.5, "", "confirm_trash_no", "No")
-	end
+	show_popup(fs, data)
 end
 
 local function get_tooltip(item, info, pos)

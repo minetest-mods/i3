@@ -1,6 +1,6 @@
 local translate = core.get_translated_string
-local insert, remove, floor, vec_add, vec_mul =
-	table.insert, table.remove, math.floor, vector.add, vector.mul
+local insert, remove, sort, vec_add, vec_mul =
+	table.insert, table.remove, table.sort, vector.add, vector.mul
 local fmt, find, gmatch, match, sub, split, lower =
 	string.format, string.find, string.gmatch, string.match, string.sub, string.split, string.lower
 local reg_items, reg_nodes, reg_craftitems, reg_tools =
@@ -297,7 +297,7 @@ end
 
 local function round(num, decimal)
 	local mul = 10 ^ decimal
-	return floor(num * mul + 0.5) / mul
+	return math.floor(num * mul + 0.5) / mul
 end
 
 local function is_fav(favs, query_item)
@@ -351,9 +351,107 @@ local function spawn_item(player, stack)
 	core.add_item(look_at, stack)
 end
 
+local function name_sort(inv, reverse)
+	return sort(inv, function(a, b)
+		a, b = a:get_name(), b:get_name()
+
+		if reverse then
+			return a > b
+		end
+
+		return a < b
+	end)
+end
+
+local function count_sort(inv, reverse)
+	return sort(inv, function(a, b)
+		a, b = a:get_count(), b:get_count()
+
+		if reverse then
+			return a > b
+		end
+
+		return a < b
+	end)
+end
+
+local function get_sorting_idx(name)
+	local idx = 1
+
+	for i, def in ipairs(i3.sorting_methods) do
+		if name == def.name then
+			idx = i
+		end
+	end
+
+	return idx
+end
+
+local function compress_items(player)
+	local inv = player:get_inventory()
+	local list = inv:get_list("main")
+	local size = inv:get_size("main")
+	local new_inv, _new_inv, special = {}, {}, {}
+
+	for i = 1, size do
+		local stack = list[i]
+		local name = stack:get_name()
+		local count = stack:get_count()
+		local stackmax = stack:get_stack_max()
+		local empty = stack:is_empty()
+		local meta = stack:get_meta():to_table()
+		local wear = stack:get_wear() > 0
+
+		if not empty then
+			if next(meta.fields) or wear or count >= stackmax then
+				special[#special + 1] = stack
+			else
+				new_inv[name] = new_inv[name] or 0
+				new_inv[name] = new_inv[name] + count
+			end
+		end
+	end
+
+	for name, count in pairs(new_inv) do
+		local stackmax = ItemStack(name):get_stack_max()
+		local iter = math.ceil(count / stackmax)
+		local leftover = count
+
+		for _ = 1, iter do
+			_new_inv[#_new_inv + 1] = fmt("%s %u", name, math.min(stackmax, leftover))
+			leftover = leftover - stackmax
+		end
+	end
+
+	for i = 1, #special do
+		_new_inv[#_new_inv + 1] = special[i]
+	end
+
+	inv:set_list("main", _new_inv)
+end
+
+local function sort_inventory(player, data)
+	if data.inv_compress then
+		compress_items(player)
+	end
+
+	local sorts = {}
+
+	for _, def in ipairs(i3.sorting_methods) do
+		sorts[def.name] = def.func
+	end
+
+	local new_inv = sorts[data.sort](player, data)
+
+	if new_inv then
+		local inv = player:get_inventory()
+		inv:set_list("main", new_inv)
+	end
+end
+
 -------------------------------------------------------------------------------
 
-local registry = {
+local _ = {
 	-- Groups
 	is_group = is_group,
 	extract_groups = extract_groups,
@@ -366,6 +464,10 @@ local registry = {
 
 	-- Sorting
 	search = search,
+	name_sort = name_sort,
+	count_sort = count_sort,
+	sort_inventory = sort_inventory,
+	get_sorting_idx = get_sorting_idx,
 	sort_by_category = sort_by_category,
 	apply_recipe_filters = apply_recipe_filters,
 
@@ -446,7 +548,7 @@ function i3.get(...)
 	local t = {}
 
 	for i, var in ipairs{...} do
-		t[i] = registry[var]
+		t[i] = _[var]
 	end
 
 	return unpack(t)

@@ -30,6 +30,7 @@ i3 = {
 	},
 
 	META_SAVES = {
+		home = true,
 		bag_item = true,
 		bag_size = true,
 		waypoints = true,
@@ -38,14 +39,17 @@ i3 = {
 	},
 
 	-- Caches
-	init_items     = {},
-	recipes_cache  = {},
-	usages_cache   = {},
-	fuel_cache     = {},
+	init_items = {},
+	fuel_cache = {},
+	usages_cache = {},
+	recipes_cache = {},
+
+	tabs = {},
+	craft_types = {},
+
 	recipe_filters = {},
 	search_filters = {},
-	craft_types    = {},
-	tabs           = {},
+	sorting_methods = {},
 
 	files = {
 		api = lf("/etc/api.lua"),
@@ -140,18 +144,24 @@ local function init_data(player, info)
 	i3.data[name] = i3.data[name] or {}
 	local data = i3.data[name]
 
-	data.filter        = ""
-	data.pagenum       = 1
-	data.items         = i3.init_items
-	data.items_raw     = i3.init_items
-	data.favs          = {}
-	data.export_counts = {}
-	data.current_tab   = 1
-	data.current_itab  = 1
-	data.subcat        = 1
-	data.scrbar_inv    = 0
-	data.lang_code     = get_lang_code(info)
-	data.fs_version    = info.formspec_version
+	data.filter          = ""
+	data.pagenum         = 1
+	data.items           = i3.init_items
+	data.items_raw       = i3.init_items
+	data.favs            = {}
+	data.sort            = "alphabetical"
+	data.show_setting    = "home"
+	data.auto_sorting    = false
+	data.reverse_sorting = false
+	data.inv_compress    = true
+	data.export_counts   = {}
+	data.current_tab     = 1
+	data.current_itab    = 1
+	data.subcat          = 1
+	data.scrbar_inv      = 0
+	data.compress        = true
+	data.lang_code       = get_lang_code(info)
+	data.fs_version      = info.formspec_version
 
 	core.after(0, i3.set_fs, player)
 end

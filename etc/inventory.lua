@@ -7,11 +7,11 @@ local fmt, find, match, sub, lower = i3.get("fmt", "find", "match", "sub", "lowe
 local vec_new, vec_mul, vec_eq, vec_round = i3.get("vec_new", "vec_mul", "vec_eq", "vec_round")
 local sort, copy, insert, remove, indexof = i3.get("sort", "copy", "insert", "remove", "indexof")
 
-local msg, is_str, is_fav = i3.get("msg", "is_str", "is_fav")
+local msg, is_fav = i3.get("msg", "is_fav")
 local is_group, extract_groups, groups_to_items =
 	i3.get("is_group", "extract_groups", "groups_to_items")
-local search, sort_by_category, apply_recipe_filters =
-	i3.get("search", "sort_by_category", "apply_recipe_filters")
+local search, get_sorting_idx, sort_inventory, sort_by_category, apply_recipe_filters =
+	i3.get("search", "get_sorting_idx", "sort_inventory", "sort_by_category", "apply_recipe_filters")
 local show_item, spawn_item, clean_name, compressible, check_privs =
 	i3.get("show_item", "spawn_item", "clean_name", "compressible", "check_privs")
 
@@ -40,6 +40,8 @@ local function reset_data(data)
 	data.export_usg    = nil
 	data.alt_items     = nil
 	data.confirm_trash = nil
+	data.show_settings = nil
+	data.show_setting  = "home"
 	data.items         = data.items_raw
 
 	if data.current_itab > 1 then
@@ -66,104 +68,6 @@ local function get_recipes(player, item)
 	       not no_usages  and usages  or nil
 end
 
-local function __sort(inv, reverse)
-	sort(inv, function(a, b)
-		if not is_str(a) then
-			a = a:get_name()
-		end
-
-		if not is_str(b) then
-			b = b:get_name()
-		end
-
-		if reverse then
-			return a > b
-		end
-
-		return a < b
-	end)
-end
-
-local function sort_itemlist(player, az)
-	local inv = player:get_inventory()
-	local list = inv:get_list("main")
-	local size = inv:get_size("main")
-	local new_inv, stack_meta = {}, {}
-
-	for i = 1, size do
-		local stack = list[i]
-		local name = stack:get_name()
-		local count = stack:get_count()
-		local empty = stack:is_empty()
-		local meta = stack:get_meta():to_table()
-		local wear = stack:get_wear() > 0
-
-		if not empty then
-			if next(meta.fields) or wear then
-				stack_meta[#stack_meta + 1] = stack
-			else
-				new_inv[#new_inv + 1] = fmt("%s %u", name, count)
-			end
-		end
-	end
-
-	for i = 1, #stack_meta do
-		new_inv[#new_inv + 1] = stack_meta[i]
-	end
-
-	if az then
-		__sort(new_inv)
-	else
-		__sort(new_inv, true)
-	end
-
-	inv:set_list("main", new_inv)
-end
-
-local function compress_items(player)
-	local inv = player:get_inventory()
-	local list = inv:get_list("main")
-	local size = inv:get_size("main")
-	local new_inv, _new_inv, special = {}, {}, {}
-
-	for i = 1, size do
-		local stack = list[i]
-		local name = stack:get_name()
-		local count = stack:get_count()
-		local stackmax = stack:get_stack_max()
-		local empty = stack:is_empty()
-		local meta = stack:get_meta():to_table()
-		local wear = stack:get_wear() > 0
-
-		if not empty then
-			if next(meta.fields) or wear or count >= stackmax then
-				special[#special + 1] = stack
-			else
-				new_inv[name] = new_inv[name] or 0
-				new_inv[name] = new_inv[name] + count
-			end
-		end
-	end
-
-	for name, count in pairs(new_inv) do
-		local stackmax = ItemStack(name):get_stack_max()
-		local iter = ceil(count / stackmax)
-		local leftover = count
-
-		for _ = 1, iter do
-			_new_inv[#_new_inv + 1] = fmt("%s %u", name, min(stackmax, leftover))
-			leftover = leftover - stackmax
-		end
-	end
-
-	for i = 1, #special do
-		_new_inv[#_new_inv + 1] = special[i]
-	end
-
-	__sort(_new_inv)
-	inv:set_list("main", _new_inv)
-end
-
 local function get_stack(player, stack)
 	local inv = player:get_inventory()
 
@@ -174,6 +78,13 @@ local function get_stack(player, stack)
 	end
 end
 
+local function safe_teleport(player, pos)
+	pos.y = pos.y + 0.5
+	local vel = player:get_velocity()
+	player:add_velocity(vec_mul(vel, -1))
+	player:set_pos(pos)
+end
+
 i3.new_tab {
 	name = "inventory",
 	description = S"Inventory",
@@ -181,6 +92,7 @@ i3.new_tab {
 
 	fields = function(player, data, fields)
 		local name = player:get_player_name()
+		local inv = player:get_inventory()
 		local sb_inv = fields.scrbar_inv
 
 		if fields.skins then
@@ -194,6 +106,9 @@ i3.new_tab {
 				data.subcat = indexof(i3.SUBCAT, sub(field, 5))
 				break
 
+			elseif sub(field, 1, 8) == "setting_" then
+				data.show_setting = match(field, "_(%w+)$")
+
 			elseif find(field, "waypoint_%d+") then
 				local id, action = match(field, "_(%d+)_(%w+)$")
 				id = tonumber(id)
@@ -206,12 +121,7 @@ i3.new_tab {
 
 				elseif action == "teleport" then
 					local pos = vec_new(waypoint.pos)
-					pos.y = pos.y + 0.5
-
-					local vel = player:get_velocity()
-					player:add_velocity(vec_mul(vel, -1))
-					player:set_pos(pos)
-
+					safe_teleport(player, pos)
 					msg(name, fmt("Teleported to %s", clr("#ff0", waypoint.name)))
 
 				elseif action == "refresh" then
@@ -242,23 +152,79 @@ i3.new_tab {
 			end
 		end
 
-		if fields.trash then
+		if fields.quit then
+			data.confirm_trash = nil
+			data.show_settings = nil
+
+		elseif fields.trash then
+			data.show_settings = nil
 			data.confirm_trash = true
+
+		elseif fields.settings then
+			data.confirm_trash = nil
+			data.show_settings = true
 
 		elseif fields.confirm_trash_yes or fields.confirm_trash_no then
 			if fields.confirm_trash_yes then
-				local inv = player:get_inventory()
 				inv:set_list("main", {})
 				inv:set_list("craft", {})
 			end
 
 			data.confirm_trash = nil
 
-		elseif fields.compress then
-			compress_items(player)
+		elseif fields.close_settings then
+			data.show_settings = nil
 
-		elseif fields.sort_az or fields.sort_za then
-			sort_itemlist(player, fields.sort_az)
+		elseif fields.sort then
+			sort_inventory(player, data)
+
+		elseif fields.prev_sort or fields.next_sort then
+			local idx = get_sorting_idx(data.sort)
+			local tot = #i3.sorting_methods
+
+			idx = idx - (fields.prev_sort and 1 or -1)
+
+			if idx > tot then
+				idx = 1
+			elseif idx == 0 then
+				idx = tot
+			end
+
+			data.sort = i3.sorting_methods[idx].name
+
+		elseif fields.inv_compress then
+			data.inv_compress = false
+
+			if fields.inv_compress == "true" then
+				data.inv_compress = true
+			end
+
+		elseif fields.auto_sorting then
+			data.auto_sorting = false
+
+			if fields.auto_sorting == "true" then
+				data.auto_sorting = true
+			end
+
+		elseif fields.reverse_sorting then
+			data.reverse_sorting = false
+
+			if fields.reverse_sorting == "true" then
+				data.reverse_sorting = true
+			end
+
+		elseif fields.home then
+			if not data.home then
+				return msg(name, "No home set")
+			elseif not check_privs(name, {home = true}) then
+				return msg(name, "'home' privilege missing")
+			end
+
+			safe_teleport(player, core.string_to_pos(data.home))
+			msg(name, S"Welcome back home!")
+
+		elseif fields.set_home then
+			data.home = core.pos_to_string(player:get_pos(), 1)
 
 		elseif sb_inv and sub(sb_inv, 1, 3) == "CHG" then
 			data.scrbar_inv = tonumber(match(sb_inv, "%d+"))
