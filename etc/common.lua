@@ -387,13 +387,22 @@ local function get_sorting_idx(name)
 	return idx
 end
 
-local function compress_items(player)
-	local inv = player:get_inventory()
-	local list = inv:get_list("main")
-	local size = inv:get_size("main")
+local function apply_sort(inv, size, data, new_inv, start_i)
+	if not data.ignore_hotbar then
+		inv:set_list("main", new_inv)
+		return
+	end
+
+	for i = start_i, size do
+		local idx = i - start_i + 1
+		inv:set_stack("main", i, new_inv[idx] or "")
+	end
+end
+
+local function compress_items(list, start_i)
 	local new_inv, _new_inv, special = {}, {}, {}
 
-	for i = 1, size do
+	for i = start_i, #list do
 		local stack = list[i]
 		local name = stack:get_name()
 		local count = stack:get_count()
@@ -418,7 +427,7 @@ local function compress_items(player)
 		local leftover = count
 
 		for _ = 1, iter do
-			_new_inv[#_new_inv + 1] = fmt("%s %u", name, math.min(stackmax, leftover))
+			_new_inv[#_new_inv + 1] = ItemStack(fmt("%s %u", name, math.min(stackmax, leftover)))
 			leftover = leftover - stackmax
 		end
 	end
@@ -427,12 +436,17 @@ local function compress_items(player)
 		_new_inv[#_new_inv + 1] = special[i]
 	end
 
-	inv:set_list("main", _new_inv)
+	return _new_inv
 end
 
 local function sort_inventory(player, data)
+	local inv = player:get_inventory()
+	local list = inv:get_list("main")
+	local size = inv:get_size("main")
+	local start_i = data.ignore_hotbar and 10 or 1
+
 	if data.inv_compress then
-		compress_items(player)
+		list = compress_items(list, start_i)
 	end
 
 	local sorts = {}
@@ -441,11 +455,10 @@ local function sort_inventory(player, data)
 		sorts[def.name] = def.func
 	end
 
-	local new_inv = sorts[data.sort](player, data)
+	local new_inv = sorts[data.sort](list, data)
 
 	if new_inv then
-		local inv = player:get_inventory()
-		inv:set_list("main", new_inv)
+		apply_sort(inv, size, data, new_inv, start_i)
 	end
 end
 

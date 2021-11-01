@@ -461,7 +461,7 @@ local function show_popup(fs, data)
 			fs("image_button", 7.65, 10.6, 0.35, 0.35, "", "next_sort", "")
 
 			fs("style[sort_method;font=bold;font_size=20]")
-			fs("button", 2.55, 10.35, 5.1, 0.8, "sort_method", data.sort:gsub("^%l", upper))
+			fs("button", 2.55, 10.36, 5.1, 0.8, "sort_method", data.sort:gsub("^%l", upper))
 
 			local idx = get_sorting_idx(data.sort)
 			local desc = i3.sorting_methods[idx].description
@@ -471,14 +471,10 @@ local function show_popup(fs, data)
 			end
 
 		elseif show_misc then
-			fs("checkbox", 2.4, 10.05,
-				"inv_compress", ES"Inventory compression", tostring(data.inv_compress))
-
-			fs("checkbox", 2.4, 10.5,
-				"auto_sorting", ES"Automatic sorting", tostring(data.auto_sorting))
-
-			fs("checkbox", 2.4, 10.95,
-				"reverse_sorting", ES"Reverse sorting", tostring(data.reverse_sorting))
+			fs("checkbox", 2.4, 10.05, "cb_inv_compress", "Compression", tostring(data.inv_compress))
+			fs("checkbox", 2.4, 10.5,  "cb_reverse_sorting", "Reverse sorting", tostring(data.reverse_sorting))
+			fs("checkbox", 2.4, 10.95, "cb_auto_sorting", "Automatic sorting", tostring(data.auto_sorting))
+			fs("checkbox", 5.4, 10.05, "cb_ignore_hotbar", "Ignore hotbar", tostring(data.ignore_hotbar))
 		end
 	end
 end

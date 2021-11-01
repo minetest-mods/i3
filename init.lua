@@ -151,6 +151,7 @@ local function init_data(player, info)
 	data.favs            = {}
 	data.sort            = "alphabetical"
 	data.show_setting    = "home"
+	data.ignore_hotbar   = false
 	data.auto_sorting    = false
 	data.reverse_sorting = false
 	data.inv_compress    = true
@@ -159,7 +160,6 @@ local function init_data(player, info)
 	data.current_itab    = 1
 	data.subcat          = 1
 	data.scrbar_inv      = 0
-	data.compress        = true
 	data.lang_code       = get_lang_code(info)
 	data.fs_version      = info.formspec_version
 

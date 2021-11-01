@@ -251,12 +251,13 @@ Example:
 i3.add_sorting_method {
 	name = "test",
 	description = "Cool sorting method",
-	func = function(player, data)
-		local inv = player:get_inventory()
-		local list = inv:get_list("main")
+	func = function(list, data)
+		-- `list`: inventory list
+		-- `data`: player data
+
 		table.sort(list)
 
-		-- An array of items must be returned
+		-- A list must be returned
 		return list
 	end,
 }

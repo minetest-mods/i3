@@ -106,6 +106,14 @@ i3.new_tab {
 				data.subcat = indexof(i3.SUBCAT, sub(field, 5))
 				break
 
+			elseif sub(field, 1, 3) == "cb_" then
+				local str = sub(field, 4)
+				data[str] = false
+
+				if fields[field] == "true" then
+					data[str] = true
+				end
+
 			elseif sub(field, 1, 8) == "setting_" then
 				data.show_setting = match(field, "_(%w+)$")
 
@@ -191,27 +199,6 @@ i3.new_tab {
 			end
 
 			data.sort = i3.sorting_methods[idx].name
-
-		elseif fields.inv_compress then
-			data.inv_compress = false
-
-			if fields.inv_compress == "true" then
-				data.inv_compress = true
-			end
-
-		elseif fields.auto_sorting then
-			data.auto_sorting = false
-
-			if fields.auto_sorting == "true" then
-				data.auto_sorting = true
-			end
-
-		elseif fields.reverse_sorting then
-			data.reverse_sorting = false
-
-			if fields.reverse_sorting == "true" then
-				data.reverse_sorting = true
-			end
 
 		elseif fields.home then
 			if not data.home then

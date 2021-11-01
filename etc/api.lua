@@ -307,13 +307,10 @@ function i3.add_sorting_method(def)
 	insert(i3.sorting_methods, def)
 end
 
-local function pre_sorting(player)
-	local inv = player:get_inventory()
-	local list = inv:get_list("main")
-	local size = inv:get_size("main")
+local function pre_sorting(list)
 	local new_inv, stack_meta = {}, {}
 
-	for i = 1, size do
+	for i = 1, #list do
 		local stack = list[i]
 		local name = stack:get_name()
 		local count = stack:get_count()
@@ -340,8 +337,8 @@ end
 i3.add_sorting_method {
 	name = "alphabetical",
 	description = S"Sort items by name (A-Z)",
-	func = function(player, data)
-		local new_inv = pre_sorting(player)
+	func = function(list, data)
+		local new_inv = pre_sorting(list)
 		name_sort(new_inv, data.reverse_sorting)
 		return new_inv
 	end
@@ -350,8 +347,8 @@ i3.add_sorting_method {
 i3.add_sorting_method {
 	name = "numerical",
 	description = S"Sort items by number of items per stack",
-	func = function(player, data)
-		local new_inv = pre_sorting(player)
+	func = function(list, data)
+		local new_inv = pre_sorting(list)
 		count_sort(new_inv, data.reverse_sorting)
 		return new_inv
 	end,
