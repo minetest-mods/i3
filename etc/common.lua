@@ -328,9 +328,9 @@ local function sort_by_category(data)
 		local item = items[i]
 		local to_add = true
 
-		if data.current_itab == 2 then
+		if data.itab == 2 then
 			to_add = reg_nodes[item]
-		elseif data.current_itab == 3 then
+		elseif data.itab == 3 then
 			to_add = reg_craftitems[item] or reg_tools[item]
 		end
 

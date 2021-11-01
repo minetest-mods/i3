@@ -205,7 +205,7 @@ function i3.get_current_tab(player)
 	local name = player:get_player_name()
 	local data = i3.data[name]
 
-	return data.current_tab
+	return data.tab
 end
 
 function i3.set_tab(player, tabname)
@@ -213,7 +213,7 @@ function i3.set_tab(player, tabname)
 	local data = i3.data[name]
 
 	if not tabname or tabname == "" then
-		data.current_tab = 0
+		data.tab = 0
 		return
 	end
 
@@ -221,7 +221,7 @@ function i3.set_tab(player, tabname)
 
 	for i, def in ipairs(i3.tabs) do
 		if not found and def.name == tabname then
-			data.current_tab = i
+			data.tab = i
 			found = true
 		end
 	end

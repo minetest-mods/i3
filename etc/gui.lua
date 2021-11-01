@@ -1163,7 +1163,7 @@ local function get_items_fs(fs, data, full_height)
 	local tab_len, tab_hgh = 1.8, 0.5
 
 	for i, title in ipairs(_tabs) do
-		local selected = i == data.current_itab
+		local selected = i == data.itab
 
 		fs(fmt([[style_type[image_button;fgimg=%s;fgimg_hovered=%s;noclip=true;
 			font_size=16;textcolor=%s;content_offset=0;sound=i3_tab] ]],
@@ -1256,7 +1256,7 @@ local function get_tabs_fs(player, data, fs, full_height)
 			shift = #_tabs - 3
 		end
 
-		local selected = i == data.current_tab
+		local selected = i == data.tab
 
 		fs(fmt([[style_type[image_button;fgimg=%s;fgimg_hovered=%s;noclip=true;
 			font_size=16;textcolor=%s;content_offset=0;sound=i3_tab] ]],
@@ -1323,7 +1323,7 @@ local function make_fs(player, data)
 	data.inv_width = 10.23
 	local full_height = 12
 
-	local tab = i3.tabs[data.current_tab]
+	local tab = i3.tabs[data.tab]
 
 	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
 		i3.MIN_FORMSPEC_VERSION, data.inv_width + 8, full_height), styles)

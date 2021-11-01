@@ -222,7 +222,7 @@ local function poll_new_items()
 			end
 
 			data.items_raw = items
-			data.current_itab = 1
+			data.itab = 1
 
 			search(data)
 			i3.set_fs(player)

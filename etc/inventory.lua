@@ -44,7 +44,7 @@ local function reset_data(data)
 	data.show_setting  = "home"
 	data.items         = data.items_raw
 
-	if data.current_itab > 1 then
+	if data.itab > 1 then
 		sort_by_category(data)
 	end
 end
@@ -413,7 +413,7 @@ local function rcp_fields(player, data, fields)
 
 		search(data)
 
-		if data.current_itab > 1 then
+		if data.itab > 1 then
 			sort_by_category(data)
 		end
 
@@ -502,14 +502,14 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 			break
 		elseif sub(f, 1, 5) == "itab_" then
 			data.pagenum = 1
-			data.current_itab = tonumber(f:sub(-1))
+			data.itab = tonumber(f:sub(-1))
 			sort_by_category(data)
 		end
 	end
 
 	rcp_fields(player, data, fields)
 
-	local tab = i3.tabs[data.current_tab]
+	local tab = i3.tabs[data.tab]
 
 	if tab and tab.fields then
 		return true, tab.fields(player, data, fields)

@@ -156,8 +156,8 @@ local function init_data(player, info)
 	data.reverse_sorting = false
 	data.inv_compress    = true
 	data.export_counts   = {}
-	data.current_tab     = 1
-	data.current_itab    = 1
+	data.tab             = 1
+	data.itab            = 1
 	data.subcat          = 1
 	data.scrbar_inv      = 0
 	data.lang_code       = get_lang_code(info)
