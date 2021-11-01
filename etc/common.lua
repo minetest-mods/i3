@@ -449,13 +449,8 @@ local function sort_inventory(player, data)
 		list = compress_items(list, start_i)
 	end
 
-	local sorts = {}
-
-	for _, def in ipairs(i3.sorting_methods) do
-		sorts[def.name] = def.func
-	end
-
-	local new_inv = sorts[data.sort](list, data)
+	local idx = get_sorting_idx(data.sort)
+	local new_inv = i3.sorting_methods[idx].func(list, data)
 
 	if new_inv then
 		apply_sort(inv, size, data, new_inv, start_i)
