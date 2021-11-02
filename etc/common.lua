@@ -1,6 +1,4 @@
 local translate = core.get_translated_string
-local insert, remove, sort, vec_add, vec_mul =
-	table.insert, table.remove, table.sort, vector.add, vector.mul
 local fmt, find, gmatch, match, sub, split, lower =
 	string.format, string.find, string.gmatch, string.match, string.sub, string.split, string.lower
 local reg_items, reg_nodes, reg_craftitems, reg_tools =
@@ -178,7 +176,7 @@ local function table_eq(T1, T2)
 
 		for k in pairs(t2) do
 			if is_table(k) then
-				insert(t2kv, k)
+				table.insert(t2kv, k)
 			end
 
 			t2k[k] = true
@@ -191,7 +189,7 @@ local function table_eq(T1, T2)
 				for i = 1, #t2kv do
 					local tk = t2kv[i]
 					if table_eq(k1, tk) and recurse(v1, t2[tk]) then
-						remove(t2kv, i)
+						table.remove(t2kv, i)
 						t2k[tk] = nil
 						ok = true
 						break
@@ -346,33 +344,9 @@ local function spawn_item(player, stack)
 	local dir     = player:get_look_dir()
 	local ppos    = player:get_pos()
 	      ppos.y  = ppos.y + 1.625
-	local look_at = vec_add(ppos, vec_mul(dir, 1))
+	local look_at = vector.add(ppos, vector.multiply(dir, 1))
 
 	core.add_item(look_at, stack)
-end
-
-local function name_sort(inv, reverse)
-	return sort(inv, function(a, b)
-		a, b = a:get_name(), b:get_name()
-
-		if reverse then
-			return a > b
-		end
-
-		return a < b
-	end)
-end
-
-local function count_sort(inv, reverse)
-	return sort(inv, function(a, b)
-		a, b = a:get_count(), b:get_count()
-
-		if reverse then
-			return a > b
-		end
-
-		return a < b
-	end)
 end
 
 local function get_sorting_idx(name)
@@ -387,56 +361,79 @@ local function get_sorting_idx(name)
 	return idx
 end
 
-local function apply_sort(inv, size, data, new_inv, start_i)
-	if not data.ignore_hotbar then
-		inv:set_list("main", new_inv)
-		return
-	end
+local function sorter(inv, reverse, mode)
+	table.sort(inv, function(a, b)
+		if mode == 1 then
+			a, b = a:get_name(), b:get_name()
+		else
+			a, b = a:get_count(), b:get_count()
+		end
 
-	for i = start_i, size do
-		local idx = i - start_i + 1
-		inv:set_stack("main", i, new_inv[idx] or "")
-	end
+		if reverse then
+			return a > b
+		end
+
+		return a < b
+	end)
 end
 
-local function compress_items(list, start_i)
-	local new_inv, _new_inv, special = {}, {}, {}
+local function pre_sorting(list, start_i)
+	local new_inv, special = {}, {}
 
 	for i = start_i, #list do
 		local stack = list[i]
-		local name = stack:get_name()
-		local count = stack:get_count()
-		local stackmax = stack:get_stack_max()
 		local empty = stack:is_empty()
-		local meta = stack:get_meta():to_table()
-		local wear = stack:get_wear() > 0
+		local meta  = stack:get_meta():to_table()
+		local wear  = stack:get_wear() > 0
+
+		if not empty then
+			if next(meta.fields) or wear then
+				special[#special + 1] = stack
+			else
+				new_inv[#new_inv + 1] = stack
+			end
+		end
+	end
+
+	new_inv = table_merge(new_inv, special)
+	return new_inv
+end
+
+local function compress_items(list, start_i)
+	local hash, new_inv, special = {}, {}, {}
+
+	for i = start_i, #list do
+		local stack    = list[i]
+		local name     = stack:get_name()
+		local count    = stack:get_count()
+		local stackmax = stack:get_stack_max()
+		local empty    = stack:is_empty()
+		local meta     = stack:get_meta():to_table()
+		local wear     = stack:get_wear() > 0
 
 		if not empty then
 			if next(meta.fields) or wear or count >= stackmax then
 				special[#special + 1] = stack
 			else
-				new_inv[name] = new_inv[name] or 0
-				new_inv[name] = new_inv[name] + count
+				hash[name] = hash[name] or 0
+				hash[name] = hash[name] + count
 			end
 		end
 	end
 
-	for name, count in pairs(new_inv) do
+	for name, count in pairs(hash) do
 		local stackmax = ItemStack(name):get_stack_max()
 		local iter = math.ceil(count / stackmax)
 		local leftover = count
 
 		for _ = 1, iter do
-			_new_inv[#_new_inv + 1] = ItemStack(fmt("%s %u", name, math.min(stackmax, leftover)))
+			new_inv[#new_inv + 1] = ItemStack(fmt("%s %u", name, math.min(stackmax, leftover)))
 			leftover = leftover - stackmax
 		end
 	end
 
-	for i = 1, #special do
-		_new_inv[#_new_inv + 1] = special[i]
-	end
-
-	return _new_inv
+	new_inv = table_merge(new_inv, special)
+	return new_inv
 end
 
 local function sort_inventory(player, data)
@@ -447,13 +444,22 @@ local function sort_inventory(player, data)
 
 	if data.inv_compress then
 		list = compress_items(list, start_i)
+	else
+		list = pre_sorting(list, start_i)
 	end
 
 	local idx = get_sorting_idx(data.sort)
 	local new_inv = i3.sorting_methods[idx].func(list, data)
+	if not new_inv then return end
 
-	if new_inv then
-		apply_sort(inv, size, data, new_inv, start_i)
+	if not data.ignore_hotbar then
+		inv:set_list("main", new_inv)
+		return
+	end
+
+	for i = start_i, size do
+		local index = i - start_i + 1
+		inv:set_stack("main", i, new_inv[index] or "")
 	end
 end
 
@@ -472,8 +478,7 @@ local _ = {
 
 	-- Sorting
 	search = search,
-	name_sort = name_sort,
-	count_sort = count_sort,
+	sorter = sorter,
 	sort_inventory = sort_inventory,
 	get_sorting_idx = get_sorting_idx,
 	sort_by_category = sort_by_category,

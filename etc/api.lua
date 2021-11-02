@@ -2,7 +2,7 @@ local make_fs = i3.files.gui()
 
 local gmatch, match, split = i3.get("gmatch", "match", "split")
 local S, err, fmt, reg_items = i3.get("S", "err", "fmt", "reg_items")
-local name_sort, count_sort, sort_inventory = i3.get("name_sort", "count_sort", "sort_inventory")
+local sorter, sort_inventory = i3.get("sorter", "sort_inventory")
 local sort, concat, copy, insert, remove = i3.get("sort", "concat", "copy", "insert", "remove")
 local true_str, true_table, is_str, is_func, is_table, clean_name =
 	i3.get("true_str", "true_table", "is_str", "is_func", "is_table", "clean_name")
@@ -307,40 +307,12 @@ function i3.add_sorting_method(def)
 	insert(i3.sorting_methods, def)
 end
 
-local function pre_sorting(list)
-	local new_inv, stack_meta = {}, {}
-
-	for i = 1, #list do
-		local stack = list[i]
-		local name = stack:get_name()
-		local count = stack:get_count()
-		local empty = stack:is_empty()
-		local meta = stack:get_meta():to_table()
-		local wear = stack:get_wear() > 0
-
-		if not empty then
-			if next(meta.fields) or wear then
-				stack_meta[#stack_meta + 1] = stack
-			else
-				new_inv[#new_inv + 1] = ItemStack(fmt("%s %u", name, count))
-			end
-		end
-	end
-
-	for i = 1, #stack_meta do
-		new_inv[#new_inv + 1] = stack_meta[i]
-	end
-
-	return new_inv
-end
-
 i3.add_sorting_method {
 	name = "alphabetical",
 	description = S"Sort items by name (A-Z)",
 	func = function(list, data)
-		local new_inv = pre_sorting(list)
-		name_sort(new_inv, data.reverse_sorting)
-		return new_inv
+		sorter(list, data.reverse_sorting, 1)
+		return list
 	end
 }
 
@@ -348,8 +320,7 @@ i3.add_sorting_method {
 	name = "numerical",
 	description = S"Sort items by number of items per stack",
 	func = function(list, data)
-		local new_inv = pre_sorting(list)
-		count_sort(new_inv, data.reverse_sorting)
-		return new_inv
+		sorter(list, data.reverse_sorting, 2)
+		return list
 	end,
 }
