@@ -157,58 +157,21 @@ local function array_diff(t1, t2)
 	return diff
 end
 
-local function table_eq(T1, T2)
-	local avoid_loops = {}
+local function rcp_eq(rcp, rcp2)
+	if rcp.type   ~= rcp2.type   then return end
+	if rcp.width  ~= rcp2.width  then return end
+	if #rcp.items ~= #rcp2.items then return end
+	if rcp.output ~= rcp2.output then return end
 
-	local function recurse(t1, t2)
-		if type(t1) ~= type(t2) then return end
-
-		if not is_table(t1) then
-			return t1 == t2
-		end
-
-		if avoid_loops[t1] then
-			return avoid_loops[t1] == t2
-		end
-
-		avoid_loops[t1] = t2
-		local t2k, t2kv = {}, {}
-
-		for k in pairs(t2) do
-			if is_table(k) then
-				table.insert(t2kv, k)
-			end
-
-			t2k[k] = true
-		end
-
-		for k1, v1 in pairs(t1) do
-			local v2 = t2[k1]
-			if type(k1) == "table" then
-				local ok
-				for i = 1, #t2kv do
-					local tk = t2kv[i]
-					if table_eq(k1, tk) and recurse(v1, t2[tk]) then
-						table.remove(t2kv, i)
-						t2k[tk] = nil
-						ok = true
-						break
-					end
-				end
-
-				if not ok then return end
-			else
-				if v2 == nil then return end
-				t2k[k1] = nil
-				if not recurse(v1, v2) then return end
-			end
-		end
-
-		if next(t2k) then return end
-		return true
+	for i, item in pairs(rcp.items) do
+		if item ~= rcp2.items[i] then return end
 	end
 
-	return recurse(T1, T2)
+	for i, item in pairs(rcp2.items) do
+		if item ~= rcp.items[i] then return end
+	end
+
+	return true
 end
 
 local function is_group(item)
@@ -536,9 +499,9 @@ local _ = {
 	remove = table.remove,
 	indexof = table.indexof,
 	is_table = is_table,
-	table_eq = table_eq,
 	table_merge = table_merge,
 	table_replace = table_replace,
+	rcp_eq = rcp_eq,
 	array_diff = array_diff,
 
 	-- Math

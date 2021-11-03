@@ -5,8 +5,8 @@ local maxn, copy, insert, sort, match = i3.get("maxn", "copy", "insert", "sort",
 
 local is_group, extract_groups, item_has_groups, groups_to_items =
 	i3.get("is_group", "extract_groups", "item_has_groups", "groups_to_items")
-local true_str, is_table, show_item, table_merge, table_replace, table_eq =
-	i3.get("true_str", "is_table", "show_item", "table_merge", "table_replace", "table_eq")
+local true_str, is_table, show_item, table_merge, table_replace, rcp_eq =
+	i3.get("true_str", "is_table", "show_item", "table_merge", "table_replace", "rcp_eq")
 
 local function get_burntime(item)
 	return core.get_craft_result{method = "fuel", items = {item}}.time
@@ -229,9 +229,9 @@ local function resolve_aliases(hash)
 
 				for j = 1, #i3.recipes_cache[newname] do
 					local rcp_new = copy(i3.recipes_cache[newname][j])
-					rcp_new.output = oldname
+					      rcp_new.output = oldname
 
-					if table_eq(rcp_old, rcp_new) then
+					if rcp_eq(rcp_old, rcp_new) then
 						similar = true
 						break
 					end
@@ -272,7 +272,7 @@ local function init_recipes()
 	resolve_aliases(_select)
 	sort(i3.init_items)
 
-	if i3.http and type(i3.export_url) == "string" then
+	if i3.http and true_str(i3.export_url) then
 		local post_data = {
 			recipes = i3.recipes_cache,
 			usages  = i3.usages_cache,
