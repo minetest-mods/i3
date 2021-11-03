@@ -1,6 +1,6 @@
 # i3
 
-[![ContentDB](https://content.minetest.net/packages/jp/i3/shields/title/)](https://content.minetest.net/packages/jp/i3/) [![ContentDB](https://content.minetest.net/packages/jp/i3/shields/downloads/)](https://content.minetest.net/packages/jp/i3/)
+[![ContentDB](https://content.minetest.net/packages/jp/i3/shields/title/)](https://content.minetest.net/packages/jp/i3/) [![ContentDB](https://content.minetest.net/packages/jp/i3/shields/downloads/)](https://content.minetest.net/packages/jp/i3/) ![workflow](https://github.com/minetest-mods/i3/actions/workflows/luacheck.yml/badge.svg)
 
 #### **`i3`** is a next-generation inventory for Minetest.
 
