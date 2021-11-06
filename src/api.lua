@@ -302,6 +302,8 @@ function i3.add_sorting_method(def)
 		return err "i3.add_sorting_method: name missing"
 	elseif not is_func(def.func) then
 		return err "i3.add_sorting_method: function missing"
+	elseif i3.compressed[def.name] then
+		return err(fmt("i3.add_sorting_method: item '%s' is already compressed", def.name))
 	end
 
 	insert(i3.sorting_methods, def)
