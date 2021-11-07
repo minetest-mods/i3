@@ -44,7 +44,8 @@ local function reset_compression(data)
 end
 
 local function msg(name, str)
-	return core.chat_send_player(name, fmt("[i3] %s", str))
+	local prefix = "[i3]"
+	return core.chat_send_player(name, fmt("%s %s", core.colorize("#ff0", prefix), str))
 end
 
 local function err(str)
