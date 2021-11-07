@@ -1,8 +1,15 @@
-local translate = core.get_translated_string
-local fmt, find, gmatch, match, sub, split, lower =
-	string.format, string.find, string.gmatch, string.match, string.sub, string.split, string.lower
-local reg_items, reg_nodes, reg_craftitems, reg_tools =
-	core.registered_items, core.registered_nodes, core.registered_craftitems, core.registered_tools
+local fmt, find, match, gmatch, sub, split, lower =
+	string.format, string.find, string.match, string.gmatch, string.sub, string.split, string.lower
+
+local old_is_creative_enabled = core.is_creative_enabled
+
+function core.is_creative_enabled(name)
+	if name == "" then
+		return old_is_creative_enabled(name)
+	end
+
+	return core.check_player_privs(name, {creative = true}) or old_is_creative_enabled(name)
+end
 
 local S = core.get_translator "i3"
 local ES = function(...) return core.formspec_escape(S(...)) end
@@ -36,6 +43,19 @@ local function reset_compression(data)
 	data.expand = ""
 end
 
+local function msg(name, str)
+	return core.chat_send_player(name, fmt("[i3] %s", str))
+end
+
+local function err(str)
+	return core.log("error", str)
+end
+
+local function round(num, decimal)
+	local mul = 10 ^ decimal
+	return math.floor(num * mul + 0.5) / mul
+end
+
 local function search(data)
 	reset_compression(data)
 
@@ -60,7 +80,7 @@ local function search(data)
 	for i = 1, #data.items_raw do
 		local item = data.items_raw[i]
 		local def = core.registered_items[item]
-		local desc = lower(translate(data.lang_code, def and def.description)) or ""
+		local desc = lower(core.get_translated_string(data.lang_code, def and def.description)) or ""
 		local search_in = fmt("%s %s", item, desc)
 		local temp, j, to_add = {}, 1
 
@@ -174,6 +194,14 @@ local function rcp_eq(rcp, rcp2)
 	return true
 end
 
+local function clean_name(item)
+	if sub(item, 1, 1) == ":" or sub(item, 1, 1) == " " or sub(item, 1, 1) == "_" then
+		item = sub(item, 2)
+	end
+
+	return item
+end
+
 local function is_group(item)
 	return sub(item, 1, 6) == "group:"
 end
@@ -202,7 +230,7 @@ local function groups_to_items(groups, get_all)
 	if not get_all and #groups == 1 then
 		local group = groups[1]
 		local stereotype = i3.group_stereotypes[group]
-		local def = reg_items[stereotype]
+		local def = core.registered_items[stereotype]
 
 		if show_item(def) then
 			return stereotype
@@ -211,7 +239,7 @@ local function groups_to_items(groups, get_all)
 
 	local names = {}
 
-	for name, def in pairs(reg_items) do
+	for name, def in pairs(core.registered_items) do
 		if show_item(def) and item_has_groups(def.groups, groups) then
 			if get_all then
 				names[#names + 1] = name
@@ -238,27 +266,6 @@ end
 
 local function compressible(item, data)
 	return compression_active(data) and i3.compress_groups[item]
-end
-
-local function clean_name(item)
-	if sub(item, 1, 1) == ":" or sub(item, 1, 1) == " " or sub(item, 1, 1) == "_" then
-		item = sub(item, 2)
-	end
-
-	return item
-end
-
-local function msg(name, str)
-	return core.chat_send_player(name, fmt("[i3] %s", str))
-end
-
-local function err(str)
-	return core.log("error", str)
-end
-
-local function round(num, decimal)
-	local mul = 10 ^ decimal
-	return math.floor(num * mul + 0.5) / mul
 end
 
 local function is_fav(favs, query_item)
@@ -290,9 +297,9 @@ local function sort_by_category(data)
 		local to_add = true
 
 		if data.itab == 2 then
-			to_add = reg_nodes[item]
+			to_add = core.registered_nodes[item]
 		elseif data.itab == 3 then
-			to_add = reg_craftitems[item] or reg_tools[item]
+			to_add = core.registered_craftitems[item] or core.registered_tools[item]
 		end
 
 		if to_add then
@@ -310,6 +317,42 @@ local function spawn_item(player, stack)
 	local look_at = vector.add(ppos, vector.multiply(dir, 1))
 
 	core.add_item(look_at, stack)
+end
+
+local function get_recipes(player, item)
+	local clean_item = core.registered_aliases[item] or item
+	local recipes = i3.recipes_cache[clean_item]
+	local usages = i3.usages_cache[clean_item]
+
+	if recipes then
+		recipes = apply_recipe_filters(recipes, player)
+	end
+
+	local no_recipes = not recipes or #recipes == 0
+	if no_recipes and not usages then return end
+	usages = apply_recipe_filters(usages, player)
+
+	local no_usages = not usages or #usages == 0
+
+	return not no_recipes and recipes or nil,
+	       not no_usages  and usages  or nil
+end
+
+local function get_stack(player, stack)
+	local inv = player:get_inventory()
+
+	if inv:room_for_item("main", stack) then
+		inv:add_item("main", stack)
+	else
+		spawn_item(player, stack)
+	end
+end
+
+local function safe_teleport(player, pos)
+	pos.y = pos.y + 0.5
+	local vel = player:get_velocity()
+	player:add_velocity(vector.multiply(vel, -1))
+	player:set_pos(pos)
 end
 
 local function get_sorting_idx(name)
@@ -442,23 +485,30 @@ local _ = {
 	-- Sorting
 	search = search,
 	sorter = sorter,
+	get_recipes = get_recipes,
 	sort_inventory = sort_inventory,
 	get_sorting_idx = get_sorting_idx,
 	sort_by_category = sort_by_category,
 	apply_recipe_filters = apply_recipe_filters,
 
-	-- Misc. functions
-	err = err,
-	msg = msg,
+	-- Type checks
 	is_fav = is_fav,
 	is_str = is_str,
 	is_num = is_num,
 	is_func = is_func,
-	show_item = show_item,
-	spawn_item = spawn_item,
 	true_str = true_str,
 	true_table = true_table,
+
+	-- Console
+	err = err,
+	msg = msg,
+
+	-- Misc. functions
+	get_stack = get_stack,
+	show_item = show_item,
+	spawn_item = spawn_item,
 	clean_name = clean_name,
+	safe_teleport = safe_teleport,
 
 	-- Core functions
 	clr = core.colorize,
@@ -517,7 +567,6 @@ local _ = {
 	vec_add = vector.add,
 	vec_round = vector.round,
 	vec_eq = vector.equals,
-	vec_mul = vector.multiply,
 }
 
 function i3.get(...)

@@ -4,26 +4,16 @@ local S, clr = i3.get("S", "clr")
 local min, ceil, random = i3.get("min", "ceil", "random")
 local reg_items, reg_aliases = i3.get("reg_items", "reg_aliases")
 local fmt, find, match, sub, lower = i3.get("fmt", "find", "match", "sub", "lower")
-local vec_new, vec_mul, vec_eq, vec_round = i3.get("vec_new", "vec_mul", "vec_eq", "vec_round")
+local vec_new, vec_eq, vec_round = i3.get("vec_new", "vec_eq", "vec_round")
 local sort, copy, insert, remove, indexof = i3.get("sort", "copy", "insert", "remove", "indexof")
 
 local msg, is_fav = i3.get("msg", "is_fav")
 local is_group, extract_groups, groups_to_items =
 	i3.get("is_group", "extract_groups", "groups_to_items")
-local search, get_sorting_idx, sort_inventory, sort_by_category, apply_recipe_filters =
-	i3.get("search", "get_sorting_idx", "sort_inventory", "sort_by_category", "apply_recipe_filters")
-local show_item, spawn_item, clean_name, compressible, check_privs =
-	i3.get("show_item", "spawn_item", "clean_name", "compressible", "check_privs")
-
-local old_is_creative_enabled = core.is_creative_enabled
-
-function core.is_creative_enabled(name)
-	if name == "" then
-		return old_is_creative_enabled(name)
-	end
-
-	return check_privs(name, {creative = true}) or old_is_creative_enabled(name)
-end
+local search, get_sorting_idx, sort_inventory, sort_by_category, get_recipes =
+	i3.get("search", "get_sorting_idx", "sort_inventory", "sort_by_category", "get_recipes")
+local show_item, get_stack, clean_name, compressible, check_privs, safe_teleport =
+	i3.get("show_item", "get_stack", "clean_name", "compressible", "check_privs", "safe_teleport")
 
 local function reset_data(data)
 	data.filter        = ""
@@ -47,42 +37,6 @@ local function reset_data(data)
 	if data.itab > 1 then
 		sort_by_category(data)
 	end
-end
-
-local function get_recipes(player, item)
-	local clean_item = reg_aliases[item] or item
-	local recipes = i3.recipes_cache[clean_item]
-	local usages = i3.usages_cache[clean_item]
-
-	if recipes then
-		recipes = apply_recipe_filters(recipes, player)
-	end
-
-	local no_recipes = not recipes or #recipes == 0
-	if no_recipes and not usages then return end
-	usages = apply_recipe_filters(usages, player)
-
-	local no_usages = not usages or #usages == 0
-
-	return not no_recipes and recipes or nil,
-	       not no_usages  and usages  or nil
-end
-
-local function get_stack(player, stack)
-	local inv = player:get_inventory()
-
-	if inv:room_for_item("main", stack) then
-		inv:add_item("main", stack)
-	else
-		spawn_item(player, stack)
-	end
-end
-
-local function safe_teleport(player, pos)
-	pos.y = pos.y + 0.5
-	local vel = player:get_velocity()
-	player:add_velocity(vec_mul(vel, -1))
-	player:set_pos(pos)
 end
 
 i3.new_tab {

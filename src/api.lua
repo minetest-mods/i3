@@ -280,6 +280,8 @@ function i3.compress(item, def)
 		return err "i3.compress: replace string missing"
 	elseif not is_table(def.by) then
 		return err "i3.compress: replace substrings missing"
+	elseif i3.compressed[item] then
+		return err(fmt("i3.compress: item '%s' is already compressed", item))
 	end
 
 	local t = {}
@@ -302,8 +304,6 @@ function i3.add_sorting_method(def)
 		return err "i3.add_sorting_method: name missing"
 	elseif not is_func(def.func) then
 		return err "i3.add_sorting_method: function missing"
-	elseif i3.compressed[def.name] then
-		return err(fmt("i3.add_sorting_method: item '%s' is already compressed", def.name))
 	end
 
 	insert(i3.sorting_methods, def)
