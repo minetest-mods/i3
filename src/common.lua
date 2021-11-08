@@ -446,8 +446,8 @@ local function compress_items(list, start_i)
 	return new_inv
 end
 
-local function reject_items(player, inv, list, rej)
-	for i = 1, #list do
+local function reject_items(player, inv, list, start_i, rej)
+	for i = start_i, #list do
 		local stack = list[i]
 		local name = stack:get_name()
 
@@ -469,7 +469,7 @@ local function sort_inventory(player, data)
 	local start_i = data.ignore_hotbar and 10 or 1
 
 	if true_table(data.reject_items) then
-		list = reject_items(player, inv, list, data.reject_items)
+		list = reject_items(player, inv, list, start_i, data.reject_items)
 	end
 
 	if data.inv_compress then
