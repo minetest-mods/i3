@@ -446,11 +446,31 @@ local function compress_items(list, start_i)
 	return new_inv
 end
 
+local function reject_items(player, inv, list, rej)
+	for i = 1, #list do
+		local stack = list[i]
+		local name = stack:get_name()
+
+		for _, it in ipairs(rej) do
+			if name == it then
+				spawn_item(player, stack)
+				inv:set_stack("main", i, ItemStack(""))
+			end
+		end
+	end
+
+	return inv:get_list("main")
+end
+
 local function sort_inventory(player, data)
 	local inv = player:get_inventory()
 	local list = inv:get_list("main")
 	local size = inv:get_size("main")
 	local start_i = data.ignore_hotbar and 10 or 1
+
+	if true_table(data.reject_items) then
+		list = reject_items(player, inv, list, data.reject_items)
+	end
 
 	if data.inv_compress then
 		list = compress_items(list, start_i)

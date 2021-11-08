@@ -3,7 +3,7 @@ local _, get_inventory_fs = i3.files.gui()
 local S, clr = i3.get("S", "clr")
 local min, ceil, random = i3.get("min", "ceil", "random")
 local reg_items, reg_aliases = i3.get("reg_items", "reg_aliases")
-local fmt, find, match, sub, lower = i3.get("fmt", "find", "match", "sub", "lower")
+local fmt, find, match, sub, lower, split = i3.get("fmt", "find", "match", "sub", "lower", "split")
 local vec_new, vec_eq, vec_round = i3.get("vec_new", "vec_eq", "vec_round")
 local sort, copy, insert, remove, indexof = i3.get("sort", "copy", "insert", "remove", "indexof")
 
@@ -53,6 +53,11 @@ i3.new_tab {
 			local id = tonumber(fields.skins)
 			local _skins = skins.get_skinlist_for_player(name)
 			skins.set_player_skin(player, _skins[id])
+		end
+
+		if fields.reject_items then
+			local items = split(fields.reject_items, ",")
+			data.reject_items = items
 		end
 
 		for field in pairs(fields) do

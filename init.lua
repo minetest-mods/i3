@@ -35,6 +35,7 @@ i3 = {
 		bag_size = true,
 		waypoints = true,
 		inv_items = true,
+		reject_items = true,
 		known_recipes = true,
 	},
 
@@ -76,7 +77,7 @@ i3.files.groups()
 i3.files.inventory()
 
 local storage = core.get_mod_storage()
-local fmt, copy, slz, dslz = i3.get("fmt", "copy", "slz", "dslz")
+local slz, dslz = i3.get("slz", "dslz")
 
 i3.data = dslz(storage:get_string "data") or {}
 
@@ -92,7 +93,7 @@ local function get_formspec_version(info)
 end
 
 local function outdated(name)
-	local fs = fmt("size[6.3,1.3]image[0,0;1,1;i3_book.png]label[1,0;%s]button_exit[2.6,0.8;1,1;;OK]",
+	local fs = ("size[6.3,1.3]image[0,0;1,1;i3_book.png]label[1,0;%s]button_exit[2.6,0.8;1,1;;OK]"):format(
 		"Your Minetest client is outdated.\nGet the latest version on minetest.net to play the game.")
 
 	core.show_formspec(name, "i3_outdated", fs)
@@ -195,7 +196,7 @@ local function init_hudbar(player)
 end
 
 local function save_data(player_name)
-	local _data = copy(i3.data)
+	local _data = table.copy(i3.data)
 
 	for name, v in pairs(_data) do
 	for dat in pairs(v) do

@@ -475,6 +475,15 @@ local function show_popup(fs, data)
 			fs("checkbox", 2.4, 10.5,  "cb_reverse_sorting", "Reverse sorting", tostring(data.reverse_sorting))
 			fs("checkbox", 2.4, 10.95, "cb_auto_sorting", "Automatic sorting", tostring(data.auto_sorting))
 			fs("checkbox", 5.4, 10.05, "cb_ignore_hotbar", "Ignore hotbar", tostring(data.ignore_hotbar))
+
+			for _ = 1, 3 do
+				fs("box", 5.4, 10.68, 2.4, 0.45, "#707070")
+			end
+
+			fs("style[reject_items;font_size=15;font=mono;textcolor=#bddeff]")
+			fs(fmt("field[5.4,10.68;2.4,0.45;reject_items;Reject items:;%s]",
+				ESC(concat(data.reject_items or {}, ","))))
+			fs("field_close_on_enter[reject_items;false]")
 		end
 	end
 end
