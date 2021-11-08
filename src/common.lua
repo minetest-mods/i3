@@ -350,6 +350,9 @@ local function get_stack(player, stack)
 end
 
 local function safe_teleport(player, pos)
+	local name = player:get_player_name()
+	core.sound_play("i3_teleport", {to_player = name, gain = 1.0}, true)
+
 	pos.y = pos.y + 0.5
 	local vel = player:get_velocity()
 	player:add_velocity(vector.multiply(vel, -1))

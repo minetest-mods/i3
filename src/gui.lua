@@ -557,7 +557,7 @@ local function get_inventory_fs(player, data, fs)
 
 	local btn = {
 		{"trash",    ES"Clear inventory"},
-		{"sort",     ES"Sort items"},
+		{"sort",     ES"Sort inventory"},
 		{"settings", ES"Settings"},
 		{"home",     ES"Go home"},
 	}

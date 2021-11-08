@@ -535,6 +535,7 @@ local trash = core.create_detached_inventory("i3_trash", {
 		inv:set_list(listname, {})
 
 		local name = player:get_player_name()
+		core.sound_play("i3_trash", {to_player = name, gain = 1.0}, true)
 
 		if not core.is_creative_enabled(name) then
 			i3.set_fs(player)
