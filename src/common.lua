@@ -493,6 +493,17 @@ local function sort_inventory(player, data)
 	end
 end
 
+local function add_hud_waypoint(player, name, pos, color)
+	return player:hud_add {
+		hud_elem_type = "waypoint",
+		name = name,
+		text = " m",
+		world_pos = pos,
+		number = color,
+		z_index = -300,
+	}
+end
+
 -------------------------------------------------------------------------------
 
 local _ = {
@@ -533,12 +544,15 @@ local _ = {
 	spawn_item = spawn_item,
 	clean_name = clean_name,
 	safe_teleport = safe_teleport,
+	add_hud_waypoint = add_hud_waypoint,
 
 	-- Core functions
 	clr = core.colorize,
 	slz = core.serialize,
 	dslz = core.deserialize,
 	ESC = core.formspec_escape,
+	pos_to_str = core.pos_to_string,
+	str_to_pos = core.string_to_pos,
 	check_privs = core.check_player_privs,
 
 	-- Registered items

@@ -77,7 +77,7 @@ i3.files.groups()
 i3.files.inventory()
 
 local storage = core.get_mod_storage()
-local slz, dslz = i3.get("slz", "dslz")
+local slz, dslz, str_to_pos, add_hud_waypoint = i3.get("slz", "dslz", "str_to_pos", "add_hud_waypoint")
 
 i3.data = dslz(storage:get_string "data") or {}
 
@@ -174,15 +174,7 @@ local function init_waypoints(player)
 
 	for _, v in ipairs(data.waypoints) do
 		if not v.hide then
-			local id = player:hud_add {
-				hud_elem_type = "waypoint",
-				name = v.name,
-				text = " m",
-				world_pos = v.pos,
-				number = v.color,
-				z_index = -300,
-			}
-
+			local id = add_hud_waypoint(player, v.name, str_to_pos(v.pos), v.color)
 			v.id = id
 		end
 	end

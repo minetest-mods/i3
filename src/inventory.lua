@@ -7,9 +7,10 @@ local fmt, find, match, sub, lower, split = i3.get("fmt", "find", "match", "sub"
 local vec_new, vec_eq, vec_round = i3.get("vec_new", "vec_eq", "vec_round")
 local sort, copy, insert, remove, indexof = i3.get("sort", "copy", "insert", "remove", "indexof")
 
-local msg, is_fav = i3.get("msg", "is_fav")
 local is_group, extract_groups, groups_to_items =
 	i3.get("is_group", "extract_groups", "groups_to_items")
+local msg, is_fav, pos_to_str, str_to_pos, add_hud_waypoint =
+	i3.get("msg", "is_fav", "pos_to_str", "str_to_pos", "add_hud_waypoint")
 local search, get_sorting_idx, sort_inventory, sort_by_category, get_recipes =
 	i3.get("search", "get_sorting_idx", "sort_inventory", "sort_by_category", "get_recipes")
 local show_item, get_stack, clean_name, compressible, check_privs, safe_teleport =
@@ -87,7 +88,7 @@ i3.new_tab {
 					remove(data.waypoints, id)
 
 				elseif action == "teleport" then
-					local pos = vec_new(waypoint.pos)
+					local pos = vec_new(str_to_pos(waypoint.pos))
 					safe_teleport(player, pos)
 					msg(name, fmt("Teleported to %s", clr("#ff0", waypoint.name)))
 
@@ -98,14 +99,8 @@ i3.new_tab {
 
 				elseif action == "hide" then
 					if waypoint.hide then
-						local new_id = player:hud_add {
-							hud_elem_type = "waypoint",
-							name = waypoint.name,
-							text = " m",
-							world_pos = waypoint.pos,
-							number = waypoint.color,
-							z_index = -300,
-						}
+						local new_id = add_hud_waypoint(
+							player, waypoint.name, str_to_pos(waypoint.pos), waypoint.color)
 
 						waypoint.id = new_id
 						waypoint.hide = nil
@@ -166,11 +161,11 @@ i3.new_tab {
 				return msg(name, "'home' privilege missing")
 			end
 
-			safe_teleport(player, core.string_to_pos(data.home))
+			safe_teleport(player, str_to_pos(data.home))
 			msg(name, S"Welcome back home!")
 
 		elseif fields.set_home then
-			data.home = core.pos_to_string(player:get_pos(), 1)
+			data.home = pos_to_str(player:get_pos(), 1)
 
 		elseif sb_inv and sub(sb_inv, 1, 3) == "CHG" then
 			data.scrbar_inv = tonumber(match(sb_inv, "%d+"))
@@ -180,7 +175,7 @@ i3.new_tab {
 			local pos = player:get_pos()
 
 			for _, v in ipairs(data.waypoints) do
-				if vec_eq(vec_round(pos), vec_round(v.pos)) then
+				if vec_eq(vec_round(pos), vec_round(str_to_pos(v.pos))) then
 					return msg(name, "You already set a waypoint at this position")
 				end
 			end
@@ -192,17 +187,15 @@ i3.new_tab {
 			end
 
 			local color = random(0xffffff)
+			local id = add_hud_waypoint(player, waypoint, pos, color)
 
-			local id = player:hud_add {
-				hud_elem_type = "waypoint",
-				name = waypoint,
-				text = " m",
-				world_pos = pos,
-				number = color,
-				z_index = -300,
-			}
+			insert(data.waypoints, {
+				name  = waypoint,
+				pos   = pos_to_str(pos, 1),
+				color = color,
+				id    = id,
+			})
 
-			insert(data.waypoints, {name = waypoint, pos = pos, color = color, id = id})
 			data.scrbar_inv = data.scrbar_inv + 1000
 		end
 

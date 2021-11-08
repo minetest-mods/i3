@@ -267,7 +267,7 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 
 		fs("tooltip", 0, y, ctn_len - 2.5, 0.65,
 			fmt("Name: %s\nPosition:%s", clr("#ff0", v.name),
-				core.pos_to_string(v.pos, 0):sub(2,-2):gsub("(%-*%d+)", clr("#ff0", " %1"))))
+				v.pos:sub(2,-2):gsub("(%-*%d*%.?%d+)", clr("#ff0", " %1"))))
 
 		local del = fmt("waypoint_%u_delete", i)
 		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", del, PNG.trash, PNG.trash_hover))
