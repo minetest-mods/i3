@@ -139,13 +139,8 @@ local function get_inv_slots(data, fs)
 	   fmt("list[current_player;main;%f,%f;%u,1;]", inv_x, inv_y, i3.HOTBAR_LEN))
 
 	if bag then
-		if bag == 1 then
-			width, size = 10, 0.892
-		elseif bag == 2 then
-			width, size = 11, 0.8
-		elseif bag == 3 then
-			width, size = 12, 0.726
-		end
+		local params = {{10, 0.892}, {11, 0.8}, {12, 0.726}, {13, 0.663}}
+		width, size = unpack(params[bag])
 	end
 
 	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing),

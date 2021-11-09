@@ -308,10 +308,10 @@ Returns a table of recipes and usages of `item`.
 If set, the mod will export all the cached recipes and usages in a JSON format
 to the given URL (HTTP support is required¹).
 
-#### `groups = {bag = <1-3>}`
+#### `groups = {bag = <1-4>}`
 
 The `bag` group in the item definition allows to extend the player inventory size
-given a number between 1 and 3.
+given a number between 1 and 4.
 
 ---
 

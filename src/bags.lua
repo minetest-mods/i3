@@ -17,7 +17,6 @@ local function init_backpack(player)
 			end
 
 			msg(name, S"This is not a backpack")
-
 			return 0
 		end,
 
