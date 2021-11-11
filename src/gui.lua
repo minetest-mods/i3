@@ -261,8 +261,8 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 		fs("label", 0.15, y + 0.33, clr(fmt("#%s", hex), waypoint_name))
 
 		fs("tooltip", 0, y, ctn_len - 2.5, 0.65,
-			fmt("Name: %s\nPosition:%s", clr("#ff0", v.name),
-				v.pos:sub(2,-2):gsub("(%-*%d*%.?%d+)", clr("#ff0", " %1"))))
+			fmt("Name: %s\nPosition:%s", clr("#dbeeff", v.name),
+				v.pos:sub(2,-2):gsub("(%-*%d*%.?%d+)", clr("#dbeeff", " %1"))))
 
 		local del = fmt("waypoint_%u_delete", i)
 		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", del, PNG.trash, PNG.trash_hover))
@@ -439,7 +439,8 @@ local function show_popup(fs, data)
 
 		if show_home then
 			local home_pos = data.home or ""
-			      home_pos = home_pos:gsub(",", ",  "):gsub("%(", ""):gsub("%)", "")
+			      home_pos = home_pos:gsub(",", ", "):sub(2,-2):gsub("%.%d", ""):gsub(
+					"(%-?%d+)", clr("#dbeeff", "%1"))
 			local home_str = fmt("Home position:  %s", home_pos)
 			      home_str = data.home and home_str or ES"No home set"
 
@@ -475,10 +476,13 @@ local function show_popup(fs, data)
 				fs("box", 5.4, 10.68, 2.4, 0.45, "#707070")
 			end
 
-			fs("style[reject_items;font_size=15;font=mono;textcolor=#bddeff]")
+			fs("style[reject_items;font_size=15;font=mono;textcolor=#dbeeff]")
 			fs(fmt("field[5.4,10.68;2.4,0.45;reject_items;Reject items:;%s]",
 				ESC(concat(data.reject_items or {}, ","))))
 			fs("field_close_on_enter[reject_items;false]")
+			fs(fmt("tooltip[reject_items;%s;#707070;#fff]",
+				ES"Format:" .. "\n" ..
+				("mod:item,mod:item, ..."):gsub("(%a+:%a+)", clr("#bddeff", "%1"))))
 		end
 	end
 end
