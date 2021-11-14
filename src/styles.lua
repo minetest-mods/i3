@@ -121,4 +121,10 @@ local fs_elements = {
 	item_image_button = "item_image_button[%f,%f;%f,%f;%s;%s;%s]",
 }
 
-return PNG, styles, fs_elements
+local colors = {
+	yellow = "#ffd866",
+	black = "#2d2a2e",
+	blue = "#7bf",
+}
+
+return PNG, styles, fs_elements, colors

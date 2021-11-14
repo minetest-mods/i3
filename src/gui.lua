@@ -1,7 +1,7 @@
 local damage_enabled = core.settings:get_bool "enable_damage"
 
 local model_aliases = i3.files.model_alias()
-local PNG, styles, fs_elements = i3.files.styles()
+local PNG, styles, fs_elements, colors = i3.files.styles()
 
 local S, ES, translate = i3.get("S", "ES", "translate")
 local clr, ESC, check_privs = i3.get("clr", "ESC", "check_privs")
@@ -337,8 +337,8 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 
 	local function not_installed(modname)
 		fs("hypertext", 0, yextra + 0.9, ctn_len, 0.6, "not_installed",
-			fmt("<global size=16><center><style color=#7bf font=mono>%s</style> not installed</center>",
-				modname))
+			fmt("<global size=16><center><style color=%s font=mono>%s</style> not installed</center>",
+				colors.blue, modname))
 	end
 
 	if data.subcat == 1 then
@@ -452,9 +452,9 @@ local function show_popup(fs, data)
 		local show_sorting = data.show_setting == "sorting"
 		local show_misc = data.show_setting == "misc"
 
-		fs(fmt("style[setting_home;textcolor=%s;sound=i3_click]", show_home and "#ff0" or "#fff"))
-		fs(fmt("style[setting_sorting;textcolor=%s;sound=i3_click]", show_sorting and "#ff0" or "#fff"))
-		fs(fmt("style[setting_misc;textcolor=%s;sound=i3_click]", show_misc and "#ff0" or "#fff"))
+		fs(fmt("style[setting_home;textcolor=%s;sound=i3_click]", show_home and colors.yellow or "#fff"))
+		fs(fmt("style[setting_sorting;textcolor=%s;sound=i3_click]", show_sorting and colors.yellow or "#fff"))
+		fs(fmt("style[setting_misc;textcolor=%s;sound=i3_click]", show_misc and colors.yellow or "#fff"))
 
 		fs("button", 2.2, 9.25, 1.8, 0.55, "setting_home", "Home")
 		fs("button", 4,   9.25, 1.8, 0.55, "setting_sorting", "Sorting")
@@ -467,8 +467,8 @@ local function show_popup(fs, data)
 				str = data.home:gsub(",", "  "):sub(2,-2):gsub("%.%d", ""):gsub(
 					"(%-?%d+)", function(a)
 						c = c + 1
-						return fmt("<b>%s:</b> <style color=#dbeeff font=mono>%s</style>",
-							coords[c], a)
+						return fmt("<b>%s:</b> <style color=%s font=mono>%s</style>",
+							coords[c], colors.black, a)
 					end)
 			end
 
@@ -1048,7 +1048,7 @@ local function get_header(fs, data)
 	fs("style_type[label;font=bold;font_size=20]")
 	fs("label", X, Y1, desc)
 	fs("style_type[label;font=mono;font_size=16]")
-	fs("label", X, Y2, clr("#7bf", tech_name))
+	fs("label", X, Y2, clr(colors.blue, tech_name))
 	fs("style_type[label;font=normal;font_size=16]")
 
 	local def = reg_items[data.query_item]
@@ -1164,7 +1164,7 @@ local function get_items_fs(fs, data, full_height)
 	data.pagemax = max(1, ceil(#items / ipp))
 
 	fs("button", data.inv_width + 5.6, 0.14, 1.88, 0.7, "pagenum",
-		fmt("%s / %u", clr("#ff0", data.pagenum), data.pagemax))
+		fmt("%s / %u", clr(colors.yellow, data.pagenum), data.pagemax))
 
 	if #items == 0 then
 		local lbl = ES"No item to show"
