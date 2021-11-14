@@ -161,7 +161,7 @@ function i3.get_recipes(item)
 	}
 end
 
-function i3.set_fs(player, _fs)
+function i3.set_fs(player)
 	if not player or player.is_fake_player then return end
 	local name = player:get_player_name()
 	local data = i3.data[name]
@@ -171,32 +171,34 @@ function i3.set_fs(player, _fs)
 		sort_inventory(player, data)
 	end
 
-	local fs = fmt("%s%s", make_fs(player, data), _fs or "")
+	local fs = make_fs(player, data)
 	player:set_inventory_formspec(fs)
 end
 
-function i3.new_tab(def)
-	if not true_table(def) then
-		return err "i3.new_tab: tab definition missing"
-	elseif not true_str(def.name) then
+function i3.new_tab(name, def)
+	if not true_str(name) then
 		return err "i3.new_tab: tab name missing"
+	elseif not true_table(def) then
+		return err "i3.new_tab: tab definition missing"
 	elseif not true_str(def.description) then
 		return err "i3.new_tab: description missing"
 	elseif #i3.tabs == 6 then
 		return err(fmt("i3.new_tab: cannot add '%s' tab. Limit reached (6).", def.name))
 	end
 
-	i3.tabs[#i3.tabs + 1] = def
+	def.name = name
+	insert(i3.tabs, def)
 end
 
-function i3.remove_tab(tabname)
-	if not true_str(tabname) then
+function i3.remove_tab(name)
+	if not true_str(name) then
 		return err "i3.remove_tab: tab name missing"
 	end
 
 	for i, def in ipairs(i3.tabs) do
-		if tabname == def.name then
+		if name == def.name then
 			remove(i3.tabs, i)
+			break
 		end
 	end
 end
@@ -217,32 +219,31 @@ function i3.set_tab(player, tabname)
 		return
 	end
 
-	local found
-
 	for i, def in ipairs(i3.tabs) do
-		if not found and def.name == tabname then
+		if def.name == tabname then
 			data.tab = i
-			found = true
+			return
 		end
 	end
 
-	if not found then
-		return err(fmt("i3.set_tab: tab name '%s' does not exist", tabname))
-	end
+	err(fmt("i3.set_tab: tab name '%s' does not exist", tabname))
 end
 
-function i3.override_tab(tabname, newdef)
-	if not true_table(newdef) then
-		return err "i3.override_tab: tab definition missing"
-	elseif not true_str(newdef.name) then
+function i3.override_tab(name, newdef)
+	if not true_str(name) then
 		return err "i3.override_tab: tab name missing"
+	elseif not true_table(newdef) then
+		return err "i3.override_tab: tab definition missing"
 	elseif not true_str(newdef.description) then
 		return err "i3.override_tab: description missing"
 	end
 
+	newdef.name = name
+
 	for i, def in ipairs(i3.tabs) do
-		if def.name == tabname then
+		if def.name == name then
 			i3.tabs[i] = newdef
+			break
 		end
 	end
 end

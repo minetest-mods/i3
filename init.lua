@@ -15,13 +15,6 @@ i3 = {
 	MIN_FORMSPEC_VERSION = 4,
 	SAVE_INTERVAL = 600, -- Player data save interval (in seconds)
 
-	BAG_SIZES = {
-		4*9 + 3,
-		4*9 + 6,
-		4*9 + 9,
-		4*9 + 25,
-	},
-
 	SUBCAT = {
 		"bag",
 		"armor",
@@ -36,7 +29,7 @@ i3 = {
 		bag_size = true,
 		waypoints = true,
 		inv_items = true,
-		reject_items = true,
+		drop_items = true,
 		known_recipes = true,
 	},
 
@@ -56,18 +49,19 @@ i3 = {
 	files = {
 		api = lf("/src/api.lua"),
 		bags = lf("/src/bags.lua"),
+		callbacks = lf("/src/callbacks.lua"),
 		common = lf("/src/common.lua"),
 		compress = lf("/src/compress.lua"),
+		detached = lf("/src/detached_inv.lua"),
 		groups = lf("/src/groups.lua"),
 		gui = lf("/src/gui.lua"),
-		inventory = lf("/src/inventory.lua"),
 		model_alias = lf("/src/model_aliases.lua"),
 		progressive = lf("/src/progressive.lua"),
 		recipes = lf("/src/recipes.lua"),
 		styles = lf("/src/styles.lua"),
 	},
 
-	progressive_mode = core.settings:get_bool "i3_progressive_mode",
+	progressive_mode = core.settings:get_bool"i3_progressive_mode",
 	item_compression = core.settings:get_bool("i3_item_compression", true),
 }
 
@@ -75,14 +69,16 @@ i3.files.common()
 i3.files.api()
 i3.files.compress()
 i3.files.groups()
-i3.files.inventory()
+i3.files.callbacks()
 
 local storage = core.get_mod_storage()
-local slz, dslz, str_to_pos, add_hud_waypoint = i3.get("slz", "dslz", "str_to_pos", "add_hud_waypoint")
+local slz, dslz, ESC, str_to_pos, add_hud_waypoint =
+	i3.get("slz", "dslz", "ESC", "str_to_pos", "add_hud_waypoint")
 
 i3.data = dslz(storage:get_string "data") or {}
 
-local init_backpack = i3.files.bags()
+local init_bags = i3.files.bags()
+local init_inventories = i3.files.detached()
 local init_recipes = i3.files.recipes()
 
 local function get_lang_code(info)
@@ -146,6 +142,7 @@ local function init_data(player, info)
 	i3.data[name] = i3.data[name] or {}
 	local data = i3.data[name]
 
+	data.player_name     = ESC(name)
 	data.filter          = ""
 	data.pagenum         = 1
 	data.items           = i3.init_items
@@ -164,6 +161,9 @@ local function init_data(player, info)
 	data.scrbar_inv      = 0
 	data.lang_code       = get_lang_code(info)
 	data.fs_version      = info.formspec_version
+
+	local inv = player:get_inventory()
+	inv:set_size("main", i3.INV_SIZE)
 
 	core.after(0, i3.set_fs, player)
 end
@@ -216,12 +216,12 @@ core.register_on_joinplayer(function(player)
 	local info = core.get_player_information and core.get_player_information(name)
 
 	if not info or get_formspec_version(info) < i3.MIN_FORMSPEC_VERSION then
-		i3.data[name] = nil
 		return outdated(name)
 	end
 
 	init_data(player, info)
-	init_backpack(player)
+	init_bags(player)
+	init_inventories(player)
 	init_waypoints(player)
 	init_hudbar(player)
 end)

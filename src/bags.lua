@@ -1,55 +1,161 @@
-local S, fmt, msg, spawn_item = i3.get("S", "fmt", "msg", "spawn_item")
+local S, ES, fmt, clr, msg, slz, dslz, play_sound, create_inventory =
+	i3.get("S", "ES", "fmt", "clr", "msg", "slz", "dslz", "play_sound", "create_inventory")
 
-local function init_backpack(player)
+local function get_content_inv(name)
+	return core.get_inventory {
+		type = "detached",
+		name = fmt("i3_bag_content_%s", name)
+	}
+end
+
+local function get_content(content)
+	local t = {}
+
+	for i, v in pairs(content) do
+		local stack = ItemStack(v.name)
+		local meta, wear = v.meta, v.wear
+
+		if meta then
+			local m = stack:get_meta()
+			m:from_table(meta)
+		end
+
+		if wear then
+			stack:set_wear(wear)
+		end
+
+		t[i] = stack
+	end
+
+	return t
+end
+
+local function safe_format(stack)
+	local meta = stack:get_meta():to_table()
+	local wear = stack:get_wear()
+	local has_meta = next(meta.fields)
+
+	local info = {}
+	info.name = fmt("%s %u", stack:get_name(), stack:get_count())
+
+	if has_meta then
+		info.meta = meta
+	end
+
+	if wear > 0 then
+		info.wear = wear
+	end
+
+	return info
+end
+
+local function init_bags(player)
 	local name = player:get_player_name()
 	local data = i3.data[name]
-	local inv = player:get_inventory()
 
-	inv:set_size("main", data.bag_size and i3.BAG_SIZES[data.bag_size] or i3.INV_SIZE)
+	local bag = create_inventory(fmt("i3_bag_%s", name), {
+		allow_put = function(inv, _, _, stack)
+			local empty = inv:is_empty"main"
+			local item_group = core.get_item_group(stack:get_name(), "bag")
 
-	data.bag = core.create_detached_inventory(fmt("%s_backpack", name), {
-		allow_put = function(_inv, listname, _, stack)
-			local empty = _inv:get_stack(listname, 1):is_empty()
-			local item_group = minetest.get_item_group(stack:get_name(), "bag")
-
-			if empty and item_group > 0 and item_group <= #i3.BAG_SIZES then
+			if empty and item_group > 0 and item_group <= 4 then
 				return 1
 			end
 
-			msg(name, S"This is not a backpack")
-			return 0
+			if not empty then
+				msg(name, S"There is already a bag")
+			else
+				msg(name, S"This is not a bag")
+			end
+
+			return 0, play_sound(name, "i3_cannot", 0.8)
 		end,
 
 		on_put = function(_, _, _, stack)
-			local stackname = stack:get_name()
-			data.bag_item = stackname
-			data.bag_size = minetest.get_item_group(stackname, "bag")
+			data.bag_item = safe_format(stack)
+			data.bag_size = core.get_item_group(stack:get_name(), "bag")
 
-			inv:set_size("main", i3.BAG_SIZES[data.bag_size])
+			local meta = stack:get_meta()
+			local content = dslz(meta:get_string"content")
+
+			if content then
+				local inv = get_content_inv(name)
+				inv:set_list("main", get_content(content))
+			end
+
 			i3.set_fs(player)
 		end,
 
 		on_take = function()
-			for i = i3.INV_SIZE + 1, i3.BAG_SIZES[data.bag_size] do
-				local stack = inv:get_stack("main", i)
-
-				if not stack:is_empty() then
-					spawn_item(player, stack)
-				end
-			end
-
 			data.bag_item = nil
 			data.bag_size = nil
 
-			inv:set_size("main", i3.INV_SIZE)
+			local content = get_content_inv(name)
+			content:set_list("main", {})
+
 			i3.set_fs(player)
 		end,
-	})
+	}, name)
 
-	data.bag:set_size("main", 1)
+	bag:set_size("main", 1)
 
 	if data.bag_item then
-		data.bag:set_stack("main", 1, data.bag_item)
+		bag:set_list("main", get_content{data.bag_item})
+	end
+
+	local function save_content(inv)
+		local bagstack = bag:get_stack("main", 1)
+		local meta = bagstack:get_meta()
+
+		if inv:is_empty("main") then
+			meta:set_string("description", "")
+			meta:set_string("content", "")
+		else
+			local list = inv:get_list"main"
+			local t = {}
+
+			for i = 1, #list do
+				local stack = list[i]
+
+				if not stack:is_empty() then
+					t[i] = safe_format(stack)
+				end
+			end
+
+			local function count_items()
+				local c = 0
+
+				for _ in pairs(t) do
+					c = c + 1
+				end
+
+				return c
+			end
+
+			meta:set_string("description", "")
+			meta:set_string("description", ES("@1 (contains @2 / @3 stacks)",
+				bagstack:get_short_description(), clr("#ff0", count_items()), data.bag_size * 4))
+			meta:set_string("content", slz(t))
+		end
+
+		bag:set_stack("main", 1, bagstack)
+		data.bag_item = safe_format(bagstack)
+
+		i3.set_fs(player)
+	end
+
+	local bag_content = create_inventory(fmt("i3_bag_content_%s", name), {
+		on_move = save_content,
+		on_put = save_content,
+		on_take = save_content,
+	}, name)
+
+	bag_content:set_size("main", 4*4)
+
+	if data.bag_item then
+		local meta = bag:get_stack("main", 1):get_meta()
+		local content = dslz(meta:get_string"content") or {}
+		bag_content:set_list("main", get_content(content))
 	end
 end
 
@@ -60,21 +166,21 @@ local bag_recipes = {
 			{"group:wool", "group:wool", "group:wool"},
 			{"group:wool", "group:wool", "group:wool"},
 		},
-		size = 1,
+		size = 2,
 	},
 	medium = {
 		rcp = {
 			{"farming:string", "i3:bag_small", "farming:string"},
 			{"farming:string", "i3:bag_small", "farming:string"},
 		},
-		size = 2,
+		size = 3,
 	},
 	large = {
 		rcp = {
 			{"farming:string", "i3:bag_medium", "farming:string"},
 			{"farming:string", "i3:bag_medium", "farming:string"},
 		},
-		size = 3,
+		size = 4,
 	},
 }
 
@@ -84,12 +190,12 @@ for size, item in pairs(bag_recipes) do
 	core.register_craftitem(bagname, {
 		description = fmt("%s Backpack", size:gsub("^%l", string.upper)),
 		inventory_image = fmt("i3_bag_%s.png", size),
+		groups = {bag = item.size},
 		stack_max = 1,
-		groups = {bag = item.size}
 	})
 
-	core.register_craft {output = bagname, recipe = item.rcp}
-	core.register_craft {type = "fuel", recipe = bagname, burntime = 3}
+	core.register_craft{output = bagname, recipe = item.rcp}
+	core.register_craft{type = "fuel", recipe = bagname, burntime = 3}
 end
 
-return init_backpack
+return init_bags

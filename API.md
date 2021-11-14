@@ -7,8 +7,7 @@
 Custom tabs can be added to the `i3` inventory as follow (example):
 
 ```Lua
-i3.new_tab {
-	name = "stuff",
+i3.new_tab("stuff", {
 	description = "Stuff",
 	image = "image.png", -- Optional, adds an image next to the tab description
 
@@ -28,16 +27,16 @@ i3.new_tab {
 	fields = function(player, data, fields)
 		
 	end,
-}
+})
 ```
 
 - `player` is an `ObjectRef` to the user.
 - `data` are the user data.
 - `fs` is the formspec table which is callable with a metamethod. Each call adds a new entry.
 
-#### `i3.set_fs(player[, extra_formspec])`
+#### `i3.set_fs(player)`
 
-Updates the current formspec. `extra_formspec` adds an additional formspec string.
+Updates the current formspec.
 
 #### `i3.remove_tab(tabname)`
 

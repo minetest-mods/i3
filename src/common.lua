@@ -349,9 +349,60 @@ local function get_stack(player, stack)
 	end
 end
 
+local function craft_stack(player, data, craft_rcp)
+	local inv = player:get_inventory()
+	local rcp_usg = craft_rcp and "recipe" or "usage"
+	local output = craft_rcp and data.recipes[data.rnum].output or data.usages[data.unum].output
+	      output = ItemStack(output)
+	local stackname, stackcount, stackmax = output:get_name(), output:get_count(), output:get_stack_max()
+	local scrbar_val = data[fmt("scrbar_%s", craft_rcp and "rcp" or "usg")] or 1
+
+	for name, count in pairs(data.export_counts[rcp_usg].rcp) do
+		local items = {[name] = count}
+
+		if is_group(name) then
+			items = {}
+			local groups = extract_groups(name)
+			local item_groups = groups_to_items(groups, true)
+			local remaining = count
+
+			for _, item in ipairs(item_groups) do
+			for _name, _count in pairs(data.export_counts[rcp_usg].inv) do
+				if item == _name and remaining > 0 then
+					local c = math.min(remaining, _count)
+					items[item] = c
+					remaining = remaining - c
+				end
+
+				if remaining == 0 then break end
+			end
+			end
+		end
+
+		for k, v in pairs(items) do
+			inv:remove_item("main", fmt("%s %s", k, v * scrbar_val))
+		end
+	end
+
+	local count = stackcount * scrbar_val
+	local iter = math.ceil(count / stackmax)
+	local leftover = count
+
+	for _ = 1, iter do
+		local c = math.min(stackmax, leftover)
+		local stack = ItemStack(fmt("%s %s", stackname, c))
+		get_stack(player, stack)
+		leftover = leftover - stackmax
+	end
+end
+
+local function play_sound(name, sound, volume)
+	core.sound_play(sound, {to_player = name, gain = volume}, true)
+end
+
 local function safe_teleport(player, pos)
 	local name = player:get_player_name()
-	core.sound_play("i3_teleport", {to_player = name, gain = 1.0}, true)
+	play_sound(name, "i3_teleport", 1.0)
 
 	pos.y = pos.y + 0.5
 	local vel = player:get_velocity()
@@ -446,7 +497,7 @@ local function compress_items(list, start_i)
 	return new_inv
 end
 
-local function reject_items(player, inv, list, start_i, rej)
+local function drop_items(player, inv, list, start_i, rej)
 	for i = start_i, #list do
 		local stack = list[i]
 		local name = stack:get_name()
@@ -459,17 +510,17 @@ local function reject_items(player, inv, list, start_i, rej)
 		end
 	end
 
-	return inv:get_list("main")
+	return inv:get_list"main"
 end
 
 local function sort_inventory(player, data)
 	local inv = player:get_inventory()
-	local list = inv:get_list("main")
-	local size = inv:get_size("main")
+	local list = inv:get_list"main"
+	local size = inv:get_size"main"
 	local start_i = data.ignore_hotbar and 10 or 1
 
-	if true_table(data.reject_items) then
-		list = reject_items(player, inv, list, start_i, data.reject_items)
+	if true_table(data.drop_items) then
+		list = drop_items(player, inv, list, start_i, data.drop_items)
 	end
 
 	if data.inv_compress then
@@ -540,9 +591,11 @@ local _ = {
 
 	-- Misc. functions
 	get_stack = get_stack,
+	craft_stack = craft_stack,
 	show_item = show_item,
 	spawn_item = spawn_item,
 	clean_name = clean_name,
+	play_sound = play_sound,
 	safe_teleport = safe_teleport,
 	add_hud_waypoint = add_hud_waypoint,
 
@@ -554,6 +607,7 @@ local _ = {
 	pos_to_str = core.pos_to_string,
 	str_to_pos = core.string_to_pos,
 	check_privs = core.check_player_privs,
+	create_inventory = core.create_detached_inventory,
 
 	-- Registered items
 	reg_items = core.registered_items,

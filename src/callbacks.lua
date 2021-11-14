@@ -1,20 +1,18 @@
 local _, get_inventory_fs = i3.files.gui()
 
 local S, clr = i3.get("S", "clr")
-local min, ceil, random = i3.get("min", "ceil", "random")
+local min, random = i3.get("min", "random")
 local reg_items, reg_aliases = i3.get("reg_items", "reg_aliases")
 local fmt, find, match, sub, lower, split = i3.get("fmt", "find", "match", "sub", "lower", "split")
 local vec_new, vec_eq, vec_round = i3.get("vec_new", "vec_eq", "vec_round")
 local sort, copy, insert, remove, indexof = i3.get("sort", "copy", "insert", "remove", "indexof")
 
-local is_group, extract_groups, groups_to_items =
-	i3.get("is_group", "extract_groups", "groups_to_items")
-local msg, is_fav, pos_to_str, str_to_pos, add_hud_waypoint =
-	i3.get("msg", "is_fav", "pos_to_str", "str_to_pos", "add_hud_waypoint")
+local msg, is_fav, pos_to_str, str_to_pos, add_hud_waypoint, play_sound =
+	i3.get("msg", "is_fav", "pos_to_str", "str_to_pos", "add_hud_waypoint", "play_sound")
 local search, get_sorting_idx, sort_inventory, sort_by_category, get_recipes =
 	i3.get("search", "get_sorting_idx", "sort_inventory", "sort_by_category", "get_recipes")
-local show_item, get_stack, clean_name, compressible, check_privs, safe_teleport =
-	i3.get("show_item", "get_stack", "clean_name", "compressible", "check_privs", "safe_teleport")
+local show_item, get_stack, craft_stack, clean_name, compressible, check_privs, safe_teleport =
+	i3.get("show_item", "get_stack", "craft_stack", "clean_name", "compressible", "check_privs", "safe_teleport")
 
 local function reset_data(data)
 	data.filter        = ""
@@ -40,13 +38,12 @@ local function reset_data(data)
 	end
 end
 
-i3.new_tab {
-	name = "inventory",
+i3.new_tab("inventory", {
 	description = S"Inventory",
 	formspec = get_inventory_fs,
 
 	fields = function(player, data, fields)
-		local name = player:get_player_name()
+		local name = data.player_name
 		local inv = player:get_inventory()
 		local sb_inv = fields.scrbar_inv
 
@@ -56,9 +53,9 @@ i3.new_tab {
 			skins.set_player_skin(player, _skins[id])
 		end
 
-		if fields.reject_items then
-			local items = split(fields.reject_items, ",")
-			data.reject_items = items
+		if fields.drop_items then
+			local items = split(fields.drop_items, ",")
+			data.drop_items = items
 		end
 
 		for field in pairs(fields) do
@@ -176,6 +173,7 @@ i3.new_tab {
 
 			for _, v in ipairs(data.waypoints) do
 				if vec_eq(vec_round(pos), vec_round(str_to_pos(v.pos))) then
+					play_sound(name, "i3_cannot", 0.8)
 					return msg(name, "You already set a waypoint at this position")
 				end
 			end
@@ -201,9 +199,9 @@ i3.new_tab {
 
 		return i3.set_fs(player)
 	end,
-}
+})
 
-local function select_item(player, name, data, _f)
+local function select_item(player, data, _f)
 	local item
 
 	for field in pairs(_f) do
@@ -271,7 +269,7 @@ local function select_item(player, name, data, _f)
 		item = reg_aliases[item] or item
 		if not reg_items[item] then return end
 
-		if core.is_creative_enabled(name) then
+		if core.is_creative_enabled(data.player_name) then
 			local stack = ItemStack(item)
 			local stackmax = stack:get_stack_max()
 			      stack = fmt("%s %s", item, stackmax)
@@ -294,55 +292,7 @@ local function select_item(player, name, data, _f)
 	end
 end
 
-local function craft_stack(player, data, craft_rcp)
-	local inv = player:get_inventory()
-	local rcp_usg = craft_rcp and "recipe" or "usage"
-	local output = craft_rcp and data.recipes[data.rnum].output or data.usages[data.unum].output
-	      output = ItemStack(output)
-	local stackname, stackcount, stackmax = output:get_name(), output:get_count(), output:get_stack_max()
-	local scrbar_val = data[fmt("scrbar_%s", craft_rcp and "rcp" or "usg")] or 1
-
-	for name, count in pairs(data.export_counts[rcp_usg].rcp) do
-		local items = {[name] = count}
-
-		if is_group(name) then
-			items = {}
-			local groups = extract_groups(name)
-			local item_groups = groups_to_items(groups, true)
-			local remaining = count
-
-			for _, item in ipairs(item_groups) do
-			for _name, _count in pairs(data.export_counts[rcp_usg].inv) do
-				if item == _name and remaining > 0 then
-					local c = min(remaining, _count)
-					items[item] = c
-					remaining = remaining - c
-				end
-
-				if remaining == 0 then break end
-			end
-			end
-		end
-
-		for k, v in pairs(items) do
-			inv:remove_item("main", fmt("%s %s", k, v * scrbar_val))
-		end
-	end
-
-	local count = stackcount * scrbar_val
-	local iter = ceil(count / stackmax)
-	local leftover = count
-
-	for _ = 1, iter do
-		local c = min(stackmax, leftover)
-		local stack = ItemStack(fmt("%s %s", stackname, c))
-		get_stack(player, stack)
-		leftover = leftover - stackmax
-	end
-end
-
 local function rcp_fields(player, data, fields)
-	local name = player:get_player_name()
 	local sb_rcp, sb_usg = fields.scrbar_rcp, fields.scrbar_usg
 
 	if fields.cancel then
@@ -431,7 +381,7 @@ local function rcp_fields(player, data, fields)
 			data.scrbar_usg = 1
 		end
 	else
-		select_item(player, name, data, fields)
+		select_item(player, data, fields)
 	end
 end
 
@@ -439,11 +389,12 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 	local name = player:get_player_name()
 
 	if formname == "i3_outdated" then
-		return false, core.kick_player(name, "Come back when your client is up-to-date.")
+		return false, core.kick_player(name, S"Come back when your client is up-to-date.")
 	elseif formname ~= "" then
 		return false
 	end
 
+	--print(dump(fields))
 	local data = i3.data[name]
 	if not data then return end
 
@@ -456,6 +407,7 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 			data.pagenum = 1
 			data.itab = tonumber(f:sub(-1))
 			sort_by_category(data)
+			break
 		end
 	end
 
@@ -486,15 +438,6 @@ core.register_on_dieplayer(function(player)
 	local data = i3.data[name]
 	if not data then return end
 
-	if data.bag_size then
-		data.bag_item = nil
-		data.bag_size = nil
-		data.bag:set_list("main", {})
-
-		local inv = player:get_inventory()
-		inv:set_size("main", i3.INV_SIZE)
-	end
-
 	i3.set_fs(player)
 end)
 
@@ -524,27 +467,3 @@ core.register_on_player_inventory_action(function(player, _, _, info)
 		i3.set_fs(player)
 	end
 end)
-
-local trash = core.create_detached_inventory("i3_trash", {
-	allow_put = function(_, _, _, stack)
-		return stack:get_count()
-	end,
-	on_put = function(inv, listname, _, _, player)
-		inv:set_list(listname, {})
-
-		local name = player:get_player_name()
-		core.sound_play("i3_trash", {to_player = name, gain = 1.0}, true)
-
-		if not core.is_creative_enabled(name) then
-			i3.set_fs(player)
-		end
-	end,
-})
-
-trash:set_size("main", 1)
-
-local output_rcp = core.create_detached_inventory("i3_output_rcp", {})
-output_rcp:set_size("main", 1)
-
-local output_usg = core.create_detached_inventory("i3_output_usg", {})
-output_usg:set_size("main", 1)

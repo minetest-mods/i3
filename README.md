@@ -10,19 +10,19 @@ This mod features a modern, powerful inventory menu with a good user experience.
 This mod requires **Minetest 5.4+**
 
 #### List of features:
-   - Crafting Guide (only in survival mode)
+   - Crafting Guide (survival mode only)
    - Progressive Mode¹
    - Quick Crafting
-   - Backpacks
-   - 3D Player Model Preview
-   - Inventory Sorting (with optional compression)
+   - 3D Player Model Real-Time Preview
+   - Inventory Sorting (+ options: compression, reverse mode, automation, etc.)
+   - Item List Compression (**`moreblocks`** is supported)
    - Item Bookmarks
    - Waypoints
-   - Item List Compression (**`moreblocks`** is supported)
+   - Bags
+   - Home
 
 **¹** *This mode is a Terraria-like system that shows recipes you can craft from items you ever had in your inventory.
 To enable it: `i3_progressive_mode = true` in `minetest.conf`.*
-
 
 #### This mod officially supports the following mods:
    - [**`3d_armor`**](https://content.minetest.net/packages/stu/3d_armor/)
@@ -46,12 +46,10 @@ value of the setting `display_density_factor` in your `minetest.conf`. Note that
 
 `i3` uses a larger inventory than the usual inventories in Minetest games.
 Thus, most chests will be unadapted to this inventory size.
-The `i3`  inventory is 9 slots wide by default (without backpack), such as Minecraft.
+The `i3`  inventory is 9 slots wide by default, such as Minecraft.
 
-Report any bug on the [**Bug Tracker**](https://github.com/minetest-mods/i3/issues).
+Report bugs on the [**Bug Tracker**](https://github.com/minetest-mods/i3/issues).
 
 Love this mod? Donations are appreciated: https://www.paypal.me/jpg84240
-
-Demo video (outdated): https://www.youtube.com/watch?v=25nCAaqeacU
 
 ![Preview](https://user-images.githubusercontent.com/7883281/140816791-693a5c8a-a7d1-47d4-a45d-883cc008ae8a.png)

@@ -1,6 +1,7 @@
 local PNG = {
 	bg = "i3_bg.png",
 	bg_full = "i3_bg_full.png",
+	bg_content = "i3_bg_content.png",
 	bar = "i3_bar.png",
 	hotbar = "i3_hotbar.png",
 	search = "i3_search.png",
@@ -10,6 +11,7 @@ local PNG = {
 	prev = "i3_next.png^\\[transformFX",
 	next = "i3_next.png",
 	arrow = "i3_arrow.png",
+	arrow_content = "i3_arrow_content.png",
 	trash = "i3_trash.png",
 	sort = "i3_sort.png",
 	settings = "i3_settings.png",
@@ -66,9 +68,10 @@ local styles = string.format([[
 	style_type[field;border=false;bgcolor=transparent]
 	style_type[label,field;font_size=16]
 	style_type[button;border=false;content_offset=0]
-	style_type[image_button,item_image_button,checkbox;border=false;sound=i3_click]
+	style_type[image_button,item_image_button,checkbox,dropdown;border=false;sound=i3_click]
 	style_type[item_image_button;bgimg_hovered=%s]
 
+	style[nofav;sound=i3_cannot]
 	style[pagenum,no_item,no_rcp;font=bold;font_size=18]
 	style[exit;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[cancel;fgimg=%s;fgimg_hovered=%s;content_offset=0]

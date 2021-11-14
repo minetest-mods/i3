@@ -124,10 +124,8 @@ local function get_stack_max(inv, data, is_recipe, rcp)
 	return max_stacks
 end
 
-local function get_inv_slots(data, fs)
-	local inv_x, inv_y = 0.22, 6.9
-	local width, size, spacing = i3.HOTBAR_LEN, 1, 0.1
-	local bag = data.bag_size
+local function get_inv_slots(fs)
+	local inv_x, inv_y, size, spacing = 0.22, 6.9, 1, 0.1
 
 	fs("style_type[box;colors=#77777710,#77777710,#777,#777]")
 
@@ -138,14 +136,9 @@ local function get_inv_slots(data, fs)
 	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing),
 	   fmt("list[current_player;main;%f,%f;%u,1;]", inv_x, inv_y, i3.HOTBAR_LEN))
 
-	if bag then
-		local params = {{10, 0.892}, {11, 0.8}, {12, 0.726}, {13, 0.663}}
-		width, size = unpack(params[bag])
-	end
-
 	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing),
 	   fmt("list[current_player;main;%f,%f;%u,%u;%u]", inv_x, inv_y + 1.15,
-		width, (bag and i3.BAG_SIZES[data.bag_size] or i3.INV_SIZE) / width, i3.HOTBAR_LEN),
+		i3.HOTBAR_LEN, i3.INV_SIZE / i3.HOTBAR_LEN, i3.HOTBAR_LEN),
 	   "style_type[list;size=1;spacing=0.15]")
 
 	fs("listring[current_player;craft]listring[current_player;main]")
@@ -294,8 +287,8 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 end
 
 local function get_container(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb)
-	local name = player:get_player_name()
-	add_subtitle(fs, "player_name", 0, ctn_len, 22, true, ESC(name))
+	local name = data.player_name
+	add_subtitle(fs, "player_name", 0, ctn_len, 22, true, name)
 
 	if damage_enabled then
 		local hp = data.hp or player:get_hp() or 20
@@ -342,20 +335,39 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 
 	local function not_installed(modname)
 		fs("hypertext", 0, yextra + 0.9, ctn_len, 0.6, "not_installed",
-			fmt("<center><style color=#7bf font=mono>%s</style> not installed</center>", modname))
+			fmt("<global size=16><center><style color=#7bf font=mono>%s</style> not installed</center>",
+				modname))
 	end
 
 	if data.subcat == 1 then
-		fs(fmt("list[detached:%s_backpack;main;0,%f;1,1;]", ESC(name), yextra + 0.7))
+		fs(fmt("list[detached:i3_bag_%s;main;0,%f;1,1;]", name, yextra + 0.7))
 
-		if not data.bag:get_stack("main", 1):is_empty() then
-			fs("hypertext", 1.2, yextra + 0.89, ctn_len - 1.9, 0.8, "bpk",
-				ES("The inventory is extended by @1 slots", i3.BAG_SIZES[data.bag_size] - i3.INV_SIZE))
+		local inv = core.get_inventory {
+			type = "detached",
+			name = fmt("i3_bag_%s", data.player_name)
+		}
+
+		if not inv:is_empty"main" then
+			fs("image", 0.5, yextra + 1.85, 0.6, 0.6, PNG.arrow_content)
+			fs(fmt("style[content;bgimg=%s;fgimg=i3_blank.png;bgimg_middle=10,10;sound=]", PNG.bg_content))
+			fs("image_button", 1.1, yextra + 0.5, 4.75, 4.75, "", "content", "")
+			fs("hypertext", 1.3, yextra + 0.8, 4.3, 0.6, "content",
+				fmt("<global size=16><center><b>%s</b></center>", ES"Content"))
+
+			local x, size, spacing = 1.45, 0.9, 0.12
+
+			if data.bag_size == 4 then
+				x, size, spacing = 1.7, 0.8, 0.1
+			end
+
+			fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing))
+			fs(fmt("list[detached:i3_bag_content_%s;main;%f,%f;4,%u;]", name, x, yextra + 1.3, data.bag_size))
+			fs("style_type[list;size=1;spacing=0.15]")
 		end
 
 	elseif data.subcat == 2 then
 		if i3.modules.armor then
-			fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", ESC(name), yextra + 0.7))
+			fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", name, yextra + 0.7))
 
 			local armor_def = armor.def[name]
 
@@ -438,13 +450,18 @@ local function show_popup(fs, data)
 		fs("button", 5.8, 9.25, 1.8, 0.55, "setting_misc", "Misc.")
 
 		if show_home then
-			local home_pos = data.home or ""
-			      home_pos = home_pos:gsub(",", ", "):sub(2,-2):gsub("%.%d", ""):gsub(
-					"(%-?%d+)", clr("#dbeeff", "%1"))
-			local home_str = fmt("Home position:  %s", home_pos)
-			      home_str = data.home and home_str or ES"No home set"
+			local coords, c, str = {"X", "Y", "Z"}, 0, ES"No home set"
 
-			fs("button", 2.1, 9.7, 6, 0.8, "", home_str)
+			if data.home then
+				str = data.home:gsub(",", "  "):sub(2,-2):gsub("%.%d", ""):gsub(
+					"(%-?%d+)", function(a)
+						c = c + 1
+						return fmt("<b>%s:</b> <style color=#dbeeff font=mono>%s</style>",
+							coords[c], a)
+					end)
+			end
+
+			fs("hypertext", 2.1, 9.9, 6, 0.6, "home_pos", fmt("<global size=16><center>%s</center>", str))
 			fs("image_button", 4.2, 10.4, 1.8, 0.7, "", "set_home", "Set home")
 
 		elseif show_sorting then
@@ -476,11 +493,11 @@ local function show_popup(fs, data)
 				fs("box", 5.4, 10.68, 2.4, 0.45, "#707070")
 			end
 
-			fs("style[reject_items;font_size=15;font=mono;textcolor=#dbeeff]")
-			fs(fmt("field[5.4,10.68;2.4,0.45;reject_items;Reject items:;%s]",
-				ESC(concat(data.reject_items or {}, ","))))
-			fs("field_close_on_enter[reject_items;false]")
-			fs(fmt("tooltip[reject_items;%s;#707070;#fff]",
+			fs("style[drop_items;font_size=15;font=mono;textcolor=#dbeeff]")
+			fs(fmt("field[5.4,10.68;2.4,0.45;drop_items;Drop items:;%s]",
+				ESC(concat(data.drop_items or {}, ","))))
+			fs("field_close_on_enter[drop_items;false]")
+			fs(fmt("tooltip[drop_items;%s;#707070;#fff]",
 				ES"Format:" .. "\n" ..
 				("mod:item,mod:item, ..."):gsub("(%a+:%a+)", clr("#bddeff", "%1"))))
 		end
@@ -490,11 +507,9 @@ end
 local function get_inventory_fs(player, data, fs)
 	fs("listcolors[#bababa50;#bababa99]")
 
-	get_inv_slots(data, fs)
+	get_inv_slots(fs)
 
 	local props = player:get_properties()
-	local name = player:get_player_name()
-
 	local ctn_len, ctn_hgt = 5.7, 6.3
 	local yoffset = 0
 
@@ -522,7 +537,10 @@ local function get_inventory_fs(player, data, fs)
 	local awards_unlocked = 0
 	local max_val = damage_enabled and 12 or 7
 
-	if i3.modules.armor and data.subcat == 2 then
+	if data.subcat == 1 and data.bag_size then
+		max_val = max_val + 32
+
+	elseif i3.modules.armor and data.subcat == 2 then
 		if data.scrbar_inv >= max_val then
 			data.scrbar_inv = data.scrbar_inv + 10
 		end
@@ -530,7 +548,7 @@ local function get_inventory_fs(player, data, fs)
 		max_val = max_val + 10
 
 	elseif i3.modules.awards and data.subcat == 4 then
-		award_list = awards.get_award_states(name)
+		award_list = awards.get_award_states(data.player_name)
 		award_list_nb = #award_list
 
 		for i = 1, award_list_nb do
@@ -710,19 +728,18 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 
 			fs(fmt("style_type[list;size=%f]", i3.ITEM_BTN_SIZE))
 			fs("listcolors[#bababa50;#bababa99]")
-			fs(fmt("list[detached:i3_output_%s;main;%f,%f;1,1;]", rcp_usg, X + 0.11, Y))
+			fs(fmt("list[detached:i3_output_%s_%s;main;%f,%f;1,1;]", rcp_usg, data.player_name, X + 0.11, Y))
 			fs("button",  X + 0.11, Y, i3.ITEM_BTN_SIZE, i3.ITEM_BTN_SIZE, _name, "")
 
 			local inv = core.get_inventory {
 				type = "detached",
-				name = fmt("i3_output_%s", rcp_usg)
+				name = fmt("i3_output_%s_%s", rcp_usg, data.player_name)
 			}
 
 			inv:set_stack("main", 1, item)
 			pos = {x = X + 0.11, y = Y}
 		else
 			fs("image", X, Y - 0.11, bt_s, bt_s, PNG.slot)
-
 			fs("item_image_button",
 				X + 0.11, Y, i3.ITEM_BTN_SIZE, i3.ITEM_BTN_SIZE,
 				fmt("%s %u", name, count * (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1)),
