@@ -452,9 +452,12 @@ local function show_popup(fs, data)
 		local show_sorting = data.show_setting == "sorting"
 		local show_misc = data.show_setting == "misc"
 
-		fs(fmt("style[setting_home;textcolor=%s;sound=i3_click]", show_home and colors.yellow or "#fff"))
-		fs(fmt("style[setting_sorting;textcolor=%s;sound=i3_click]", show_sorting and colors.yellow or "#fff"))
-		fs(fmt("style[setting_misc;textcolor=%s;sound=i3_click]", show_misc and colors.yellow or "#fff"))
+		fs(fmt("style[setting_home;textcolor=%s;font=bold;sound=i3_click]",
+			show_home and colors.yellow or "#fff"))
+		fs(fmt("style[setting_sorting;textcolor=%s;font=bold;sound=i3_click]",
+			show_sorting and colors.yellow or "#fff"))
+		fs(fmt("style[setting_misc;textcolor=%s;font=bold;sound=i3_click]",
+			show_misc and colors.yellow or "#fff"))
 
 		fs("button", 2.2, 9.25, 1.8, 0.55, "setting_home", "Home")
 		fs("button", 4,   9.25, 1.8, 0.55, "setting_sorting", "Sorting")
@@ -496,9 +499,9 @@ local function show_popup(fs, data)
 
 		elseif show_misc then
 			fs("checkbox", 2.4, 10.05, "cb_inv_compress", "Compression", tostring(data.inv_compress))
-			fs("checkbox", 2.4, 10.5,  "cb_reverse_sorting", "Reverse sorting", tostring(data.reverse_sorting))
-			fs("checkbox", 2.4, 10.95, "cb_auto_sorting", "Automatic sorting", tostring(data.auto_sorting))
-			fs("checkbox", 5.4, 10.05, "cb_ignore_hotbar", "Ignore hotbar", tostring(data.ignore_hotbar))
+			fs("checkbox", 2.4, 10.5,  "cb_reverse_sorting", "Reverse mode", tostring(data.reverse_sorting))
+			fs("checkbox", 2.4, 10.95, "cb_ignore_hotbar", "Ignore hotbar", tostring(data.ignore_hotbar))
+			fs("checkbox", 5.4, 10.05, "cb_auto_sorting", "Automation", tostring(data.auto_sorting))
 
 			for _ = 1, 3 do
 				fs("box", 5.4, 10.68, 2.4, 0.45, "#707070")

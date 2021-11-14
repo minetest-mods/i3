@@ -1,4 +1,4 @@
-local S, ES, fmt, clr, msg, slz, dslz = i3.get("S", "ES", "fmt", "clr", "msg", "slz", "dslz")
+local S, ES, fmt, msg, slz, dslz = i3.get("S", "ES", "fmt", "msg", "slz", "dslz")
 local play_sound, create_inventory = i3.get("play_sound", "create_inventory")
 
 local function get_content_inv(name)
@@ -131,9 +131,10 @@ local function init_bags(player)
 				return c
 			end
 
+			local percent = fmt("%.1f", (count_items() * 100) / (data.bag_size * 4))
+
 			meta:set_string("description", "")
-			meta:set_string("description", ES("@1 (contains @2 / @3 stacks)",
-				bagstack:get_short_description(), clr("#ff0", count_items()), data.bag_size * 4))
+			meta:set_string("description", ES("@1 (@2% full)", bagstack:get_description(), percent))
 			meta:set_string("content", slz(t))
 		end
 
@@ -153,8 +154,11 @@ local function init_bags(player)
 
 	if data.bag_item then
 		local meta = bag:get_stack("main", 1):get_meta()
-		local content = dslz(meta:get_string"content") or {}
-		bag_content:set_list("main", get_content(content))
+		local content = dslz(meta:get_string"content")
+
+		if content then
+			bag_content:set_list("main", get_content(content))
+		end
 	end
 end
 

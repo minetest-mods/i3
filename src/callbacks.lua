@@ -120,8 +120,12 @@ i3.new_tab("inventory", {
 			data.confirm_trash = true
 
 		elseif fields.settings then
-			data.confirm_trash = nil
-			data.show_settings = true
+			if not data.show_settings then
+				data.confirm_trash = nil
+				data.show_settings = true
+			else
+				data.show_settings = nil
+			end
 
 		elseif fields.confirm_trash_yes or fields.confirm_trash_no then
 			if fields.confirm_trash_yes then

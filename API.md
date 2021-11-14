@@ -2,7 +2,7 @@
 
 ### Custom tabs
 
-#### `i3.new_tab(def)`
+#### `i3.new_tab(name, def)`
 
 Custom tabs can be added to the `i3` inventory as follow (example):
 
