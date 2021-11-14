@@ -1,5 +1,5 @@
-local S, ES, fmt, clr, msg, slz, dslz, play_sound, create_inventory =
-	i3.get("S", "ES", "fmt", "clr", "msg", "slz", "dslz", "play_sound", "create_inventory")
+local S, ES, fmt, clr, msg, slz, dslz = i3.get("S", "ES", "fmt", "clr", "msg", "slz", "dslz")
+local play_sound, create_inventory = i3.get("play_sound", "create_inventory")
 
 local function get_content_inv(name)
 	return core.get_inventory {
@@ -13,15 +13,14 @@ local function get_content(content)
 
 	for i, v in pairs(content) do
 		local stack = ItemStack(v.name)
-		local meta, wear = v.meta, v.wear
 
-		if meta then
+		if v.meta then
 			local m = stack:get_meta()
-			m:from_table(meta)
+			m:from_table(v.meta)
 		end
 
-		if wear then
-			stack:set_wear(wear)
+		if v.wear then
+			stack:set_wear(v.wear)
 		end
 
 		t[i] = stack

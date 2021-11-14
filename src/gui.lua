@@ -288,7 +288,9 @@ end
 
 local function get_container(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb)
 	local name = data.player_name
-	add_subtitle(fs, "player_name", 0, ctn_len, 22, true, name)
+	local esc_name = ESC(name)
+
+	add_subtitle(fs, "player_name", 0, ctn_len, 22, true, esc_name)
 
 	if damage_enabled then
 		local hp = data.hp or player:get_hp() or 20
@@ -340,17 +342,25 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 	end
 
 	if data.subcat == 1 then
-		fs(fmt("list[detached:i3_bag_%s;main;0,%f;1,1;]", name, yextra + 0.7))
+		fs(fmt("list[detached:i3_bag_%s;main;0,%f;1,1;]", esc_name, yextra + 0.7))
 
-		local inv = core.get_inventory {
-			type = "detached",
-			name = fmt("i3_bag_%s", data.player_name)
-		}
+		local inv = core.get_inventory{type = "detached", name = fmt("i3_bag_%s", name)}
 
 		if not inv:is_empty"main" then
+			local h, m, yy = 4.75, 10, 0
+
+			if data.bag_size == 1 then
+				h, m, yy = 1.9, 2, 0.12
+			elseif data.bag_size == 2 then
+				h, m, yy = 3.05, 5, 0.06
+			elseif data.bag_size == 3 then
+				h, m = 4.2, 10
+			end
+
 			fs("image", 0.5, yextra + 1.85, 0.6, 0.6, PNG.arrow_content)
-			fs(fmt("style[content;bgimg=%s;fgimg=i3_blank.png;bgimg_middle=10,10;sound=]", PNG.bg_content))
-			fs("image_button", 1.1, yextra + 0.5, 4.75, 4.75, "", "content", "")
+			fs(fmt("style[content;bgimg=%s;fgimg=i3_blank.png;bgimg_middle=10,%u;sound=]",
+				PNG.bg_content, m))
+			fs("image_button", 1.1, yextra + 0.5 + yy, 4.75, h, "", "content", "")
 			fs("hypertext", 1.3, yextra + 0.8, 4.3, 0.6, "content",
 				fmt("<global size=16><center><b>%s</b></center>", ES"Content"))
 
@@ -361,13 +371,14 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 			end
 
 			fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing))
-			fs(fmt("list[detached:i3_bag_content_%s;main;%f,%f;4,%u;]", name, x, yextra + 1.3, data.bag_size))
+			fs(fmt("list[detached:i3_bag_content_%s;main;%f,%f;4,%u;]",
+				esc_name, x, yextra + 1.3, data.bag_size))
 			fs("style_type[list;size=1;spacing=0.15]")
 		end
 
 	elseif data.subcat == 2 then
 		if i3.modules.armor then
-			fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", name, yextra + 0.7))
+			fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", esc_name, yextra + 0.7))
 
 			local armor_def = armor.def[name]
 
@@ -538,7 +549,15 @@ local function get_inventory_fs(player, data, fs)
 	local max_val = damage_enabled and 12 or 7
 
 	if data.subcat == 1 and data.bag_size then
-		max_val = max_val + 32
+		if data.bag_size == 1 then
+			max_val = max_val + 6
+		elseif data.bag_size == 2 then
+			max_val = max_val + 16
+		elseif data.bag_size == 3 then
+			max_val = max_val + 26
+		else
+			max_val = max_val + 32
+		end
 
 	elseif i3.modules.armor and data.subcat == 2 then
 		if data.scrbar_inv >= max_val then
