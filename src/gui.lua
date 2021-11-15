@@ -252,7 +252,6 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 		end
 
 		fs("label", 0.15, y + 0.33, clr(fmt("#%s", hex), waypoint_name))
-
 		fs("tooltip", 0, y, ctn_len - 2.5, 0.65,
 			fmt("Name: %s\nPosition:%s", clr("#dbeeff", v.name),
 				v.pos:sub(2,-2):gsub("(%-*%d*%.?%d+)", clr("#dbeeff", " %1"))))
@@ -347,20 +346,13 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 		local inv = core.get_inventory{type = "detached", name = fmt("i3_bag_%s", name)}
 
 		if not inv:is_empty"main" then
-			local h, m, yy = 4.75, 10, 0
-
-			if data.bag_size == 1 then
-				h, m, yy = 1.9, 2, 0.12
-			elseif data.bag_size == 2 then
-				h, m, yy = 3.05, 5, 0.06
-			elseif data.bag_size == 3 then
-				h, m = 4.2, 10
-			end
+			local v = {{1.9, 2, 0.12}, {3.05, 5, 0.06}, {4.2, 10}, {4.75, 10}}
+			local h, m, yy = unpack(v[data.bag_size])
 
 			fs("image", 0.5, yextra + 1.85, 0.6, 0.6, PNG.arrow_content)
 			fs(fmt("style[content;bgimg=%s;fgimg=i3_blank.png;bgimg_middle=10,%u;sound=]",
 				PNG.bg_content, m))
-			fs("image_button", 1.1, yextra + 0.5 + yy, 4.75, h, "", "content", "")
+			fs("image_button", 1.1, yextra + 0.5 + (yy or 0), 4.75, h, "", "content", "")
 			fs("hypertext", 1.3, yextra + 0.8, 4.3, 0.6, "content",
 				fmt("<global size=16><center><b>%s</b></center>", ES"Content"))
 
@@ -378,10 +370,8 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 
 	elseif data.subcat == 2 then
 		if i3.modules.armor then
-			fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", esc_name, yextra + 0.7))
-
 			local armor_def = armor.def[name]
-
+			fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", esc_name, yextra + 0.7))
 			fs("label", 3.65, yextra + 1.55, fmt("%s: %s", ES"Level", armor_def.level))
 			fs("label", 3.65, yextra + 2.05, fmt("%s: %s", ES"Heal", armor_def.heal))
 		else
@@ -533,8 +523,7 @@ local function get_inventory_fs(player, data, fs)
 	get_inv_slots(fs)
 
 	local props = player:get_properties()
-	local ctn_len, ctn_hgt = 5.7, 6.3
-	local yoffset = 0
+	local ctn_len, ctn_hgt, yoffset = 5.7, 6.3, 0
 
 	if props.mesh ~= "" then
 		local anim = player:get_local_animation()
@@ -556,20 +545,12 @@ local function get_inventory_fs(player, data, fs)
 		fs("image", 0.7, 0.2, size, size * props.visual_size.y, props.textures[1])
 	end
 
-	local award_list, award_list_nb
-	local awards_unlocked = 0
+	local awards_unlocked, award_list, award_list_nb = 0
 	local max_val = damage_enabled and 12 or 7
 
 	if data.subcat == 1 and data.bag_size then
-		if data.bag_size == 1 then
-			max_val = max_val + 6
-		elseif data.bag_size == 2 then
-			max_val = max_val + 16
-		elseif data.bag_size == 3 then
-			max_val = max_val + 26
-		else
-			max_val = max_val + 32
-		end
+		local v = {6, 16, 26, 32}
+		max_val = max_val + v[data.bag_size]
 
 	elseif i3.modules.armor and data.subcat == 2 then
 		if data.scrbar_inv >= max_val then
@@ -621,10 +602,8 @@ local function get_inventory_fs(player, data, fs)
 
 	for i, v in ipairs(btn) do
 		local btn_name, tooltip = unpack(v)
-
 		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
 			btn_name, PNG[btn_name], PNG[fmt("%s_hover", btn_name)]))
-
 		fs("image_button", i + 3.43 - (i * 0.4), 11.43, 0.35, 0.35, "", btn_name, "")
 		fs(fmt("tooltip[%s;%s]", btn_name, tooltip))
 	end
@@ -1024,7 +1003,6 @@ local function get_header(fs, data)
 
 	if nfavs < i3.MAX_FAVS or (nfavs == i3.MAX_FAVS and fav) then
 		local fav_marked = fmt("i3_fav%s.png", fav and "_off" or "")
-
 		fs(fmt("style[fav;fgimg=%s;fgimg_hovered=%s;fgimg_pressed=%s]",
 			fmt("i3_fav%s.png", fav and "" or "_off"), fav_marked, fav_marked))
 		fs("image_button", star_x, star_y, size, size, "", "fav", "")
@@ -1220,7 +1198,6 @@ local function get_items_fs(fs, data, full_height)
 
 	for i, title in ipairs(_tabs) do
 		local selected = i == data.itab
-
 		fs(fmt([[style_type[image_button;fgimg=%s;fgimg_hovered=%s;noclip=true;
 			font_size=16;textcolor=%s;content_offset=0;sound=i3_tab] ]],
 		selected and PNG.tab_small_hover or PNG.tab_small,
@@ -1327,7 +1304,6 @@ local function get_tabs_fs(player, data, fs, full_height)
 
 		if def.image and def.image ~= "" then
 			local desc = translate(data.lang_code, def.description)
-
 			fs("style_type[image;noclip=true]")
 			fs("image", X + (tab_len / 2) - ((#desc * 0.1) / 2) - 0.55,
 				Y + 0.05, 0.35, 0.35, fmt("%s^\\[resize:16x16", def.image))
