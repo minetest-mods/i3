@@ -3,13 +3,14 @@ local damage_enabled = core.settings:get_bool "enable_damage"
 local model_aliases = i3.files.model_alias()
 local PNG, styles, fs_elements, colors = i3.files.styles()
 
+local ItemStack = ItemStack
 local S, ES, translate = i3.get("S", "ES", "translate")
 local clr, ESC, check_privs = i3.get("clr", "ESC", "check_privs")
 local min, max, floor, ceil, round = i3.get("min", "max", "floor", "ceil", "round")
 local sprintf, find, match, sub, upper = i3.get("fmt", "find", "match", "sub", "upper")
 local reg_items, reg_tools, reg_entities = i3.get("reg_items", "reg_tools", "reg_entities")
-local maxn, sort, concat, copy, insert, remove =
-	i3.get("maxn", "sort", "concat", "copy", "insert", "remove")
+local maxn, sort, concat, copy, insert, remove, unpack =
+	i3.get("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
 
 local true_str, is_fav, is_num = i3.get("true_str", "is_fav", "is_num")
 local groups_to_items, compression_active, compressible =
@@ -193,19 +194,19 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 			icon = fmt("%s^\\[colorize:#000:180", icon)
 		end
 
-		fs[#fs + 1] = fmt("image", 0, y + 0.01, icon_size, icon_size, icon)
-		fs[#fs + 1] = "style_type[box;colors=#bababa30,#bababa30,#bababa05,#bababa05]"
-		fs[#fs + 1] = fmt("box", icon_size + 0.1, y, box_len, icon_size, "")
+		insert(fs, fmt("image", 0, y + 0.01, icon_size, icon_size, icon))
+		insert(fs, "style_type[box;colors=#bababa30,#bababa30,#bababa05,#bababa05]")
+		insert(fs, fmt("box", icon_size + 0.1, y, box_len, icon_size, ""))
 
 		if progress then
 			local current, target = progress.current, progress.target
 			local curr_bar = (current * box_len) / target
 
-			fs[#fs + 1] = fmt("box", icon_size + 0.1, y + 0.8, box_len, 0.3, "#101010")
-			fs[#fs + 1] = "style_type[box;colors=#9dc34c80,#9dc34c,#9dc34c,#9dc34c80]"
-			fs[#fs + 1] = fmt("box", icon_size + 0.1, y + 0.8, curr_bar, 0.3, "")
-			fs[#fs + 1] = "style_type[label;font_size=14]"
-			fs[#fs + 1] = fmt("label", icon_size + 0.5, y + 0.97, fmt("%u / %u", current, target))
+			insert(fs, fmt("box", icon_size + 0.1, y + 0.8, box_len, 0.3, "#101010"))
+			insert(fs, "style_type[box;colors=#9dc34c80,#9dc34c,#9dc34c,#9dc34c80]")
+			insert(fs, fmt("box", icon_size + 0.1, y + 0.8, curr_bar, 0.3, ""))
+			insert(fs, "style_type[label;font_size=14]")
+			insert(fs, fmt("label", icon_size + 0.5, y + 0.97, fmt("%u / %u", current, target)))
 
 			y = y - 0.14
 		end
@@ -213,11 +214,11 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 		title = _title or title
 		desc = _desc or desc
 
-		fs[#fs + 1] = "style_type[label;font=bold;font_size=17]"
-		fs[#fs + 1] = fmt("label", icon_size + 0.2, y + 0.4, title)
-		fs[#fs + 1] = "style_type[label;font=normal;font_size=15]"
-		fs[#fs + 1] = fmt("label", icon_size + 0.2, y + 0.75, clr("#bbbbbb", desc))
-		fs[#fs + 1] = "style_type[label;font_size=16]"
+		insert(fs, "style_type[label;font=bold;font_size=17]")
+		insert(fs, fmt("label", icon_size + 0.2, y + 0.4, title))
+		insert(fs, "style_type[label;font=normal;font_size=15]")
+		insert(fs, fmt("label", icon_size + 0.2, y + 0.75, clr("#bbbbbb", desc)))
+		insert(fs, "style_type[label;font_size=16]")
 	end
 end
 
@@ -385,7 +386,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 					id = i
 				end
 
-				sks[#sks + 1] = skin.name
+				insert(sks, skin.name)
 			end
 
 			sks = concat(sks, ","):gsub(";", "")
@@ -527,7 +528,7 @@ local function get_inventory_fs(player, data, fs)
 		local t = {}
 
 		for _, v in ipairs(props.textures) do
-			t[#t + 1] = ESC(v):gsub(",", "!")
+			insert(t, (ESC(v):gsub(",", "!")))
 		end
 
 		local textures = concat(t, ","):gsub("!", ",")
@@ -864,7 +865,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 
 				if not added then
 					label = fmt("%s%s\nR", label ~= "" and "\n" or "", label)
-					replace.items[#replace.items + 1] = replacement[2]
+					insert(replace.items, replacement[2])
 				end
 			end
 		end
@@ -980,11 +981,11 @@ local function get_model_fs(fs, data, def, model_alias)
 			_name = fmt("%s^[verticalframe:%u:0", v.name, v.animation.frames_h or v.animation.aspect_h)
 		end
 
-		t[#t + 1] = _name or v.name or v
+		insert(t, _name or v.name or v)
 	end
 
 	while #t < 6 do
-		t[#t + 1] = t[#t]
+		insert(t, t[#t])
 	end
 
 	fs("model", data.inv_width + 6.6, data.yoffset + 0.05, 1.3, 1.3, "preview",
@@ -1124,7 +1125,7 @@ local function get_items_fs(fs, data, full_height)
 		for i = 1, #data.items do
 			local item = data.items[i]
 			if not i3.compressed[item] then
-				new[#new + 1] = item
+				insert(new, item)
 			end
 		end
 
@@ -1175,7 +1176,7 @@ local function get_items_fs(fs, data, full_height)
 			local Y = round((i % ipp - X) / rows + 1, 0)
 			      Y = Y - (Y * 0.085) + 0.95
 
-			fs[#fs + 1] = fmt("item_image_button", X, Y, size, size, name, item, "")
+			insert(fs, fmt("item_image_button", X, Y, size, size, name, item, ""))
 
 			if compressible(item, data) then
 				local expand = data.expand == name
@@ -1340,9 +1341,9 @@ local function make_fs(player, data)
 			local elem = fs_elements[args[1]]
 
 			if elem then
-				t[#t + 1] = fmt(elem, select(2, ...))
+				insert(t, fmt(elem, select(2, ...)))
 			else
-				t[#t + 1] = concat(args)
+				insert(t, concat(args))
 			end
 		end
 	})

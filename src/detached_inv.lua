@@ -1,3 +1,4 @@
+local set_fs = i3.set_fs
 local fmt, play_sound, create_inventory = i3.get("fmt", "play_sound", "create_inventory")
 
 local trash = create_inventory("i3_trash", {
@@ -12,7 +13,7 @@ local trash = create_inventory("i3_trash", {
 		play_sound(name, "i3_trash", 1.0)
 
 		if not core.is_creative_enabled(name) then
-			i3.set_fs(player)
+			set_fs(player)
 		end
 	end,
 })

@@ -1,3 +1,5 @@
+local set_fs = i3.set_fs
+local ItemStack = ItemStack
 local S, ES, fmt, msg, slz, dslz = i3.get("S", "ES", "fmt", "msg", "slz", "dslz")
 local play_sound, create_inventory = i3.get("play_sound", "create_inventory")
 
@@ -82,7 +84,7 @@ local function init_bags(player)
 				inv:set_list("main", get_content(content))
 			end
 
-			i3.set_fs(player)
+			set_fs(player)
 		end,
 
 		on_take = function()
@@ -92,7 +94,7 @@ local function init_bags(player)
 			local content = get_content_inv(name)
 			content:set_list("main", {})
 
-			i3.set_fs(player)
+			set_fs(player)
 		end,
 	}, name)
 
@@ -141,7 +143,7 @@ local function init_bags(player)
 		bag:set_stack("main", 1, bagstack)
 		data.bag_item = safe_format(bagstack)
 
-		i3.set_fs(player)
+		set_fs(player)
 	end
 
 	local bag_content = create_inventory(fmt("i3_bag_content_%s", name), {

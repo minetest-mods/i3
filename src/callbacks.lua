@@ -1,5 +1,7 @@
 local _, get_inventory_fs = i3.files.gui()
 
+local set_fs = i3.set_fs
+local ItemStack = ItemStack
 local S, clr = i3.get("S", "clr")
 local min, random = i3.get("min", "random")
 local reg_items, reg_aliases = i3.get("reg_items", "reg_aliases")
@@ -201,7 +203,7 @@ i3.new_tab("inventory", {
 			data.scrbar_inv = data.scrbar_inv + 1000
 		end
 
-		return i3.set_fs(player)
+		return set_fs(player)
 	end,
 })
 
@@ -308,7 +310,7 @@ local function rcp_fields(player, data, fields)
 	elseif fields.key_enter_field == "filter" or fields.search then
 		if fields.filter == "" then
 			reset_data(data)
-			return i3.set_fs(player)
+			return set_fs(player)
 		end
 
 		local str = lower(fields.filter)
@@ -430,7 +432,7 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 		return true, tab.fields(player, data, fields)
 	end
 
-	return true, i3.set_fs(player)
+	return true, set_fs(player)
 end)
 
 core.register_on_player_hpchange(function(player, hpchange)
@@ -441,7 +443,7 @@ core.register_on_player_hpchange(function(player, hpchange)
 	local hp_max = player:get_properties().hp_max
 	data.hp = min(hp_max, player:get_hp() + hpchange)
 
-	i3.set_fs(player)
+	set_fs(player)
 end)
 
 core.register_on_dieplayer(function(player)
@@ -449,12 +451,12 @@ core.register_on_dieplayer(function(player)
 	local data = i3.data[name]
 	if not data then return end
 
-	i3.set_fs(player)
+	set_fs(player)
 end)
 
 core.register_on_chatcommand(function(name)
 	local player = core.get_player_by_name(name)
-	core.after(0, i3.set_fs, player)
+	core.after(0, set_fs, player)
 end)
 
 core.register_on_priv_grant(function(name, _, priv)
@@ -464,7 +466,7 @@ core.register_on_priv_grant(function(name, _, priv)
 		data.favs = {}
 
 		local player = core.get_player_by_name(name)
-		core.after(0, i3.set_fs, player)
+		core.after(0, set_fs, player)
 	end
 end)
 
@@ -475,6 +477,6 @@ core.register_on_player_inventory_action(function(player, _, _, info)
 	  ((info.from_list == "main"  and info.to_list == "craft") or
 	   (info.from_list == "craft" and info.to_list == "main")  or
 	   (info.from_list == "craftresult" and info.to_list == "main")) then
-		i3.set_fs(player)
+		set_fs(player)
 	end
 end)

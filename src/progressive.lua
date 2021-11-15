@@ -1,5 +1,6 @@
 local singleplayer = core.is_singleplayer()
 
+local set_fs = i3.set_fs
 local fmt, search, table_merge, array_diff =
 	i3.get("fmt", "search", "table_merge", "array_diff")
 local is_group, extract_groups, item_has_groups, apply_recipe_filters =
@@ -225,7 +226,7 @@ local function poll_new_items()
 			data.itab = 1
 
 			search(data)
-			i3.set_fs(player)
+			set_fs(player)
 		end
 	end
 

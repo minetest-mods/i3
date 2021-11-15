@@ -1,5 +1,6 @@
 local replacements = {fuel = {}}
 
+local ItemStack = ItemStack
 local fmt, reg_items, reg_aliases = i3.get("fmt", "reg_items", "reg_aliases")
 local maxn, copy, insert, sort, match = i3.get("maxn", "copy", "insert", "sort", "match")
 
@@ -244,7 +245,7 @@ local function resolve_aliases(hash)
 		end
 
 		if newname ~= "" and i3.recipes_cache[oldname] and not hash[newname] then
-			i3.init_items[#i3.init_items + 1] = newname
+			insert(i3.init_items, newname)
 		end
 	end
 end
@@ -265,7 +266,7 @@ local function init_recipes()
 	for name in pairs(_preselect) do
 		cache_usages(name)
 
-		i3.init_items[#i3.init_items + 1] = name
+		insert(i3.init_items, name)
 		_select[name] = true
 	end
 

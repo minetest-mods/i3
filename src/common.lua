@@ -1,3 +1,7 @@
+local ItemStack = ItemStack
+local loadstring = loadstring
+local sort, concat, insert = table.sort, table.concat, table.insert
+local min, floor, ceil = math.min, math.floor, math.ceil
 local fmt, find, match, gmatch, sub, split, lower =
 	string.format, string.find, string.match, string.gmatch, string.sub, string.split, string.lower
 
@@ -54,7 +58,7 @@ end
 
 local function round(num, decimal)
 	local mul = 10 ^ decimal
-	return math.floor(num * mul + 0.5) / mul
+	return floor(num * mul + 0.5) / mul
 end
 
 local function search(data)
@@ -243,7 +247,7 @@ local function groups_to_items(groups, get_all)
 	for name, def in pairs(core.registered_items) do
 		if show_item(def) and item_has_groups(def.groups, groups) then
 			if get_all then
-				names[#names + 1] = name
+				insert(names, name)
 			else
 				return name
 			end
@@ -304,7 +308,7 @@ local function sort_by_category(data)
 		end
 
 		if to_add then
-			new[#new + 1] = item
+			insert(new, item)
 		end
 	end
 
@@ -369,7 +373,7 @@ local function craft_stack(player, data, craft_rcp)
 			for _, item in ipairs(item_groups) do
 			for _name, _count in pairs(data.export_counts[rcp_usg].inv) do
 				if item == _name and remaining > 0 then
-					local c = math.min(remaining, _count)
+					local c = min(remaining, _count)
 					items[item] = c
 					remaining = remaining - c
 				end
@@ -385,11 +389,11 @@ local function craft_stack(player, data, craft_rcp)
 	end
 
 	local count = stackcount * scrbar_val
-	local iter = math.ceil(count / stackmax)
+	local iter = ceil(count / stackmax)
 	local leftover = count
 
 	for _ = 1, iter do
-		local c = math.min(stackmax, leftover)
+		local c = min(stackmax, leftover)
 		local stack = ItemStack(fmt("%s %s", stackname, c))
 		get_stack(player, stack)
 		leftover = leftover - stackmax
@@ -423,7 +427,7 @@ local function get_sorting_idx(name)
 end
 
 local function sorter(inv, reverse, mode)
-	table.sort(inv, function(a, b)
+	sort(inv, function(a, b)
 		if mode == 1 then
 			a, b = a:get_name(), b:get_name()
 		else
@@ -449,9 +453,9 @@ local function pre_sorting(list, start_i)
 
 		if not empty then
 			if next(meta.fields) or wear then
-				special[#special + 1] = stack
+				insert(special, stack)
 			else
-				new_inv[#new_inv + 1] = stack
+				insert(new_inv, stack)
 			end
 		end
 	end
@@ -474,7 +478,7 @@ local function compress_items(list, start_i)
 
 		if not empty then
 			if next(meta.fields) or wear or count >= stackmax then
-				special[#special + 1] = stack
+				insert(special, stack)
 			else
 				hash[name] = hash[name] or 0
 				hash[name] = hash[name] + count
@@ -484,11 +488,11 @@ local function compress_items(list, start_i)
 
 	for name, count in pairs(hash) do
 		local stackmax = ItemStack(name):get_stack_max()
-		local iter = math.ceil(count / stackmax)
+		local iter = ceil(count / stackmax)
 		local leftover = count
 
 		for _ = 1, iter do
-			new_inv[#new_inv + 1] = ItemStack(fmt("%s %u", name, math.min(stackmax, leftover)))
+			insert(new_inv, ItemStack(fmt("%s %u", name, min(stackmax, leftover))))
 			leftover = leftover - stackmax
 		end
 	end
@@ -554,6 +558,24 @@ local function add_hud_waypoint(player, name, pos, color)
 		z_index = -300,
 	}
 end
+
+local function createunpack(n)
+	local ret = {"local t = ... return "}
+
+	for k = 2, n do
+		ret[2 + (k - 2) * 4] = "t["
+		ret[3 + (k - 2) * 4] = k - 1
+		ret[4 + (k - 2) * 4] = "]"
+
+		if k ~= n then
+			ret[5 + (k - 2) * 4] = ","
+		end
+	end
+
+	return loadstring(concat(ret))
+end
+
+local newunpack = createunpack(33)
 
 -------------------------------------------------------------------------------
 
@@ -640,6 +662,7 @@ local _ = {
 	insert = table.insert,
 	remove = table.remove,
 	indexof = table.indexof,
+	unpack = newunpack,
 	is_table = is_table,
 	table_merge = table_merge,
 	table_replace = table_replace,
@@ -668,5 +691,5 @@ function i3.get(...)
 		t[i] = _[var]
 	end
 
-	return unpack(t)
+	return newunpack(t)
 end

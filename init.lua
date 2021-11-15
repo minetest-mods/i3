@@ -73,6 +73,7 @@ i3.files.callbacks()
 
 local storage = core.get_mod_storage()
 local slz, dslz, str_to_pos, add_hud_waypoint = i3.get("slz", "dslz", "str_to_pos", "add_hud_waypoint")
+local set_fs = i3.set_fs
 
 i3.data = dslz(storage:get_string "data") or {}
 
@@ -97,7 +98,7 @@ end
 
 if rawget(_G, "armor") then
 	i3.modules.armor = true
-	armor:register_on_update(i3.set_fs)
+	armor:register_on_update(set_fs)
 end
 
 if rawget(_G, "skins") then
@@ -108,20 +109,20 @@ if rawget(_G, "awards") then
 	i3.modules.awards = true
 
 	core.register_on_craft(function(_, player)
-		i3.set_fs(player)
+		set_fs(player)
 	end)
 
 	core.register_on_dignode(function(_, _, player)
-		i3.set_fs(player)
+		set_fs(player)
 	end)
 
 	core.register_on_placenode(function(_, _, player)
-		i3.set_fs(player)
+		set_fs(player)
 	end)
 
 	core.register_on_chat_message(function(name)
 		local player = core.get_player_by_name(name)
-		i3.set_fs(player)
+		set_fs(player)
 	end)
 end
 
@@ -164,7 +165,7 @@ local function init_data(player, info)
 	local inv = player:get_inventory()
 	inv:set_size("main", i3.INV_SIZE)
 
-	core.after(0, i3.set_fs, player)
+	core.after(0, set_fs, player)
 end
 
 local function init_waypoints(player)
