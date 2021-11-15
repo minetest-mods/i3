@@ -470,7 +470,7 @@ local function show_popup(fs, data)
 				str = data.home:gsub(",", "  "):sub(2,-2):gsub("%.%d", ""):gsub(
 					"(%-?%d+)", function(a)
 						c = c + 1
-						return fmt("<b>%s:</b> <style color=%s font=mono>%s</style>",
+						return fmt("<b>%s: <style color=%s font=mono>%s</style></b>",
 							coords[c], colors.black, a)
 					end)
 			end
@@ -511,9 +511,18 @@ local function show_popup(fs, data)
 			fs(fmt("field[5.4,10.68;2.4,0.45;drop_items;Drop items:;%s]",
 				ESC(concat(data.drop_items or {}, ","))))
 			fs("field_close_on_enter[drop_items;false]")
-			fs(fmt("tooltip[drop_items;%s;#707070;#fff]",
-				ES"Format:" .. "\n" ..
-				("mod:item,mod:item, ..."):gsub("(%a+:%a+)", clr("#bddeff", "%1"))))
+
+			fs(fmt("tooltip[cb_inv_compress;%s;#707070;#fff]",
+				ES"Enable this option to compress your inventory"),
+			   fmt("tooltip[cb_reverse_sorting;%s;#707070;#fff]",
+				ES"Enable this option to sort your inventory in reverse order"),
+			   fmt("tooltip[cb_ignore_hotbar;%s;#707070;#fff]",
+				ES"Enable this option to sort your inventory except the hotbar slots"),
+			   fmt("tooltip[cb_auto_sorting;%s;#707070;#fff]",
+				ES"Enable this option to sort your inventory automatically"),
+			   fmt("tooltip[drop_items;%s;#707070;#fff]",
+				"Add a comma-separated list of items to drop on inventory sorting.\n" ..
+				"Format: " .. ("mod:item,mod:item, ..."):gsub("(%a+:%a+)", clr("#bddeff", "%1"))))
 		end
 	end
 end
