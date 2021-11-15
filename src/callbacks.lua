@@ -398,6 +398,13 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 		return false
 	end
 
+	-- No-op buttons
+	if fields.player_name or fields.awards or fields.home_pos or fields.pagenum or
+	   fields.no_item or fields.no_rcp or fields.select_sorting or fields.sort_method or
+	   fields.bg_content then
+		return false
+	end
+
 	--print(dump(fields))
 	local data = i3.data[name]
 	if not data then return end

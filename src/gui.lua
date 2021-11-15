@@ -273,10 +273,8 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 
 		if check_privs(player, {teleport = true}) then
 			local tp = fmt("waypoint_%u_teleport", i)
-
 			fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
 				tp, PNG.teleport, PNG.teleport_hover))
-
 			fs("image_button", ctn_len - 2, yi, icon_size, icon_size, "", tp, "")
 			fs(fmt("tooltip[%s;%s]", tp, ES"Teleport to waypoint"))
 		end
@@ -322,11 +320,9 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 
 	for i, title in ipairs(i3.SUBCAT) do
 		local btn_name = fmt("btn_%s", title)
-
 		fs(fmt("style[btn_%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", title,
 			data.subcat == i and PNG[fmt("%s_hover", title)] or PNG[title],
 			PNG[fmt("%s_hover", title)]))
-
 		fs("image_button", 0.25 + ((i - 1) * 1.18), yextra - 0.2, 0.5, 0.5, "", btn_name, "")
 		fs(fmt("tooltip[%s;%s]", btn_name, title:gsub("^%l", upper)))
 	end
@@ -350,9 +346,9 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 			local h, m, yy = unpack(v[data.bag_size])
 
 			fs("image", 0.5, yextra + 1.85, 0.6, 0.6, PNG.arrow_content)
-			fs(fmt("style[content;bgimg=%s;fgimg=i3_blank.png;bgimg_middle=10,%u;sound=]",
+			fs(fmt("style[bg_content;bgimg=%s;fgimg=i3_blank.png;bgimg_middle=10,%u;sound=]",
 				PNG.bg_content, m))
-			fs("image_button", 1.1, yextra + 0.5 + (yy or 0), 4.75, h, "", "content", "")
+			fs("image_button", 1.1, yextra + 0.5 + (yy or 0), 4.75, h, "", "bg_content", "")
 			fs("hypertext", 1.3, yextra + 0.8, 4.3, 0.6, "content",
 				fmt("<global size=16><center><b>%s</b></center>", ES"Content"))
 
@@ -469,7 +465,7 @@ local function show_popup(fs, data)
 			fs("image_button", 4.2, 10.4, 1.8, 0.7, "", "set_home", "Set home")
 
 		elseif show_sorting then
-			fs("button", 2.1, 9.7, 6, 0.8, "", ES"Select the inventory sorting method:")
+			fs("button", 2.1, 9.7, 6, 0.8, "select_sorting", ES"Select the inventory sorting method:")
 
 			fs(fmt("style[prev_sort;fgimg=%s;fgimg_hovered=%s]", PNG.prev, PNG.prev_hover))
 			fs(fmt("style[next_sort;fgimg=%s;fgimg_hovered=%s]", PNG.next, PNG.next_hover))
@@ -1115,8 +1111,7 @@ local function get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
 		get_rcp_lbl(fs, data, panel, rn, is_recipe)
 	else
 		local lbl = is_recipe and ES"No recipes" or ES"No usages"
-		fs("button", data.inv_width + 0.1, data.yoffset + (panel.height / 2) - 0.5,
-			7.8, 1, "no_rcp", lbl)
+		fs("button", data.inv_width + 0.1, data.yoffset + (panel.height / 2) - 0.5, 7.8, 1, "no_rcp", lbl)
 	end
 
 	fs("container_end[]")
