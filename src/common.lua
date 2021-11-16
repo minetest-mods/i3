@@ -406,7 +406,7 @@ end
 
 local function safe_teleport(player, pos)
 	local name = player:get_player_name()
-	play_sound(name, "i3_teleport", 1.0)
+	play_sound(name, "i3_teleport", 0.8)
 
 	pos.y = pos.y + 0.5
 	local vel = player:get_velocity()
