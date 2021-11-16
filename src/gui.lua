@@ -546,8 +546,7 @@ local function get_inventory_fs(player, data, fs)
 	local max_val = damage_enabled and 12 or 7
 
 	if data.subcat == 1 and data.bag_size then
-		local v = {6, 16, 26, 32}
-		max_val = max_val + v[data.bag_size]
+		max_val = max_val + min(32, 6 + ((data.bag_size - 1) * 10))
 
 	elseif i3.modules.armor and data.subcat == 2 then
 		if data.scrbar_inv >= max_val then
