@@ -4,6 +4,9 @@
 
 #### `i3.new_tab(name, def)`
 
+- `name` is the tab name.
+- `def` is the tab definition.
+
 Custom tabs can be added to the `i3` inventory as follow (example):
 
 ```Lua
@@ -238,17 +241,17 @@ A map of search filters, indexed by name.
 
 Sorting methods are used to filter the player's main inventory.
 
-#### `i3.add_sorting_method(def)`
+#### `i3.add_sorting_method(name, def)`
 
 Adds a player inventory sorting method.
 
+- `name` is the method name.
 - `def` is the method definition.
 
 Example:
 
 ```Lua
-i3.add_sorting_method {
-	name = "test",
+i3.add_sorting_method("test", {
 	description = "Cool sorting method",
 	func = function(list, data)
 		-- `list`: inventory list
@@ -259,7 +262,7 @@ i3.add_sorting_method {
 		-- A list must be returned
 		return list
 	end,
-}
+})
 
 ```
 

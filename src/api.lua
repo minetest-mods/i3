@@ -298,32 +298,31 @@ function i3.compress(item, def)
 	end
 end
 
-function i3.add_sorting_method(def)
-	if not true_table(def) then
-		return err "i3.add_sorting_method: definition missing"
-	elseif not true_str(def.name) then
+function i3.add_sorting_method(name, def)
+	if not true_str(name) then
 		return err "i3.add_sorting_method: name missing"
+	elseif not true_table(def) then
+		return err "i3.add_sorting_method: definition missing"
 	elseif not is_func(def.func) then
 		return err "i3.add_sorting_method: function missing"
 	end
 
+	def.name = name
 	insert(i3.sorting_methods, def)
 end
 
-i3.add_sorting_method {
-	name = "alphabetical",
+i3.add_sorting_method("alphabetical", {
 	description = S"Sort items by name (A-Z)",
 	func = function(list, data)
 		sorter(list, data.reverse_sorting, 1)
 		return list
 	end
-}
+})
 
-i3.add_sorting_method {
-	name = "numerical",
+i3.add_sorting_method("numerical", {
 	description = S"Sort items by number of items per stack",
 	func = function(list, data)
 		sorter(list, data.reverse_sorting, 2)
 		return list
 	end,
-}
+})

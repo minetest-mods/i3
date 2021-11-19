@@ -475,7 +475,7 @@ local function show_popup(fs, data)
 			fs("image_button", 7.65, 10.6, 0.35, 0.35, "", "next_sort", "")
 
 			fs("style[sort_method;font=bold;font_size=20]")
-			fs("button", 2.55, 10.36, 5.1, 0.8, "sort_method", data.sort:gsub("^%l", upper))
+			fs("button", 2.55, 10.36, 5.1, 0.8, "sort_method", toupper(data.sort))
 
 			local idx = get_sorting_idx(data.sort)
 			local desc = i3.sorting_methods[idx].description
