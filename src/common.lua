@@ -318,7 +318,7 @@ end
 local function spawn_item(player, stack)
 	local dir     = player:get_look_dir()
 	local ppos    = player:get_pos()
-	      ppos.y  = ppos.y + 1.625
+	      ppos.y  = ppos.y + player:get_properties().eye_height
 	local look_at = vector.add(ppos, vector.multiply(dir, 1))
 
 	core.add_item(look_at, stack)
