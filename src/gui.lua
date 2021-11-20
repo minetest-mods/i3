@@ -173,7 +173,6 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 		local title_lim, _title = 27
 		local desc_lim, _desc = 39
 		local icon_size = 1.1
-		local box_len = ctn_len - icon_size + 0.1
 
 		if #title > title_lim then
 			_title = snip(title, title_lim)
@@ -191,34 +190,36 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 		local icon = def.icon or "awards_unknown.png"
 
 		if not award.unlocked then
-			icon = fmt("%s^\\[colorize:#000:180", icon)
+			icon = fmt("%s^\\[colorize:#000:200", icon)
 		end
 
-		insert(fs, fmt("image", 0, y + 0.01, icon_size, icon_size, icon))
+		insert(fs, fmt("image", 0, y, icon_size, icon_size, icon))
 		insert(fs, "style_type[box;colors=#bababa30,#bababa30,#bababa05,#bababa05]")
-		insert(fs, fmt("box", icon_size + 0.1, y, box_len, icon_size, ""))
+		insert(fs, fmt("box", 0, y, ctn_len, icon_size, ""))
 
 		if progress then
+			local box_len = ctn_len - icon_size - 0.15
 			local current, target = progress.current, progress.target
 			local curr_bar = (current * box_len) / target
 
-			insert(fs, fmt("box", icon_size + 0.1, y + 0.8, box_len, 0.3, "#101010"))
+			insert(fs, fmt("box", icon_size + 0.15, y + 0.8, box_len, 0.3, "#101010"))
 			insert(fs, "style_type[box;colors=#9dc34c80,#9dc34c,#9dc34c,#9dc34c80]")
-			insert(fs, fmt("box", icon_size + 0.1, y + 0.8, curr_bar, 0.3, ""))
+			insert(fs, fmt("box", icon_size + 0.15, y + 0.8, curr_bar, 0.3, ""))
 			insert(fs, "style_type[label;font_size=14]")
-			insert(fs, fmt("label", icon_size + 0.5, y + 0.97, fmt("%u / %u", current, target)))
+			insert(fs, fmt("label", icon_size + 0.55, y + 0.97, fmt("%u / %u", current, target)))
 
 			y = y - 0.14
 		end
 
-		title = _title or title
-		desc = _desc or desc
+		local end_title = ESC(_title or title)
+		local end_desc = ESC(_desc or desc)
 
 		insert(fs, "style_type[label;font=bold;font_size=17]")
-		insert(fs, fmt("label", icon_size + 0.2, y + 0.4, title))
+		insert(fs, fmt("label", icon_size + 0.2, y + 0.4, end_title))
 		insert(fs, "style_type[label;font=normal;font_size=15]")
-		insert(fs, fmt("label", icon_size + 0.2, y + 0.75, clr("#bbbbbb", desc)))
+		insert(fs, fmt("label", icon_size + 0.2, y + 0.75, clr("#bbb", end_desc)))
 		insert(fs, "style_type[label;font_size=16]")
+		insert(fs, fmt("tooltip", 0, y, icon_size, icon_size, ESC(desc)))
 	end
 end
 
@@ -1369,6 +1370,7 @@ local function make_fs(player, data)
 
 	--get_debug_grid(data, fs, full_height)
 	--print("make_fs()", fmt("%.2f ms", (os.clock() - start) * 1000))
+	--print("#fs elements", #fs)
 
 	return concat(fs)
 end
