@@ -1297,7 +1297,7 @@ local function get_tabs_fs(player, data, fs, full_height)
 		fs("style_type[image_button:hovered;textcolor=#fff]")
 		fs("image_button", X, Y, tab_len, tab_hgh, "", fmt("tab_%s", def.name), ESC(def.description))
 
-		if def.image and def.image ~= "" then
+		if true_str(def.image) then
 			local desc = translate(data.lang_code, def.description)
 			fs("style_type[image;noclip=true]")
 			fs("image", X + (tab_len / 2) - ((#desc * 0.1) / 2) - 0.55,
