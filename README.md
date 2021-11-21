@@ -1,6 +1,6 @@
 # i3
 
-[![ContentDB](https://content.minetest.net/packages/jp/i3/shields/downloads/)](https://content.minetest.net/packages/jp/i3/) ![workflow](https://github.com/minetest-mods/i3/actions/workflows/luacheck.yml/badge.svg)
+[![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs) ![workflow](https://github.com/minetest-mods/i3/actions/workflows/luacheck.yml/badge.svg) [![GitHub Release](https://img.shields.io/github/release/minetest-mods/i3.svg?style=flat)]() [![ContentDB](https://content.minetest.net/packages/jp/i3/shields/downloads/)](https://content.minetest.net/packages/jp/i3/) [![PayPal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.me/jpg84240)
 
 #### **`i3`** is a next-generation inventory for Minetest.
 
@@ -49,7 +49,5 @@ Thus, most chests will be unadapted to this inventory size.
 The `i3`  inventory is 9 slots wide by default, such as Minecraft.
 
 Report bugs on the [**Bug Tracker**](https://github.com/minetest-mods/i3/issues).
-
-Love this mod? Donations are appreciated: https://www.paypal.me/jpg84240
 
 ![Preview](https://user-images.githubusercontent.com/7883281/140816791-693a5c8a-a7d1-47d4-a45d-883cc008ae8a.png)
