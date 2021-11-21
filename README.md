@@ -50,4 +50,4 @@ The `i3`  inventory is 9 slots wide by default, such as Minecraft.
 
 Report bugs on the [**Bug Tracker**](https://github.com/minetest-mods/i3/issues).
 
-![Preview](https://user-images.githubusercontent.com/7883281/140816791-693a5c8a-a7d1-47d4-a45d-883cc008ae8a.png)
+![Preview](https://user-images.githubusercontent.com/7883281/142774384-8551ccce-704f-48d5-a992-f82746a318f0.png)
