@@ -72,7 +72,7 @@ i3.files.groups()
 i3.files.callbacks()
 
 local storage = core.get_mod_storage()
-local slz, dslz, str_to_pos, add_hud_waypoint = i3.get("slz", "dslz", "str_to_pos", "add_hud_waypoint")
+local slz, dslz, copy, str_to_pos, add_hud_waypoint = i3.get("slz", "dslz", "copy", "str_to_pos", "add_hud_waypoint")
 local set_fs = i3.set_fs
 
 i3.data = dslz(storage:get_string "data") or {}
@@ -189,7 +189,7 @@ local function init_hudbar(player)
 end
 
 local function save_data(player_name)
-	local _data = table.copy(i3.data)
+	local _data = copy(i3.data)
 
 	for name, v in pairs(_data) do
 	for dat in pairs(v) do

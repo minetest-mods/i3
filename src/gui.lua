@@ -721,61 +721,63 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 
 	if rcp.type == "fuel" then
 		fs("animated_image", X + 0.05, Y, i3.ITEM_BTN_SIZE, i3.ITEM_BTN_SIZE, PNG.fire_anim, 8, 180)
-	else
-		local item = ItemStack(rcp.output)
-		local meta = item:get_meta()
-		local name = item:get_name()
-		local count = item:get_count()
-		local bt_s = i3.ITEM_BTN_SIZE * 1.2
-		local _name = fmt("_%s", name)
-		local pos
+		return
+	end
 
-		if meta:get_string("color") ~= "" or meta:get_string("palette_index") ~= "" then
-			local rcp_usg = is_recipe and "rcp" or "usg"
+	local item  = ItemStack(rcp.output)
+	local meta  = item:get_meta()
+	local name  = item:get_name()
+	local count = item:get_count()
+	local wear  = item:get_wear()
+	local bt_s  = i3.ITEM_BTN_SIZE * 1.2
+	local _name = fmt("_%s", name)
+	local pos
 
-			fs(fmt("style_type[list;size=%f]", i3.ITEM_BTN_SIZE))
-			fs("listcolors[#bababa50;#bababa99]")
-			fs(fmt("list[detached:i3_output_%s_%s;main;%f,%f;1,1;]", rcp_usg, data.player_name, X + 0.11, Y))
-			fs("button",  X + 0.11, Y, i3.ITEM_BTN_SIZE, i3.ITEM_BTN_SIZE, _name, "")
+	if meta:get_string("color") ~= "" or meta:get_string("palette_index") ~= "" then
+		local rcp_usg = is_recipe and "rcp" or "usg"
 
-			local inv = core.get_inventory {
-				type = "detached",
-				name = fmt("i3_output_%s_%s", rcp_usg, data.player_name)
-			}
+		fs(fmt("style_type[list;size=%f]", i3.ITEM_BTN_SIZE))
+		fs("listcolors[#bababa50;#bababa99]")
+		fs(fmt("list[detached:i3_output_%s_%s;main;%f,%f;1,1;]", rcp_usg, data.player_name, X + 0.11, Y))
+		fs("button",  X + 0.11, Y, i3.ITEM_BTN_SIZE, i3.ITEM_BTN_SIZE, _name, "")
 
-			inv:set_stack("main", 1, item)
-			pos = {x = X + 0.11, y = Y}
-		else
-			fs("image", X, Y - 0.11, bt_s, bt_s, PNG.slot)
-			fs("item_image_button",
-				X + 0.11, Y, i3.ITEM_BTN_SIZE, i3.ITEM_BTN_SIZE,
-				fmt("%s %u", name, count * (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1)),
-				_name, "")
-		end
-
-		local def = reg_items[name]
-		local unknown = not def or nil
-		local desc = def and def.description
-		local weird = name ~= "" and desc and weird_desc(desc) or nil
-		local burntime = i3.fuel_cache[name] and i3.fuel_cache[name].burntime
-
-		local short_desc = meta:get_string("short_description")
-		local long_desc  = meta:get_string("description")
-		local meta_desc  = (short_desc ~= "" and short_desc) or (long_desc ~= "" and long_desc)
-
-		local infos = {
-			unknown   = unknown,
-			weird     = weird,
-			burntime  = burntime,
-			repair    = repairable(name),
-			rarity    = rcp.rarity,
-			tools     = rcp.tools,
-			meta_desc = meta_desc,
+		local inv = core.get_inventory {
+			type = "detached",
+			name = fmt("i3_output_%s_%s", rcp_usg, data.player_name)
 		}
 
-		if next(infos) then
-			fs(get_tooltip(_name, infos, pos))
-		end
+		inv:set_stack("main", 1, item)
+		pos = {x = X + 0.11, y = Y}
+	else
+		fs("image", X, Y - 0.11, bt_s, bt_s, PNG.slot)
+		fs("item_image_button",
+			X + 0.11, Y, i3.ITEM_BTN_SIZE, i3.ITEM_BTN_SIZE,
+			fmt("%s %u %u", name, count * (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1), wear),
+			_name, "")
+	end
+
+	local def = reg_items[name]
+	local unknown = not def or nil
+	local desc = def and def.description
+	local weird = name ~= "" and desc and weird_desc(desc) or nil
+	local burntime = i3.fuel_cache[name] and i3.fuel_cache[name].burntime
+
+	local short_desc = meta:get_string("short_description")
+	local long_desc  = meta:get_string("description")
+	local meta_desc  = (short_desc ~= "" and short_desc) or (long_desc ~= "" and long_desc)
+
+	local infos = {
+		unknown   = unknown,
+		weird     = weird,
+		burntime  = burntime,
+		repair    = repairable(name),
+		rarity    = rcp.rarity,
+		tools     = rcp.tools,
+		meta_desc = meta_desc,
+	}
+
+	if next(infos) then
+		fs(get_tooltip(_name, infos, pos))
 	end
 end
 

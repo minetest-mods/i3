@@ -6,12 +6,25 @@ local mt2 = ItemStack("dye:red")
 mt2:get_meta():set_string("description", "test red")
 mt2:get_meta():set_string("color", "#ff0")
 
+local mt3 = ItemStack("default:pick_diamond")
+mt3:get_meta():set_string("description", "Worn Pick")
+mt3:set_wear(10000)
+
 minetest.register_craft({
 	output = mt:to_string(),
 	type = "shapeless",
 	recipe = {
 		"default:wood",
 		mt2:to_string(),
+	},
+})
+
+minetest.register_craft({
+	output = mt3:to_string(),
+	type = "shapeless",
+	recipe = {
+		"default:pick_mese",
+		"default:diamond",
 	},
 })
 
