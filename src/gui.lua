@@ -733,7 +733,7 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 	local _name = fmt("_%s", name)
 	local pos
 
-	if meta:get_string("color") ~= "" or meta:get_string("palette_index") ~= "" then
+	if meta:get_string"color" ~= "" or meta:get_string"palette_index" ~= "" then
 		local rcp_usg = is_recipe and "rcp" or "usg"
 
 		fs(fmt("style_type[list;size=%f]", i3.ITEM_BTN_SIZE))
@@ -762,8 +762,8 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 	local weird = name ~= "" and desc and weird_desc(desc) or nil
 	local burntime = i3.fuel_cache[name] and i3.fuel_cache[name].burntime
 
-	local short_desc = meta:get_string("short_description")
-	local long_desc  = meta:get_string("description")
+	local short_desc = meta:get_string"short_description"
+	local long_desc  = meta:get_string"description"
 	local meta_desc  = (short_desc ~= "" and short_desc) or (long_desc ~= "" and long_desc)
 
 	local infos = {
@@ -889,8 +889,8 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 		local weird = name ~= "" and desc and weird_desc(desc) or nil
 		local burntime = i3.fuel_cache[name] and i3.fuel_cache[name].burntime
 
-		local short_desc = meta:get_string("short_description")
-		local long_desc  = meta:get_string("description")
+		local short_desc = meta:get_string"short_description"
+		local long_desc  = meta:get_string"description"
 		local meta_desc  = (short_desc ~= "" and short_desc) or (long_desc ~= "" and long_desc) or nil
 
 		local infos = {
