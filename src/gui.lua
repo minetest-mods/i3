@@ -71,8 +71,8 @@ local function get_desc(item)
 end
 
 local function get_stack_max(inv, data, is_recipe, rcp)
-	local list = inv:get_list("main")
-	local size = inv:get_size("main")
+	local list = inv:get_list"main"
+	local size = inv:get_size"main"
 	local counts_inv, counts_rcp, counts = {}, {}, {}
 	local rcp_usg = is_recipe and "recipe" or "usage"
 
@@ -441,10 +441,10 @@ local function show_popup(fs, data)
 		local show_misc = data.show_setting == "misc"
 
 		fs(fmt("style[setting_home;textcolor=%s;font=bold;sound=i3_click]",
-			show_home and colors.yellow or "#fff"))
-		fs(fmt("style[setting_sorting;textcolor=%s;font=bold;sound=i3_click]",
-			show_sorting and colors.yellow or "#fff"))
-		fs(fmt("style[setting_misc;textcolor=%s;font=bold;sound=i3_click]",
+			show_home and colors.yellow or "#fff"),
+		   fmt("style[setting_sorting;textcolor=%s;font=bold;sound=i3_click]",
+			show_sorting and colors.yellow or "#fff"),
+		   fmt("style[setting_misc;textcolor=%s;font=bold;sound=i3_click]",
 			show_misc and colors.yellow or "#fff"))
 
 		fs("button", 2.2, 9.25, 1.8, 0.55, "setting_home", "Home")
@@ -469,8 +469,8 @@ local function show_popup(fs, data)
 		elseif show_sorting then
 			fs("button", 2.1, 9.7, 6, 0.8, "select_sorting", ES"Select the inventory sorting method:")
 
-			fs(fmt("style[prev_sort;fgimg=%s;fgimg_hovered=%s]", PNG.prev, PNG.prev_hover))
-			fs(fmt("style[next_sort;fgimg=%s;fgimg_hovered=%s]", PNG.next, PNG.next_hover))
+			fs(fmt("style[prev_sort;fgimg=%s;fgimg_hovered=%s]", PNG.prev, PNG.prev_hover),
+			   fmt("style[next_sort;fgimg=%s;fgimg_hovered=%s]", PNG.next, PNG.next_hover))
 
 			fs("image_button", 2.2, 10.6, 0.35, 0.35, "",  "prev_sort", "")
 			fs("image_button", 7.65, 10.6, 0.35, 0.35, "", "next_sort", "")
@@ -643,7 +643,7 @@ local function get_tooltip(item, info, pos)
 
 	if info.replace then
 		for i = 1, #info.replace.items do
-			local rpl = match(info.replace.items[i], "%S+")
+			local rpl = ItemStack(info.replace.items[i]):get_name()
 			local desc = clr("#ff0", get_desc(rpl))
 
 			if info.replace.type == "cooking" then

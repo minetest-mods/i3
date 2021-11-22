@@ -1,4 +1,4 @@
-local modpath = core.get_modpath "i3"
+local modpath = core.get_modpath"i3"
 
 local function lf(path)
 	return loadfile(modpath .. path)
@@ -72,10 +72,11 @@ i3.files.groups()
 i3.files.callbacks()
 
 local storage = core.get_mod_storage()
-local slz, dslz, copy, str_to_pos, add_hud_waypoint = i3.get("slz", "dslz", "copy", "str_to_pos", "add_hud_waypoint")
+local slz, dslz, copy = i3.get("slz", "dslz", "copy")
+local str_to_pos, add_hud_waypoint = i3.get("str_to_pos", "add_hud_waypoint")
 local set_fs = i3.set_fs
 
-i3.data = dslz(storage:get_string "data") or {}
+i3.data = dslz(storage:get_string"data") or {}
 
 local init_bags = i3.files.bags()
 local init_inventories = i3.files.detached()
@@ -184,7 +185,7 @@ end
 local function init_hudbar(player)
 	core.after(0, function()
 		player:hud_set_hotbar_itemcount(i3.HOTBAR_LEN)
-		player:hud_set_hotbar_image("i3_hotbar.png")
+		player:hud_set_hotbar_image"i3_hotbar.png"
 	end)
 end
 
