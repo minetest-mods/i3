@@ -71,8 +71,8 @@ local function get_desc(item)
 end
 
 local function get_stack_max(inv, data, is_recipe, rcp)
-	local list = inv:get_list("main")
-	local size = inv:get_size("main")
+	local list = inv:get_list"main"
+	local size = inv:get_size"main"
 	local counts_inv, counts_rcp, counts = {}, {}, {}
 	local rcp_usg = is_recipe and "recipe" or "usage"
 
@@ -643,7 +643,7 @@ local function get_tooltip(item, info, pos)
 
 	if info.replace then
 		for i = 1, #info.replace.items do
-			local rpl = match(info.replace.items[i], "%S+")
+			local rpl = ItemStack(info.replace.items[i]):get_name()
 			local desc = clr("#ff0", get_desc(rpl))
 
 			if info.replace.type == "cooking" then

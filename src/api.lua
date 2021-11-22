@@ -1,6 +1,6 @@
 local make_fs = i3.files.gui()
 
-local gmatch, match, split = i3.get("gmatch", "match", "split")
+local gmatch, split = i3.get("gmatch", "split")
 local S, err, fmt, reg_items = i3.get("S", "err", "fmt", "reg_items")
 local sorter, sort_inventory = i3.get("sorter", "sort_inventory")
 local sort, concat, copy, insert, remove = i3.get("sort", "concat", "copy", "insert", "remove")
@@ -115,7 +115,7 @@ function i3.register_craft(def)
 		end
 	end
 
-	local item = match(def.output, "%S+")
+	local item = ItemStack(def.output):get_name()
 	i3.recipes_cache[item] = i3.recipes_cache[item] or {}
 
 	def.custom = true

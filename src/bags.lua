@@ -14,40 +14,10 @@ local function get_content(content)
 	local t = {}
 
 	for i, v in pairs(content) do
-		local stack = ItemStack(v.name)
-
-		if v.meta then
-			local m = stack:get_meta()
-			m:from_table(v.meta)
-		end
-
-		if v.wear then
-			stack:set_wear(v.wear)
-		end
-
-		t[i] = stack
+		t[i] = ItemStack(v)
 	end
 
 	return t
-end
-
-local function safe_format(stack)
-	local meta = stack:get_meta():to_table()
-	local wear = stack:get_wear()
-	local has_meta = next(meta.fields)
-
-	local info = {}
-	info.name = fmt("%s %u", stack:get_name(), stack:get_count())
-
-	if has_meta then
-		info.meta = meta
-	end
-
-	if wear > 0 then
-		info.wear = wear
-	end
-
-	return info
 end
 
 local function init_bags(player)
@@ -73,7 +43,7 @@ local function init_bags(player)
 		end,
 
 		on_put = function(_, _, _, stack)
-			data.bag_item = safe_format(stack)
+			data.bag_item = stack:to_string()
 			data.bag_size = core.get_item_group(stack:get_name(), "bag")
 
 			local meta = stack:get_meta()
@@ -119,7 +89,7 @@ local function init_bags(player)
 				local stack = list[i]
 
 				if not stack:is_empty() then
-					t[i] = safe_format(stack)
+					t[i] = stack:to_string()
 				end
 			end
 
@@ -141,7 +111,7 @@ local function init_bags(player)
 		end
 
 		bag:set_stack("main", 1, bagstack)
-		data.bag_item = safe_format(bagstack)
+		data.bag_item = bagstack:to_string()
 
 		set_fs(player)
 	end

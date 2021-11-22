@@ -8,6 +8,7 @@ mt2:get_meta():set_string("color", "#ff0")
 
 local mt3 = ItemStack("default:pick_diamond")
 mt3:get_meta():set_string("description", "Worn Pick")
+mt3:get_meta():set_string("color", "yellow")
 mt3:set_wear(10000)
 
 minetest.register_craft({
