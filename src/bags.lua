@@ -77,35 +77,24 @@ local function init_bags(player)
 	local function save_content(inv)
 		local bagstack = bag:get_stack("main", 1)
 		local meta = bagstack:get_meta()
+		meta:set_string("description", "")
 
 		if inv:is_empty"main" then
-			meta:set_string("description", "")
 			meta:set_string("content", "")
 		else
 			local list = inv:get_list"main"
-			local t = {}
+			local t, c = {}, 0
 
 			for i = 1, #list do
 				local stack = list[i]
 
 				if not stack:is_empty() then
+					c = c + 1
 					t[i] = stack:to_string()
 				end
 			end
 
-			local function count_items()
-				local c = 0
-
-				for _ in pairs(t) do
-					c = c + 1
-				end
-
-				return c
-			end
-
-			local percent = fmt("%.1f", (count_items() * 100) / (data.bag_size * 4))
-
-			meta:set_string("description", "")
+			local percent = fmt("%d", (c * 100) / (data.bag_size * 4))
 			meta:set_string("description", ES("@1 (@2% full)", bagstack:get_description(), percent))
 			meta:set_string("content", slz(t))
 		end

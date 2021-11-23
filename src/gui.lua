@@ -155,7 +155,7 @@ local function add_subtitle(fs, name, y, ctn_len, font_size, sep, label)
 end
 
 local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
-	local percent = fmt("%.1f%%", (awards_unlocked * 100) / award_list_nb):gsub(".0", "")
+	local percent = fmt("%.1f%%", (awards_unlocked * 100) / award_list_nb):gsub("%.0", "")
 
 	add_subtitle(fs, "awards", yextra, ctn_len, 18, false,
 		ES("Achievements: @1 of @2 (@3)", awards_unlocked, award_list_nb, percent))
