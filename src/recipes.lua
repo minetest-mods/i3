@@ -6,8 +6,8 @@ local maxn, copy, insert, sort, match = i3.get("maxn", "copy", "insert", "sort",
 
 local is_group, extract_groups, item_has_groups, groups_to_items =
 	i3.get("is_group", "extract_groups", "item_has_groups", "groups_to_items")
-local true_str, is_table, show_item, table_merge, table_replace, rcp_eq =
-	i3.get("true_str", "is_table", "show_item", "table_merge", "table_replace", "rcp_eq")
+local true_str, is_table, valid_item, table_merge, table_replace, rcp_eq =
+	i3.get("true_str", "is_table", "valid_item", "table_merge", "table_replace", "rcp_eq")
 
 local function get_burntime(item)
 	return core.get_craft_result{method = "fuel", items = {item}}.time
@@ -30,7 +30,7 @@ local function get_item_usages(item, recipe, added)
 
 	if groups then
 		for name, def in pairs(reg_items) do
-			if not added[name] and show_item(def) and item_has_groups(def.groups, groups) then
+			if not added[name] and valid_item(def) and item_has_groups(def.groups, groups) then
 				local usage = copy(recipe)
 				table_replace(usage.items, item, name)
 
@@ -40,7 +40,7 @@ local function get_item_usages(item, recipe, added)
 				added[name] = true
 			end
 		end
-	elseif show_item(reg_items[item]) then
+	elseif valid_item(reg_items[item]) then
 		i3.usages_cache[item] = i3.usages_cache[item] or {}
 		insert(i3.usages_cache[item], 1, recipe)
 	end
@@ -254,7 +254,7 @@ local function init_recipes()
 	local _select, _preselect = {}, {}
 
 	for name, def in pairs(reg_items) do
-		if name ~= "" and show_item(def) then
+		if name ~= "" and valid_item(def) then
 			cache_drops(name, def.drop)
 			cache_fuel(name)
 			cache_recipes(name)

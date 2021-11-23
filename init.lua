@@ -12,6 +12,7 @@ i3 = {
 	INV_SIZE = 4*9,
 	HOTBAR_LEN = 9,
 	ITEM_BTN_SIZE = 1.1,
+	DROP_BAG_ON_DIE = true,
 	MIN_FORMSPEC_VERSION = 4,
 	SAVE_INTERVAL = 600, -- Player data save interval (in seconds)
 
@@ -24,9 +25,8 @@ i3 = {
 	},
 
 	META_SAVES = {
+		bag = true,
 		home = true,
-		bag_item = true,
-		bag_size = true,
 		waypoints = true,
 		inv_items = true,
 		drop_items = true,

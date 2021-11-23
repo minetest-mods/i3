@@ -12,7 +12,8 @@ local reg_items, reg_tools, reg_entities = i3.get("reg_items", "reg_tools", "reg
 local maxn, sort, concat, copy, insert, remove, unpack =
 	i3.get("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
 
-local true_str, is_fav, is_num = i3.get("true_str", "is_fav", "is_num")
+local true_str, is_fav, is_num, get_group =
+	i3.get("true_str", "is_fav", "is_num", "get_group")
 local groups_to_items, compression_active, compressible =
 	i3.get("groups_to_items", "compression_active", "compressible")
 local get_sorting_idx, is_group, extract_groups, item_has_groups =
@@ -285,7 +286,7 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 	fs("style_type[label;font_size=16]")
 end
 
-local function get_container(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb)
+local function get_container(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb, bag_size)
 	local name = data.player_name
 	local esc_name = ESC(name)
 
@@ -345,7 +346,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 
 		if not inv:is_empty"main" then
 			local v = {{1.9, 2, 0.12}, {3.05, 5, 0.06}, {4.2, 10}, {4.75, 10}}
-			local h, m, yy = unpack(v[data.bag_size])
+			local h, m, yy = unpack(v[bag_size])
 
 			fs("image", 0.5, yextra + 1.85, 0.6, 0.6, PNG.arrow_content)
 			fs(fmt("style[bg_content;bgimg=%s;fgimg=i3_blank.png;bgimg_middle=10,%u;sound=]",
@@ -356,13 +357,12 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 
 			local x, size, spacing = 1.45, 0.9, 0.12
 
-			if data.bag_size == 4 then
+			if bag_size == 4 then
 				x, size, spacing = 1.7, 0.8, 0.1
 			end
 
 			fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing))
-			fs(fmt("list[detached:i3_bag_content_%s;main;%f,%f;4,%u;]",
-				esc_name, x, yextra + 1.3, data.bag_size))
+			fs(fmt("list[detached:i3_bag_content_%s;main;%f,%f;4,%u;]", esc_name, x, yextra + 1.3, bag_size))
 			fs("style_type[list;size=1;spacing=0.15]")
 		end
 
@@ -545,9 +545,10 @@ local function get_inventory_fs(player, data, fs)
 
 	local awards_unlocked, award_list, award_list_nb = 0
 	local max_val = damage_enabled and 12 or 7
+	local bag_size = get_group(ItemStack(data.bag):get_name(), "bag")
 
-	if data.subcat == 1 and data.bag_size then
-		max_val = max_val + min(32, 6 + ((data.bag_size - 1) * 10))
+	if data.subcat == 1 and bag_size > 0 then
+		max_val = max_val + min(32, 6 + ((bag_size - 1) * 10))
 
 	elseif i3.modules.armor and data.subcat == 2 then
 		if data.scrbar_inv >= max_val then
@@ -580,14 +581,14 @@ local function get_inventory_fs(player, data, fs)
 	end
 
 	fs(fmt([[
-		scrollbaroptions[arrows=hide;thumbsize=%u;max=%u]
+		scrollbaroptions[arrows=hide;thumbsize=%d;max=%d]
 		scrollbar[%f,0.2;0.2,%f;vertical;scrbar_inv;%u]
 		scrollbaroptions[arrows=default;thumbsize=0;max=1000]
 	]],
 	(max_val * 4) / 12, max_val, 9.8, ctn_hgt, data.scrbar_inv))
 
 	fs(fmt("scroll_container[3.9,0.2;%f,%f;scrbar_inv;vertical]", ctn_len, ctn_hgt))
-		get_container(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb)
+	get_container(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb, bag_size)
 	fs("scroll_container_end[]")
 
 	local btn = {

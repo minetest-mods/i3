@@ -226,7 +226,7 @@ local function item_has_groups(item_groups, groups)
 	return true
 end
 
-local function show_item(def)
+local function valid_item(def)
 	return def and def.groups.not_in_creative_inventory ~= 1 and
 		def.description and def.description ~= ""
 end
@@ -237,7 +237,7 @@ local function groups_to_items(groups, get_all)
 		local stereotype = i3.group_stereotypes[group]
 		local def = core.registered_items[stereotype]
 
-		if show_item(def) then
+		if valid_item(def) then
 			return stereotype
 		end
 	end
@@ -245,7 +245,7 @@ local function groups_to_items(groups, get_all)
 	local names = {}
 
 	for name, def in pairs(core.registered_items) do
-		if show_item(def) and item_has_groups(def.groups, groups) then
+		if valid_item(def) and item_has_groups(def.groups, groups) then
 			if get_all then
 				insert(names, name)
 			else
@@ -559,6 +559,13 @@ local function add_hud_waypoint(player, name, pos, color)
 	}
 end
 
+local function get_detached_inv(name, player_name)
+	return core.get_inventory {
+		type = "detached",
+		name = fmt("i3_%s_%s", name, player_name)
+	}
+end
+
 local function createunpack(n)
 	local ret = {"local t = ... return "}
 
@@ -612,9 +619,7 @@ local _ = {
 	msg = msg,
 
 	-- Misc. functions
-	get_stack = get_stack,
-	craft_stack = craft_stack,
-	show_item = show_item,
+	valid_item = valid_item,
 	spawn_item = spawn_item,
 	clean_name = clean_name,
 	play_sound = play_sound,
@@ -626,9 +631,15 @@ local _ = {
 	slz = core.serialize,
 	dslz = core.deserialize,
 	ESC = core.formspec_escape,
+	get_group = core.get_item_group,
 	pos_to_str = core.pos_to_string,
 	str_to_pos = core.string_to_pos,
 	check_privs = core.check_player_privs,
+
+	-- Inventory
+	get_stack = get_stack,
+	craft_stack = craft_stack,
+	get_detached_inv = get_detached_inv,
 	create_inventory = core.create_detached_inventory,
 
 	-- Registered items

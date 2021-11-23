@@ -9,12 +9,12 @@ local fmt, find, match, sub, lower, split = i3.get("fmt", "find", "match", "sub"
 local vec_new, vec_eq, vec_round = i3.get("vec_new", "vec_eq", "vec_round")
 local sort, copy, insert, remove, indexof = i3.get("sort", "copy", "insert", "remove", "indexof")
 
-local msg, is_fav, pos_to_str, str_to_pos, add_hud_waypoint, play_sound =
-	i3.get("msg", "is_fav", "pos_to_str", "str_to_pos", "add_hud_waypoint", "play_sound")
-local search, get_sorting_idx, sort_inventory, sort_by_category, get_recipes =
-	i3.get("search", "get_sorting_idx", "sort_inventory", "sort_by_category", "get_recipes")
-local show_item, get_stack, craft_stack, clean_name, compressible, check_privs, safe_teleport =
-	i3.get("show_item", "get_stack", "craft_stack", "clean_name", "compressible", "check_privs", "safe_teleport")
+local msg, is_fav, pos_to_str, str_to_pos, add_hud_waypoint, play_sound, spawn_item =
+	i3.get("msg", "is_fav", "pos_to_str", "str_to_pos", "add_hud_waypoint", "play_sound", "spawn_item")
+local search, get_sorting_idx, sort_inventory, sort_by_category, get_recipes, get_detached_inv =
+	i3.get("search", "get_sorting_idx", "sort_inventory", "sort_by_category", "get_recipes", "get_detached_inv")
+local valid_item, get_stack, craft_stack, clean_name, compressible, check_privs, safe_teleport =
+	i3.get("valid_item", "get_stack", "craft_stack", "clean_name", "compressible", "check_privs", "safe_teleport")
 
 local function reset_data(data)
 	data.filter        = ""
@@ -258,7 +258,7 @@ local function select_item(player, data, _f)
 				local i = 1
 
 				for _, v in ipairs(items) do
-					if show_item(reg_items[clean_name(v)]) then
+					if valid_item(reg_items[clean_name(v)]) then
 						insert(data.alt_items, idx + i, v)
 						i = i + 1
 					end
@@ -450,6 +450,18 @@ core.register_on_dieplayer(function(player)
 	local name = player:get_player_name()
 	local data = i3.data[name]
 	if not data then return end
+
+	if i3.DROP_BAG_ON_DIE then
+		local bagstack = ItemStack(data.bag)
+		spawn_item(player, bagstack)
+	end
+
+	data.bag = nil
+	local bag = get_detached_inv("bag", name)
+	local content = get_detached_inv("bag_content", name)
+
+	bag:set_list("main", {})
+	content:set_list("main", {})
 
 	set_fs(player)
 end)

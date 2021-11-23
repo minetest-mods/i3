@@ -1,14 +1,8 @@
 local set_fs = i3.set_fs
 local ItemStack = ItemStack
 local S, ES, fmt, msg, slz, dslz = i3.get("S", "ES", "fmt", "msg", "slz", "dslz")
-local play_sound, create_inventory = i3.get("play_sound", "create_inventory")
-
-local function get_content_inv(name)
-	return core.get_inventory {
-		type = "detached",
-		name = fmt("i3_bag_content_%s", name)
-	}
-end
+local get_group, play_sound, get_detached_inv, create_inventory =
+	i3.get("get_group", "play_sound", "get_detached_inv", "create_inventory")
 
 local function get_content(content)
 	local t = {}
@@ -27,7 +21,7 @@ local function init_bags(player)
 	local bag = create_inventory(fmt("i3_bag_%s", name), {
 		allow_put = function(inv, _, _, stack)
 			local empty = inv:is_empty"main"
-			local item_group = core.get_item_group(stack:get_name(), "bag")
+			local item_group = get_group(stack:get_name(), "bag")
 
 			if empty and item_group > 0 and item_group <= 4 then
 				return 1
@@ -43,14 +37,13 @@ local function init_bags(player)
 		end,
 
 		on_put = function(_, _, _, stack)
-			data.bag_item = stack:to_string()
-			data.bag_size = core.get_item_group(stack:get_name(), "bag")
+			data.bag = stack:to_string()
 
 			local meta = stack:get_meta()
 			local content = dslz(meta:get_string"content")
 
 			if content then
-				local inv = get_content_inv(name)
+				local inv = get_detached_inv("bag_content", name)
 				inv:set_list("main", get_content(content))
 			end
 
@@ -58,10 +51,8 @@ local function init_bags(player)
 		end,
 
 		on_take = function()
-			data.bag_item = nil
-			data.bag_size = nil
-
-			local content = get_content_inv(name)
+			data.bag = nil
+			local content = get_detached_inv("bag_content", name)
 			content:set_list("main", {})
 
 			set_fs(player)
@@ -70,8 +61,8 @@ local function init_bags(player)
 
 	bag:set_size("main", 1)
 
-	if data.bag_item then
-		bag:set_list("main", get_content{data.bag_item})
+	if data.bag then
+		bag:set_list("main", get_content{data.bag})
 	end
 
 	local function save_content(inv)
@@ -94,13 +85,15 @@ local function init_bags(player)
 				end
 			end
 
-			local percent = fmt("%d", (c * 100) / (data.bag_size * 4))
+			local bag_size = get_group(bagstack:get_name(), "bag")
+			local percent = fmt("%d", (c * 100) / (bag_size * 4))
+
 			meta:set_string("description", ES("@1 (@2% full)", bagstack:get_description(), percent))
 			meta:set_string("content", slz(t))
 		end
 
 		bag:set_stack("main", 1, bagstack)
-		data.bag_item = bagstack:to_string()
+		data.bag = bagstack:to_string()
 
 		set_fs(player)
 	end
@@ -113,7 +106,7 @@ local function init_bags(player)
 
 	bag_content:set_size("main", 4*4)
 
-	if data.bag_item then
+	if data.bag then
 		local meta = bag:get_stack("main", 1):get_meta()
 		local content = dslz(meta:get_string"content")
 
