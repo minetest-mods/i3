@@ -23,16 +23,11 @@ local function get_filtered_items(player, data)
 		if recipes > 0 or usages > 0 then
 			c = c + 1
 			items[c] = item
-
-			if data then
-				known = known + recipes + usages
-			end
+			known = known + recipes + usages
 		end
 	end
 
-	if data then
-		data.known_recipes = known
-	end
+	data.known_recipes = known
 
 	return items
 end
@@ -207,26 +202,27 @@ local function poll_new_items()
 		local player = players[i]
 		local name = player:get_player_name()
 		local data = i3.data[name]
-		if not data then return end
 
-		local inv_items = get_inv_items(player)
-		local diff = array_diff(inv_items, data.inv_items)
+		if data then
+			local inv_items = get_inv_items(player)
+			local diff = array_diff(inv_items, data.inv_items)
 
-		if #diff > 0 then
-			data.inv_items = table_merge(diff, data.inv_items)
-			local oldknown = data.known_recipes or 0
-			local items = get_filtered_items(player, data)
-			data.discovered = data.known_recipes - oldknown
+			if #diff > 0 then
+				data.inv_items = table_merge(diff, data.inv_items)
+				local oldknown = data.known_recipes or 0
+				local items = get_filtered_items(player, data)
+				data.discovered = data.known_recipes - oldknown
 
-			if data.show_hud == nil and data.discovered > 0 then
-				data.show_hud = true
+				if data.show_hud == nil and data.discovered > 0 then
+					data.show_hud = true
+				end
+
+				data.items_raw = items
+				data.itab = 1
+
+				search(data)
+				set_fs(player)
 			end
-
-			data.items_raw = items
-			data.itab = 1
-
-			search(data)
-			set_fs(player)
 		end
 	end
 
