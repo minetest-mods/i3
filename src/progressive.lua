@@ -161,6 +161,11 @@ local function show_hud_success(player, data)
 		data.hud_timer = (data.hud_timer or 0) + dt
 	end
 
+	local discovered = data.tot_discovered or data.discovered
+
+	player:hud_change(data.hud.text, "text",
+		fmt("%u new recipe%s unlocked!", discovered, discovered > 1 and "s" or ""))
+
 	if data.show_hud then
 		for _, def in pairs(data.hud) do
 			local hud_info = player:hud_get(def)
@@ -170,9 +175,6 @@ local function show_hud_success(player, data)
 				y = hud_info.position.y - (dt / 5)
 			})
 		end
-
-		player:hud_change(data.hud.text, "text",
-			fmt("%u new recipe%s unlocked!", data.discovered, data.discovered > 1 and "s" or ""))
 
 	elseif data.show_hud == false then
 		if data.hud_timer >= HUD_TIMER_MAX then
@@ -188,6 +190,7 @@ local function show_hud_success(player, data)
 			if hud_info_bg.position.y >= 1 then
 				data.show_hud = nil
 				data.hud_timer = nil
+				data.tot_discovered = nil
 			end
 		end
 	end
@@ -195,41 +198,33 @@ end
 
 -- Workaround. Need an engine call to detect when the contents of
 -- the player inventory changed, instead.
-local function poll_new_items()
-	local players = core.get_connected_players()
+local function poll_new_items(player, data, join)
+	local inv_items = get_inv_items(player)
+	local diff = array_diff(inv_items, data.inv_items)
 
-	for i = 1, #players do
-		local player = players[i]
-		local name = player:get_player_name()
-		local data = i3.data[name]
+	if join or #diff > 0 then
+		data.inv_items = table_merge(diff, data.inv_items)
+		local oldknown = data.known_recipes or 0
+		local items = get_filtered_items(player, data)
+		data.discovered = data.known_recipes - oldknown
 
-		if data then
-			local inv_items = get_inv_items(player)
-			local diff = array_diff(inv_items, data.inv_items)
+		if data.discovered > 0 then
+			data.tot_discovered = (data.tot_discovered or 0) + data.discovered
 
-			if #diff > 0 then
-				data.inv_items = table_merge(diff, data.inv_items)
-				local oldknown = data.known_recipes or 0
-				local items = get_filtered_items(player, data)
-				data.discovered = data.known_recipes - oldknown
-
-				if data.show_hud == nil and data.discovered > 0 then
-					data.show_hud = true
-				end
-
-				data.items_raw = items
-				data.itab = 1
-
-				search(data)
-				set_fs(player)
+			if data.show_hud == nil then
+				data.show_hud = true
 			end
 		end
+
+		data.items_raw = items
+		data.itab = 1
+
+		search(data)
+		set_fs(player)
 	end
 
-	core.after(POLL_FREQ, poll_new_items)
+	core.after(POLL_FREQ, poll_new_items, player, data)
 end
-
-poll_new_items()
 
 if singleplayer then
 	core.register_globalstep(function()
@@ -252,19 +247,11 @@ core.register_on_joinplayer(function(player)
 
 	data.inv_items = data.inv_items or {}
 	data.known_recipes = data.known_recipes or 0
+	data.discovered = data.discovered or 0
 
-	local oldknown = data.known_recipes
-	local items = get_filtered_items(player, data)
-	data.discovered = data.known_recipes - oldknown
-
-	data.items_raw = items
-	search(data)
+	poll_new_items(player, data, true)
 
 	if singleplayer then
 		init_hud(player, data)
-
-		if data.show_hud == nil and data.discovered > 0 then
-			data.show_hud = true
-		end
 	end
 end)
