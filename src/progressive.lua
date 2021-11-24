@@ -8,6 +8,7 @@ local is_group, extract_groups, item_has_groups, apply_recipe_filters =
 
 local POLL_FREQ = 0.25
 local HUD_TIMER_MAX = 1.5
+local HUD_SPEED = 1
 
 local function get_filtered_items(player, data)
 	local items, known, c = {}, 0, 0
@@ -172,7 +173,7 @@ local function show_hud_success(player, data)
 
 			player:hud_change(def, "position", {
 				x = hud_info.position.x,
-				y = hud_info.position.y - (dt / 5)
+				y = hud_info.position.y - ((dt / 5) * HUD_SPEED)
 			})
 		end
 
@@ -183,7 +184,7 @@ local function show_hud_success(player, data)
 
 				player:hud_change(def, "position", {
 					x = hud_info.position.x,
-					y = hud_info.position.y + (dt / 5)
+					y = hud_info.position.y + ((dt / 5) * HUD_SPEED)
 				})
 			end
 
