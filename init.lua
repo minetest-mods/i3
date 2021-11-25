@@ -38,6 +38,8 @@ i3 = {
 	fuel_cache = {},
 	usages_cache = {},
 	recipes_cache = {},
+	content_ids = {},
+	cubes = {},
 
 	tabs = {},
 	craft_types = {},
@@ -49,6 +51,7 @@ i3 = {
 	files = {
 		api = lf("/src/api.lua"),
 		bags = lf("/src/bags.lua"),
+		caches = lf("/src/caches.lua"),
 		callbacks = lf("/src/callbacks.lua"),
 		common = lf("/src/common.lua"),
 		compress = lf("/src/compress.lua"),
@@ -57,7 +60,6 @@ i3 = {
 		gui = lf("/src/gui.lua"),
 		model_alias = lf("/src/model_aliases.lua"),
 		progressive = lf("/src/progressive.lua"),
-		recipes = lf("/src/recipes.lua"),
 		styles = lf("/src/styles.lua"),
 	},
 
@@ -80,7 +82,7 @@ i3.data = dslz(storage:get_string"data") or {}
 
 local init_bags = i3.files.bags()
 local init_inventories = i3.files.detached()
-local init_recipes = i3.files.recipes()
+local fill_caches = i3.files.caches()
 
 local function get_lang_code(info)
 	return info and info.lang_code
@@ -208,7 +210,7 @@ local function save_data(player_name)
 end
 
 core.register_on_mods_loaded(function()
-	init_recipes()
+	fill_caches()
 	disable_inventories()
 end)
 

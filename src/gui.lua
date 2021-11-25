@@ -4,16 +4,19 @@ local model_aliases = i3.files.model_alias()
 local PNG, styles, fs_elements, colors = i3.files.styles()
 
 local ItemStack = ItemStack
+local VoxelArea, VoxelManip = VoxelArea, VoxelManip
+
 local S, ES, translate = i3.get("S", "ES", "translate")
 local clr, ESC, check_privs = i3.get("clr", "ESC", "check_privs")
+local vec_new, vec_sub, vec_round = i3.get("vec_new", "vec_sub", "vec_round")
 local min, max, floor, ceil, round = i3.get("min", "max", "floor", "ceil", "round")
 local sprintf, find, match, sub, upper = i3.get("fmt", "find", "match", "sub", "upper")
 local reg_items, reg_tools, reg_entities = i3.get("reg_items", "reg_tools", "reg_entities")
 local maxn, sort, concat, copy, insert, remove, unpack =
 	i3.get("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
 
-local true_str, is_fav, is_num, get_group =
-	i3.get("true_str", "is_fav", "is_num", "get_group")
+local true_str, is_fav, is_num, get_group, str_to_pos =
+	i3.get("true_str", "is_fav", "is_num", "get_group", "str_to_pos")
 local groups_to_items, compression_active, compressible =
 	i3.get("groups_to_items", "compression_active", "compressible")
 local get_sorting_idx, is_group, extract_groups, item_has_groups =
@@ -224,6 +227,45 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 	end
 end
 
+local function get_isometric_view(fs, pos, X, Y)
+	pos = vec_round(pos)
+	local size = 0.25
+	local width = 8
+
+	local pos1 = vec_new(pos.x - width, pos.y - 1, pos.z - width)
+	local pos2 = vec_new(pos.x + width, pos.y + 3, pos.z + width)
+	core.emerge_area(pos1, pos2)
+
+	local vm = VoxelManip(pos1, pos2)
+	local emin, emax = vm:read_from_map(pos1, pos2)
+	local area = VoxelArea:new{MinEdge = emin, MaxEdge = emax}
+	local data = vm:get_data()
+
+	local t = {}
+	data[0] = #data
+
+	for i = 1, data[0] do
+		local id = data[i]
+		t[i] = i3.content_ids[id]
+	end
+
+	for idx in area:iterp(pos1, pos2) do
+		local name = t[idx]
+		local cube = i3.cubes[name]
+
+		if cube then
+			local p = area:position(idx)
+			      p = vec_sub(p, pos)
+
+			local x = 2 + (size / 2 * (p.z - p.x))
+			local y = 1.15 + (size / 4 * (p.x + p.z - 2 * p.y))
+			local elem = fmt("image[%f,%f;%.1f,%.1f;%s]", x + X, y + Y, size, size, cube)
+
+			insert(fs, elem)
+		end
+	end
+end
+
 local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 	fs(fmt("box[0,%f;4.9,0.6;#bababa25]", yextra + 1.1))
 	fs("label", 0, yextra + 0.85, ES"Waypoint name:")
@@ -254,10 +296,19 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 			hex = "0" .. hex
 		end
 
+		local teleport_priv = check_privs(player, {teleport = true})
+		local waypoint_preview = data.waypoint_see and data.waypoint_see == i
+
 		fs("label", 0.15, y + 0.33, clr(fmt("#%s", hex), waypoint_name))
-		fs("tooltip", 0, y, ctn_len - 2.5, 0.65,
-			fmt("Name: %s\nPosition:%s", clr("#dbeeff", v.name),
-				v.pos:sub(2,-2):gsub("(%-*%d*%.?%d+)", clr("#dbeeff", " %1"))))
+
+		local tooltip = fmt("Name: %s\nPosition:%s", clr("#dbeeff", v.name),
+				v.pos:sub(2,-2):gsub("(%-*%d*%.?%d+)", clr("#dbeeff", " %1")))
+
+		if teleport_priv then
+			tooltip = fmt("%s\n%s", tooltip, clr("#ff0", ES"[Click to teleport]"))
+		end
+
+		fs("tooltip", 0, y, ctn_len - 2.1, 0.65, tooltip)
 
 		local del = fmt("waypoint_%u_delete", i)
 		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", del, PNG.trash, PNG.trash_hover))
@@ -269,17 +320,31 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 		fs("image_button", ctn_len - 1, yi, icon_size, icon_size, "", rfs, "")
 		fs(fmt("tooltip[%s;%s]", rfs, ES"Change color"))
 
+		local see = fmt("waypoint_%u_see", i)
+		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
+			see, waypoint_preview and PNG.search_hover or PNG.search, PNG.search, PNG.search_hover))
+		fs("image_button", ctn_len - 1.5, yi, icon_size, icon_size, "", see, "")
+		fs(fmt("tooltip[%s;%s]", see, ES"Preview the waypoint area"))
+
 		local vsb = fmt("waypoint_%u_hide", i)
 		fs(fmt("style[%s;fgimg=%s;content_offset=0]", vsb, v.hide and PNG.nonvisible or PNG.visible))
-		fs("image_button", ctn_len - 1.5, yi, icon_size, icon_size, "", vsb, "")
+		fs("image_button", ctn_len - 2, yi, icon_size, icon_size, "", vsb, "")
 		fs(fmt("tooltip[%s;%s]", vsb, v.hide and ES"Show waypoint" or ES"Hide waypoint"))
 
-		if check_privs(player, {teleport = true}) then
+		if teleport_priv then
 			local tp = fmt("waypoint_%u_teleport", i)
-			fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
-				tp, PNG.teleport, PNG.teleport_hover))
-			fs("image_button", ctn_len - 2, yi, icon_size, icon_size, "", tp, "")
-			fs(fmt("tooltip[%s;%s]", tp, ES"Teleport to waypoint"))
+			fs("button", 0, y, ctn_len - 2.1, 0.6, tp, "")
+		end
+
+		if waypoint_preview then
+			fs("image", 0.25, y - 3.5, 5, 4, PNG.bg_content)
+			fs("button", 0.25, y - 3.35, 5, 0.55, "area_preview", v.name)
+			fs("image_button", 4.65, y - 3.25, 0.25, 0.25,
+				PNG.cancel_hover .. "^\\[brighten", "close_preview", "")
+
+			local pos = vec_new(str_to_pos(data.waypoints[i].pos))
+			get_isometric_view(fs, pos, 0.6, y - 2.5)
+			fs("image", 2.7, y - 1.5, 0.3, 0.3, PNG.flag)
 		end
 	end
 

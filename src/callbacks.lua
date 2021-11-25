@@ -2,8 +2,7 @@ local _, get_inventory_fs = i3.files.gui()
 
 local set_fs = i3.set_fs
 local ItemStack = ItemStack
-local S, clr = i3.get("S", "clr")
-local min, random = i3.get("min", "random")
+local S, min, random = i3.get("S", "min", "random")
 local reg_items, reg_aliases = i3.get("reg_items", "reg_aliases")
 local fmt, find, match, sub, lower, split = i3.get("fmt", "find", "match", "sub", "lower", "split")
 local vec_new, vec_eq, vec_round = i3.get("vec_new", "vec_eq", "vec_round")
@@ -78,18 +77,25 @@ i3.new_tab("inventory", {
 
 			elseif find(field, "waypoint_%d+") then
 				local id, action = match(field, "_(%d+)_(%w+)$")
-				id = tonumber(id)
+				      id = tonumber(id)
 				local waypoint = data.waypoints[id]
 				if not waypoint then return end
 
-				if action == "delete" then
+				if action == "see" then
+					if data.waypoint_see and data.waypoint_see == id then
+						data.waypoint_see = nil
+					else
+						data.waypoint_see = id
+					end
+
+				elseif action == "delete" then
 					player:hud_remove(waypoint.id)
 					remove(data.waypoints, id)
 
 				elseif action == "teleport" then
 					local pos = vec_new(str_to_pos(waypoint.pos))
 					safe_teleport(player, pos)
-					msg(name, fmt("Teleported to %s", clr("#ff0", waypoint.name)))
+					msg(name, S("Teleported to: @1", waypoint.name))
 
 				elseif action == "refresh" then
 					local color = random(0xffffff)
@@ -116,6 +122,7 @@ i3.new_tab("inventory", {
 		if fields.quit then
 			data.confirm_trash = nil
 			data.show_settings = nil
+			data.waypoint_see = nil
 
 		elseif fields.trash then
 			data.show_settings = nil
@@ -139,6 +146,9 @@ i3.new_tab("inventory", {
 
 		elseif fields.close_settings then
 			data.show_settings = nil
+
+		elseif fields.close_preview then
+			data.waypoint_see = nil
 
 		elseif fields.sort then
 			sort_inventory(player, data)

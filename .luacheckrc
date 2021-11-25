@@ -13,6 +13,8 @@ read_globals = {
 	"string",
 	"table",
 	"ItemStack",
+	"VoxelArea",
+	"VoxelManip",
 }
 
 globals = {

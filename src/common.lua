@@ -1,5 +1,7 @@
 local ItemStack = ItemStack
 local loadstring = loadstring
+
+local vec_add, vec_mul = vector.add, vector.multiply
 local sort, concat, insert = table.sort, table.concat, table.insert
 local min, floor, ceil = math.min, math.floor, math.ceil
 local fmt, find, match, gmatch, sub, split, lower =
@@ -319,7 +321,7 @@ local function spawn_item(player, stack)
 	local dir     = player:get_look_dir()
 	local ppos    = player:get_pos()
 	      ppos.y  = ppos.y + player:get_properties().eye_height
-	local look_at = vector.add(ppos, vector.multiply(dir, 1))
+	local look_at = vec_add(ppos, vec_mul(dir, 1))
 
 	core.add_item(look_at, stack)
 end
@@ -410,7 +412,7 @@ local function safe_teleport(player, pos)
 
 	pos.y = pos.y + 0.5
 	local vel = player:get_velocity()
-	player:add_velocity(vector.multiply(vel, -1))
+	player:add_velocity(vec_mul(vel, -1))
 	player:set_pos(pos)
 end
 
@@ -691,6 +693,8 @@ local _ = {
 	-- Vectors
 	vec_new = vector.new,
 	vec_add = vector.add,
+	vec_sub = vector.subtract,
+	vec_mul = vector.multiply,
 	vec_round = vector.round,
 	vec_eq = vector.equals,
 }

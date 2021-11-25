@@ -1,8 +1,8 @@
 local replacements = {fuel = {}}
 
 local ItemStack = ItemStack
-local fmt, reg_items, reg_aliases = i3.get("fmt", "reg_items", "reg_aliases")
-local maxn, copy, insert, sort, match = i3.get("maxn", "copy", "insert", "sort", "match")
+local fmt, reg_items, reg_aliases, reg_nodes = i3.get("fmt", "reg_items", "reg_aliases", "reg_nodes")
+local maxn, copy, insert, sort, match, sub = i3.get("maxn", "copy", "insert", "sort", "match", "sub")
 
 local is_group, extract_groups, item_has_groups, groups_to_items =
 	i3.get("is_group", "extract_groups", "item_has_groups", "groups_to_items")
@@ -286,4 +286,23 @@ local function init_recipes()
 	end
 end
 
-return init_recipes
+local function init_cubes()
+	for name, def in pairs(reg_nodes) do
+		if def and def.drawtype == "normal" or def.drawtype == "liquid" or
+				sub(def.drawtype, 1, 9) == "glasslike" or
+				sub(def.drawtype, 1, 8) == "allfaces" then
+			local id = core.get_content_id(name)
+			i3.content_ids[id] = name
+
+			local tile = def.tiles[1].name or def.tiles[1]
+			local cube = core.inventorycube(tile, tile, tile)
+
+			i3.cubes[name] = cube
+		end
+	end
+end
+
+return function()
+	init_recipes()
+	init_cubes()
+end

@@ -14,6 +14,7 @@ This mod requires **Minetest 5.4+**
    - Progressive Mode¹
    - Quick Crafting
    - 3D Player Model Real-Time Preview
+   - Isometric Area Preview
    - Inventory Sorting (+ options: compression, reverse mode, automation, etc.)
    - Item List Compression (**`moreblocks`** is supported)
    - Item Bookmarks
