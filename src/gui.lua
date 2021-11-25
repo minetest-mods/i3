@@ -241,17 +241,8 @@ local function get_isometric_view(fs, pos, X, Y)
 	local area = VoxelArea:new{MinEdge = emin, MaxEdge = emax}
 	local data = vm:get_data()
 
-	local t = {}
-	data[0] = #data
-
-	for i = 1, data[0] do
-		local id = data[i]
-		t[i] = i3.content_ids[id]
-	end
-
 	for idx in area:iterp(pos1, pos2) do
-		local name = t[idx]
-		local cube = i3.cubes[name]
+		local cube = i3.cubes[data[idx]]
 
 		if cube then
 			local p = area:position(idx)
@@ -342,7 +333,7 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 			fs("image_button", 4.65, y - 3.25, 0.25, 0.25,
 				PNG.cancel_hover .. "^\\[brighten", "close_preview", "")
 
-			local pos = vec_new(str_to_pos(data.waypoints[i].pos))
+			local pos = str_to_pos(data.waypoints[i].pos)
 			get_isometric_view(fs, pos, 0.6, y - 2.5)
 			fs("image", 2.7, y - 1.5, 0.3, 0.3, PNG.flag)
 		end

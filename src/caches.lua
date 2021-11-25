@@ -1,13 +1,14 @@
 local replacements = {fuel = {}}
 
 local ItemStack = ItemStack
+local draw_cube = core.inventorycube
 local fmt, reg_items, reg_aliases, reg_nodes = i3.get("fmt", "reg_items", "reg_aliases", "reg_nodes")
 local maxn, copy, insert, sort, match, sub = i3.get("maxn", "copy", "insert", "sort", "match", "sub")
 
 local is_group, extract_groups, item_has_groups, groups_to_items =
 	i3.get("is_group", "extract_groups", "item_has_groups", "groups_to_items")
-local true_str, is_table, valid_item, table_merge, table_replace, rcp_eq =
-	i3.get("true_str", "is_table", "valid_item", "table_merge", "table_replace", "rcp_eq")
+local true_str, true_table, is_table, valid_item, table_merge, table_replace, rcp_eq =
+	i3.get("true_str", "true_table", "is_table", "valid_item", "table_merge", "table_replace", "rcp_eq")
 
 local function get_burntime(item)
 	return core.get_craft_result{method = "fuel", items = {item}}.time
@@ -286,18 +287,40 @@ local function init_recipes()
 	end
 end
 
+local function get_cube(tiles)
+	if not true_table(tiles) then
+		return "i3_blank.png"
+	end
+
+	local t = copy(tiles)
+	local texture
+
+	for k, v in pairs(t) do
+		if type(v) == "table" then
+			t[k] = v.name
+		end
+	end
+
+	-- Tiles: up, down, right, left, back, front
+	-- Inventory cube: up, front, right
+	if #t <= 2 then
+		texture = draw_cube(t[1], t[1], t[1])
+	elseif #t <= 5 then
+		texture = draw_cube(t[1], t[3], t[3])
+	else -- Full tileset
+		texture = draw_cube(t[1], t[6], t[3])
+	end
+
+	return texture
+end
+
 local function init_cubes()
 	for name, def in pairs(reg_nodes) do
 		if def and def.drawtype == "normal" or def.drawtype == "liquid" or
 				sub(def.drawtype, 1, 9) == "glasslike" or
 				sub(def.drawtype, 1, 8) == "allfaces" then
 			local id = core.get_content_id(name)
-			i3.content_ids[id] = name
-
-			local tile = def.tiles[1].name or def.tiles[1]
-			local cube = core.inventorycube(tile, tile, tile)
-
-			i3.cubes[name] = cube
+			i3.cubes[id] = get_cube(def.tiles)
 		end
 	end
 end

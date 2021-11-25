@@ -5,7 +5,7 @@ local ItemStack = ItemStack
 local S, min, random = i3.get("S", "min", "random")
 local reg_items, reg_aliases = i3.get("reg_items", "reg_aliases")
 local fmt, find, match, sub, lower, split = i3.get("fmt", "find", "match", "sub", "lower", "split")
-local vec_new, vec_eq, vec_round = i3.get("vec_new", "vec_eq", "vec_round")
+local vec_eq, vec_round = i3.get("vec_eq", "vec_round")
 local sort, copy, insert, remove, indexof = i3.get("sort", "copy", "insert", "remove", "indexof")
 
 local msg, is_fav, pos_to_str, str_to_pos, add_hud_waypoint, play_sound, spawn_item =
@@ -93,7 +93,7 @@ i3.new_tab("inventory", {
 					remove(data.waypoints, id)
 
 				elseif action == "teleport" then
-					local pos = vec_new(str_to_pos(waypoint.pos))
+					local pos = str_to_pos(waypoint.pos)
 					safe_teleport(player, pos)
 					msg(name, S("Teleported to: @1", waypoint.name))
 

@@ -38,7 +38,6 @@ i3 = {
 	fuel_cache = {},
 	usages_cache = {},
 	recipes_cache = {},
-	content_ids = {},
 	cubes = {},
 
 	tabs = {},

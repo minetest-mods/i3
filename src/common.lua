@@ -1,7 +1,7 @@
 local ItemStack = ItemStack
 local loadstring = loadstring
 
-local vec_add, vec_mul = vector.add, vector.multiply
+local vec_new, vec_add, vec_mul = vector.new, vector.add, vector.multiply
 local sort, concat, insert = table.sort, table.concat, table.insert
 local min, floor, ceil = math.min, math.floor, math.ceil
 local fmt, find, match, gmatch, sub, split, lower =
@@ -410,10 +410,11 @@ local function safe_teleport(player, pos)
 	local name = player:get_player_name()
 	play_sound(name, "i3_teleport", 0.8)
 
-	pos.y = pos.y + 0.5
+	local p = vec_new(pos)
+	      p.y = p.y + 0.25
 	local vel = player:get_velocity()
 	player:add_velocity(vec_mul(vel, -1))
-	player:set_pos(pos)
+	player:set_pos(p)
 end
 
 local function get_sorting_idx(name)
