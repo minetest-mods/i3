@@ -20,7 +20,7 @@ local trash = create_inventory("i3_trash", {
 
 trash:set_size("main", 1)
 
-local function init_inventories(player)
+local function init_detached(player)
 	local name = player:get_player_name()
 
 	local output_rcp = create_inventory(fmt("i3_output_rcp_%s", name), {}, name)
@@ -30,4 +30,4 @@ local function init_inventories(player)
 	output_usg:set_size("main", 1)
 end
 
-return init_inventories
+return init_detached

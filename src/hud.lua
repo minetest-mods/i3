@@ -1,4 +1,5 @@
-local get_player_by_name = i3.get("get_player_by_name")
+local get_player_by_name, str_to_pos, add_hud_waypoint =
+	i3.get("get_player_by_name", "str_to_pos", "add_hud_waypoint")
 
 local function init_hud(player)
 	local name = player:get_player_name()
@@ -98,4 +99,20 @@ core.register_globalstep(function()
 	end
 end)
 
-return init_hud
+local function init_waypoints(player)
+	local name = player:get_player_name()
+	local data = i3.data[name]
+	data.waypoints = data.waypoints or {}
+
+	for _, v in ipairs(data.waypoints) do
+		if not v.hide then
+			local id = add_hud_waypoint(player, v.name, str_to_pos(v.pos), v.color)
+			v.id = id
+		end
+	end
+end
+
+return function(player)
+	init_hud(player)
+	init_waypoints(player)
+end

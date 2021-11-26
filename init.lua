@@ -78,13 +78,12 @@ i3.files.callbacks()
 
 local storage = core.get_mod_storage()
 local slz, dslz, copy = i3.get("slz", "dslz", "copy")
-local str_to_pos, add_hud_waypoint = i3.get("str_to_pos", "add_hud_waypoint")
 local set_fs = i3.set_fs
 
 i3.data = dslz(storage:get_string"data") or {}
 
 local init_bags = i3.files.bags()
-local init_inventories = i3.files.detached()
+local init_detached = i3.files.detached()
 local fill_caches = i3.files.caches()
 local init_hud = i3.files.hud()
 
@@ -175,19 +174,6 @@ local function init_data(player, info)
 	core.after(0, set_fs, player)
 end
 
-local function init_waypoints(player)
-	local name = player:get_player_name()
-	local data = i3.data[name]
-	data.waypoints = data.waypoints or {}
-
-	for _, v in ipairs(data.waypoints) do
-		if not v.hide then
-			local id = add_hud_waypoint(player, v.name, str_to_pos(v.pos), v.color)
-			v.id = id
-		end
-	end
-end
-
 local function save_data(player_name)
 	local _data = copy(i3.data)
 
@@ -221,8 +207,7 @@ core.register_on_joinplayer(function(player)
 
 	init_data(player, info)
 	init_bags(player)
-	init_inventories(player)
-	init_waypoints(player)
+	init_detached(player)
 	init_hud(player)
 end)
 
