@@ -1,14 +1,12 @@
-local singleplayer = core.is_singleplayer()
-
 local set_fs = i3.set_fs
+local hud_notif = i3.hud_notif
+
 local fmt, search, table_merge, array_diff =
 	i3.get("fmt", "search", "table_merge", "array_diff")
 local is_group, extract_groups, item_has_groups, apply_recipe_filters =
 	i3.get("is_group", "extract_groups", "item_has_groups", "apply_recipe_filters")
 
 local POLL_FREQ = 0.25
-local HUD_TIMER_MAX = 1.5
-local HUD_SPEED = 1
 
 local function get_filtered_items(player, data)
 	local items, known, c = {}, 0, 0
@@ -118,85 +116,6 @@ local function get_inv_items(player)
 	return inv_items
 end
 
-local function init_hud(player, data)
-	data.hud = {
-		bg = player:hud_add {
-			hud_elem_type = "image",
-			position      = {x = 0.78, y = 1},
-			alignment     = {x = 1,    y = 1},
-			scale         = {x = 370,  y = 112},
-			text          = "i3_bg.png",
-			z_index       = 0xDEAD,
-		},
-
-		book = player:hud_add {
-			hud_elem_type = "image",
-			position      = {x = 0.79, y = 1.02},
-			alignment     = {x = 1,    y = 1},
-			scale         = {x = 4,    y = 4},
-			text          = "i3_book.png",
-			z_index       = 0xDEAD,
-		},
-
-		text = player:hud_add {
-			hud_elem_type = "text",
-			position      = {x = 0.84, y = 1.04},
-			alignment     = {x = 1,    y = 1},
-			number        = 0xffffff,
-			text          = "",
-			z_index       = 0xDEAD,
-			style         = 1,
-		},
-	}
-end
-
-local function show_hud_success(player, data)
-	-- It'd better to have an engine function `hud_move` to only need
-	-- 2 calls for the notification's back and forth.
-
-	local hud_info_bg = player:hud_get(data.hud.bg)
-	local dt = 0.016
-
-	if hud_info_bg.position.y <= 0.9 then
-		data.show_hud = false
-		data.hud_timer = (data.hud_timer or 0) + dt
-	end
-
-	local discovered = data.tot_discovered or data.discovered
-
-	player:hud_change(data.hud.text, "text",
-		fmt("%u new recipe%s unlocked!", discovered, discovered > 1 and "s" or ""))
-
-	if data.show_hud then
-		for _, def in pairs(data.hud) do
-			local hud_info = player:hud_get(def)
-
-			player:hud_change(def, "position", {
-				x = hud_info.position.x,
-				y = hud_info.position.y - ((dt / 5) * HUD_SPEED)
-			})
-		end
-
-	elseif data.show_hud == false then
-		if data.hud_timer >= HUD_TIMER_MAX then
-			for _, def in pairs(data.hud) do
-				local hud_info = player:hud_get(def)
-
-				player:hud_change(def, "position", {
-					x = hud_info.position.x,
-					y = hud_info.position.y + ((dt / 5) * HUD_SPEED)
-				})
-			end
-
-			if hud_info_bg.position.y >= 1 then
-				data.show_hud = nil
-				data.hud_timer = nil
-				data.tot_discovered = nil
-			end
-		end
-	end
-end
-
 -- Workaround. Need an engine call to detect when the contents of
 -- the player inventory changed, instead.
 local function poll_new_items(player, data, join)
@@ -210,11 +129,8 @@ local function poll_new_items(player, data, join)
 		data.discovered = data.known_recipes - oldknown
 
 		if data.discovered > 0 then
-			data.tot_discovered = (data.tot_discovered or 0) + data.discovered
-
-			if data.show_hud == nil then
-				data.show_hud = true
-			end
+			local msg = fmt("%u new recipe%s unlocked!", data.discovered, data.discovered > 1 and "s" or "")
+			hud_notif(data.player_name, msg, "i3_book.png")
 		end
 
 		data.items_raw = items
@@ -225,18 +141,6 @@ local function poll_new_items(player, data, join)
 	end
 
 	core.after(POLL_FREQ, poll_new_items, player, data)
-end
-
-if singleplayer then
-	core.register_globalstep(function()
-		local name = "singleplayer"
-		local player = core.get_player_by_name(name)
-		local data = i3.data[name]
-
-		if data and data.show_hud ~= nil then
-			show_hud_success(player, data)
-		end
-	end)
 end
 
 i3.add_recipe_filter("Default progressive filter", progressive_filter)
@@ -251,8 +155,4 @@ core.register_on_joinplayer(function(player)
 	data.discovered = data.discovered or 0
 
 	poll_new_items(player, data, true)
-
-	if singleplayer then
-		init_hud(player, data)
-	end
 end)

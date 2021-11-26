@@ -298,6 +298,27 @@ function i3.compress(item, def)
 	end
 end
 
+function i3.hud_notif(name, msg, img)
+	if not true_str(name) then
+		return err "i3.hud_notif: player name missing"
+	elseif not true_str(msg) then
+		return err "i3.hud_notif: message missing"
+	end
+
+	local data = i3.data[name]
+
+	if not data then
+		return err "i3.hud_notif: no player data initialized"
+	end
+
+	data.show_hud = true
+	data.hud_msg = msg
+
+	if img then
+		data.hud_img = fmt("%s^[resize:16x16", img)
+	end
+end
+
 function i3.add_sorting_method(name, def)
 	if not true_str(name) then
 		return err "i3.add_sorting_method: name missing"

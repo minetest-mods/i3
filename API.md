@@ -301,6 +301,14 @@ A map of all compressed item groups, indexed by stereotypes.
 
 ### Miscellaneous
 
+#### `i3.hud_notif(name, msg[, img])`
+
+Shows a Steam-like HUD notification on the bottom-right corner of the screen (experimental).
+
+- `name` is the player name.
+- `msg` is the HUD message to show.
+- `img` (optional) is the HUD image to show (preferably 16x16 px).
+
 #### `i3.get_recipes(item)`
 
 Returns a table of recipes and usages of `item`.

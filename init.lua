@@ -16,6 +16,9 @@ i3 = {
 	MIN_FORMSPEC_VERSION = 4,
 	SAVE_INTERVAL = 600, -- Player data save interval (in seconds)
 
+	HUD_TIMER_MAX = 1.5,
+	HUD_SPEED = 1,
+
 	SUBCAT = {
 		"bag",
 		"armor",
@@ -57,6 +60,7 @@ i3 = {
 		detached = lf("/src/detached_inv.lua"),
 		groups = lf("/src/groups.lua"),
 		gui = lf("/src/gui.lua"),
+		hud = lf("/src/hud.lua"),
 		model_alias = lf("/src/model_aliases.lua"),
 		progressive = lf("/src/progressive.lua"),
 		styles = lf("/src/styles.lua"),
@@ -82,6 +86,7 @@ i3.data = dslz(storage:get_string"data") or {}
 local init_bags = i3.files.bags()
 local init_inventories = i3.files.detached()
 local fill_caches = i3.files.caches()
+local init_hud = i3.files.hud()
 
 local function get_lang_code(info)
 	return info and info.lang_code
@@ -183,13 +188,6 @@ local function init_waypoints(player)
 	end
 end
 
-local function init_hudbar(player)
-	core.after(0, function()
-		player:hud_set_hotbar_itemcount(i3.HOTBAR_LEN)
-		player:hud_set_hotbar_image"i3_hotbar.png"
-	end)
-end
-
 local function save_data(player_name)
 	local _data = copy(i3.data)
 
@@ -225,7 +223,7 @@ core.register_on_joinplayer(function(player)
 	init_bags(player)
 	init_inventories(player)
 	init_waypoints(player)
-	init_hudbar(player)
+	init_hud(player)
 end)
 
 core.register_on_leaveplayer(function(player)

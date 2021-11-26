@@ -410,10 +410,12 @@ local function safe_teleport(player, pos)
 	local name = player:get_player_name()
 	play_sound(name, "i3_teleport", 0.8)
 
-	local p = vec_new(pos)
-	      p.y = p.y + 0.25
 	local vel = player:get_velocity()
 	player:add_velocity(vec_mul(vel, -1))
+
+	local p = vec_new(pos)
+	      p.y = p.y + 0.25
+
 	player:set_pos(p)
 end
 
@@ -638,6 +640,7 @@ local _ = {
 	pos_to_str = core.pos_to_string,
 	str_to_pos = core.string_to_pos,
 	check_privs = core.check_player_privs,
+	get_player_by_name = core.get_player_by_name,
 
 	-- Inventory
 	get_stack = get_stack,
