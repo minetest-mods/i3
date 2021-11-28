@@ -157,7 +157,7 @@ i3.new_tab("inventory", {
 			local idx = get_sorting_idx(data.sort)
 			local tot = #i3.sorting_methods
 
-			idx = idx - (fields.prev_sort and 1 or -1)
+			idx -= (fields.prev_sort and 1 or -1)
 
 			if idx > tot then
 				idx = 1
@@ -210,7 +210,7 @@ i3.new_tab("inventory", {
 				id    = id,
 			})
 
-			data.scrbar_inv = data.scrbar_inv + 1000
+			data.scrbar_inv += 1000
 		end
 
 		return set_fs(player)
@@ -270,7 +270,7 @@ local function select_item(player, data, _f)
 				for _, v in ipairs(items) do
 					if valid_item(reg_items[clean_name(v)]) then
 						insert(data.alt_items, idx + i, v)
-						i = i + 1
+						i++
 					end
 				end
 			end
@@ -278,7 +278,7 @@ local function select_item(player, data, _f)
 	else
 		if sub(item, 1, 1) == "_" then
 			item = sub(item, 2)
-		elseif sub(item, 1, 6) == "group|" then
+		elseif sub(item, 1, 6) == "group!" then
 			item = match(item, "([%w:_]+)$")
 		end
 
@@ -337,7 +337,7 @@ local function rcp_fields(player, data, fields)
 
 	elseif fields.prev_page or fields.next_page then
 		if data.pagemax == 1 then return end
-		data.pagenum = data.pagenum - (fields.prev_page and 1 or -1)
+		data.pagenum -= (fields.prev_page and 1 or -1)
 
 		if data.pagenum > data.pagemax then
 			data.pagenum = 1

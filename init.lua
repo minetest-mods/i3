@@ -1,4 +1,5 @@
 local modpath = core.get_modpath"i3"
+dofile(modpath .. "/src/operators.lua")
 
 local function lf(path)
 	return loadfile(modpath .. path)
@@ -51,19 +52,26 @@ i3 = {
 	sorting_methods = {},
 
 	files = {
-		api = lf("/src/api.lua"),
-		bags = lf("/src/bags.lua"),
-		caches = lf("/src/caches.lua"),
-		callbacks = lf("/src/callbacks.lua"),
-		common = lf("/src/common.lua"),
-		compress = lf("/src/compress.lua"),
-		detached = lf("/src/detached_inv.lua"),
-		groups = lf("/src/groups.lua"),
-		gui = lf("/src/gui.lua"),
-		hud = lf("/src/hud.lua"),
-		model_alias = lf("/src/model_aliases.lua"),
-		progressive = lf("/src/progressive.lua"),
-		styles = lf("/src/styles.lua"),
+		api = lf"/src/api.lua",
+		bags = lf"/src/bags.lua",
+		caches = lf"/src/caches.lua",
+		callbacks = lf"/src/callbacks.lua",
+		common = lf"/src/common.lua",
+		compress = lf"/src/compress.lua",
+		detached = lf"/src/detached_inv.lua",
+		groups = lf"/src/groups.lua",
+		gui = lf"/src/gui.lua",
+		hud = lf"/src/hud.lua",
+		model_alias = lf"/src/model_aliases.lua",
+		progressive = lf"/src/progressive.lua",
+		styles = lf"/src/styles.lua",
+
+		tests = {
+			tabs = lf"/tests/test_tabs.lua",
+			operators = lf"/tests/test_operators.lua",
+			compression = lf"/tests/test_compression.lua",
+			custom_recipes = lf"/tests/test_custom_recipes.lua",
+		}
 	},
 
 	progressive_mode = core.settings:get_bool"i3_progressive_mode",
@@ -229,6 +237,7 @@ if i3.progressive_mode then
 	i3.files.progressive()
 end
 
---dofile(modpath .. "/tests/test_tabs.lua")
---dofile(modpath .. "/tests/test_compression.lua")
---dofile(modpath .. "/tests/test_custom_recipes.lua")
+--i3.files.tests.tabs()
+--i3.files.tests.operators()
+--i3.files.tests.compression()
+--i3.files.tests.custom_recipes()

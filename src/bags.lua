@@ -80,7 +80,7 @@ local function init_bags(player)
 				local stack = list[i]
 
 				if not stack:is_empty() then
-					c = c + 1
+					c++
 					t[i] = stack:to_string()
 				end
 			end

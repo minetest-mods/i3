@@ -27,6 +27,7 @@ globals = {
 exclude_files = {
 	"tests/test_compression.lua",
 	"tests/test_custom_recipes.lua",
+	"tests/test_operators.lua",
 	"tests/test_tabs.lua",
 
 	".install",

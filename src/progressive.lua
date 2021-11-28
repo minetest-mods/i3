@@ -20,9 +20,9 @@ local function get_filtered_items(player, data)
 		usages = #apply_recipe_filters(usages or {}, player)
 
 		if recipes > 0 or usages > 0 then
-			c = c + 1
+			c++
 			items[c] = item
-			known = known + recipes + usages
+			known += recipes + usages
 		end
 	end
 
@@ -80,7 +80,7 @@ local function progressive_filter(recipes, player)
 	for i = 1, #recipes do
 		local recipe = recipes[i]
 		if recipe_in_inv(recipe, data.inv_items) then
-			c = c + 1
+			c++
 			filtered[c] = recipe
 		end
 	end
@@ -107,7 +107,7 @@ local function get_inv_items(player)
 		if not stack:is_empty() then
 			local name = stack:get_name()
 			if core.registered_items[name] then
-				c = c + 1
+				c++
 				inv_items[c] = name
 			end
 		end
