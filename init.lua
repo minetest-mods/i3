@@ -43,6 +43,7 @@ i3 = {
 	usages_cache = {},
 	recipes_cache = {},
 	cubes = {},
+	plants = {},
 
 	tabs = {},
 	craft_types = {},

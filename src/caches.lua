@@ -316,11 +316,16 @@ end
 
 local function init_cubes()
 	for name, def in pairs(reg_nodes) do
-		if def and def.drawtype == "normal" or def.drawtype == "liquid" or
-				sub(def.drawtype, 1, 9) == "glasslike" or
-				sub(def.drawtype, 1, 8) == "allfaces" then
+		if def then
 			local id = core.get_content_id(name)
-			i3.cubes[id] = get_cube(def.tiles)
+
+			if def.drawtype == "normal" or def.drawtype == "liquid" or
+					sub(def.drawtype, 1, 9) == "glasslike" or
+					sub(def.drawtype, 1, 8) == "allfaces" then
+				i3.cubes[id] = get_cube(def.tiles)
+			elseif sub(def.drawtype, 1, 9) == "plantlike" or sub(def.drawtype, 1, 8) == "firelike" then
+				i3.plants[id] = def.inventory_image .. "^\\[resize:16x16"
+			end
 		end
 	end
 end
