@@ -104,7 +104,7 @@ local function drop_table(name, drop)
 		end
 
 		if not di.rarity then
-			count_sure = count_sure + 1
+			count_sure++
 		end
 	end
 end
@@ -146,7 +146,7 @@ local function cache_recipes(item)
 		end
 
 		for k, v in pairs(replacements[item]) do
-			k = k + shift
+			k += shift
 
 			if _recipes[k] then
 				_recipes[k].replacements = v

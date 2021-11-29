@@ -1,8 +1,8 @@
 local modpath = core.get_modpath"i3"
-dofile(modpath .. "/src/operators.lua")
+local _loadfile = dofile(modpath .. "/src/operators.lua")
 
 local function lf(path)
-	return loadfile(modpath .. path)
+	return _loadfile(modpath .. path)
 end
 
 i3 = {

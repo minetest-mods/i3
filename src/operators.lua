@@ -1,6 +1,5 @@
 local fmt = string.format
-local _loadfile = loadfile
-local var = "[%w%.%[%]_]"
+local var = "[%w%.%[%]\"\'_]"
 
 local operators = {
 	["([%+%-%*%^/&|])="] = function(a, b, c)
@@ -25,6 +24,14 @@ local operators = {
 
 	[">>"] = function(a, b)
 		return fmt("bit.rshift(%s, %s)", a, b)
+	end,
+
+	["<<="] = function(a, b)
+		return fmt("%s = bit.lshift(%s, %s)", a, a, b)
+	end,
+
+	[">>="] = function(a, b)
+		return fmt("%s = bit.rshift(%s, %s)", a, a, b)
 	end,
 }
 
@@ -61,6 +68,6 @@ local function _load(path, line, data)
 	return l, err
 end
 
-function loadfile(path)
-	return _load(path) or _loadfile(path)
+return function(path)
+	return _load(path) or loadfile(path)
 end
