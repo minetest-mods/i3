@@ -101,6 +101,18 @@ local function init_bags(player)
 		on_move = save_content,
 		on_put = save_content,
 		on_take = save_content,
+
+		allow_put = function(_, _, _, stack)
+			local meta = stack:get_meta()
+			local content = dslz(meta:get_string"content")
+
+			if content then
+				msg(name, "You cannot put a bag in another bag")
+				return 0, play_sound(name, "i3_cannot", 0.8)
+			end
+
+			return stack:get_count()
+		end,
 	}, name)
 
 	bag_content:set_size("main", 4*4)
