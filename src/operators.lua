@@ -43,11 +43,13 @@ local function compile(data)
 	return data
 end
 
-local function _load(path, line, data)
+local function _load(path, line, data, t)
 	if line then
-		data = data:split"\n"
-		data[line] = data[line]:gsub("(" .. var .. "+)%s?=%s?(" .. var .. "*)", function(_,b) return b end)
-		data = table.concat(data, "\n")
+		if not t then
+			t = data:split"\n"
+		end
+		t[line] = t[line]:gsub("(" .. var .. "+)%s?=%s?(" .. var .. "*)", "%2")
+		data = table.concat(t, "\n")
 	else
 		local file = assert(io.open(path, "r"))
 		data = file:read"*a"
@@ -61,7 +63,7 @@ local function _load(path, line, data)
 		local err_line = tonumber(err:match(":(%d+):"))
 
 		if line ~= err_line then
-			return _load(path, err_line, data)
+			return _load(path, err_line, data, t)
 		end
 	end
 
