@@ -624,6 +624,7 @@ local _ = {
 	msg = msg,
 
 	-- Misc. functions
+	ItemStack = ItemStack,
 	valid_item = valid_item,
 	spawn_item = spawn_item,
 	clean_name = clean_name,
@@ -636,6 +637,7 @@ local _ = {
 	slz = core.serialize,
 	dslz = core.deserialize,
 	ESC = core.formspec_escape,
+	draw_cube = core.inventorycube,
 	get_group = core.get_item_group,
 	pos_to_str = core.pos_to_string,
 	str_to_pos = core.string_to_pos,

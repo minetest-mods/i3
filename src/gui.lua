@@ -1,26 +1,21 @@
-local damage_enabled = core.settings:get_bool "enable_damage"
+local damage_enabled = core.settings:get_bool"enable_damage"
 
 local model_aliases = i3.files.model_alias()
 local PNG, styles, fs_elements, colors = i3.files.styles()
 
-local ItemStack = ItemStack
+local sprintf = string.format
 local VoxelArea, VoxelManip = VoxelArea, VoxelManip
 
-local S, ES, translate = i3.get("S", "ES", "translate")
-local clr, ESC, check_privs = i3.get("clr", "ESC", "check_privs")
-local vec_new, vec_sub, vec_round = i3.get("vec_new", "vec_sub", "vec_round")
-local min, max, floor, ceil, round = i3.get("min", "max", "floor", "ceil", "round")
-local sprintf, find, match, sub, upper = i3.get("fmt", "find", "match", "sub", "upper")
-local reg_items, reg_tools, reg_entities = i3.get("reg_items", "reg_tools", "reg_entities")
-local maxn, sort, concat, copy, insert, remove, unpack =
-	i3.get("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
-
-local true_str, is_fav, is_num, get_group, str_to_pos =
-	i3.get("true_str", "is_fav", "is_num", "get_group", "str_to_pos")
-local groups_to_items, compression_active, compressible =
-	i3.get("groups_to_items", "compression_active", "compressible")
-local get_sorting_idx, is_group, extract_groups, item_has_groups =
-	i3.get("get_sorting_idx", "is_group", "extract_groups", "item_has_groups")
+IMPORT("clr", "ESC", "check_privs")
+IMPORT("find", "match", "sub", "upper")
+IMPORT("vec_new", "vec_sub", "vec_round")
+IMPORT("S", "ES", "translate", "ItemStack")
+IMPORT("min", "max", "floor", "ceil", "round")
+IMPORT("reg_items", "reg_tools", "reg_entities")
+IMPORT("groups_to_items", "compression_active", "compressible")
+IMPORT("true_str", "is_fav", "is_num", "get_group", "str_to_pos")
+IMPORT("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
+IMPORT("get_sorting_idx", "is_group", "extract_groups", "item_has_groups")
 
 local function fmt(elem, ...)
 	if not fs_elements[elem] then

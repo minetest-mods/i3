@@ -1,5 +1,4 @@
-local get_player_by_name, str_to_pos, add_hud_waypoint =
-	i3.get("get_player_by_name", "str_to_pos", "add_hud_waypoint")
+IMPORT("get_player_by_name", "str_to_pos", "add_hud_waypoint")
 
 local function init_hud(player)
 	local name = player:get_player_name()

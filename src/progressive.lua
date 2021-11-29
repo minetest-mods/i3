@@ -1,12 +1,9 @@
 local set_fs = i3.set_fs
 local hud_notif = i3.hud_notif
-
-local fmt, search, table_merge, array_diff =
-	i3.get("fmt", "search", "table_merge", "array_diff")
-local is_group, extract_groups, item_has_groups, apply_recipe_filters =
-	i3.get("is_group", "extract_groups", "item_has_groups", "apply_recipe_filters")
-
 local POLL_FREQ = 0.25
+
+IMPORT("fmt", "search", "table_merge", "array_diff")
+IMPORT("is_group", "extract_groups", "item_has_groups", "apply_recipe_filters")
 
 local function get_filtered_items(player, data)
 	local items, known, c = {}, 0, 0

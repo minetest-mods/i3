@@ -1,11 +1,10 @@
 local make_fs = i3.files.gui()
 
-local gmatch, split = i3.get("gmatch", "split")
-local S, err, fmt, reg_items = i3.get("S", "err", "fmt", "reg_items")
-local sorter, sort_inventory = i3.get("sorter", "sort_inventory")
-local sort, concat, copy, insert, remove = i3.get("sort", "concat", "copy", "insert", "remove")
-local true_str, true_table, is_str, is_func, is_table, clean_name =
-	i3.get("true_str", "true_table", "is_str", "is_func", "is_table", "clean_name")
+IMPORT("gmatch", "split")
+IMPORT("S", "err", "fmt", "reg_items")
+IMPORT("sorter", "sort_inventory")
+IMPORT("sort", "concat", "copy", "insert", "remove")
+IMPORT("true_str", "true_table", "is_str", "is_func", "is_table", "clean_name")
 
 function i3.register_craft_type(name, def)
 	if not true_str(name) then

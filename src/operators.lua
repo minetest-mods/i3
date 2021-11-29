@@ -36,6 +36,10 @@ local operators = {
 }
 
 local function compile(data)
+	data = data:gsub("IMPORT%((.-)%)", function(a)
+		return "local " .. a:gsub("\"", "") .. " = i3.get(" .. a .. ")"
+	end)
+
 	for op, func in pairs(operators) do
 		data = data:gsub("(" .. var .. "+)%s?" .. op .. "%s?(" .. var .. "*)", func)
 	end

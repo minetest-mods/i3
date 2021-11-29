@@ -1,19 +1,14 @@
 local _, get_inventory_fs = i3.files.gui()
-
 local set_fs = i3.set_fs
-local ItemStack = ItemStack
-local S, min, random = i3.get("S", "min", "random")
-local reg_items, reg_aliases = i3.get("reg_items", "reg_aliases")
-local fmt, find, match, sub, lower, split = i3.get("fmt", "find", "match", "sub", "lower", "split")
-local vec_eq, vec_round = i3.get("vec_eq", "vec_round")
-local sort, copy, insert, remove, indexof = i3.get("sort", "copy", "insert", "remove", "indexof")
 
-local msg, is_fav, pos_to_str, str_to_pos, add_hud_waypoint, play_sound, spawn_item =
-	i3.get("msg", "is_fav", "pos_to_str", "str_to_pos", "add_hud_waypoint", "play_sound", "spawn_item")
-local search, get_sorting_idx, sort_inventory, sort_by_category, get_recipes, get_detached_inv =
-	i3.get("search", "get_sorting_idx", "sort_inventory", "sort_by_category", "get_recipes", "get_detached_inv")
-local valid_item, get_stack, craft_stack, clean_name, compressible, check_privs, safe_teleport =
-	i3.get("valid_item", "get_stack", "craft_stack", "clean_name", "compressible", "check_privs", "safe_teleport")
+IMPORT("vec_eq", "vec_round")
+IMPORT("reg_items", "reg_aliases")
+IMPORT("S", "min", "random", "ItemStack")
+IMPORT("sort", "copy", "insert", "remove", "indexof")
+IMPORT("fmt", "find", "match", "sub", "lower", "split")
+IMPORT("msg", "is_fav", "pos_to_str", "str_to_pos", "add_hud_waypoint", "play_sound", "spawn_item")
+IMPORT("search", "get_sorting_idx", "sort_inventory", "sort_by_category", "get_recipes", "get_detached_inv")
+IMPORT("valid_item", "get_stack", "craft_stack", "clean_name", "compressible", "check_privs", "safe_teleport")
 
 local function reset_data(data)
 	data.filter        = ""

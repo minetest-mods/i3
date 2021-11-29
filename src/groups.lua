@@ -1,4 +1,4 @@
-local S = i3.get("S")
+IMPORT("S")
 
 i3.group_stereotypes = {
 	dye = "dye:white",

@@ -1,14 +1,9 @@
 local replacements = {fuel = {}}
 
-local ItemStack = ItemStack
-local draw_cube = core.inventorycube
-local fmt, reg_items, reg_aliases, reg_nodes = i3.get("fmt", "reg_items", "reg_aliases", "reg_nodes")
-local maxn, copy, insert, sort, match, sub = i3.get("maxn", "copy", "insert", "sort", "match", "sub")
-
-local is_group, extract_groups, item_has_groups, groups_to_items =
-	i3.get("is_group", "extract_groups", "item_has_groups", "groups_to_items")
-local true_str, true_table, is_table, valid_item, table_merge, table_replace, rcp_eq =
-	i3.get("true_str", "true_table", "is_table", "valid_item", "table_merge", "table_replace", "rcp_eq")
+IMPORT("maxn", "copy", "insert", "sort", "match", "sub")
+IMPORT("is_group", "extract_groups", "item_has_groups", "groups_to_items")
+IMPORT("fmt", "reg_items", "reg_aliases", "reg_nodes", "draw_cube", "ItemStack")
+IMPORT("true_str", "true_table", "is_table", "valid_item", "table_merge", "table_replace", "rcp_eq")
 
 local function get_burntime(item)
 	return core.get_craft_result{method = "fuel", items = {item}}.time

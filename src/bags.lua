@@ -1,8 +1,7 @@
 local set_fs = i3.set_fs
-local ItemStack = ItemStack
-local S, ES, fmt, msg, slz, dslz = i3.get("S", "ES", "fmt", "msg", "slz", "dslz")
-local get_group, play_sound, get_detached_inv, create_inventory =
-	i3.get("get_group", "play_sound", "get_detached_inv", "create_inventory")
+
+IMPORT("S", "ES", "fmt", "msg", "slz", "dslz", "ItemStack")
+IMPORT("get_group", "play_sound", "get_detached_inv", "create_inventory")
 
 local function get_content(content)
 	local t = {}
