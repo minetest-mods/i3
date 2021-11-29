@@ -1,3 +1,6 @@
+--[[    All source files have to be preprocessed before loading.
+	This allows implementing custom operators like bitwise ones.	]]
+
 local fmt = string.format
 local var = "[%w%.%[%]\"\'_]"
 
