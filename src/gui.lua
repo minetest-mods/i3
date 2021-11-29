@@ -15,7 +15,7 @@ IMPORT("reg_items", "reg_tools", "reg_entities")
 IMPORT("groups_to_items", "compression_active", "compressible")
 IMPORT("true_str", "is_fav", "is_num", "get_group", "str_to_pos")
 IMPORT("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
-IMPORT("get_sorting_idx", "is_group", "extract_groups", "item_has_groups")
+IMPORT("get_sorting_idx", "is_group", "extract_groups", "item_has_groups", "get_detached_inv")
 
 local function fmt(elem, ...)
 	if not fs_elements[elem] then
@@ -399,10 +399,9 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 
 	if data.subcat == 1 then
 		fs(fmt("list[detached:i3_bag_%s;main;0,%f;1,1;]", esc_name, yextra + 0.7))
+		local bag = get_detached_inv("bag", name)
 
-		local inv = core.get_inventory{type = "detached", name = fmt("i3_bag_%s", name)}
-
-		if not inv:is_empty"main" then
+		if not bag:is_empty"main" then
 			local v = {{1.9, 2, 0.12}, {3.05, 5, 0.06}, {4.2, 10}, {4.75, 10}}
 			local h, m, yy = unpack(v[bag_size])
 
@@ -800,11 +799,7 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 		fs(fmt("list[detached:i3_output_%s_%s;main;%f,%f;1,1;]", rcp_usg, data.player_name, X + 0.11, Y))
 		fs("button",  X + 0.11, Y, i3.ITEM_BTN_SIZE, i3.ITEM_BTN_SIZE, _name, "")
 
-		local inv = core.get_inventory {
-			type = "detached",
-			name = fmt("i3_output_%s_%s", rcp_usg, data.player_name)
-		}
-
+		local inv = get_detached_inv(fmt("output_%s", rcp_usg), data.player_name)
 		inv:set_stack("main", 1, item)
 		pos = {x = X + 0.11, y = Y}
 	else
