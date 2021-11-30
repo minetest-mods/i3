@@ -9,13 +9,14 @@ local VoxelArea, VoxelManip = VoxelArea, VoxelManip
 IMPORT("clr", "ESC", "check_privs")
 IMPORT("find", "match", "sub", "upper")
 IMPORT("vec_new", "vec_sub", "vec_round")
-IMPORT("S", "ES", "translate", "ItemStack")
 IMPORT("min", "max", "floor", "ceil", "round")
 IMPORT("reg_items", "reg_tools", "reg_entities")
+IMPORT("get_bag_description", "get_detached_inv")
+IMPORT("S", "ES", "translate", "ItemStack", "toupper")
 IMPORT("groups_to_items", "compression_active", "compressible")
 IMPORT("true_str", "is_fav", "is_num", "get_group", "str_to_pos")
 IMPORT("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
-IMPORT("get_sorting_idx", "is_group", "extract_groups", "item_has_groups", "get_detached_inv")
+IMPORT("get_sorting_idx", "is_group", "extract_groups", "item_has_groups")
 
 local function fmt(elem, ...)
 	if not fs_elements[elem] then
@@ -32,10 +33,6 @@ end
 
 local function weird_desc(str)
 	return not true_str(str) or find(str, "\n") or not find(str, "%u")
-end
-
-local function toupper(str)
-	return str:gsub("%f[%w]%l", upper):gsub("_", " ")
 end
 
 local function snip(str, limit)
@@ -405,12 +402,27 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 			local v = {{1.9, 2, 0.12}, {3.05, 5, 0.06}, {4.2, 10}, {4.75, 10}}
 			local h, m, yy = unpack(v[bag_size])
 
+			local bagstack = bag:get_stack("main", 1)
+			local desc = get_bag_description(data, bagstack)
+
 			fs("image", 0.5, yextra + 1.85, 0.6, 0.6, PNG.arrow_content)
 			fs(fmt("style[bg_content;bgimg=%s;fgimg=i3_blank.png;bgimg_middle=10,%u;sound=]",
 				PNG.bg_content, m))
 			fs("image_button", 1.1, yextra + 0.5 + (yy or 0), 4.75, h, "", "bg_content", "")
-			fs("hypertext", 1.3, yextra + 0.8, 4.3, 0.6, "content",
-				fmt("<global size=16><center><b>%s</b></center>", ES"Content"))
+
+			if not data.bag_rename then
+				fs("hypertext", 1.3, yextra + 0.8, 4.3, 0.6, "content",
+					fmt("<global size=16><center><b>%s</b></center>", desc))
+				fs("image_button", 5.22, yextra + 0.835, 0.25, 0.25, "", "bag_rename", "")
+				fs(fmt("tooltip[%s;%s]", "bag_rename", ES"Rename bag"))
+			else
+				fs("box", 1.7, yextra + 0.82, 2.6, 0.4, "#707070")
+				fs(fmt("field[1.8,%f;2.5,0.4;bag_newname;;%s]", yextra + 0.82, desc),
+				   "field_close_on_enter[bag_newname;false]")
+				fs("hypertext", 4.4, yextra + 0.88, 0.8, 0.5, "confirm_rename",
+					fmt("<global size=16><tag name=action color=#fff hovercolor=%s>" ..
+						"<center><b><action name=ok>OK</action></b></center>", colors.yellow))
+			end
 
 			local x, size, spacing = 1.45, 0.9, 0.12
 

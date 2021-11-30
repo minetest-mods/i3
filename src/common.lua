@@ -1,11 +1,13 @@
 local ItemStack = ItemStack
 local loadstring = loadstring
-
+local ESC = core.formspec_escape
+local translate = core.get_translated_string
 local vec_new, vec_add, vec_mul = vector.new, vector.add, vector.multiply
 local sort, concat, insert = table.sort, table.concat, table.insert
 local min, floor, ceil = math.min, math.floor, math.ceil
-local fmt, find, match, gmatch, sub, split, lower =
-	string.format, string.find, string.match, string.gmatch, string.sub, string.split, string.lower
+local fmt, find, match, gmatch, sub, split, lower, upper =
+	string.format, string.find, string.match, string.gmatch,
+	string.sub, string.split, string.lower, string.upper
 
 local old_is_creative_enabled = core.is_creative_enabled
 
@@ -63,6 +65,18 @@ local function round(num, decimal)
 	return floor(num * mul + 0.5) / mul
 end
 
+local function toupper(str)
+	return str:gsub("%f[%w]%l", upper):gsub("_", " ")
+end
+
+local function get_bag_description(data, stack)
+	local desc = translate(data.lang_code, stack:get_description())
+	      desc = desc:match("(.*)%(+") or desc
+	      desc = ESC(toupper(desc:trim()))
+
+	return desc
+end
+
 local function search(data)
 	reset_compression(data)
 
@@ -87,7 +101,7 @@ local function search(data)
 	for i = 1, #data.items_raw do
 		local item = data.items_raw[i]
 		local def = core.registered_items[item]
-		local desc = lower(core.get_translated_string(data.lang_code, def and def.description)) or ""
+		local desc = lower(translate(data.lang_code, def and def.description)) or ""
 		local search_in = fmt("%s %s", item, desc)
 		local temp, j, to_add = {}, 1
 
@@ -648,6 +662,7 @@ local _ = {
 	get_stack = get_stack,
 	craft_stack = craft_stack,
 	get_detached_inv = get_detached_inv,
+	get_bag_description = get_bag_description,
 	create_inventory = core.create_detached_inventory,
 
 	-- Registered items
@@ -672,6 +687,7 @@ local _ = {
 	split = string.split,
 	match = string.match,
 	gmatch = string.gmatch,
+	toupper = toupper,
 
 	-- Table
 	maxn = table.maxn,

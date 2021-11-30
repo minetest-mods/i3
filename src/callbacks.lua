@@ -3,8 +3,8 @@ local set_fs = i3.set_fs
 
 IMPORT("vec_eq", "vec_round")
 IMPORT("reg_items", "reg_aliases")
-IMPORT("S", "min", "random", "ItemStack")
 IMPORT("sort", "copy", "insert", "remove", "indexof")
+IMPORT("S", "min", "random", "translate", "ItemStack")
 IMPORT("fmt", "find", "match", "sub", "lower", "split")
 IMPORT("msg", "is_fav", "pos_to_str", "str_to_pos", "add_hud_waypoint", "play_sound", "spawn_item")
 IMPORT("search", "get_sorting_idx", "sort_inventory", "sort_by_category", "get_recipes", "get_detached_inv")
@@ -118,6 +118,7 @@ i3.new_tab("inventory", {
 			data.confirm_trash = nil
 			data.show_settings = nil
 			data.waypoint_see = nil
+			data.bag_rename = nil
 
 		elseif fields.trash then
 			data.show_settings = nil
@@ -174,6 +175,23 @@ i3.new_tab("inventory", {
 
 		elseif fields.set_home then
 			data.home = pos_to_str(player:get_pos(), 1)
+
+		elseif fields.bag_rename then
+			data.bag_rename = true
+
+		elseif fields.confirm_rename then
+			local bag = get_detached_inv("bag", name)
+			local bagstack = bag:get_stack("main", 1)
+			local meta = bagstack:get_meta()
+			local desc = translate(data.lang_code, bagstack:get_description())
+			local str = desc:match("(.*)%(+") or desc
+			local newname = fields.bag_newname:gsub("([%(%)])", "")
+
+			meta:set_string("description", desc:gsub(str:trim(), newname))
+			bag:set_stack("main", 1, bagstack)
+
+			data.bag = bagstack:to_string()
+			data.bag_rename = nil
 
 		elseif sb_inv and sub(sb_inv, 1, 3) == "CHG" then
 			data.scrbar_inv = tonumber(match(sb_inv, "%d+"))

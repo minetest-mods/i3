@@ -1,6 +1,7 @@
 local set_fs = i3.set_fs
 
-IMPORT("S", "ES", "fmt", "msg", "slz", "dslz", "ItemStack")
+IMPORT("get_bag_description", "ItemStack")
+IMPORT("S", "ES", "fmt", "msg", "slz", "dslz")
 IMPORT("get_group", "play_sound", "get_detached_inv", "create_inventory")
 
 local function get_content(content)
@@ -51,6 +52,8 @@ local function init_bags(player)
 
 		on_take = function()
 			data.bag = nil
+			data.bag_rename = nil
+
 			local content = get_detached_inv("bag_content", name)
 			content:set_list("main", {})
 
@@ -67,9 +70,10 @@ local function init_bags(player)
 	local function save_content(inv)
 		local bagstack = bag:get_stack("main", 1)
 		local meta = bagstack:get_meta()
-		meta:set_string("description", "")
+		local desc = get_bag_description(data, bagstack)
 
 		if inv:is_empty"main" then
+			meta:set_string("description", desc)
 			meta:set_string("content", "")
 		else
 			local list = inv:get_list"main"
@@ -87,7 +91,7 @@ local function init_bags(player)
 			local bag_size = get_group(bagstack:get_name(), "bag")
 			local percent = fmt("%d", (c * 100) / (bag_size * 4))
 
-			meta:set_string("description", ES("@1 (@2% full)", bagstack:get_description(), percent))
+			meta:set_string("description", ES("@1 (@2% full)", desc, percent))
 			meta:set_string("content", slz(t))
 		end
 

@@ -39,6 +39,7 @@ local PNG = {
 	exit = "i3_exit.png",
 	home = "i3_home.png",
 	flag = "i3_flag.png",
+	edit = "i3_edit.png",
 
 	cancel_hover = "i3_cancel.png^\\[brighten",
 	search_hover = "i3_search.png^\\[brighten",
@@ -61,6 +62,7 @@ local PNG = {
 	refresh_hover = "i3_refresh.png^\\[brighten",
 	exit_hover = "i3_exit.png^\\[brighten",
 	home_hover = "i3_home.png^\\[brighten",
+	edit_hover = "i3_edit.png^\\[brighten",
 }
 
 local styles = string.format([[
@@ -82,6 +84,7 @@ local styles = string.format([[
 	style[prev_usage;fgimg=%s;fgimg_hovered=%s]
 	style[next_usage;fgimg=%s;fgimg_hovered=%s]
 	style[waypoint_add;fgimg=%s;fgimg_hovered=%s;content_offset=0]
+	style[bag_rename;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=18;content_offset=0;sound=i3_click]
 	style[craft_rcp,craft_usg;noclip=true;font_size=16;sound=i3_craft;
 	      bgimg=i3_btn9.png;bgimg_hovered=i3_btn9_hovered.png;
@@ -101,7 +104,8 @@ PNG.prev,     PNG.prev_hover,
 PNG.next,     PNG.next_hover,
 PNG.prev,     PNG.prev_hover,
 PNG.next,     PNG.next_hover,
-PNG.add,      PNG.add_hover)
+PNG.add,      PNG.add_hover,
+PNG.edit,     PNG.edit_hover)
 
 local fs_elements = {
 	label = "label[%f,%f;%s]",
