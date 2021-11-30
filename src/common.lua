@@ -19,7 +19,7 @@ function core.is_creative_enabled(name)
 	return core.check_player_privs(name, {creative = true}) or old_is_creative_enabled(name)
 end
 
-local S = core.get_translator "i3"
+local S = core.get_translator"i3"
 local ES = function(...) return core.formspec_escape(S(...)) end
 
 local function is_num(x)
@@ -71,8 +71,8 @@ end
 
 local function get_bag_description(data, stack)
 	local desc = translate(data.lang_code, stack:get_description())
-	      desc = desc:match("(.*)%(+") or desc
-	      desc = ESC(toupper(desc:trim()))
+	      desc = split(desc, "(")[1] or desc
+	      desc = toupper(desc:trim())
 
 	return desc
 end

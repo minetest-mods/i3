@@ -5,7 +5,7 @@ IMPORT("vec_eq", "vec_round")
 IMPORT("reg_items", "reg_aliases")
 IMPORT("sort", "copy", "insert", "remove", "indexof")
 IMPORT("S", "min", "random", "translate", "ItemStack")
-IMPORT("fmt", "find", "match", "sub", "lower", "split")
+IMPORT("fmt", "find", "match", "sub", "lower", "split", "toupper")
 IMPORT("msg", "is_fav", "pos_to_str", "str_to_pos", "add_hud_waypoint", "play_sound", "spawn_item")
 IMPORT("search", "get_sorting_idx", "sort_inventory", "sort_by_category", "get_recipes", "get_detached_inv")
 IMPORT("valid_item", "get_stack", "craft_stack", "clean_name", "compressible", "check_privs", "safe_teleport")
@@ -184,10 +184,15 @@ i3.new_tab("inventory", {
 			local bagstack = bag:get_stack("main", 1)
 			local meta = bagstack:get_meta()
 			local desc = translate(data.lang_code, bagstack:get_description())
-			local str = desc:match("(.*)%(+") or desc
+			local fill = split(desc, "(")[2]
 			local newname = fields.bag_newname:gsub("([%(%)])", "")
+			      newname = toupper(newname:trim())
 
-			meta:set_string("description", desc:gsub(str:trim(), newname))
+			if fill then
+				newname = fmt("%s (%s", newname, fill)
+			end
+
+			meta:set_string("description", newname)
 			bag:set_stack("main", 1, bagstack)
 
 			data.bag = bagstack:to_string()

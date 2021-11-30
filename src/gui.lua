@@ -403,7 +403,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 			local h, m, yy = unpack(v[bag_size])
 
 			local bagstack = bag:get_stack("main", 1)
-			local desc = get_bag_description(data, bagstack)
+			local desc = ESC(get_bag_description(data, bagstack))
 
 			fs("image", 0.5, yextra + 1.85, 0.6, 0.6, PNG.arrow_content)
 			fs(fmt("style[bg_content;bgimg=%s;fgimg=i3_blank.png;bgimg_middle=10,%u;sound=]",
@@ -414,12 +414,12 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 				fs("hypertext", 1.3, yextra + 0.8, 4.3, 0.6, "content",
 					fmt("<global size=16><center><b>%s</b></center>", desc))
 				fs("image_button", 5.22, yextra + 0.835, 0.25, 0.25, "", "bag_rename", "")
-				fs(fmt("tooltip[%s;%s]", "bag_rename", ES"Rename bag"))
+				fs(fmt("tooltip[%s;%s]", "bag_rename", ES"Rename the bag"))
 			else
 				fs("box", 1.7, yextra + 0.82, 2.6, 0.4, "#707070")
 				fs(fmt("field[1.8,%f;2.5,0.4;bag_newname;;%s]", yextra + 0.82, desc),
 				   "field_close_on_enter[bag_newname;false]")
-				fs("hypertext", 4.4, yextra + 0.88, 0.8, 0.5, "confirm_rename",
+				fs("hypertext", 4.4, yextra + 0.88, 0.8, 0.6, "confirm_rename",
 					fmt("<global size=16><tag name=action color=#fff hovercolor=%s>" ..
 						"<center><b><action name=ok>OK</action></b></center>", colors.yellow))
 			end
