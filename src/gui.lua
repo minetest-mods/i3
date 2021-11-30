@@ -341,6 +341,46 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 	fs"style_type[label;font_size=16]"
 end
 
+local function get_bag_fs(fs, data, name, esc_name, bag_size, yextra)
+	fs(fmt("list[detached:i3_bag_%s;main;0,%f;1,1;]", esc_name, yextra + 0.7))
+	local bag = get_detached_inv("bag", name)
+	if bag:is_empty"main" then return end
+
+	local v = {{1.9, 2, 0.12}, {3.05, 5, 0.06}, {4.2, 10}, {4.75, 10}}
+	local h, m, yy = unpack(v[bag_size])
+
+	local bagstack = bag:get_stack("main", 1)
+	local desc = ESC(get_bag_description(data, bagstack))
+
+	fs("image", 0.5, yextra + 1.85, 0.6, 0.6, PNG.arrow_content)
+	fs(fmt("style[bg_content;bgimg=%s;fgimg=i3_blank.png;bgimg_middle=10,%u;sound=]", PNG.bg_content, m))
+	fs("image_button", 1.1, yextra + 0.5 + (yy or 0), 4.75, h, "", "bg_content", "")
+
+	if not data.bag_rename then
+		fs("hypertext", 1.3, yextra + 0.8, 4.3, 0.6, "content",
+			fmt("<global size=16><center><b>%s</b></center>", desc))
+		fs("image_button", 5.22, yextra + 0.835, 0.25, 0.25, "", "bag_rename", "")
+		fs(fmt("tooltip[%s;%s]", "bag_rename", ES"Rename the bag"))
+	else
+		fs("box", 1.7, yextra + 0.82, 2.6, 0.4, "#707070")
+		fs(fmt("field[1.8,%f;2.5,0.4;bag_newname;;%s]", yextra + 0.82, desc),
+		   "field_close_on_enter[bag_newname;false]")
+		fs("hypertext", 4.4, yextra + 0.88, 0.8, 0.6, "confirm_rename",
+			fmt("<global size=16><tag name=action color=#fff hovercolor=%s>" ..
+				"<center><b><action name=ok>OK</action></b></center>", colors.yellow))
+	end
+
+	local x, size, spacing = 1.45, 0.9, 0.12
+
+	if bag_size == 4 then
+		x, size, spacing = 1.7, 0.8, 0.1
+	end
+
+	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing))
+	fs(fmt("list[detached:i3_bag_content_%s;main;%f,%f;4,%u;]", esc_name, x, yextra + 1.3, bag_size))
+	fs"style_type[list;size=1;spacing=0.15]"
+end
+
 local function get_container(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb, bag_size)
 	local name = data.player_name
 	local esc_name = ESC(name)
@@ -395,86 +435,46 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 	end
 
 	if data.subcat == 1 then
-		fs(fmt("list[detached:i3_bag_%s;main;0,%f;1,1;]", esc_name, yextra + 0.7))
-		local bag = get_detached_inv("bag", name)
-
-		if not bag:is_empty"main" then
-			local v = {{1.9, 2, 0.12}, {3.05, 5, 0.06}, {4.2, 10}, {4.75, 10}}
-			local h, m, yy = unpack(v[bag_size])
-
-			local bagstack = bag:get_stack("main", 1)
-			local desc = ESC(get_bag_description(data, bagstack))
-
-			fs("image", 0.5, yextra + 1.85, 0.6, 0.6, PNG.arrow_content)
-			fs(fmt("style[bg_content;bgimg=%s;fgimg=i3_blank.png;bgimg_middle=10,%u;sound=]",
-				PNG.bg_content, m))
-			fs("image_button", 1.1, yextra + 0.5 + (yy or 0), 4.75, h, "", "bg_content", "")
-
-			if not data.bag_rename then
-				fs("hypertext", 1.3, yextra + 0.8, 4.3, 0.6, "content",
-					fmt("<global size=16><center><b>%s</b></center>", desc))
-				fs("image_button", 5.22, yextra + 0.835, 0.25, 0.25, "", "bag_rename", "")
-				fs(fmt("tooltip[%s;%s]", "bag_rename", ES"Rename the bag"))
-			else
-				fs("box", 1.7, yextra + 0.82, 2.6, 0.4, "#707070")
-				fs(fmt("field[1.8,%f;2.5,0.4;bag_newname;;%s]", yextra + 0.82, desc),
-				   "field_close_on_enter[bag_newname;false]")
-				fs("hypertext", 4.4, yextra + 0.88, 0.8, 0.6, "confirm_rename",
-					fmt("<global size=16><tag name=action color=#fff hovercolor=%s>" ..
-						"<center><b><action name=ok>OK</action></b></center>", colors.yellow))
-			end
-
-			local x, size, spacing = 1.45, 0.9, 0.12
-
-			if bag_size == 4 then
-				x, size, spacing = 1.7, 0.8, 0.1
-			end
-
-			fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing))
-			fs(fmt("list[detached:i3_bag_content_%s;main;%f,%f;4,%u;]",
-				esc_name, x, yextra + 1.3, bag_size))
-			fs"style_type[list;size=1;spacing=0.15]"
-		end
+		get_bag_fs(fs, data, name, esc_name, bag_size, yextra)
 
 	elseif data.subcat == 2 then
-		if i3.modules.armor then
-			local armor_def = armor.def[name]
-			fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", esc_name, yextra + 0.7))
-			fs("label", 3.65, yextra + 1.55, fmt("%s: %s", ES"Level", armor_def.level))
-			fs("label", 3.65, yextra + 2.05, fmt("%s: %s", ES"Heal", armor_def.heal))
-		else
-			not_installed "3d_armor"
+		if not i3.modules.armor then
+			return not_installed "3d_armor"
 		end
+
+		local armor_def = armor.def[name]
+		fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", esc_name, yextra + 0.7))
+		fs("label", 3.65, yextra + 1.55, fmt("%s: %s", ES"Level", armor_def.level))
+		fs("label", 3.65, yextra + 2.05, fmt("%s: %s", ES"Heal", armor_def.heal))
 
 	elseif data.subcat == 3 then
-		if i3.modules.skins then
-			local _skins = skins.get_skinlist_for_player(name)
-			local skin_name = skins.get_player_skin(player).name
-			local sks, id = {}, 1
+		if not i3.modules.skins then
+			return not_installed "skinsdb"
+		end
 
-			for i, skin in ipairs(_skins) do
-				if skin.name == skin_name then
-					id = i
-				end
+		local _skins = skins.get_skinlist_for_player(name)
+		local skin_name = skins.get_player_skin(player).name
+		local sks, id = {}, 1
 
-				insert(sks, skin.name)
+		for i, skin in ipairs(_skins) do
+			if skin.name == skin_name then
+				id = i
 			end
 
-			sks = concat(sks, ","):gsub(";", "")
-
-			fs("label", 0, yextra + 0.85, fmt("%s:", ES"Select a skin"))
-			fs(fmt("dropdown[0,%f;4,0.6;skins;%s;%u;true]", yextra + 1.1, sks, id))
-		else
-			not_installed "skinsdb"
+			insert(sks, skin.name)
 		end
+
+		sks = concat(sks, ","):gsub(";", "")
+		fs("label", 0, yextra + 0.85, fmt("%s:", ES"Select a skin"))
+		fs(fmt("dropdown[0,%f;4,0.6;skins;%s;%u;true]", yextra + 1.1, sks, id))
 
 	elseif data.subcat == 4 then
-		if i3.modules.awards then
-			yextra = yextra + 0.7
-			get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
-		else
-			not_installed "awards"
+		if not i3.modules.awards then
+			return not_installed "awards"
 		end
+
+		yextra = yextra + 0.7
+		get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlocked, award_list_nb)
 
 	elseif data.subcat == 5 then
 		get_waypoint_fs(fs, data, player, yextra, ctn_len)
