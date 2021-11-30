@@ -221,7 +221,6 @@ end
 
 local function get_isometric_view(fs, pos, X, Y)
 	pos = vec_round(pos)
-	local size = 0.25
 	local width = 8
 
 	local pos1 = vec_new(pos.x - width, pos.y - 1, pos.z - width)
@@ -236,22 +235,21 @@ local function get_isometric_view(fs, pos, X, Y)
 	for idx in area:iterp(pos1, pos2) do
 		local cube = i3.cubes[data[idx]]
 		local plant = i3.plants[data[idx]]
+		local img = cube or plant
 
-		if cube or plant then
+		if img then
 			local p = area:position(idx)
 			      p = vec_sub(p, pos)
 
 			local x = 2 + (size / 2 * (p.z - p.x))
 			local y = 1.15 + (size / 4 * (p.x + p.z - 2 * p.y))
-			local elem
+			local size = 0.25
 
-			if cube then
-				elem = fmt("image[%f,%f;%.1f,%.1f;%s]", x + X, y + Y, size, size, cube)
-			else
-				elem = fmt("image[%f,%f;%.1f,%.1f;%s]", x + X, y + Y, size - 0.05, size - 0.05, plant)
+			if plant then
+				size -= 0.05
 			end
 
-			insert(fs, elem)
+			insert(fs, fmt("image[%f,%f;%.1f,%.1f;%s]", x + X, y + Y, size, size, img))
 		end
 	end
 end
