@@ -1,4 +1,4 @@
-IMPORT("get_player_by_name", "str_to_pos", "add_hud_waypoint")
+IMPORT("get_connected_players", "str_to_pos", "add_hud_waypoint")
 
 local function init_hud(player)
 	local name = player:get_player_name()
@@ -90,9 +90,15 @@ local function show_hud(player, data)
 end
 
 core.register_globalstep(function()
-	for name, data in pairs(i3.data) do
-		if data.show_hud ~= nil then
-			local player = get_player_by_name(name)
+	local players = get_connected_players()
+	players[0] = #players
+
+	for i = 1, players[0] do
+		local player = players[i]
+		local name = player:get_player_name()
+		local data = i3.data[name]
+
+		if data and data.show_hud ~= nil then
 			show_hud(player, data)
 		end
 	end

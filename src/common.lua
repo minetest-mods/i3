@@ -656,6 +656,7 @@ local _ = {
 	str_to_pos = core.string_to_pos,
 	check_privs = core.check_player_privs,
 	get_player_by_name = core.get_player_by_name,
+	get_connected_players = core.get_connected_players,
 
 	-- Inventory
 	get_stack = get_stack,
