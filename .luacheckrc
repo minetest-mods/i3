@@ -1,6 +1,7 @@
 allow_defined_top = true
 
 ignore = {
+	"631", -- Line is too long.
 	"get_debug_grid",
 }
 

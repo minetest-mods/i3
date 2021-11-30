@@ -1,6 +1,5 @@
 local ItemStack = ItemStack
 local loadstring = loadstring
-local ESC = core.formspec_escape
 local translate = core.get_translated_string
 local vec_new, vec_add, vec_mul = vector.new, vector.add, vector.multiply
 local sort, concat, insert = table.sort, table.concat, table.insert

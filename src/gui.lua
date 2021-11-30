@@ -241,9 +241,9 @@ local function get_isometric_view(fs, pos, X, Y)
 			local p = area:position(idx)
 			      p = vec_sub(p, pos)
 
+			local size = 0.25
 			local x = 2 + (size / 2 * (p.z - p.x))
 			local y = 1.15 + (size / 4 * (p.x + p.z - 2 * p.y))
-			local size = 0.25
 
 			if plant then
 				size -= 0.05

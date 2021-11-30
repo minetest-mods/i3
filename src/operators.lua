@@ -1,7 +1,7 @@
 --[[    All source files have to be preprocessed before loading.
 	This allows implementing custom operators like bitwise ones.	]]
 
-local fmt = string.format
+local fmt, split = string.format, string.split
 local var = "[%w%.%[%]\"\'_]"
 
 local operators = {
@@ -53,7 +53,7 @@ end
 local function _load(path, line, data, t)
 	if line then
 		if not t then
-			t = data:split"\n"
+			t = split(data, "\n")
 		end
 		t[line] = t[line]:gsub("(" .. var .. "+)%s?=%s?(" .. var .. "*)", "%2")
 		data = table.concat(t, "\n")
