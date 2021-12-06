@@ -1,4 +1,5 @@
 local make_fs = i3.files.gui()
+local http = ...
 
 IMPORT("gmatch", "split")
 IMPORT("S", "err", "fmt", "reg_items")
@@ -22,13 +23,7 @@ function i3.register_craft(def)
 	local width, c = 0, 0
 
 	if true_str(def.url) then
-		if not i3.http then
-			return err(fmt([[i3.register_craft(): Unable to reach %s.
-				No HTTP support for this mod: add it to the `secure.http_mods` or
-				`secure.trusted_mods` setting.]], def.url))
-		end
-
-		i3.http.fetch({url = def.url}, function(result)
+		http.fetch({url = def.url}, function(result)
 			if result.succeeded then
 				local t = core.parse_json(result.data)
 				if is_table(t) then

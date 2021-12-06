@@ -1,14 +1,13 @@
 local modpath = core.get_modpath"i3"
+local http = core.request_http_api()
 local _loadfile = dofile(modpath .. "/src/operators.lua")
 
 local function lf(path)
-	return _loadfile(modpath .. path)
+	return assert(_loadfile(modpath .. path))
 end
 
 i3 = {
 	modules = {},
-	http = core.request_http_api(),
-
 	MAX_FAVS = 6,
 	INV_SIZE = 4*9,
 	HOTBAR_LEN = 9,
@@ -80,7 +79,7 @@ i3 = {
 }
 
 i3.files.common()
-i3.files.api()
+i3.files.api(http)
 i3.files.compress()
 i3.files.groups()
 i3.files.callbacks()
@@ -93,7 +92,7 @@ i3.data = dslz(storage:get_string"data") or {}
 
 local init_bags = i3.files.bags()
 local init_detached = i3.files.detached()
-local fill_caches = i3.files.caches()
+local fill_caches = i3.files.caches(http)
 local init_hud = i3.files.hud()
 
 local function get_lang_code(info)
@@ -241,4 +240,4 @@ end
 --i3.files.tests.tabs()
 --i3.files.tests.operators()
 --i3.files.tests.compression()
---i3.files.tests.custom_recipes()
+--i3.files.tests.custom_recipes(http)
