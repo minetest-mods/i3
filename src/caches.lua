@@ -1,3 +1,4 @@
+local http = core.request_http_api()
 local replacements = {fuel = {}}
 
 IMPORT("maxn", "copy", "insert", "sort", "match", "sub")
@@ -269,13 +270,13 @@ local function init_recipes()
 	resolve_aliases(_select)
 	sort(i3.init_items)
 
-	if i3.http and true_str(i3.export_url) then
+	if http and true_str(i3.export_url) then
 		local post_data = {
 			recipes = i3.recipes_cache,
 			usages  = i3.usages_cache,
 		}
 
-		i3.http.fetch_async {
+		http.fetch_async {
 			url = i3.export_url,
 			post_data = core.write_json(post_data),
 		}
