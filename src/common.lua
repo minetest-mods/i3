@@ -539,7 +539,7 @@ local function sort_inventory(player, data)
 	local inv = player:get_inventory()
 	local list = inv:get_list"main"
 	local size = inv:get_size"main"
-	local start_i = data.ignore_hotbar and 10 or 1
+	local start_i = data.ignore_hotbar and (i3.HOTBAR_LEN + 1) or 1
 
 	if true_table(data.drop_items) then
 		list = drop_items(player, inv, list, start_i, data.drop_items)

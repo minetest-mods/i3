@@ -34,10 +34,12 @@ local function init_hud(player)
 		},
 	}
 
-	core.after(0, function()
-		player:hud_set_hotbar_itemcount(i3.HOTBAR_LEN)
-		player:hud_set_hotbar_image"i3_hotbar.png"
-	end)
+	if not i3.legacy_inventory then
+		core.after(0, function()
+			player:hud_set_hotbar_itemcount(i3.HOTBAR_LEN)
+			player:hud_set_hotbar_image"i3_hotbar.png"
+		end)
+	end
 end
 
 local function show_hud(player, data)

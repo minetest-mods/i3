@@ -9,8 +9,6 @@ end
 i3 = {
 	modules = {},
 	MAX_FAVS = 6,
-	INV_SIZE = 4*9,
-	HOTBAR_LEN = 9,
 	ITEM_BTN_SIZE = 1.1,
 	DROP_BAG_ON_DIE = true,
 	MIN_FORMSPEC_VERSION = 4,
@@ -75,8 +73,12 @@ i3 = {
 	},
 
 	progressive_mode = core.settings:get_bool"i3_progressive_mode",
+	legacy_inventory = core.settings:get_bool"i3_legacy_inventory",
 	item_compression = core.settings:get_bool("i3_item_compression", true),
 }
+
+i3.HOTBAR_LEN = i3.legacy_inventory and 8 or 9
+i3.INV_SIZE   = 4 * i3.HOTBAR_LEN
 
 i3.files.common()
 i3.files.api(http)

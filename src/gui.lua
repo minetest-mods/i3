@@ -122,7 +122,9 @@ local function get_stack_max(inv, data, is_recipe, rcp)
 end
 
 local function get_inv_slots(fs)
-	local inv_x, inv_y, size, spacing = 0.22, 6.9, 1, 0.1
+	local inv_x = i3.legacy_inventory and 0.75 or 0.22
+	local inv_y = 6.9
+	local size, spacing = 1, 0.1
 
 	fs"style_type[box;colors=#77777710,#77777710,#777,#777]"
 
