@@ -149,10 +149,11 @@ function i3.add_search_filter(name, f)
 end
 
 function i3.get_recipes(item)
-	return {
-		recipes = i3.recipes_cache[item],
-		usages = i3.usages_cache[item]
-	}
+	item = core.registered_aliases[item] or item
+	local recipes = i3.recipes_cache[item]
+	local usages = i3.usages_cache[item]
+
+	return {recipes = recipes, usages = usages}
 end
 
 function i3.set_fs(player)

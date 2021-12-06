@@ -1,5 +1,6 @@
 local ItemStack = ItemStack
 local loadstring = loadstring
+local reg_items = core.registered_items
 local translate = core.get_translated_string
 local vec_new, vec_add, vec_mul = vector.new, vector.add, vector.multiply
 local sort, concat, insert = table.sort, table.concat, table.insert
@@ -99,7 +100,7 @@ local function search(data)
 
 	for i = 1, #data.items_raw do
 		local item = data.items_raw[i]
-		local def = core.registered_items[item]
+		local def = reg_items[item]
 		local desc = lower(translate(data.lang_code, def and def.description)) or ""
 		local search_in = fmt("%s %s", item, desc)
 		local temp, j, to_add = {}, 1
@@ -250,7 +251,7 @@ local function groups_to_items(groups, get_all)
 	if not get_all and #groups == 1 then
 		local group = groups[1]
 		local stereotype = i3.group_stereotypes[group]
-		local def = core.registered_items[stereotype]
+		local def = reg_items[stereotype]
 
 		if valid_item(def) then
 			return stereotype
@@ -259,7 +260,7 @@ local function groups_to_items(groups, get_all)
 
 	local names = {}
 
-	for name, def in pairs(core.registered_items) do
+	for name, def in pairs(reg_items) do
 		if valid_item(def) and item_has_groups(def.groups, groups) then
 			if get_all then
 				insert(names, name)
@@ -340,9 +341,9 @@ local function spawn_item(player, stack)
 end
 
 local function get_recipes(player, item)
-	local clean_item = core.registered_aliases[item] or item
-	local recipes = i3.recipes_cache[clean_item]
-	local usages = i3.usages_cache[clean_item]
+	item = core.registered_aliases[item] or item
+	local recipes = i3.recipes_cache[item]
+	local usages = i3.usages_cache[item]
 
 	if recipes then
 		recipes = apply_recipe_filters(recipes, player)

@@ -16,7 +16,7 @@ IMPORT("S", "ES", "translate", "ItemStack", "toupper")
 IMPORT("groups_to_items", "compression_active", "compressible")
 IMPORT("true_str", "is_fav", "is_num", "get_group", "str_to_pos")
 IMPORT("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
-IMPORT("get_sorting_idx", "is_group", "extract_groups", "item_has_groups")
+IMPORT("get_sorting_idx", "is_group", "extract_groups", "item_has_groups", "get_recipes")
 
 local function fmt(elem, ...)
 	if not fs_elements[elem] then
@@ -642,11 +642,11 @@ local function get_inventory_fs(player, data, fs)
 		max_val += (award_list_nb * 13)
 
 	elseif data.subcat == 5 then
-		local wp_nb = #data.waypoints
+		local wp = #data.waypoints
 
-		if wp_nb > 0 then
-			local mul = (wp_nb > 8 and 7) or (wp_nb > 4 and 6) or 5
-			max_val += 11 + (wp_nb * mul)
+		if wp > 0 then
+			local mul = (wp > 8 and 7) or (wp > 4 and 6) or 5
+			max_val += 11 + (wp * mul)
 		end
 	end
 
@@ -1147,7 +1147,7 @@ local function get_export_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, max_
 		fmt("craft_%s", name), ES("Craft (×@1)", stack_fs))
 end
 
-local function get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
+local function get_rcp_extra(fs, player, data, panel, is_recipe, is_usage)
 	fs"container[0,0.075]"
 	local rn = panel.rcp and #panel.rcp
 
@@ -1186,7 +1186,7 @@ local function get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
 	fs"container_end[]"
 end
 
-local function get_items_fs(fs, data, full_height)
+local function hide_items(player, data)
 	if compression_active(data) then
 		local new = {}
 
@@ -1199,6 +1199,25 @@ local function get_items_fs(fs, data, full_height)
 
 		data.items = new
 	end
+
+	if not core.is_creative_enabled(data.player_name) then
+		local new = {}
+
+		for i = 1, #data.items do
+			local item = data.items[i]
+			local recipes, usages = get_recipes(player, item)
+
+			if recipes or usages then
+				insert(new, item)
+			end
+		end
+
+		data.items = new
+	end
+end
+
+local function get_items_fs(fs, player, data, full_height)
+	hide_items(player, data)
 
 	local items = data.alt_items or data.items or {}
 	local rows, lines = 8, 12
@@ -1289,7 +1308,7 @@ local function get_favs(fs, data)
 	end
 end
 
-local function get_panels(player, data, fs, full_height)
+local function get_panels(fs, player, data, full_height)
 	local _title   = {name = "title", height = 1.4}
 	local _favs    = {name = "favs",  height = 2.23}
 	local _items   = {name = "items", height = full_height}
@@ -1318,9 +1337,9 @@ local function get_panels(player, data, fs, full_height)
 		local is_recipe, is_usage = panel.name == "recipes", panel.name == "usages"
 
 		if is_recipe or is_usage then
-			get_rcp_extra(player, fs, data, panel, is_recipe, is_usage)
+			get_rcp_extra(fs, player, data, panel, is_recipe, is_usage)
 		elseif panel.name == "items" then
-			get_items_fs(fs, data, full_height)
+			get_items_fs(fs, player, data, full_height)
 		elseif panel.name == "title" then
 			get_header(fs, data)
 		elseif panel.name == "favs" then
@@ -1329,7 +1348,7 @@ local function get_panels(player, data, fs, full_height)
 	end
 end
 
-local function get_tabs_fs(player, data, fs, full_height)
+local function get_tabs_fs(fs, player, data, full_height)
 	local tab_len, tab_hgh, c, over = 3, 0.5, 0
 	local _tabs = copy(i3.tabs)
 
@@ -1430,10 +1449,10 @@ local function make_fs(player, data)
 		tab.formspec(player, data, fs)
 	end
 
-	get_panels(player, data, fs, full_height)
+	get_panels(fs, player, data, full_height)
 
 	if #i3.tabs > 1 then
-		get_tabs_fs(player, data, fs, full_height)
+		get_tabs_fs(fs, player, data, full_height)
 	end
 
 	--get_debug_grid(data, fs, full_height)
