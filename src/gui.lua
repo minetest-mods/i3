@@ -760,27 +760,38 @@ end
 
 local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_size, _btn_size)
 	local custom_recipe = i3.craft_types[rcp.type]
+	local cooking = rcp.type == "cooking"
+	local fuel = rcp.type == "fuel"
 
-	if custom_recipe or shapeless or rcp.type == "cooking" then
-		local icon = custom_recipe and custom_recipe.icon or shapeless and "shapeless" or "furnace"
+	if custom_recipe or shapeless or cooking then
+		local icon, tooltip = PNG.blank
 
-		if not custom_recipe then
-			icon = fmt("i3_%s.png^\\[resize:16x16", icon)
+		if custom_recipe and true_str(custom_recipe.icon) then
+			icon = fmt("%s^\\[resize:16x16", custom_recipe.icon)
+		elseif shapeless then
+			icon = PNG.shapeless
 		end
 
 		local pos_x = right + btn_size + 0.42
 		local pos_y = data.yoffset + 0.9
 
-		if sub(icon, 1, 10) == "i3_furnace" then
+		if cooking then
 			fs("animated_image", pos_x, pos_y, 0.5, 0.5, PNG.furnace_anim, 8, 180)
 		else
 			fs("image", pos_x, pos_y, 0.5, 0.5, icon)
 		end
 
-		local tooltip = custom_recipe and custom_recipe.description or
-				shapeless and S"Shapeless" or S"Cooking"
+		if custom_recipe and true_str(custom_recipe.description) then
+			tooltip = custom_recipe.description
+		elseif shapeless then
+			tooltip = S"Shapeless"
+		elseif cooking then
+			tooltip = S"Cooking"
+		end
 
-		fs("tooltip", pos_x, pos_y, 0.5, 0.5, ESC(tooltip))
+		if tooltip then
+			fs("tooltip", pos_x, pos_y, 0.5, 0.5, ESC(tooltip))
+		end
 	end
 
 	local arrow_X = right + 0.2 + (_btn_size or i3.ITEM_BTN_SIZE)
@@ -789,7 +800,7 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 
 	fs("image", arrow_X, Y + 0.06, 1, 1, PNG.arrow)
 
-	if rcp.type == "fuel" then
+	if fuel then
 		fs("animated_image", X + 0.05, Y, i3.ITEM_BTN_SIZE, i3.ITEM_BTN_SIZE, PNG.fire_anim, 8, 180)
 		return
 	end

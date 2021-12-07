@@ -1,4 +1,5 @@
 local PNG = {
+	blank = "i3_blank.png",
 	bg = "i3_bg.png",
 	bg_full = "i3_bg_full.png",
 	bg_content = "i3_bg_content.png",
@@ -27,6 +28,7 @@ local PNG = {
 	tab_small = "i3_tab_small.png",
 	tab_top = "i3_tab.png^\\[transformFY",
 	furnace_anim = "i3_furnace_anim.png",
+	shapeless = "i3_shapeless.png",
 	bag = "i3_bag.png",
 	armor = "i3_armor.png",
 	awards = "i3_award.png",

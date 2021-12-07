@@ -352,7 +352,6 @@ local function get_recipes(player, item)
 	local no_recipes = not recipes or #recipes == 0
 	if no_recipes and not usages then return end
 	usages = apply_recipe_filters(usages, player)
-
 	local no_usages = not usages or #usages == 0
 
 	return not no_recipes and recipes or nil,
