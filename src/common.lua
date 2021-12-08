@@ -584,6 +584,7 @@ local function get_detached_inv(name, player_name)
 	}
 end
 
+-- Much faster implementation of `unpack`
 local function createunpack(n)
 	local ret = {"local t = ... return "}
 

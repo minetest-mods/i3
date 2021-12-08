@@ -221,23 +221,28 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 	end
 end
 
-local function get_isometric_view(fs, pos, X, Y, cubes, depth)
+local function get_isometric_view(fs, pos, X, Y, t, cubes, depth, high)
 	pos   = vec_round(pos)
 	cubes = cubes or 0
 	depth = depth or -1
+	high  = high or math.huge
+
+	t = t or {}
+	t[depth] = {}
 
 	local width = 8
-	local height = 4
+	local base_height = 4
+	local base_depth = depth == -1
 	local max_depth = -5
+	local height = base_depth and (base_height - 1) or depth
 
 	local pos1 = vec_new(pos.x - width, pos.y + depth, pos.z - width)
-	local pos2 = vec_new(pos.x + width, pos.y + height - 1, pos.z + width)
+	local pos2 = vec_new(pos.x + width, pos.y + height, pos.z + width)
 
 	local vm = VoxelManip(pos1, pos2)
 	local emin, emax = vm:read_from_map(pos1, pos2)
 	local area = VoxelArea:new{MinEdge = emin, MaxEdge = emax}
 	local data = vm:get_data()
-	local t, c = {}, 0
 
 	for idx in area:iterp(pos1, pos2) do
 		local cube = i3.cubes[data[idx]]
@@ -250,32 +255,43 @@ local function get_isometric_view(fs, pos, X, Y, cubes, depth)
 
 			local size = 0.25
 			local x = 2 + (size / 2 * (p.z - p.x))
-			local y = 1.15 + (size / 4 * (p.x + p.z - 2 * p.y))
+			local y = 1 + (size / 4 * (p.x + p.z - 2 * p.y))
+
+			if y < high then
+				high = y
+			end
 
 			if plant then
 				size -= 0.05
 			end
 
-			c++
 			cubes++
-			t[c] = fmt("image[%f,%f;%.1f,%.1f;%s]", x + X, y + Y, size, size, img)
+			insert(t[depth], {x + X, y + Y, size, size, img})
 		end
 	end
 
-	local maxc = ((width << 1) ^ 2) * height
+	local maxc = ((width << 1) ^ 2) * base_height
 
 	if cubes < maxc and depth > max_depth then
+		-- if there's not enough map to preview, go deeper
 		depth -= 1
-		Y -= 0.1
-		get_isometric_view(fs, pos, X, Y, cubes, depth)
+		get_isometric_view(fs, pos, X, Y, t, cubes, depth, high)
 	else
-		t[0] = #t
+		local shift = -0.3 - high
 
-		for i = 1, t[0] do
-			insert(fs, t[i])
+		for i = max_depth, 0 do
+			local dth = t[i]
+			if dth then
+				dth[0] = #dth
+				for j = 1, dth[0] do
+					local params = dth[j]
+					      params[2] += shift
+					insert(fs, fmt("image[%f,%f;%.1f,%.1f;%s]", unpack(params)))
+				end
+			end
 		end
 
-		local shift = depth == -1 and 0.55 or 1.05
+		shift += (base_depth and 0.45 or 0.95)
 		fs("image", 2.7, Y + shift, 0.3, 0.3, PNG.flag)
 	end
 end
