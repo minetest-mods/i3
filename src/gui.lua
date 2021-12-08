@@ -288,6 +288,7 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 	fs(fmt("tooltip[waypoint_add;%s]", ES"Add waypoint"))
 
 	if #data.waypoints == 0 then return end
+	fs("style_type[label;font=bold;font_size=17]")
 
 	for i, v in ipairs(data.waypoints) do
 		local y = yextra + 1.35 + (i - (i * 0.3))
@@ -301,8 +302,6 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 		if #v.name > lim then
 			waypoint_name = snip(waypoint_name, lim)
 		end
-
-		fs"style_type[label;font_size=17]"
 
 		local hex = fmt("%02x", v.color)
 
@@ -361,7 +360,7 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 		end
 	end
 
-	fs"style_type[label;font_size=16]"
+	fs"style_type[label;font=normal;font_size=16]"
 end
 
 local function get_bag_fs(fs, data, name, esc_name, bag_size, yextra)
