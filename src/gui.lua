@@ -221,18 +221,23 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 	end
 end
 
-local function get_isometric_view(fs, pos, X, Y)
-	pos = vec_round(pos)
-	local width = 8
+local function get_isometric_view(fs, pos, X, Y, cubes, depth)
+	pos   = vec_round(pos)
+	cubes = cubes or 0
+	depth = depth or -1
 
-	local pos1 = vec_new(pos.x - width, pos.y - 1, pos.z - width)
-	local pos2 = vec_new(pos.x + width, pos.y + 3, pos.z + width)
-	core.emerge_area(pos1, pos2)
+	local width = 8
+	local height = 4
+	local max_depth = -5
+
+	local pos1 = vec_new(pos.x - width, pos.y + depth, pos.z - width)
+	local pos2 = vec_new(pos.x + width, pos.y + height - 1, pos.z + width)
 
 	local vm = VoxelManip(pos1, pos2)
 	local emin, emax = vm:read_from_map(pos1, pos2)
 	local area = VoxelArea:new{MinEdge = emin, MaxEdge = emax}
 	local data = vm:get_data()
+	local t, c = {}, 0
 
 	for idx in area:iterp(pos1, pos2) do
 		local cube = i3.cubes[data[idx]]
@@ -251,8 +256,27 @@ local function get_isometric_view(fs, pos, X, Y)
 				size -= 0.05
 			end
 
-			insert(fs, fmt("image[%f,%f;%.1f,%.1f;%s]", x + X, y + Y, size, size, img))
+			c++
+			cubes++
+			t[c] = fmt("image[%f,%f;%.1f,%.1f;%s]", x + X, y + Y, size, size, img)
 		end
+	end
+
+	local maxc = ((width << 1) ^ 2) * height
+
+	if cubes < maxc and depth > max_depth then
+		depth -= 1
+		Y -= 0.1
+		get_isometric_view(fs, pos, X, Y, cubes, depth)
+	else
+		t[0] = #t
+
+		for i = 1, t[0] do
+			insert(fs, t[i])
+		end
+
+		local shift = depth == -1 and 0.55 or 1.05
+		fs("image", 2.7, Y + shift, 0.3, 0.3, PNG.flag)
 	end
 end
 
@@ -334,7 +358,6 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 
 			local pos = str_to_pos(data.waypoints[i].pos)
 			get_isometric_view(fs, pos, 0.6, y - 2.5)
-			fs("image", 2.7, y - 1.5, 0.3, 0.3, PNG.flag)
 		end
 	end
 
