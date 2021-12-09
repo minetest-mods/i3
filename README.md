@@ -1,6 +1,6 @@
 ![logo](https://user-images.githubusercontent.com/7883281/145490041-d91d6bd6-a654-438d-b208-4d5736845ab7.png)
 
-[![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs) [![GitHub Release](https://img.shields.io/github/release/minetest-mods/i3.svg?style=flat)]() [![ContentDB](https://content.minetest.net/packages/jp/i3/shields/downloads/)](https://content.minetest.net/packages/jp/i3/) [![PayPal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.me/jpg84240)
+[![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs) [![GitHub Release](https://img.shields.io/github/release/minetest-mods/i3.svg?style=flat)]() ![workflow](https://github.com/minetest-mods/i3/actions/workflows/luacheck.yml/badge.svg) [![ContentDB](https://content.minetest.net/packages/jp/i3/shields/downloads/)](https://content.minetest.net/packages/jp/i3/) [![PayPal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.me/jpg84240)
 
 #### **`i3`** is a next-generation inventory for Minetest.
 
