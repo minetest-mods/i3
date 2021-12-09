@@ -1,3 +1,15 @@
+print[[
+
+	Powered by
+
+	██╗██████╗
+	██║╚════██╗
+	██║ █████╔╝
+	██║ ╚═══██╗
+	██║██████╔╝
+	╚═╝╚═════╝
+]]
+
 local modpath = core.get_modpath"i3"
 local http = core.request_http_api()
 local _loadfile = dofile(modpath .. "/src/operators.lua")

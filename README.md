@@ -1,4 +1,9 @@
-# i3
+    ██╗██████╗ 
+    ██║╚════██╗
+    ██║ █████╔╝
+    ██║ ╚═══██╗
+    ██║██████╔╝
+    ╚═╝╚═════╝ 
 
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs) [![GitHub Release](https://img.shields.io/github/release/minetest-mods/i3.svg?style=flat)]() [![ContentDB](https://content.minetest.net/packages/jp/i3/shields/downloads/)](https://content.minetest.net/packages/jp/i3/) [![PayPal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.me/jpg84240)
 
