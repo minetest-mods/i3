@@ -19,17 +19,23 @@ local function lf(path)
 end
 
 i3 = {
-	modules = {},
-	MAX_FAVS = 6,
-	ITEM_BTN_SIZE = 1.1,
-	DROP_BAG_ON_DIE = true,
-	MIN_FORMSPEC_VERSION = 4,
-	SAVE_INTERVAL = 600, -- Player data save interval (in seconds)
+	settings = {
+		max_favs = 6,
+		min_fs_version = 4,
+		item_btn_size = 1.1,
+		drop_bag_on_die = true,
+		save_interval = 600, -- Player data save interval (in seconds)
 
-	HUD_TIMER_MAX = 1.5,
-	HUD_SPEED = 1,
+		hud_speed = 1,
+		hud_timer_max = 1.5,
 
-	SUBCAT = {
+		damage_enabled   = core.settings:get_bool"enable_damage",
+		progressive_mode = core.settings:get_bool"i3_progressive_mode",
+		legacy_inventory = core.settings:get_bool"i3_legacy_inventory",
+		item_compression = core.settings:get_bool("i3_item_compression", true),
+	},
+
+	categories = {
 		"bag",
 		"armor",
 		"skins",
@@ -37,7 +43,7 @@ i3 = {
 		"waypoints",
 	},
 
-	META_SAVES = {
+	saves = { -- Metadata to save
 		bag = true,
 		home = true,
 		waypoints = true,
@@ -45,21 +51,6 @@ i3 = {
 		drop_items = true,
 		known_recipes = true,
 	},
-
-	-- Caches
-	init_items = {},
-	fuel_cache = {},
-	usages_cache = {},
-	recipes_cache = {},
-	cubes = {},
-	plants = {},
-
-	tabs = {},
-	craft_types = {},
-
-	recipe_filters = {},
-	search_filters = {},
-	sorting_methods = {},
 
 	files = {
 		api = lf"/src/api.lua",
@@ -84,13 +75,25 @@ i3 = {
 		}
 	},
 
-	progressive_mode = core.settings:get_bool"i3_progressive_mode",
-	legacy_inventory = core.settings:get_bool"i3_legacy_inventory",
-	item_compression = core.settings:get_bool("i3_item_compression", true),
+	-- Caches
+	init_items = {},
+	fuel_cache = {},
+	usages_cache = {},
+	recipes_cache = {},
+
+	tabs = {},
+	cubes = {},
+	plants = {},
+	modules = {},
+	craft_types = {},
+
+	recipe_filters = {},
+	search_filters = {},
+	sorting_methods = {},
 }
 
-i3.HOTBAR_LEN = i3.legacy_inventory and 8 or 9
-i3.INV_SIZE   = 4 * i3.HOTBAR_LEN
+i3.settings.hotbar_len = i3.settings.legacy_inventory and 8 or 9
+i3.settings.inv_size   = 4 * i3.settings.hotbar_len
 
 i3.files.common()
 i3.files.api(http)
@@ -191,7 +194,7 @@ local function init_data(player, info)
 	data.fs_version      = info.formspec_version
 
 	local inv = player:get_inventory()
-	inv:set_size("main", i3.INV_SIZE)
+	inv:set_size("main", i3.settings.inv_size)
 
 	core.after(0, set_fs, player)
 end
@@ -201,7 +204,7 @@ local function save_data(player_name)
 
 	for name, v in pairs(_data) do
 	for dat in pairs(v) do
-		if not i3.META_SAVES[dat] then
+		if not i3.saves[dat] then
 			_data[name][dat] = nil
 
 			if player_name and i3.data[player_name] then
@@ -223,7 +226,7 @@ core.register_on_joinplayer(function(player)
 	local name = player:get_player_name()
 	local info = core.get_player_information and core.get_player_information(name)
 
-	if not info or get_formspec_version(info) < i3.MIN_FORMSPEC_VERSION then
+	if not info or get_formspec_version(info) < i3.settings.min_fs_version then
 		return outdated(name)
 	end
 
@@ -242,12 +245,12 @@ core.register_on_shutdown(save_data)
 
 local function routine()
 	save_data()
-	core.after(i3.SAVE_INTERVAL, routine)
+	core.after(i3.settings.save_interval, routine)
 end
 
-core.after(i3.SAVE_INTERVAL, routine)
+core.after(i3.settings.save_interval, routine)
 
-if i3.progressive_mode then
+if i3.settings.progressive_mode then
 	i3.files.progressive()
 end
 

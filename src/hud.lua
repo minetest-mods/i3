@@ -36,7 +36,7 @@ local function init_hud(player)
 
 	if not i3.legacy_inventory then
 		core.after(0, function()
-			player:hud_set_hotbar_itemcount(i3.HOTBAR_LEN)
+			player:hud_set_hotbar_itemcount(i3.settings.hotbar_len)
 			player:hud_set_hotbar_image"i3_hotbar.png"
 		end)
 	end
@@ -66,18 +66,18 @@ local function show_hud(player, data)
 
 			player:hud_change(def, "position", {
 				x = hud_info.position.x,
-				y = hud_info.position.y - ((dt / 5) * i3.HUD_SPEED)
+				y = hud_info.position.y - ((dt / 5) * i3.settings.hud_speed)
 			})
 		end
 
 	elseif data.show_hud == false then
-		if data.hud_timer >= i3.HUD_TIMER_MAX then
+		if data.hud_timer >= i3.settings.hud_timer_max then
 			for _, def in pairs(data.hud) do
 				local hud_info = player:hud_get(def)
 
 				player:hud_change(def, "position", {
 					x = hud_info.position.x,
-					y = hud_info.position.y + ((dt / 5) * i3.HUD_SPEED)
+					y = hud_info.position.y + ((dt / 5) * i3.settings.hud_speed)
 				})
 			end
 

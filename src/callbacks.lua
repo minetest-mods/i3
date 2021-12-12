@@ -56,7 +56,7 @@ i3.new_tab("inventory", {
 
 		for field in pairs(fields) do
 			if sub(field, 1, 4) == "btn_" then
-				data.subcat = indexof(i3.SUBCAT, sub(field, 5))
+				data.subcat = indexof(i3.categories, sub(field, 5))
 				break
 
 			elseif sub(field, 1, 3) == "cb_" then
@@ -379,7 +379,7 @@ local function rcp_fields(player, data, fields)
 		local fav, i = is_fav(data.favs, data.query_item)
 		local total = #data.favs
 
-		if total < i3.MAX_FAVS and not fav then
+		if total < i3.settings.max_favs and not fav then
 			data.favs[total + 1] = data.query_item
 		elseif fav then
 			remove(data.favs, i)
@@ -479,7 +479,7 @@ core.register_on_dieplayer(function(player)
 	local data = i3.data[name]
 	if not data then return end
 
-	if i3.DROP_BAG_ON_DIE then
+	if i3.settings.drop_bag_on_die then
 		local bagstack = ItemStack(data.bag)
 		spawn_item(player, bagstack)
 	end

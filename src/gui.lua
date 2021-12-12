@@ -1,4 +1,5 @@
-local damage_enabled = core.settings:get_bool"enable_damage"
+local damage_enabled = i3.settings.damage_enabled
+local hotbar_len = i3.settings.hotbar_len
 
 local model_aliases = i3.files.model_alias()
 local PNG, styles, fs_elements, colors = i3.files.styles()
@@ -122,22 +123,22 @@ local function get_stack_max(inv, data, is_recipe, rcp)
 end
 
 local function get_inv_slots(fs)
-	local inv_x = i3.legacy_inventory and 0.75 or 0.22
+	local inv_x = i3.settings.legacy_inventory and 0.75 or 0.22
 	local inv_y = 6.9
 	local size, spacing = 1, 0.1
 
 	fs"style_type[box;colors=#77777710,#77777710,#777,#777]"
 
-	for i = 0, i3.HOTBAR_LEN - 1 do
+	for i = 0, hotbar_len - 1 do
 		fs("box", i * size + inv_x + (i * spacing), inv_y, size, size, "")
 	end
 
 	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing),
-	   fmt("list[current_player;main;%f,%f;%u,1;]", inv_x, inv_y, i3.HOTBAR_LEN))
+	   fmt("list[current_player;main;%f,%f;%u,1;]", inv_x, inv_y, hotbar_len))
 
 	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing),
 	   fmt("list[current_player;main;%f,%f;%u,%u;%u]", inv_x, inv_y + 1.15,
-		i3.HOTBAR_LEN, i3.INV_SIZE / i3.HOTBAR_LEN, i3.HOTBAR_LEN),
+		hotbar_len, i3.settings.inv_size / hotbar_len, hotbar_len),
 	   "style_type[list;size=1;spacing=0.15]")
 
 	fs"listring[current_player;craft]listring[current_player;main]"
@@ -233,7 +234,7 @@ local function get_isometric_view(fs, pos, X, Y, t, cubes, depth, high)
 	local width = 8
 	local base_height = 4
 	local base_depth = depth == -1
-	local max_depth = -5
+	local max_depth = -10
 	local height = base_depth and (base_height - 1) or depth
 
 	local pos1 = vec_new(pos.x - width, pos.y + depth, pos.z - width)
@@ -454,7 +455,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 
 	local yextra = damage_enabled and 5.5 or 5
 
-	for i, title in ipairs(i3.SUBCAT) do
+	for i, title in ipairs(i3.categories) do
 		local btn_name = fmt("btn_%s", title)
 		fs(fmt("style[btn_%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", title,
 			data.subcat == i and PNG[fmt("%s_hover", title)] or PNG[title],
@@ -790,7 +791,8 @@ local function get_tooltip(item, info, pos)
 	end
 
 	if pos then
-		return fmt("tooltip", pos.x, pos.y, i3.ITEM_BTN_SIZE, i3.ITEM_BTN_SIZE, ESC(tooltip))
+		local btn_size = i3.settings.item_btn_size
+		return fmt("tooltip", pos.x, pos.y, btn_size, btn_size, ESC(tooltip))
 	end
 
 	return fmt("tooltip[%s;%s]", item, ESC(tooltip))
@@ -832,14 +834,15 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 		end
 	end
 
-	local arrow_X = right + 0.2 + (_btn_size or i3.ITEM_BTN_SIZE)
+	local BTN_SIZE = i3.settings.item_btn_size
+	local arrow_X = right + 0.2 + (_btn_size or BTN_SIZE)
 	local X = arrow_X + 1.2
 	local Y = data.yoffset + 1.4
 
 	fs("image", arrow_X, Y + 0.06, 1, 1, PNG.arrow)
 
 	if fuel then
-		fs("animated_image", X + 0.05, Y, i3.ITEM_BTN_SIZE, i3.ITEM_BTN_SIZE, PNG.fire_anim, 8, 180)
+		fs("animated_image", X + 0.05, Y, BTN_SIZE, BTN_SIZE, PNG.fire_anim, 8, 180)
 		return
 	end
 
@@ -848,17 +851,17 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 	local name  = item:get_name()
 	local count = item:get_count()
 	local wear  = item:get_wear()
-	local bt_s  = i3.ITEM_BTN_SIZE * 1.2
+	local bt_s  = BTN_SIZE * 1.2
 	local _name = fmt("_%s", name)
 	local pos
 
 	if meta:get_string"color" ~= "" or meta:get_string"palette_index" ~= "" then
 		local rcp_usg = is_recipe and "rcp" or "usg"
 
-		fs(fmt("style_type[list;size=%f]", i3.ITEM_BTN_SIZE))
+		fs(fmt("style_type[list;size=%f]", BTN_SIZE))
 		fs"listcolors[#bababa50;#bababa99]"
 		fs(fmt("list[detached:i3_output_%s_%s;main;%f,%f;1,1;]", rcp_usg, data.player_name, X + 0.11, Y))
-		fs("button",  X + 0.11, Y, i3.ITEM_BTN_SIZE, i3.ITEM_BTN_SIZE, _name, "")
+		fs("button",  X + 0.11, Y, BTN_SIZE, BTN_SIZE, _name, "")
 
 		local inv = get_detached_inv(fmt("output_%s", rcp_usg), data.player_name)
 		inv:set_stack("main", 1, item)
@@ -866,7 +869,7 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 	else
 		fs("image", X, Y - 0.11, bt_s, bt_s, PNG.slot)
 		fs("item_image_button",
-			X + 0.11, Y, i3.ITEM_BTN_SIZE, i3.ITEM_BTN_SIZE,
+			X + 0.11, Y, BTN_SIZE, BTN_SIZE,
 			fmt("%s %u %u", name, count * (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1), wear),
 			_name, "")
 	end
@@ -898,7 +901,8 @@ end
 
 local function get_grid_fs(fs, data, rcp, is_recipe)
 	local width = rcp.width or 1
-	local right, btn_size, _btn_size = 0, i3.ITEM_BTN_SIZE
+	local right = 0
+	local btn_size, _btn_size = i3.settings.item_btn_size
 	local cooktime, shapeless
 
 	if rcp.type == "cooking" then
@@ -1113,9 +1117,10 @@ end
 local function get_header(fs, data)
 	local fav = is_fav(data.favs, data.query_item)
 	local nfavs = #data.favs
+	local max_favs = i3.settings.max_favs
 	local star_x, star_y, size = data.inv_width + 0.3, data.yoffset + 0.2, 0.4
 
-	if nfavs < i3.MAX_FAVS or (nfavs == i3.MAX_FAVS and fav) then
+	if nfavs < max_favs or (nfavs == max_favs and fav) then
 		local fav_marked = fmt("i3_fav%s.png", fav and "_off" or "")
 		fs(fmt("style[fav;fgimg=%s;fgimg_hovered=%s;fgimg_pressed=%s]",
 			fmt("i3_fav%s.png", fav and "" or "_off"), fav_marked, fav_marked))
@@ -1342,6 +1347,7 @@ local function get_items_fs(fs, player, data, full_height)
 end
 
 local function get_favs(fs, data)
+	local btn_size = i3.settings.item_btn_size
 	fs("label", data.inv_width + 0.4, data.yoffset + 0.4, ES"Bookmarks")
 
 	for i = 1, #data.favs do
@@ -1350,10 +1356,10 @@ local function get_favs(fs, data)
 		local Y = data.yoffset + 0.8
 
 		if data.query_item == item then
-			fs("image", X, Y, i3.ITEM_BTN_SIZE, i3.ITEM_BTN_SIZE, PNG.slot)
+			fs("image", X, Y, btn_size, btn_size, PNG.slot)
 		end
 
-		fs("item_image_button", X, Y, i3.ITEM_BTN_SIZE, i3.ITEM_BTN_SIZE, item, item, "")
+		fs("item_image_button", X, Y, btn_size, btn_size, item, item, "")
 	end
 end
 
@@ -1490,7 +1496,7 @@ local function make_fs(player, data)
 	local tab = i3.tabs[data.tab]
 
 	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
-		i3.MIN_FORMSPEC_VERSION, data.inv_width + 8, full_height), styles)
+		i3.settings.min_fs_version, data.inv_width + 8, full_height), styles)
 
 	fs("bg9", 0, 0, data.inv_width, full_height, PNG.bg_full, 10)
 

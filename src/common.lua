@@ -282,7 +282,7 @@ local function apply_recipe_filters(recipes, player)
 end
 
 local function compression_active(data)
-	return i3.item_compression and not next(i3.recipe_filters) and data.filter == ""
+	return i3.settings.item_compression and not next(i3.recipe_filters) and data.filter == ""
 end
 
 local function compressible(item, data)
@@ -539,7 +539,7 @@ local function sort_inventory(player, data)
 	local inv = player:get_inventory()
 	local list = inv:get_list"main"
 	local size = inv:get_size"main"
-	local start_i = data.ignore_hotbar and (i3.HOTBAR_LEN + 1) or 1
+	local start_i = data.ignore_hotbar and (i3.settings.hotbar_len + 1) or 1
 
 	if true_table(data.drop_items) then
 		list = drop_items(player, inv, list, start_i, data.drop_items)
