@@ -1,3 +1,4 @@
+local PNG = i3.files.styles()
 local replacements = {fuel = {}}
 local http = ...
 
@@ -285,29 +286,25 @@ end
 
 local function get_cube(tiles)
 	if not true_table(tiles) then
-		return "i3_blank.png"
+		return PNG.blank
 	end
 
-	local t = copy(tiles)
-	local texture
-
-	for k, v in pairs(t) do
-		if type(v) == "table" then
-			t[k] = v.name
-		end
+	local top = tiles[1] or PNG.blank
+	if is_table(top) then
+		top = top.name or top.image
 	end
 
-	-- Tiles: up, down, right, left, back, front
-	-- Inventory cube: up, front, right
-	if #t <= 2 then
-		texture = draw_cube(t[1], t[1], t[1])
-	elseif #t <= 5 then
-		texture = draw_cube(t[1], t[3], t[3])
-	else -- Full tileset
-		texture = draw_cube(t[1], t[6], t[3])
+	local left = tiles[3] or top or PNG.blank
+	if is_table(left) then
+		left = left.name or left.image
 	end
 
-	return texture
+	local right = tiles[5] or left or PNG.blank
+	if is_table(right) then
+		right = right.name or right.image
+	end
+
+	return draw_cube(top, left, right)
 end
 
 local function init_cubes()
