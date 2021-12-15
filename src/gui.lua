@@ -271,7 +271,7 @@ local function get_isometric_view(fs, pos, X, Y, t, cubes, depth, high)
 		end
 	end
 
-	local maxc = ((width << 1) ^ 2) * base_height
+	local maxc = ((width * 2) ^ 2) * base_height
 
 	if cubes < maxc and depth > max_depth then
 		-- if there's not enough map to preview, go deeper
