@@ -234,14 +234,14 @@ local function get_isometric_view(fs, pos, X, Y, t, cubes, depth, high)
 	local width = 8
 	local base_height = 4
 	local base_depth = depth == -1
-	local max_depth = -10
+	local max_depth = -7
 	local height = base_depth and (base_height - 1) or depth
 
 	local pos1 = vec_new(pos.x - width, pos.y + depth, pos.z - width)
 	local pos2 = vec_new(pos.x + width, pos.y + height, pos.z + width)
 
 	local vm = VoxelManip(pos1, pos2)
-	local emin, emax = vm:read_from_map(pos1, pos2)
+	local emin, emax = vm:get_emerged_area()
 	local area = VoxelArea:new{MinEdge = emin, MaxEdge = emax}
 	local data = vm:get_data()
 
@@ -276,25 +276,25 @@ local function get_isometric_view(fs, pos, X, Y, t, cubes, depth, high)
 	if cubes < maxc and depth > max_depth then
 		-- if there's not enough map to preview, go deeper
 		depth -= 1
-		get_isometric_view(fs, pos, X, Y, t, cubes, depth, high)
-	else
-		local shift = -0.3 - high
+		return get_isometric_view(fs, pos, X, Y, t, cubes, depth, high)
+	end
 
-		for i = max_depth, 0 do
-			local dth = t[i]
-			if dth then
-				dth[0] = #dth
-				for j = 1, dth[0] do
-					local params = dth[j]
-					      params[2] += shift
-					insert(fs, fmt("image[%f,%f;%.1f,%.1f;%s]", unpack(params)))
-				end
+	local shift = -0.3 - high
+
+	for i = max_depth, 0 do
+		local dth = t[i]
+		if dth then
+			dth[0] = #dth
+			for j = 1, dth[0] do
+				local params = dth[j]
+				      params[2] += shift
+				insert(fs, fmt("image[%f,%f;%.1f,%.1f;%s]", unpack(params)))
 			end
 		end
-
-		shift += (base_depth and 0.45 or 0.95)
-		fs("image", 2.7, Y + shift, 0.3, 0.3, PNG.flag)
 	end
+
+	shift += (base_depth and 0.45 or 0.95)
+	fs("image", 2.7, Y + shift, 0.3, 0.3, PNG.flag)
 end
 
 local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
@@ -1093,8 +1093,7 @@ local function get_model_fs(fs, data, def, model_alias)
 					hex = "0" .. hex
 				end
 
-				_name = fmt("%s^[multiply:%s", v.name,
-					fmt("#%s%s", sub(hex, 3), sub(hex, 1, 2)))
+				_name = fmt("%s^[multiply:%s", v.name, fmt("#%s%s", sub(hex, 3), sub(hex, 1, 2)))
 			else
 				_name = fmt("%s^[multiply:%s", v.name, v.color)
 			end
@@ -1312,10 +1311,10 @@ local function get_items_fs(fs, player, data, full_height)
 			local name = _compressed and item:sub(2) or item
 
 			local X = i % rows
-			X -= (X * 0.045) + data.inv_width + 0.28
+			      X -= (X * 0.045) + data.inv_width + 0.28
 
 			local Y = round((i % ipp - X) / rows + 1, 0)
-			Y -= (Y * 0.085) + 0.95
+			      Y -= (Y * 0.085) + 0.95
 
 			insert(fs, fmt("item_image_button", X, Y, size, size, name, item, ""))
 
