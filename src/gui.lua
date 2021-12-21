@@ -1200,7 +1200,7 @@ local function get_export_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, max_
 		fmt("craft_%s", name), ES("Craft (×@1)", stack_fs))
 end
 
-local function get_rcp_extra(fs, player, data, panel, is_recipe, is_usage)
+local function get_rcp_extra(fs, data, player, panel, is_recipe, is_usage)
 	fs"container[0,0.075]"
 	local rn = panel.rcp and #panel.rcp
 
@@ -1269,13 +1269,15 @@ local function hide_items(player, data)
 	end
 end
 
-local function get_items_fs(fs, player, data, full_height)
+local function get_items_fs(fs, data, player, full_height)
 	hide_items(player, data)
 
 	local items = data.alt_items or data.items or {}
 	local rows, lines = 8, 12
 	local ipp = rows * lines
 	local size = 0.85
+
+	fs("bg9", data.inv_width + 0.1, 0, 7.9, full_height, PNG.bg_full, 10)
 
 	fs(fmt("box[%f,0.2;4.05,0.6;#bababa25]", data.inv_width + 0.3),
 	   "set_focus[filter]",
@@ -1362,43 +1364,23 @@ local function get_favs(fs, data)
 	end
 end
 
-local function get_panels(fs, player, data, full_height)
-	local _title   = {name = "title", height = 1.4}
-	local _favs    = {name = "favs",  height = 2.23}
-	local _items   = {name = "items", height = full_height}
-	local _recipes = {name = "recipes", rcp = data.recipes, height = 4.045}
-	local _usages  = {name = "usages",  rcp = data.usages,  height = 4.045}
-	local panels
+local function get_panels(fs, data, player)
+	local title   = {name = "title", height = 1.4, func = get_header}
+	local favs    = {name = "favs", height = 2.23, func = get_favs}
+	local recipes = {name = "recipes", rcp = data.recipes, height = 4.045, func = get_rcp_extra}
+	local usages  = {name = "usages", rcp = data.usages, height = 4.045, func = get_rcp_extra}
+	local panels  = {title, recipes, usages, favs}
+	data.yoffset  = 0
 
-	if data.query_item then
-		panels = {_title, _recipes, _usages, _favs}
-	else
-		panels = {_items}
-	end
-
-	for idx = 1, #panels do
-		local panel = panels[idx]
-		data.yoffset = 0
-
-		if idx > 1 then
-			for _idx = idx - 1, 1, -1 do
-				data.yoffset = data.yoffset + panels[_idx].height + 0.1
-			end
+	for i, panel in ipairs(panels) do
+		if i > 1 then
+			data.yoffset += panels[i - 1].height + 0.1
 		end
 
 		fs("bg9", data.inv_width + 0.1, data.yoffset, 7.9, panel.height, PNG.bg_full, 10)
 
 		local is_recipe, is_usage = panel.name == "recipes", panel.name == "usages"
-
-		if is_recipe or is_usage then
-			get_rcp_extra(fs, player, data, panel, is_recipe, is_usage)
-		elseif panel.name == "items" then
-			get_items_fs(fs, player, data, full_height)
-		elseif panel.name == "title" then
-			get_header(fs, data)
-		elseif panel.name == "favs" then
-			get_favs(fs, data)
-		end
+		panel.func(fs, data, player, panel, is_recipe, is_usage)
 	end
 end
 
@@ -1503,7 +1485,11 @@ local function make_fs(player, data)
 		tab.formspec(player, data, fs)
 	end
 
-	get_panels(fs, player, data, full_height)
+	if data.query_item then
+		get_panels(fs, data, player)
+	else
+		get_items_fs(fs, data, player, full_height)
+	end
 
 	if #i3.tabs > 1 then
 		get_tabs_fs(fs, player, data, full_height)
