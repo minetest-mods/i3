@@ -1,5 +1,5 @@
-local make_fs = i3.files.gui()
 local http = ...
+local make_fs = i3.files.gui()
 
 IMPORT("gmatch", "split")
 IMPORT("S", "err", "fmt", "reg_items")
@@ -22,7 +22,7 @@ end
 function i3.register_craft(def)
 	local width, c = 0, 0
 
-	if true_str(def.url) then
+	if http and true_str(def.url) then
 		http.fetch({url = def.url}, function(result)
 			if result.succeeded then
 				local t = core.parse_json(result.data)
@@ -51,7 +51,7 @@ function i3.register_craft(def)
 		def.result = nil
 	end
 
-	if not true_str(def.output) then
+	if not true_str(def.output) and not def.url then
 		return err "i3.register_craft: output missing"
 	end
 
@@ -69,9 +69,7 @@ function i3.register_craft(def)
 		end
 
 		local cp = copy(def.grid)
-		sort(cp, function(a, b)
-			return #a > #b
-		end)
+		sort(cp, function(a, b) return #a > #b end)
 
 		width = #cp[1]
 
@@ -86,7 +84,8 @@ function i3.register_craft(def)
 			def.items[c] = def.key[symbol]
 		end
 	else
-		local items, len = def.items, #def.items
+		local items = copy(def.items)
+		local len = #items
 		def.items = {}
 
 		for i = 1, len do
@@ -98,14 +97,18 @@ function i3.register_craft(def)
 		end
 
 		for i = 1, len do
-			while #split(items[i], ",") < width do
+			while #split(items[i], ",", true) < width do
 				items[i] = fmt("%s,", items[i])
 			end
 		end
 
-		for name in gmatch(concat(items, ","), "[%s%w_:]+") do
-			c++
-			def.items[c] = clean_name(name)
+		for _, line in ipairs(items) do
+			line = split(line, ",", true)
+
+			for _, v in ipairs(line) do
+				c++
+				def.items[c] = clean_name(v)
+			end
 		end
 	end
 

@@ -257,4 +257,4 @@ end
 --i3.files.tests.tabs()
 --i3.files.tests.operators()
 --i3.files.tests.compression()
---i3.files.tests.custom_recipes(http)
+--i3.files.tests.custom_recipes()

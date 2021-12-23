@@ -38,6 +38,24 @@ i3.register_craft({
 	items = {"default:copper_ingot 7, default:tin_ingot, default:steel_ingot 2"},
 })
 
+i3.register_craft {
+	result = "default:tree",
+	items = {
+		"default:wood",
+		"",
+		"default:wood"
+	},
+}
+
+i3.register_craft {
+	result = "default:cobble 16",
+	items = {
+		"default:stone, default:stone",
+		"default:stone,              , default:stone",
+		", default:stone, default:stone",
+	}
+}
+
 i3.register_craft({
 	grid = {
 		"X",
@@ -304,25 +322,6 @@ i3.register_craft({
 		" ## ",
 		"#X#X#",
 		"#X#X#",
-	},
-	key = {
-		['#'] = "default:wood",
-		['X'] = "default:glass",
-	},
-	result = "default:mese 3",
-})
-
-i3.register_craft({
-	grid = {
-		"X  #",
-		" ## ",
-		"X#X#",
-		"#X#X#",
-		"X  X##X#X",
-		" ## ",
-		"#X#X#",
-		"#X#X#",
-		"X  #",
 	},
 	key = {
 		['#'] = "default:wood",
