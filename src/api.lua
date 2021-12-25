@@ -85,26 +85,24 @@ function i3.register_craft(def)
 		end
 	else
 		local items = copy(def.items)
-		local len = #items
+		local lines = {}
 		def.items = {}
 
-		for i = 1, len do
-			local rlen = #split(items[i], ",")
+		for i = 1, #items do
+			lines[i] = split(items[i], ",", true)
 
-			if rlen > width then
-				width = rlen
+			if #lines[i] > width then
+				width = #lines[i]
 			end
 		end
 
-		for i = 1, len do
-			while #split(items[i], ",", true) < width do
-				items[i] = fmt("%s,", items[i])
+		for i = 1, #items do
+			while #lines[i] < width do
+				insert(lines[i], items[i])
 			end
 		end
 
-		for _, line in ipairs(items) do
-			line = split(line, ",", true)
-
+		for _, line in ipairs(lines) do
 			for _, v in ipairs(line) do
 				c++
 				def.items[c] = clean_name(v)
