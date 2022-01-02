@@ -20,6 +20,7 @@ end
 
 i3 = {
 	settings = {
+		debug_mode = false,
 		max_favs = 6,
 		min_fs_version = 4,
 		item_btn_size = 1.1,
@@ -66,13 +67,6 @@ i3 = {
 		model_alias = lf"/src/model_aliases.lua",
 		progressive = lf"/src/progressive.lua",
 		styles = lf"/src/styles.lua",
-
-		tests = {
-			tabs = lf"/tests/test_tabs.lua",
-			operators = lf"/tests/test_operators.lua",
-			compression = lf"/tests/test_compression.lua",
-			custom_recipes = lf"/tests/test_custom_recipes.lua",
-		}
 	},
 
 	-- Caches
@@ -121,10 +115,9 @@ local function get_formspec_version(info)
 end
 
 local function outdated(name)
-	local fs = ("size[6.3,1.3]image[0,0;1,1;i3_book.png]label[1,0;%s]button_exit[2.6,0.8;1,1;;OK]"):format(
-		"Your Minetest client is outdated.\nGet the latest version on minetest.net to play the game.")
-
-	core.show_formspec(name, "i3_outdated", fs)
+	core.show_formspec(name, "i3_outdated",
+		("size[6.5,1.3]image[0,0;1,1;i3_book.png]label[1,0;%s]button_exit[2.6,0.8;1,1;;OK]"):format(
+		"Your Minetest client is outdated.\nGet the latest version on minetest.net to play the game."))
 end
 
 if rawget(_G, "armor") then
@@ -254,7 +247,9 @@ if i3.settings.progressive_mode then
 	i3.files.progressive()
 end
 
---i3.files.tests.tabs()
---i3.files.tests.operators()
---i3.files.tests.compression()
---i3.files.tests.custom_recipes()
+if i3.settings.debug_mode then
+	lf("/tests/test_tabs.lua")()
+	lf("/tests/test_operators.lua")()
+	lf("/tests/test_compression.lua")()
+	lf("/tests/test_custom_recipes.lua")()
+end

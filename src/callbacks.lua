@@ -229,6 +229,9 @@ i3.new_tab("inventory", {
 			})
 
 			data.scrbar_inv += 1000
+
+		elseif fields.hide_debug_grid then
+			data.hide_debug_grid = not data.hide_debug_grid
 		end
 
 		return set_fs(player)
@@ -376,13 +379,12 @@ local function rcp_fields(player, data, fields)
 		data.scrbar_usg = 1
 
 	elseif fields.fav then
-		local fav, i = is_fav(data.favs, data.query_item)
-		local total = #data.favs
+		local fav = is_fav(data)
 
-		if total < i3.settings.max_favs and not fav then
-			data.favs[total + 1] = data.query_item
+		if #data.favs < i3.settings.max_favs and not fav then
+			insert(data.favs, data.query_item)
 		elseif fav then
-			remove(data.favs, i)
+			remove(data.favs, fav)
 		end
 
 	elseif fields.export_rcp or fields.export_usg then
@@ -423,7 +425,8 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 	local name = player:get_player_name()
 
 	if formname == "i3_outdated" then
-		return false, core.kick_player(name, S"Come back when your client is up-to-date.")
+		return false, core.kick_player(name,
+			S"Come back when your Minetest client is up-to-date (www.minetest.net).")
 	elseif formname ~= "" then
 		return false
 	end

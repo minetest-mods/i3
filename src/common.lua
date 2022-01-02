@@ -289,17 +289,12 @@ local function compressible(item, data)
 	return compression_active(data) and i3.compress_groups[item]
 end
 
-local function is_fav(favs, query_item)
-	local fav, i
-	for j = 1, #favs do
-		if favs[j] == query_item then
-			fav = true
-			i = j
-			break
+local function is_fav(data)
+	for i = 1, #data.favs do
+		if data.favs[i] == data.query_item then
+			return i
 		end
 	end
-
-	return fav, i
 end
 
 local function sort_by_category(data)

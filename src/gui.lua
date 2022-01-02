@@ -7,9 +7,9 @@ local PNG, styles, fs_elements, colors = i3.files.styles()
 local sprintf = string.format
 local VoxelArea, VoxelManip = VoxelArea, VoxelManip
 
-IMPORT("clr", "ESC", "check_privs")
 IMPORT("find", "match", "sub", "upper")
 IMPORT("vec_new", "vec_sub", "vec_round")
+IMPORT("clr", "ESC", "msg", "check_privs")
 IMPORT("min", "max", "floor", "ceil", "round")
 IMPORT("reg_items", "reg_tools", "reg_entities")
 IMPORT("get_bag_description", "get_detached_inv")
@@ -1114,7 +1114,7 @@ local function get_model_fs(fs, data, def, model_alias)
 end
 
 local function get_header(fs, data)
-	local fav = is_fav(data.favs, data.query_item)
+	local fav = is_fav(data)
 	local nfavs = #data.favs
 	local max_favs = i3.settings.max_favs
 	local star_x, star_y, size = data.inv_width + 0.3, data.yoffset + 0.2, 0.4
@@ -1433,6 +1433,10 @@ local function get_tabs_fs(fs, player, data, full_height)
 end
 
 local function get_debug_grid(data, fs, full_height)
+	fs"style[hide_debug_grid;noclip=true]"
+	fs("button", -2, full_height - 1, 2, 1, "hide_debug_grid", "Toggle grid")
+	if data.hide_debug_grid then return end
+
 	fs("style_type[label;font_size=8;noclip=true]")
 	local spacing, i = 0.2, 1
 
@@ -1456,7 +1460,7 @@ local function get_debug_grid(data, fs, full_height)
 end
 
 local function make_fs(player, data)
-	--local start = os.clock()
+	local start = i3.settings.debug_mode and os.clock() or nil
 
 	local fs = setmetatable({}, {
 		__call = function(t, ...)
@@ -1474,12 +1478,12 @@ local function make_fs(player, data)
 	data.inv_width = 10.23
 	local full_height = 12
 
-	local tab = i3.tabs[data.tab]
-
 	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
 		i3.settings.min_fs_version, data.inv_width + 8, full_height), styles)
 
 	fs("bg9", 0, 0, data.inv_width, full_height, PNG.bg_full, 10)
+
+	local tab = i3.tabs[data.tab]
 
 	if tab then
 		tab.formspec(player, data, fs)
@@ -1495,9 +1499,11 @@ local function make_fs(player, data)
 		get_tabs_fs(fs, player, data, full_height)
 	end
 
-	--get_debug_grid(data, fs, full_height)
-	--print("make_fs()", fmt("%.2f ms", (os.clock() - start) * 1000))
-	--print("#fs elements", #fs)
+	if i3.settings.debug_mode then
+		get_debug_grid(data, fs, full_height)
+		msg(data.player_name, fmt("make_fs(): %.2f ms", (os.clock() - start) * 1000))
+		msg(data.player_name, fmt("#fs elements: %u", #fs))
+	end
 
 	return concat(fs)
 end
