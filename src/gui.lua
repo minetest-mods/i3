@@ -1,5 +1,6 @@
 local damage_enabled = i3.settings.damage_enabled
 local hotbar_len = i3.settings.hotbar_len
+local debug_mode = i3.settings.debug_mode
 
 local model_aliases = i3.files.model_alias()
 local PNG, styles, fs_elements, colors = i3.files.styles()
@@ -1460,7 +1461,7 @@ local function get_debug_grid(data, fs, full_height)
 end
 
 local function make_fs(player, data)
-	local start = i3.settings.debug_mode and os.clock() or nil
+	local start = debug_mode and os.clock() or nil
 
 	local fs = setmetatable({}, {
 		__call = function(t, ...)
@@ -1499,7 +1500,7 @@ local function make_fs(player, data)
 		get_tabs_fs(fs, player, data, full_height)
 	end
 
-	if i3.settings.debug_mode then
+	if debug_mode then
 		get_debug_grid(data, fs, full_height)
 		msg(data.player_name, fmt("make_fs(): %.2f ms", (os.clock() - start) * 1000))
 		msg(data.player_name, fmt("#fs elements: %u", #fs))

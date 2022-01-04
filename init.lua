@@ -20,7 +20,7 @@ end
 
 i3 = {
 	settings = {
-		debug_mode = false,
+		debug_mode = true,
 		max_favs = 6,
 		min_fs_version = 4,
 		item_btn_size = 1.1,
