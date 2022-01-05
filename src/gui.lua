@@ -1461,7 +1461,7 @@ local function get_debug_grid(data, fs, full_height)
 end
 
 local function make_fs(player, data)
-	local start = debug_mode and os.clock() or nil
+	local start = debug_mode and core.get_us_time() or nil
 
 	local fs = setmetatable({}, {
 		__call = function(t, ...)
@@ -1502,7 +1502,7 @@ local function make_fs(player, data)
 
 	if debug_mode then
 		get_debug_grid(data, fs, full_height)
-		msg(data.player_name, fmt("make_fs(): %.2f ms", (os.clock() - start) * 1000))
+		msg(data.player_name, fmt("make_fs(): %.2f ms", (core.get_us_time() - start) / 1000))
 		msg(data.player_name, fmt("#fs elements: %u", #fs))
 	end
 
