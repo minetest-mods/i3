@@ -64,6 +64,7 @@ i3 = {
 		common = lf"/src/common.lua",
 		compress = lf"/src/compress.lua",
 		detached = lf"/src/detached_inv.lua",
+		fields = lf"/src/fields.lua",
 		groups = lf"/src/groups.lua",
 		gui = lf"/src/gui.lua",
 		hud = lf"/src/hud.lua",

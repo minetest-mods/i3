@@ -36,6 +36,7 @@ local files = {
 	"common",
 	"compress",
 	"detached_inv",
+	"fields",
 	"groups",
 	"gui",
 	"hud",

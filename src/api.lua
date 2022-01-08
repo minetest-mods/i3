@@ -1,5 +1,5 @@
 local http = ...
-local make_fs = i3.files.gui()
+local make_fs, get_inventory_fs = i3.files.gui()
 
 IMPORT("gmatch", "split")
 IMPORT("S", "err", "fmt", "reg_items")
@@ -185,6 +185,12 @@ function i3.new_tab(name, def)
 	def.name = name
 	insert(i3.tabs, def)
 end
+
+i3.new_tab("inventory", {
+	description = S"Inventory",
+	formspec = get_inventory_fs,
+	fields = i3.files.fields(),
+})
 
 function i3.remove_tab(name)
 	if not true_str(name) then

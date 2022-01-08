@@ -1,4 +1,4 @@
-local model_alias = {
+return {
 	["boats:boat"] = {name = "boats:boat", drawtype = "entity"},
 	["carts:cart"] = {name = "carts:cart", drawtype = "entity", frames = "0,0"},
 	["default:chest"] = {name = "default:chest_open"},
@@ -9,5 +9,3 @@ local model_alias = {
 	["doors:door_steel"] = {name = "doors:door_steel_a"},
 	["xpanes:door_steel_bar"] = {name = "xpanes:door_steel_bar_a"},
 }
-
-return model_alias
