@@ -1485,7 +1485,6 @@ local function make_fs(player, data)
 	fs("bg9", 0, 0, data.inv_width, full_height, PNG.bg_full, 10)
 
 	local tab = i3.tabs[data.tab]
-
 	if tab then
 		tab.formspec(player, data, fs)
 	end
