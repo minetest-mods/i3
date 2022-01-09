@@ -262,12 +262,25 @@ local moreblocks_nodes = {
 	"ice",
 }
 
+local building_blocks_nodes = {
+	"grate",
+	"smoothglass",
+	"woodglass",
+	"Adobe",
+	"fakegrass",
+	"hardwood",
+	"Roofing",
+	"Tar",
+	"Marble",
+}
+
 local colors_moreblocks = copy(colors)
 insert(colors_moreblocks, "white")
 
 local moreblocks_mods = {
 	wool = colors_moreblocks,
 	moreblocks = moreblocks_nodes,
+	building_blocks = building_blocks_nodes,
 }
 
 local t = {}
