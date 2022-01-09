@@ -277,13 +277,7 @@ for _, nodename in ipairs(v) do
 	t[nodename] = {}
 
 	for _, shape in ipairs(circular_saw_names) do
-		local to_add = true
-
-		if shape[1] == "slope" and shape[2] == "" then
-			to_add = nil
-		end
-
-		if to_add then
+		if shape[1] ~= "slope" or shape[2] ~= "" then
 			insert(t[nodename], fmt("%s_%s%s", shape[1], nodename, shape[2]))
 		end
 	end
@@ -292,7 +286,7 @@ for _, nodename in ipairs(v) do
 
 	to_compress[fmt("%s:%s", mod, slope_name)] = {
 		replace = slope_name,
-		by = t[nodename]
+		by = t[nodename],
 	}
 end
 end
