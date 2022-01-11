@@ -561,6 +561,30 @@ local function sort_inventory(player, data)
 	end
 end
 
+local function reset_data(data)
+	data.filter        = ""
+	data.expand        = ""
+	data.pagenum       = 1
+	data.rnum          = 1
+	data.unum          = 1
+	data.scrbar_rcp    = 1
+	data.scrbar_usg    = 1
+	data.query_item    = nil
+	data.recipes       = nil
+	data.usages        = nil
+	data.export_rcp    = nil
+	data.export_usg    = nil
+	data.alt_items     = nil
+	data.confirm_trash = nil
+	data.show_settings = nil
+	data.show_setting  = "home"
+	data.items         = data.items_raw
+
+	if data.itab > 1 then
+		sort_by_category(data)
+	end
+end
+
 local function add_hud_waypoint(player, name, pos, color)
 	return player:hud_add {
 		hud_elem_type = "waypoint",
@@ -638,6 +662,7 @@ local _ = {
 	spawn_item = spawn_item,
 	clean_name = clean_name,
 	play_sound = play_sound,
+	reset_data = reset_data,
 	safe_teleport = safe_teleport,
 	add_hud_waypoint = add_hud_waypoint,
 

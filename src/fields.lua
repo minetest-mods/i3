@@ -2,36 +2,12 @@ local set_fs = i3.set_fs
 
 IMPORT("vec_eq", "vec_round")
 IMPORT("reg_items", "reg_aliases")
-IMPORT("sort", "copy", "insert", "remove", "indexof")
 IMPORT("S", "random", "translate", "ItemStack")
+IMPORT("sort", "copy", "insert", "remove", "indexof")
 IMPORT("fmt", "find", "match", "sub", "lower", "split", "toupper")
-IMPORT("msg", "is_fav", "pos_to_str", "str_to_pos", "add_hud_waypoint", "play_sound")
+IMPORT("msg", "is_fav", "pos_to_str", "str_to_pos", "add_hud_waypoint", "play_sound", "reset_data")
 IMPORT("search", "get_sorting_idx", "sort_inventory", "sort_by_category", "get_recipes", "get_detached_inv")
 IMPORT("valid_item", "get_stack", "craft_stack", "clean_name", "compressible", "check_privs", "safe_teleport")
-
-local function reset_data(data)
-	data.filter        = ""
-	data.expand        = ""
-	data.pagenum       = 1
-	data.rnum          = 1
-	data.unum          = 1
-	data.scrbar_rcp    = 1
-	data.scrbar_usg    = 1
-	data.query_item    = nil
-	data.recipes       = nil
-	data.usages        = nil
-	data.export_rcp    = nil
-	data.export_usg    = nil
-	data.alt_items     = nil
-	data.confirm_trash = nil
-	data.show_settings = nil
-	data.show_setting  = "home"
-	data.items         = data.items_raw
-
-	if data.itab > 1 then
-		sort_by_category(data)
-	end
-end
 
 local function inv_fields(player, data, fields)
 	local name = data.player_name
