@@ -2,7 +2,7 @@ local exec = os.execute
 local fmt, find, sub = string.format, string.find, string.sub
 local var = "[%w%.%[%]\"\'_]"
 
-exec("reset")
+exec "clear"
 
 local function split(str, delim, include_empty, max_splits, sep_is_pattern)
 	delim = delim or ","
@@ -121,10 +121,10 @@ for _, p in ipairs(files) do
 		_file:close()
 	end
 
-	_load("./src/" .. p .. ".lua")
+	_load("../src/" .. p .. ".lua")
 end
 
-exec("luacheck init.lua")
-exec("luacheck ./src/operators.lua")
-exec("luacheck ./src/*.l")
-exec("rm ./src/*.l")
+exec "luacheck ../init.lua"
+exec "luacheck ../src/operators.lua"
+exec "luacheck ../src/*.l"
+exec "rm ../src/*.l"

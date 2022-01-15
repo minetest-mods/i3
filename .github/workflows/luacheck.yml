@@ -18,4 +18,4 @@ jobs:
     - name: Setup ‘luacheck’
       run: luarocks install luacheck
     - name: Run ‘luacheck’ linter
-      run: lua luacheck.lua .
+      run: cd util; lua luacheck.lua
