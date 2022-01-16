@@ -174,12 +174,19 @@ local function inv_fields(player, data, fields)
 		return
 
 	elseif fields.waypoint_add then
+		local max_waypoints = i3.settings.max_waypoints
+
+		if #data.waypoints >= max_waypoints then
+			play_sound(name, "i3_cannot", 0.8)
+			return msg(name, fmt("Waypoints limit reached (%u)", max_waypoints))
+		end
+
 		local pos = player:get_pos()
 
 		for _, v in ipairs(data.waypoints) do
 			if vec_eq(vec_round(pos), vec_round(str_to_pos(v.pos))) then
 				play_sound(name, "i3_cannot", 0.8)
-				return msg(name, "You already set a waypoint at this position")
+				return msg(name, S"You already set a waypoint at this position")
 			end
 		end
 
