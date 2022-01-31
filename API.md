@@ -280,7 +280,7 @@ A table containing all sorting methods.
 
 Adds a new group of items to compress.
 
-- `item` is the item that serve as stereotype for the group of compressed items.
+- `item` is the item which represent the group of compressed items.
 - `def` is a table specifying the substring replace patterns to be used.
 
 Example:
