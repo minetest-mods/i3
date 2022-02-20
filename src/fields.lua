@@ -14,6 +14,11 @@ local function inv_fields(player, data, fields)
 	local inv = player:get_inventory()
 	local sb_inv = fields.scrbar_inv
 
+	if sb_inv and sub(sb_inv, 1, 3) == "CHG" then
+		data.scrbar_inv = tonumber(match(sb_inv, "%d+"))
+		return
+	end
+
 	if fields.skins then
 		local id = tonumber(fields.skins)
 		local _skins = skins.get_skinlist_for_player(name)
@@ -168,10 +173,6 @@ local function inv_fields(player, data, fields)
 
 		data.bag = bagstack:to_string()
 		data.bag_rename = nil
-
-	elseif sb_inv and sub(sb_inv, 1, 3) == "CHG" then
-		data.scrbar_inv = tonumber(match(sb_inv, "%d+"))
-		return
 
 	elseif fields.waypoint_add then
 		local max_waypoints = i3.settings.max_waypoints
