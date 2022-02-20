@@ -5,7 +5,7 @@ local init_detached = i3.files.detached()
 local init_hud = i3.files.hud()
 local set_fs = i3.set_fs
 
-IMPORT("slz", "min", "copy", "ItemStack")
+IMPORT("slz", "min", "insert", "copy", "ItemStack")
 IMPORT("spawn_item", "reset_data", "get_detached_inv")
 
 core.register_on_player_hpchange(function(player, hpchange)
@@ -175,7 +175,7 @@ local function save_data(player_name)
 	storage:set_string("data", slz(_data))
 end
 
-core.register_on_joinplayer(function(player)
+insert(core.registered_on_joinplayers, 1, function(player)
 	local name = player:get_player_name()
 	local info = core.get_player_information and core.get_player_information(name)
 
