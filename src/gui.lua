@@ -494,19 +494,40 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 
 		local _skins = skins.get_skinlist_for_player(name)
 		local skin_name = skins.get_player_skin(player).name
-		local sks, id = {}, 1
+		local btn_y = yextra + 0.75
+		local spp = 24
 
-		for i, skin in ipairs(_skins) do
-			if skin.name == skin_name then
-				id = i
-			end
+		data.skin_pagemax = max(1, ceil(#_skins / spp))
 
-			insert(sks, skin.name)
+		fs("image_button", 1.5, btn_y, 0.35, 0.35, "", "prev_skin", "")
+		fs("image_button", 3.85, btn_y, 0.35, 0.35, "", "next_skin", "")
+
+		fs"style[skin_page;font=bold;font_size=18]"
+		fs("button", 1.85, btn_y - 0.23, 2, 0.8, "skin_page",
+			fmt("%s / %u", clr(colors.yellow, data.skin_pagenum), data.skin_pagemax))
+
+		local first = (data.skin_pagenum - 1) * spp
+		local last = first + spp - 1
+
+		for i = first, last do
+			local skin = _skins[i + 1]
+			if not skin then break end
+			local btn_name = fmt("skin_btn_%u", i + 1)
+
+			fs(fmt([[ style[%s;padding=10;
+					fgimg=%s;bgimg=%s;bgimg_hovered=i3_btn9_hovered.png;
+					bgimg_pressed=i3_btn9_pressed.png;bgimg_middle=4,6] ]],
+				btn_name, skin:get_preview(),
+				skin.name == skin_name and "i3_btn9_hovered.png" or "i3_btn9.png"))
+
+			local X = (i % 3) * 1.93
+
+			local Y = ceil((i % spp - X) / 3 + 1)
+			      Y += (Y * 2.45) + yextra - 2.15
+
+			fs("image_button", X, Y, 1.86, 3.4, "", btn_name, "")
+			fs(fmt("tooltip[%s;%s]", btn_name, ESC(skin.name)))
 		end
-
-		sks = concat(sks, ","):gsub(";", "")
-		fs("label", 0, yextra + 0.85, fmt("%s:", ES"Select a skin"))
-		fs(fmt("dropdown[0,%f;4,0.6;skins;%s;%u;true]", yextra + 1.1, sks, id))
 
 	elseif data.subcat == 4 then
 		if not i3.modules.awards then
@@ -578,9 +599,6 @@ local function show_popup(fs, data)
 
 		elseif show_sorting then
 			fs("button", 2.1, 9.7, 6, 0.8, "select_sorting", ES"Select the inventory sorting method:")
-
-			fs(fmt("style[prev_sort;fgimg=%s;fgimg_hovered=%s]", PNG.prev, PNG.prev_hover),
-			   fmt("style[next_sort;fgimg=%s;fgimg_hovered=%s]", PNG.next, PNG.next_hover))
 
 			fs("image_button", 2.2, 10.6, 0.35, 0.35, "",  "prev_sort", "")
 			fs("image_button", 7.65, 10.6, 0.35, 0.35, "", "next_sort", "")
@@ -666,6 +684,13 @@ local function get_inventory_fs(player, data, fs)
 		end
 
 		max_val += 10
+
+	elseif i3.modules.skins and data.subcat == 3 then
+		local spp = 24
+		local _skins = skins.get_skinlist_for_player(data.player_name)
+		local num = max(1, min(spp, #_skins - ((data.skin_pagenum - 1) * spp)))
+
+		max_val += ceil(num / 3) * 34
 
 	elseif i3.modules.awards and data.subcat == 4 then
 		award_list = awards.get_award_states(data.player_name)

@@ -19,12 +19,6 @@ local function inv_fields(player, data, fields)
 		return
 	end
 
-	if fields.skins then
-		local id = tonumber(fields.skins)
-		local _skins = skins.get_skinlist_for_player(name)
-		skins.set_player_skin(player, _skins[id])
-	end
-
 	if fields.drop_items then
 		local items = split(fields.drop_items, ",")
 		data.drop_items = items
@@ -45,6 +39,11 @@ local function inv_fields(player, data, fields)
 
 		elseif sub(field, 1, 8) == "setting_" then
 			data.show_setting = match(field, "_(%w+)$")
+
+		elseif sub(field, 1, 9) == "skin_btn_" then
+			local id = tonumber(field:match("%d+"))
+			local _skins = skins.get_skinlist_for_player(name)
+			skins.set_player_skin(player, _skins[id])
 
 		elseif find(field, "waypoint_%d+") then
 			local id, action = match(field, "_(%d+)_(%w+)$")
@@ -342,6 +341,16 @@ local function rcp_fields(player, data, fields)
 			data.pagenum = 1
 		elseif data.pagenum == 0 then
 			data.pagenum = data.pagemax
+		end
+
+	elseif fields.prev_skin or fields.next_skin then
+		if data.skin_pagemax == 1 then return end
+		data.skin_pagenum -= (fields.prev_skin and 1 or -1)
+
+		if data.skin_pagenum > data.skin_pagemax then
+			data.skin_pagenum = 1
+		elseif data.skin_pagenum == 0 then
+			data.skin_pagenum = data.skin_pagemax
 		end
 
 	elseif fields.prev_recipe or fields.next_recipe then

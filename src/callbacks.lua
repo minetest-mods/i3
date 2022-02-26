@@ -134,6 +134,7 @@ local function init_data(player, info)
 	data.player_name     = name
 	data.filter          = ""
 	data.pagenum         = 1
+	data.skin_pagenum    = 1
 	data.items           = i3.init_items
 	data.items_raw       = i3.init_items
 	data.favs            = {}

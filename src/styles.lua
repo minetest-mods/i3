@@ -79,12 +79,8 @@ local styles = string.format([[
 	style[exit;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[cancel;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[search;fgimg=%s;fgimg_hovered=%s;content_offset=0]
-	style[prev_page;fgimg=%s;fgimg_hovered=%s]
-	style[next_page;fgimg=%s;fgimg_hovered=%s]
-	style[prev_recipe;fgimg=%s;fgimg_hovered=%s]
-	style[next_recipe;fgimg=%s;fgimg_hovered=%s]
-	style[prev_usage;fgimg=%s;fgimg_hovered=%s]
-	style[next_usage;fgimg=%s;fgimg_hovered=%s]
+	style[prev_page,prev_recipe,prev_usage,prev_sort,prev_skin;fgimg=%s;fgimg_hovered=%s]
+	style[next_page,next_recipe,next_usage,next_sort,next_skin;fgimg=%s;fgimg_hovered=%s]
 	style[waypoint_add;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[bag_rename;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[btn_bag,btn_armor,btn_skins;font=bold;font_size=18;content_offset=0;sound=i3_click]
@@ -100,10 +96,6 @@ PNG.slot,
 PNG.exit,     PNG.exit_hover,
 PNG.cancel,   PNG.cancel_hover,
 PNG.search,   PNG.search_hover,
-PNG.prev,     PNG.prev_hover,
-PNG.next,     PNG.next_hover,
-PNG.prev,     PNG.prev_hover,
-PNG.next,     PNG.next_hover,
 PNG.prev,     PNG.prev_hover,
 PNG.next,     PNG.next_hover,
 PNG.add,      PNG.add_hover,
