@@ -514,14 +514,17 @@ local function compress_items(list, start_i)
 	return new_inv
 end
 
-local function drop_items(player, inv, list, start_i, rej)
+local function drop_items(player, inv, list, start_i, rej, remove)
 	for i = start_i, #list do
 		local stack = list[i]
 		local name = stack:get_name()
 
 		for _, it in ipairs(rej) do
 			if name == it then
-				spawn_item(player, stack)
+				if not remove then
+					spawn_item(player, stack)
+				end
+
 				inv:set_stack("main", i, ItemStack(""))
 			end
 		end
@@ -537,7 +540,7 @@ local function sort_inventory(player, data)
 	local start_i = data.ignore_hotbar and (i3.settings.hotbar_len + 1) or 1
 
 	if true_table(data.drop_items) then
-		list = drop_items(player, inv, list, start_i, data.drop_items)
+		list = drop_items(player, inv, list, start_i, data.drop_items, true)
 	end
 
 	if data.inv_compress then

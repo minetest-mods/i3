@@ -624,7 +624,7 @@ local function show_popup(fs, data)
 			end
 
 			fs("style[drop_items;font_size=15;font=mono;textcolor=#dbeeff]",
-			   fmt("field[5.4,10.68;2.4,0.45;drop_items;Drop items:;%s]",
+			   fmt("field[5.4,10.68;2.4,0.45;drop_items;Remove items:;%s]",
 				ESC(concat(data.drop_items or {}, ","))),
 			   "field_close_on_enter[drop_items;false]")
 
@@ -637,7 +637,7 @@ local function show_popup(fs, data)
 			   fmt("tooltip[cb_auto_sorting;%s;#707070;#fff]",
 				ES"Enable this option to sort your inventory automatically"),
 			   fmt("tooltip[drop_items;%s;#707070;#fff]",
-				"Add a comma-separated list of items to drop on inventory sorting.\n" ..
+				"Add a comma-separated list of items to remove on inventory sorting.\n" ..
 				"Format: " .. ("mod:item,mod:item, ..."):gsub("(%a+:%a+)", clr("#bddeff", "%1"))))
 		end
 	end
