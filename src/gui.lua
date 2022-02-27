@@ -1221,9 +1221,10 @@ local function get_export_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, max_
 
 	fs(fmt("style[scrbar_%s;noclip=true]", name),
 	   fmt("scrollbaroptions[min=1;max=%u;smallstep=1]", craft_max))
-	fs("scrollbar", data.inv_width + 8.1, data.yoffset, 3, 0.35, "horizontal", fmt("scrbar_%s", name), stack_fs)
-	fs("button", data.inv_width + 8.1, data.yoffset + 0.4, 3, 0.7,
-		fmt("craft_%s", name), ES("Craft (×@1)", stack_fs))
+
+	local x = data.inv_width + 8.1
+	fs("scrollbar", x, data.yoffset, 2.5, 0.35, "horizontal", fmt("scrbar_%s", name), stack_fs)
+	fs("button", x, data.yoffset + 0.4, 2.5, 0.7, fmt("craft_%s", name), ES("Craft (×@1)", stack_fs))
 end
 
 local function get_rcp_extra(fs, data, player, panel, is_recipe, is_usage)
