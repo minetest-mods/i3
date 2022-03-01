@@ -494,17 +494,21 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 
 		local _skins = skins.get_skinlist_for_player(name)
 		local skin_name = skins.get_player_skin(player).name
-		local btn_y = yextra + 0.75
-		local spp = 24
+		local spp, add_y = 24, 0
 
-		data.skin_pagemax = max(1, ceil(#_skins / spp))
+		if #_skins > spp then
+			local btn_y = yextra + 0.75
+			add_y += 0.6
 
-		fs("image_button", 1.5, btn_y, 0.35, 0.35, "", "prev_skin", "")
-		fs("image_button", 3.85, btn_y, 0.35, 0.35, "", "next_skin", "")
+			data.skin_pagemax = max(1, ceil(#_skins / spp))
 
-		fs"style[skin_page;font=bold;font_size=18]"
-		fs("button", 1.85, btn_y - 0.23, 2, 0.8, "skin_page",
-			fmt("%s / %u", clr(colors.yellow, data.skin_pagenum), data.skin_pagemax))
+			fs("image_button", 1.5, btn_y, 0.35, 0.35, "", "prev_skin", "")
+			fs("image_button", 3.85, btn_y, 0.35, 0.35, "", "next_skin", "")
+
+			fs"style[skin_page;font=bold;font_size=18]"
+			fs("button", 1.85, btn_y - 0.23, 2, 0.8, "skin_page",
+				fmt("%s / %u", clr(colors.yellow, data.skin_pagenum), data.skin_pagemax))
+		end
 
 		local first = (data.skin_pagenum - 1) * spp
 		local last = first + spp - 1
@@ -523,7 +527,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 			local X = (i % 3) * 1.93
 
 			local Y = ceil((i % spp - X) / 3 + 1)
-			      Y += (Y * 2.45) + yextra - 2.15
+			      Y += (Y * 2.45) + yextra - 2.75 + add_y
 
 			fs("image_button", X, Y, 1.86, 3.4, "", btn_name, "")
 			fs(fmt("tooltip[%s;%s]", btn_name, ESC(skin.name)))
@@ -688,9 +692,10 @@ local function get_inventory_fs(player, data, fs)
 	elseif i3.modules.skins and data.subcat == 3 then
 		local spp = 24
 		local _skins = skins.get_skinlist_for_player(data.player_name)
-		local num = max(1, min(spp, #_skins - ((data.skin_pagenum - 1) * spp)))
+		local nb = #_skins
+		local num = max(1, min(spp, nb - ((data.skin_pagenum - 1) * spp)))
 
-		max_val += ceil(num / 3) * 34
+		max_val += ceil(num / 3) * (nb > spp and 34 or 31)
 
 	elseif i3.modules.awards and data.subcat == 4 then
 		award_list = awards.get_award_states(data.player_name)
