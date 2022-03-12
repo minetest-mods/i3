@@ -592,7 +592,7 @@ local function add_hud_waypoint(player, name, pos, color)
 	return player:hud_add {
 		hud_elem_type = "waypoint",
 		name = name,
-		text = " m",
+		text = "m",
 		world_pos = pos,
 		number = color,
 		z_index = -300,
