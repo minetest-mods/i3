@@ -167,6 +167,13 @@ function i3.set_fs(player)
 		sort_inventory(player, data)
 	end
 
+	for i, tab in ipairs(i3.tabs) do
+		if data.tab == i and tab.access and not tab.access(player, data) then
+			data.tab = 1
+			break
+		end
+	end
+
 	local fs = make_fs(player, data)
 	player:set_inventory_formspec(fs)
 end
@@ -221,8 +228,8 @@ function i3.set_tab(player, tabname)
 		return
 	end
 
-	for i, def in ipairs(i3.tabs) do
-		if def.name == tabname then
+	for i, tab in ipairs(i3.tabs) do
+		if tab.name == tabname then
 			data.tab = i
 			return
 		end

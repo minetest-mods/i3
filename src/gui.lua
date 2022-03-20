@@ -1516,6 +1516,7 @@ local function make_fs(player, data)
 	fs("bg9", 0, 0, data.inv_width, full_height, PNG.bg_full, 10)
 
 	local tab = i3.tabs[data.tab]
+
 	if tab then
 		tab.formspec(player, data, fs)
 	end
@@ -1526,7 +1527,15 @@ local function make_fs(player, data)
 		get_items_fs(fs, data, player, full_height)
 	end
 
-	if #i3.tabs > 1 then
+	local visible_tabs = 1
+
+	for _, def in ipairs(i3.tabs) do
+		if visible_tabs < 2 and def.access and def.access(player, data) then
+			visible_tabs++
+		end
+	end
+
+	if visible_tabs > 1 then
 		get_tabs_fs(fs, player, data, full_height)
 	end
 
