@@ -17,9 +17,7 @@ i3.new_tab("stuff", {
 	-- Determine if the tab is visible by a player, `false` or `nil` hide the tab
 	access = function(player, data)
 		local name = player:get_player_name()
-		if name == "singleplayer" then
-			return false
-		end
+		return name == "singleplayer"
 	end,
 
 	formspec = function(player, data, fs)
