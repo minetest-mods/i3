@@ -242,7 +242,7 @@ local function resolve_aliases(hash)
 			end
 		end
 
-		if newname ~= "" and i3.recipes_cache[oldname] and not hash[newname] then
+		if newname ~= "" and i3.recipes_cache[oldname] and reg_items[newname] and not hash[newname] then
 			insert(i3.init_items, newname)
 		end
 	end
