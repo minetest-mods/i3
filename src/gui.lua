@@ -829,7 +829,7 @@ local function get_tooltip(item, info, pos)
 	return fmt("tooltip[%s;%s]", item, ESC(tooltip))
 end
 
-local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_size, _btn_size)
+local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_size, btn_size2)
 	local custom_recipe = i3.craft_types[rcp.type]
 	local cooking = rcp.type == "cooking"
 	local fuel = rcp.type == "fuel"
@@ -866,7 +866,7 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 	end
 
 	local BTN_SIZE = i3.settings.item_btn_size
-	local arrow_X = right + 0.2 + (_btn_size or BTN_SIZE)
+	local arrow_X = right + 0.2 + (btn_size2 or BTN_SIZE)
 	local X = arrow_X + 1.2
 	local Y = data.yoffset + 1.4
 

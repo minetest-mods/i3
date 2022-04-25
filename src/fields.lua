@@ -215,10 +215,10 @@ local function inv_fields(player, data, fields)
 	return set_fs(player)
 end
 
-local function select_item(player, data, _f)
+local function select_item(player, data, fields)
 	local item
 
-	for field in pairs(_f) do
+	for field in pairs(fields) do
 		if find(field, ":") then
 			item = field
 			break
