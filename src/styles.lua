@@ -74,6 +74,7 @@ local styles = string.format([[
 	style_type[image_button,item_image_button,checkbox,dropdown;border=false;sound=i3_click]
 	style_type[item_image_button;bgimg_hovered=%s]
 
+	style[;sound=]
 	style[nofav;sound=i3_cannot]
 	style[pagenum,no_item,no_rcp;font=bold;font_size=18]
 	style[exit;fgimg=%s;fgimg_hovered=%s;content_offset=0]
