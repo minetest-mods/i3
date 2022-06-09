@@ -89,6 +89,10 @@ local item_lists = {"main", "craft", "craftpreview"}
 
 local function get_inv_items(player)
 	local inv = player:get_inventory()
+	if not inv then
+		return {}
+	end
+
 	local stacks = {}
 
 	for i = 1, #item_lists do
