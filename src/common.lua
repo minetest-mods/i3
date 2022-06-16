@@ -9,6 +9,14 @@ local fmt, find, match, gmatch, sub, split, lower, upper =
 	string.format, string.find, string.match, string.gmatch,
 	string.sub, string.split, string.lower, string.upper
 
+if not core.registered_privileges.creative then
+	core.register_privilege("creative", {
+		description = "Allow player to use creative inventory",
+		give_to_singleplayer = false,
+		give_to_admin = false,
+	})
+end
+
 local old_is_creative_enabled = core.is_creative_enabled
 
 function core.is_creative_enabled(name)
