@@ -28,28 +28,32 @@ local function cache_groups(groupname, groups)
 	i3.groups[groupname].items = groups_to_items(groups, true)
 
 	local items = i3.groups[groupname].items
-	local nb_items = #items
+	if #items <= 1 then return end
 
-	if nb_items > 1 then
-		local px = 256
-		local sprite = fmt("[combine:%ux%u", px, px * nb_items)
+	local c = 0
+	local px = 256
+	local sprite = "[combine:WxH"
 
-		for i = 1, nb_items do
-			local item = items[i]
-			local def = reg_items[item]
-			local texture = def.inventory_image or def.wield_image
+	for _, item in ipairs(items) do
+		local def = reg_items[item]
+		local texture = def.inventory_image or def.wield_image
 
-			if is_cube(def.drawtype) then
-				texture = get_cube(def.tiles)
-			elseif true_str(texture) then
-				texture = texture .. "\\^[resize\\:150x150"
-			end
-
-			sprite = sprite .. fmt(":0,%u=%s", (i - 1) * px, texture)
+		if true_str(texture) then
+			texture = texture .. "\\^[resize\\:150x150"
+		elseif is_cube(def.drawtype) then
+			texture = get_cube(def.tiles)
 		end
 
-		i3.groups[groupname].sprite = sprite
+		if true_str(texture) then
+			sprite = sprite .. fmt(":0,%u=%s", c * px, texture)
+			c++
+		end
 	end
+
+	sprite = sprite:gsub("WxH", px .. "x" .. px * c)
+
+	i3.groups[groupname].sprite = sprite
+	i3.groups[groupname].count = c
 end
 
 local function get_item_usages(item, recipe, added)
