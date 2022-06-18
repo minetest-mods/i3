@@ -1,11 +1,10 @@
-local PNG = i3.files.styles()
 local replacements = {fuel = {}}
 local http = ...
 
 IMPORT("maxn", "copy", "insert", "sort", "match", "sub")
 IMPORT("is_group", "extract_groups", "item_has_groups", "groups_to_items")
-IMPORT("fmt", "reg_items", "reg_aliases", "reg_nodes", "draw_cube", "ItemStack")
-IMPORT("true_str", "true_table", "is_table", "valid_item", "table_merge", "table_replace", "rcp_eq")
+IMPORT("fmt", "reg_items", "reg_aliases", "reg_nodes", "is_cube", "get_cube", "ItemStack")
+IMPORT("true_str", "is_table", "valid_item", "table_merge", "table_replace", "rcp_eq")
 
 local function get_burntime(item)
 	return core.get_craft_result{method = "fuel", items = {item}}.time
@@ -27,7 +26,30 @@ local function cache_groups(groupname, groups)
 	i3.groups[groupname] = {}
 	i3.groups[groupname].groups = groups
 	i3.groups[groupname].items = groups_to_items(groups, true)
+
+	local items = i3.groups[groupname].items
+	local nb_items =  #items
+
+	if nb_items > 1 then
+		local px = 256
+		local sprite = fmt("[combine:%ux%u", px, nb_items + (px * nb_items) - 1)
+
+		for i = 1, nb_items do
+			local item = items[i]
+			local def = reg_items[item]
+			local texture = def.inventory_image or def.wield_image
+
+			if is_cube(def.drawtype) then
+				texture = get_cube(def.tiles)
+			end
+
+			sprite = sprite .. fmt(":0,%u=%s", (i - 1) + ((i - 1) * px), texture)
+		end
+
+		i3.groups[groupname].sprite = sprite
+	end
 end
+
 
 local function get_item_usages(item, recipe, added)
 	if is_group(item) then
@@ -294,35 +316,6 @@ local function init_recipes()
 			post_data = core.write_json(post_data),
 		}
 	end
-end
-
-local function get_cube(tiles)
-	if not true_table(tiles) then
-		return PNG.blank
-	end
-
-	local top = tiles[1] or PNG.blank
-	if is_table(top) then
-		top = top.name or top.image
-	end
-
-	local left = tiles[3] or top or PNG.blank
-	if is_table(left) then
-		left = left.name or left.image
-	end
-
-	local right = tiles[5] or left or PNG.blank
-	if is_table(right) then
-		right = right.name or right.image
-	end
-
-	return draw_cube(top, left, right)
-end
-
-local function is_cube(drawtype)
-	return drawtype == "normal" or drawtype == "liquid" or
-		sub(drawtype, 1, 9) == "glasslike" or
-		sub(drawtype, 1, 8) == "allfaces"
 end
 
 local function init_cubes()

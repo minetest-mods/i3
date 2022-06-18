@@ -279,6 +279,35 @@ local function groups_to_items(groups, get_all)
 	return get_all and names or ""
 end
 
+local function is_cube(drawtype)
+	return drawtype == "normal" or drawtype == "liquid" or
+		sub(drawtype, 1, 9) == "glasslike" or
+		sub(drawtype, 1, 8) == "allfaces"
+end
+
+local function get_cube(tiles)
+	if not true_table(tiles) then
+		return "i3_blank.png"
+	end
+
+	local top = tiles[1] or "i3_blank.png"
+	if is_table(top) then
+		top = top.name or top.image
+	end
+
+	local left = tiles[3] or top or "i3_blank.png"
+	if is_table(left) then
+		left = left.name or left.image
+	end
+
+	local right = tiles[5] or left or "i3_blank.png"
+	if is_table(right) then
+		right = right.name or right.image
+	end
+
+	return core.inventorycube(top, left, right)
+end
+
 local function apply_recipe_filters(recipes, player)
 	for _, filter in pairs(i3.recipe_filters) do
 		recipes = filter(recipes, player)
@@ -667,6 +696,8 @@ local _ = {
 	msg = msg,
 
 	-- Misc. functions
+	is_cube = is_cube,
+	get_cube = get_cube,
 	ItemStack = ItemStack,
 	valid_item = valid_item,
 	spawn_item = spawn_item,

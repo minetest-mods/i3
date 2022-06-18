@@ -93,8 +93,7 @@ local function get_stack_max(inv, data, is_recipe, rcp)
 					local def = reg_items[item]
 
 					if def then
-						local groupname = name:sub(7)
-						local group_cache = i3.groups[groupname]
+						local group_cache = i3.groups[name:sub(7)]
 						local groups = group_cache and group_cache.groups or extract_groups(name)
 
 						if item_has_groups(def.groups, groups) then
@@ -994,10 +993,9 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 		end
 
 		local groups
+		local group_cache = i3.groups[name:sub(7)]
 
 		if is_group(name) then
-			local groupname = name:sub(7)
-			local group_cache = i3.groups[groupname]
 			groups = group_cache and group_cache.groups or extract_groups(name)
 			name = group_cache and group_cache.items[1] or groups_to_items(groups)
 		end
@@ -1031,10 +1029,21 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 		end
 
 		local btn_name = groups and fmt("group!%s!%s", groups[1], name) or name
+		local _count = count * (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1)
 
-		fs("item_image_button", X, Y, btn_size, btn_size,
-			fmt("%s %u", name, count * (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1)),
-			btn_name, label)
+		if group_cache and group_cache.sprite then
+			local sprite = group_cache.sprite
+
+			fs("item_image_button", X, Y, btn_size, btn_size, "", btn_name, "")
+			fs("animated_image", X + 0.01, Y, 1.87, 1.87, sprite, #group_cache.items, 1000)
+			fs("label", X + 0.45, Y + 0.18, label)
+
+			if _count > 1 then
+				fs("label", X + 0.8, Y + 0.9, tostring(_count))
+			end
+		else
+			fs("item_image_button", X, Y, btn_size, btn_size, fmt("%s %u", name, _count), btn_name, label)
+		end
 
 		local def = reg_items[name]
 		local unknown = not def or nil
