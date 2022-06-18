@@ -1035,7 +1035,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 			local sprite = group_cache.sprite
 
 			fs("item_image_button", X, Y, btn_size, btn_size, "", btn_name, "")
-			fs("animated_image", X + 0.01, Y, 1.87, 1.87, sprite, #group_cache.items, 1000)
+			fs("animated_image", X + 0.01, Y + 0.01, 1.89, 1.89, sprite, #group_cache.items, 1000)
 			fs("label", X + 0.45, Y + 0.18, label)
 
 			if _count > 1 then

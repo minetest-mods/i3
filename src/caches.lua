@@ -32,7 +32,7 @@ local function cache_groups(groupname, groups)
 
 	if nb_items > 1 then
 		local px = 256
-		local sprite = fmt("[combine:%ux%u", px, nb_items + (px * nb_items) - 1)
+		local sprite = fmt("[combine:%ux%u", px, px * nb_items)
 
 		for i = 1, nb_items do
 			local item = items[i]
@@ -43,7 +43,7 @@ local function cache_groups(groupname, groups)
 				texture = get_cube(def.tiles)
 			end
 
-			sprite = sprite .. fmt(":0,%u=%s", (i - 1) + ((i - 1) * px), texture)
+			sprite = sprite .. fmt(":0,%u=%s", (i - 1) * px, texture)
 		end
 
 		i3.groups[groupname].sprite = sprite
