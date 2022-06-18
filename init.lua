@@ -82,6 +82,7 @@ i3 = {
 
 	tabs = {},
 	cubes = {},
+	groups = {},
 	plants = {},
 	modules = {},
 	craft_types = {},

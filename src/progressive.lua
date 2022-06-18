@@ -32,7 +32,9 @@ local function item_in_inv(item, inv_items)
 	local inv_items_size = #inv_items
 
 	if is_group(item) then
-		local groups = extract_groups(item)
+		local groupname = item:sub(7)
+		local group_cache = i3.groups[groupname]
+		local groups = group_cache and group_cache.groups or extract_groups(item)
 
 		for i = 1, inv_items_size do
 			local def = core.registered_items[inv_items[i]]

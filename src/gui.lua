@@ -93,7 +93,9 @@ local function get_stack_max(inv, data, is_recipe, rcp)
 					local def = reg_items[item]
 
 					if def then
-						local groups = extract_groups(name)
+						local groupname = name:sub(7)
+						local group_cache = i3.groups[groupname]
+						local groups = group_cache and group_cache.groups or extract_groups(name)
 
 						if item_has_groups(def.groups, groups) then
 							counts_inv[name] = (counts_inv[name] or 0) + count
@@ -994,8 +996,10 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 		local groups
 
 		if is_group(name) then
-			groups = extract_groups(name)
-			name = groups_to_items(groups)
+			local groupname = name:sub(7)
+			local group_cache = i3.groups[groupname]
+			groups = group_cache and group_cache.groups or extract_groups(name)
+			name = group_cache and group_cache.items[1] or groups_to_items(groups)
 		end
 
 		local label = groups and "\nG" or ""

@@ -23,10 +23,22 @@ local function cache_fuel(item)
 	end
 end
 
-local function get_item_usages(item, recipe, added)
-	local groups = extract_groups(item)
+local function cache_groups(groupname, groups)
+	i3.groups[groupname] = {}
+	i3.groups[groupname].groups = groups
+	i3.groups[groupname].items = groups_to_items(groups, true)
+end
 
-	if groups then
+local function get_item_usages(item, recipe, added)
+	if is_group(item) then
+		local groupname = item:sub(7)
+		local group_cache = i3.groups[groupname]
+		local groups = group_cache and group_cache.groups or extract_groups(item)
+
+		if not group_cache then
+			cache_groups(groupname, groups)
+		end
+
 		for name, def in pairs(reg_items) do
 			if not added[name] and valid_item(def) and item_has_groups(def.groups, groups) then
 				local usage = copy(recipe)

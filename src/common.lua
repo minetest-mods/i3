@@ -236,9 +236,7 @@ local function is_group(item)
 end
 
 local function extract_groups(str)
-	if sub(str, 1, 6) == "group:" then
-		return split(sub(str, 7), ",")
-	end
+	return split(sub(str, 7), ",")
 end
 
 local function item_has_groups(item_groups, groups)
@@ -385,7 +383,8 @@ local function craft_stack(player, data, craft_rcp)
 		if is_group(name) then
 			items = {}
 			local groups = extract_groups(name)
-			local item_groups = groups_to_items(groups, true)
+			local groupname = name:sub(7)
+			local item_groups = i3.groups[groupname].items or groups_to_items(groups, true)
 			local remaining = count
 
 			for _, item in ipairs(item_groups) do
