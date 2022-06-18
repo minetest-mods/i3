@@ -28,7 +28,7 @@ local function cache_groups(groupname, groups)
 	i3.groups[groupname].items = groups_to_items(groups, true)
 
 	local items = i3.groups[groupname].items
-	local nb_items =  #items
+	local nb_items = #items
 
 	if nb_items > 1 then
 		local px = 256
@@ -37,7 +37,7 @@ local function cache_groups(groupname, groups)
 		for i = 1, nb_items do
 			local item = items[i]
 			local def = reg_items[item]
-			local texture = def.inventory_image or def.wield_image or ""
+			local texture = def.inventory_image or def.wield_image
 
 			if is_cube(def.drawtype) then
 				texture = get_cube(def.tiles)
@@ -51,19 +51,6 @@ local function cache_groups(groupname, groups)
 		i3.groups[groupname].sprite = sprite
 	end
 end
-
-core.register_chatcommand("test", {
-	func = function(name, param)
-		core.get_player_by_name(name):hud_add({
-			hud_elem_type = "image",
-			position = {x = 0.6, y = 0.5},
-			scale = {x = 1, y = 1},
-			text = param
-		})
-		return true
-	end
-})
-
 
 local function get_item_usages(item, recipe, added)
 	if is_group(item) then
