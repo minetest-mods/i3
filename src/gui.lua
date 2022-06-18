@@ -840,7 +840,7 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 		local icon, tooltip = PNG.blank
 
 		if custom_recipe and true_str(custom_recipe.icon) then
-			icon = fmt("%s^\\[resize:16x16", custom_recipe.icon)
+			icon = custom_recipe.icon
 		elseif shapeless then
 			icon = PNG.shapeless
 		end
@@ -1460,8 +1460,7 @@ local function get_tabs_fs(fs, player, data, full_height)
 		if true_str(def.image) then
 			local desc = translate(data.lang_code, def.description)
 			fs("style_type[image;noclip=true]")
-			fs("image", X + (tab_len / 2) - ((#desc * 0.1) / 2) - 0.55,
-				Y + 0.05, 0.35, 0.35, fmt("%s^\\[resize:16x16", def.image))
+			fs("image", X + (tab_len / 2) - ((#desc * 0.1) / 2) - 0.55, Y + 0.05, 0.35, 0.35, def.image)
 		end
 
 		c++

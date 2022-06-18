@@ -319,17 +319,21 @@ local function get_cube(tiles)
 	return draw_cube(top, left, right)
 end
 
+local function is_cube(drawtype)
+	return drawtype == "normal" or drawtype == "liquid" or
+		sub(drawtype, 1, 9) == "glasslike" or
+		sub(drawtype, 1, 8) == "allfaces"
+end
+
 local function init_cubes()
 	for name, def in pairs(reg_nodes) do
 		if def then
 			local id = core.get_content_id(name)
 
-			if def.drawtype == "normal" or def.drawtype == "liquid" or
-					sub(def.drawtype, 1, 9) == "glasslike" or
-					sub(def.drawtype, 1, 8) == "allfaces" then
+			if is_cube(def.drawtype) then
 				i3.cubes[id] = get_cube(def.tiles)
 			elseif sub(def.drawtype, 1, 9) == "plantlike" or sub(def.drawtype, 1, 8) == "firelike" then
-				i3.plants[id] = def.inventory_image .. "^\\[resize:16x16"
+				i3.plants[id] = def.inventory_image
 			end
 		end
 	end
