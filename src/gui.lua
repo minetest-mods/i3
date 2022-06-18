@@ -1032,7 +1032,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 		local _count = count * (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1)
 
 		if group_cache and group_cache.sprite then
-			local sprite = group_cache.sprite
+			local sprite = ESC(group_cache.sprite)
 
 			fs("item_image_button", X, Y, btn_size, btn_size, "", btn_name, "")
 			fs("animated_image", X + 0.01, Y + 0.01, 1.89, 1.89, sprite, #group_cache.items, 1000)

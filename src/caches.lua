@@ -37,10 +37,12 @@ local function cache_groups(groupname, groups)
 		for i = 1, nb_items do
 			local item = items[i]
 			local def = reg_items[item]
-			local texture = def.inventory_image or def.wield_image
+			local texture = def.inventory_image or def.wield_image or ""
 
 			if is_cube(def.drawtype) then
 				texture = get_cube(def.tiles)
+			elseif true_str(texture) then
+				texture = texture .. "\\^[resize\\:150x150"
 			end
 
 			sprite = sprite .. fmt(":0,%u=%s", (i - 1) * px, texture)
@@ -49,6 +51,18 @@ local function cache_groups(groupname, groups)
 		i3.groups[groupname].sprite = sprite
 	end
 end
+
+core.register_chatcommand("test", {
+	func = function(name, param)
+		core.get_player_by_name(name):hud_add({
+			hud_elem_type = "image",
+			position = {x = 0.6, y = 0.5},
+			scale = {x = 1, y = 1},
+			text = param
+		})
+		return true
+	end
+})
 
 
 local function get_item_usages(item, recipe, added)
