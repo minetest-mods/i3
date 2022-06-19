@@ -40,7 +40,7 @@ local function cache_groups(group, groups)
 		local texture = def.inventory_image or def.wield_image
 
 		if true_str(texture) then
-			texture = texture .. "\\^[resize\\:150x150"
+			texture = texture:gsub("%^", "\\^"):gsub(":", "\\:") .. "\\^[resize\\:150x150"
 		elseif is_cube(def.drawtype) then
 			texture = get_cube(def.tiles)
 		end

@@ -271,6 +271,8 @@ local function groups_to_items(groups)
 		end
 	end
 
+	sort(names)
+
 	return names
 end
 
