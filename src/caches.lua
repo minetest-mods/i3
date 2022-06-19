@@ -31,26 +31,24 @@ local function cache_groups(group, groups)
 	local items = i3.groups[group].items
 	if #items <= 1 then return end
 
-	local c = 0
-	local px = 256
-	local limit = 10
+	local c, px, lim = 0, 256, 10
 	local sprite = "[combine:WxH"
 
 	for _, item in ipairs(items) do
 		local def = reg_items[item]
-		local texture = def.inventory_image
+		local tiles = def.tiles or def.tile_images
+		local texture = true_str(def.inventory_image) and def.inventory_image --or tiles[1]
 
-		if true_str(texture) then
-			texture = texture:gsub("%^", "\\^"):gsub(":", "\\:") .. "\\^[resize\\:150x150"
-		elseif is_cube(def.drawtype) then
-			local tiles = def.tiles or def.tile_images
+		if is_cube(def.drawtype) then
 			texture = get_cube(tiles)
+		elseif texture then
+			texture = texture:gsub("%^", "\\^"):gsub(":", "\\:") .. "\\^[resize\\:150x150"
 		end
 
-		if true_str(texture) then
+		if texture then
 			sprite = sprite .. fmt(":0,%u=%s", c * px, texture)
 			c++
-			if c == limit then break end
+			if c == lim then break end
 		end
 	end
 
@@ -331,12 +329,16 @@ local function init_cubes()
 	for name, def in pairs(reg_nodes) do
 		if def then
 			local id = core.get_content_id(name)
+			local tiles = def.tiles or def.tile_images
 
 			if is_cube(def.drawtype) then
-				local tiles = def.tiles or def.tile_images
 				i3.cubes[id] = get_cube(tiles)
 			elseif sub(def.drawtype, 1, 9) == "plantlike" or sub(def.drawtype, 1, 8) == "firelike" then
-				i3.plants[id] = def.inventory_image
+				local texture = true_str(def.inventory_image) and def.inventory_image or tiles[1]
+
+				if texture then
+					i3.plants[id] = texture
+				end
 			end
 		end
 	end

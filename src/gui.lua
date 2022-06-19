@@ -1032,7 +1032,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 		local btn_name = groups and fmt("group!%s!%s", groups[1], name) or name
 		local _count = count * (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1)
 
-		if group_cache and group_cache.sprite then
+		if group_cache and group_cache.sprite and not large_recipe then
 			local sprite = ESC(group_cache.sprite)
 
 			fs("item_image_button", X, Y, btn_size, btn_size, "", btn_name, "")
