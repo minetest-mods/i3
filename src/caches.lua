@@ -2,9 +2,9 @@ local replacements = {fuel = {}}
 local http = ...
 
 IMPORT("maxn", "copy", "insert", "sort", "match", "sub")
-IMPORT("is_group", "extract_groups", "item_has_groups", "groups_to_items")
-IMPORT("fmt", "reg_items", "reg_aliases", "reg_nodes", "is_cube", "get_cube", "ItemStack")
 IMPORT("true_str", "is_table", "valid_item", "table_merge", "table_replace", "rcp_eq")
+IMPORT("fmt", "reg_items", "reg_aliases", "reg_nodes", "is_cube", "get_cube", "ItemStack")
+IMPORT("is_group", "extract_groups", "item_has_groups", "groups_to_items", "get_group_stereotype")
 
 local function get_burntime(item)
 	return core.get_craft_result{method = "fuel", items = {item}}.time
@@ -22,12 +22,13 @@ local function cache_fuel(item)
 	end
 end
 
-local function cache_groups(groupname, groups)
-	i3.groups[groupname] = {}
-	i3.groups[groupname].groups = groups
-	i3.groups[groupname].items = groups_to_items(groups, true)
+local function cache_groups(group, groups)
+	i3.groups[group] = {}
+	i3.groups[group].groups = groups
+	i3.groups[group].stereotype = get_group_stereotype(groups[1])
+	i3.groups[group].items = groups_to_items(groups)
 
-	local items = i3.groups[groupname].items
+	local items = i3.groups[group].items
 	if #items <= 1 then return end
 
 	local c = 0
@@ -52,18 +53,18 @@ local function cache_groups(groupname, groups)
 
 	sprite = sprite:gsub("WxH", px .. "x" .. px * c)
 
-	i3.groups[groupname].sprite = sprite
-	i3.groups[groupname].count = c
+	i3.groups[group].sprite = sprite
+	i3.groups[group].count = c
 end
 
 local function get_item_usages(item, recipe, added)
 	if is_group(item) then
-		local groupname = item:sub(7)
-		local group_cache = i3.groups[groupname]
+		local group = item:sub(7)
+		local group_cache = i3.groups[group]
 		local groups = group_cache and group_cache.groups or extract_groups(item)
 
 		if not group_cache then
-			cache_groups(groupname, groups)
+			cache_groups(group, groups)
 		end
 
 		for name, def in pairs(reg_items) do
@@ -220,7 +221,7 @@ core.register_craft = function(def)
 
 	if is_group(output[1]) then
 		groups = extract_groups(output[1])
-		output = groups_to_items(groups, true)
+		output = groups_to_items(groups)
 	end
 
 	for i = 1, #output do

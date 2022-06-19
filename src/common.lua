@@ -253,30 +253,25 @@ local function valid_item(def)
 		def.description and def.description ~= ""
 end
 
-local function groups_to_items(groups, get_all)
-	if not get_all and #groups == 1 then
-		local group = groups[1]
-		local stereotype = i3.group_stereotypes[group]
-		local def = reg_items[stereotype]
+local function get_group_stereotype(group)
+	local stereotype = i3.group_stereotypes[group]
+	local def = reg_items[stereotype]
 
-		if valid_item(def) then
-			return stereotype
-		end
+	if valid_item(def) then
+		return stereotype
 	end
+end
 
+local function groups_to_items(groups)
 	local names = {}
 
 	for name, def in pairs(reg_items) do
 		if valid_item(def) and item_has_groups(def.groups, groups) then
-			if get_all then
-				insert(names, name)
-			else
-				return name
-			end
+			insert(names, name)
 		end
 	end
 
-	return get_all and names or ""
+	return names
 end
 
 local function is_cube(drawtype)
@@ -413,7 +408,7 @@ local function craft_stack(player, data, craft_rcp)
 			items = {}
 			local groups = extract_groups(name)
 			local groupname = name:sub(7)
-			local item_groups = i3.groups[groupname].items or groups_to_items(groups, true)
+			local item_groups = i3.groups[groupname].items or groups_to_items(groups)
 			local remaining = count
 
 			for _, item in ipairs(item_groups) do
@@ -669,6 +664,7 @@ local _ = {
 	extract_groups = extract_groups,
 	item_has_groups = item_has_groups,
 	groups_to_items = groups_to_items,
+	get_group_stereotype = get_group_stereotype,
 
 	-- Compression
 	compressible = compressible,

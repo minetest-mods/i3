@@ -13,12 +13,12 @@ IMPORT("vec_new", "vec_sub", "vec_round")
 IMPORT("clr", "ESC", "msg", "check_privs")
 IMPORT("min", "max", "floor", "ceil", "round")
 IMPORT("reg_items", "reg_tools", "reg_entities")
-IMPORT("get_bag_description", "get_detached_inv")
+IMPORT("true_str", "is_fav", "is_num", "str_to_pos")
 IMPORT("S", "ES", "translate", "ItemStack", "toupper")
-IMPORT("groups_to_items", "compression_active", "compressible")
-IMPORT("true_str", "is_fav", "is_num", "get_group", "str_to_pos")
+IMPORT("get_sorting_idx", "compression_active", "compressible")
+IMPORT("get_bag_description", "get_detached_inv", "get_recipes")
 IMPORT("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
-IMPORT("get_sorting_idx", "is_group", "extract_groups", "item_has_groups", "get_recipes")
+IMPORT("get_group_stereotype", "extract_groups", "is_group", "item_has_groups", "get_group")
 
 local function fmt(elem, ...)
 	if not fs_elements[elem] then
@@ -997,7 +997,8 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 
 		if is_group(name) then
 			groups = group_cache and group_cache.groups or extract_groups(name)
-			name = group_cache and group_cache.items[1] or groups_to_items(groups)
+			name = group_cache and group_cache.stereotype or
+				get_group_stereotype(groups[1]) or group_cache.items[1]
 		end
 
 		local label = groups and "\nG" or ""
@@ -1039,7 +1040,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 			fs("label", X + 0.45, Y + 0.18, label)
 
 			if _count > 1 then
-				fs("label", X + 0.8, Y + 0.9, tostring(_count))
+				fs("label", X + 0.8, Y + 0.9, _count)
 			end
 		else
 			fs("item_image_button", X, Y, btn_size, btn_size, fmt("%s %u", name, _count), btn_name, label)
