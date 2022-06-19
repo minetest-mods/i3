@@ -33,21 +33,24 @@ local function cache_groups(group, groups)
 
 	local c = 0
 	local px = 256
+	local limit = 10
 	local sprite = "[combine:WxH"
 
 	for _, item in ipairs(items) do
 		local def = reg_items[item]
-		local texture = def.inventory_image or def.wield_image
+		local texture = def.inventory_image
 
 		if true_str(texture) then
 			texture = texture:gsub("%^", "\\^"):gsub(":", "\\:") .. "\\^[resize\\:150x150"
 		elseif is_cube(def.drawtype) then
-			texture = get_cube(def.tiles)
+			local tiles = def.tiles or def.tile_images
+			texture = get_cube(tiles)
 		end
 
 		if true_str(texture) then
 			sprite = sprite .. fmt(":0,%u=%s", c * px, texture)
 			c++
+			if c == limit then break end
 		end
 	end
 
@@ -330,7 +333,8 @@ local function init_cubes()
 			local id = core.get_content_id(name)
 
 			if is_cube(def.drawtype) then
-				i3.cubes[id] = get_cube(def.tiles)
+				local tiles = def.tiles or def.tile_images
+				i3.cubes[id] = get_cube(tiles)
 			elseif sub(def.drawtype, 1, 9) == "plantlike" or sub(def.drawtype, 1, 8) == "firelike" then
 				i3.plants[id] = def.inventory_image
 			end
