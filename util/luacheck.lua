@@ -1,6 +1,7 @@
 local exec = os.execute
 local fmt, find, sub = string.format, string.find, string.sub
 local var = "[%w%.%[%]\"\'_]"
+local _,_, fs_elements = dofile("../src/styles.lua")
 
 exec "clear"
 
@@ -84,6 +85,12 @@ local function compile(data)
 		return "local " .. a:gsub("\"", "") .. " = i3.get(" .. a .. ")"
 	end)
 
+	data = data:gsub("([%w_]+)%(", function(a)
+		if fs_elements[a] then
+			return fmt("fs('%s',", a)
+		end
+	end)
+
 	for op, func in pairs(operators) do
 		data = data:gsub("(" .. var .. "+)%s?" .. op .. "%s?(" .. var .. "*)", func)
 	end
@@ -125,6 +132,6 @@ for _, p in ipairs(files) do
 end
 
 exec "luacheck ../init.lua"
-exec "luacheck ../src/operators.lua"
+exec "luacheck ../src/preprocessor.lua"
 exec "luacheck ../src/*.l"
 exec "rm ../src/*.l"

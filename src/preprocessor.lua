@@ -3,6 +3,8 @@
 
 local fmt, split = string.format, string.split
 local var = "[%w%.%[%]\"\'_]"
+local modpath = core.get_modpath"i3"
+local _,_, fs_elements = dofile(modpath .. "/src/styles.lua")
 
 local operators = {
 	["([%+%-%*%^/&|])="] = function(a, b, c)
@@ -41,6 +43,12 @@ local operators = {
 local function compile(data)
 	data = data:gsub("IMPORT%((.-)%)", function(a)
 		return "local " .. a:gsub("\"", "") .. " = i3.get(" .. a .. ")"
+	end)
+
+	data = data:gsub("([%w_]+)%(", function(a)
+		if fs_elements[a] then
+			return fmt("fs('%s',", a)
+		end
 	end)
 
 	for op, func in pairs(operators) do
