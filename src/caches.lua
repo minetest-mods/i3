@@ -25,8 +25,11 @@ end
 local function cache_groups(group, groups)
 	i3.groups[group] = {}
 	i3.groups[group].groups = groups
-	i3.groups[group].stereotype = get_group_stereotype(groups[1])
 	i3.groups[group].items = groups_to_items(groups)
+
+	if #groups == 1 then
+		i3.groups[group].stereotype = get_group_stereotype(groups[1])
+	end
 
 	local items = i3.groups[group].items
 	if #items <= 1 then return end

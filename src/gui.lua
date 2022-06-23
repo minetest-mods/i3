@@ -18,7 +18,7 @@ IMPORT("S", "ES", "translate", "ItemStack", "toupper")
 IMPORT("get_sorting_idx", "compression_active", "compressible")
 IMPORT("get_bag_description", "get_detached_inv", "get_recipes")
 IMPORT("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
-IMPORT("get_group_stereotype", "extract_groups", "groups_to_items", "is_group", "item_has_groups", "get_group")
+IMPORT("extract_groups", "groups_to_items", "is_group", "item_has_groups", "get_group")
 
 local function fmt(elem, ...)
 	if not fs_elements[elem] then
@@ -998,7 +998,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 		if is_group(name) then
 			groups = group_cache and group_cache.groups or extract_groups(name)
 			name = group_cache and (group_cache.stereotype or group_cache.items[1]) or
-				get_group_stereotype(groups[1]) or groups_to_items(groups)[1]
+				groups_to_items(groups)[1]
 		end
 
 		local label = groups and "\nG" or ""
