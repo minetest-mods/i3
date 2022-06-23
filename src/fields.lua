@@ -369,7 +369,7 @@ local function rcp_fields(player, data, fields)
 		local fav = is_fav(data)
 
 		if #data.favs < i3.settings.max_favs and not fav then
-			insert(data.favs, fmt("_%s", data.query_item))
+			insert(data.favs, data.query_item)
 		elseif fav then
 			remove(data.favs, fav)
 		end

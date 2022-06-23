@@ -1397,9 +1397,8 @@ local function get_favs(fs, data)
 	local btn_size = i3.settings.item_btn_size
 	label(data.inv_width + 0.4, data.yoffset + 0.4, ES"Bookmarks")
 
-	for i = 1, #data.favs do
-		local name = data.favs[i]
-		local item = sub(name, 2)
+	for i, item in ipairs(data.favs) do
+		local name = fmt("_%s", item)
 		local X = data.inv_width - 0.7 + (i * 1.2)
 		local Y = data.yoffset + 0.8
 
