@@ -1398,7 +1398,8 @@ local function get_favs(fs, data)
 	label(data.inv_width + 0.4, data.yoffset + 0.4, ES"Bookmarks")
 
 	for i = 1, #data.favs do
-		local item = data.favs[i]
+		local name = data.favs[i]
+		local item = sub(name, 2)
 		local X = data.inv_width - 0.7 + (i * 1.2)
 		local Y = data.yoffset + 0.8
 
@@ -1406,7 +1407,7 @@ local function get_favs(fs, data)
 			image(X, Y, btn_size, btn_size, PNG.slot)
 		end
 
-		item_image_button(X, Y, btn_size, btn_size, item, item, "")
+		item_image_button(X, Y, btn_size, btn_size, item, name, "")
 	end
 end
 
