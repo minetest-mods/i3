@@ -35,7 +35,7 @@ local files = {
 	"caches",
 	"callbacks",
 	"common",
-	"compress",
+	"compression",
 	"detached_inv",
 	"fields",
 	"groups",
@@ -91,6 +91,10 @@ local function compile(data)
 		end
 	end)
 
+	data = data:gsub("([%w_]+)-%-\n", function(a)
+		return fmt("%s = %s - 1", a, a)
+	end)
+
 	for op, func in pairs(operators) do
 		data = data:gsub("(" .. var .. "+)%s?" .. op .. "%s?(" .. var .. "*)", func)
 	end
@@ -123,7 +127,7 @@ for _, p in ipairs(files) do
 			end
 		end
 
-		local _file = io.open(path:match("(.*)%.") .. ".l", "w")
+		local _file = io.open(path:match("(.*)%.") .. ".lc", "w")
 		_file:write(data)
 		_file:close()
 	end
@@ -133,5 +137,5 @@ end
 
 exec "luacheck ../init.lua"
 exec "luacheck ../src/preprocessor.lua"
-exec "luacheck ../src/*.l"
-exec "rm ../src/*.l"
+exec "luacheck ../src/*.lc"
+exec "rm ../src/*.lc"

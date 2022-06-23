@@ -51,6 +51,10 @@ local function compile(data)
 		end
 	end)
 
+	data = data:gsub("([%w_]+)-%-\n", function(a)
+		return fmt("%s = %s - 1", a, a)
+	end)
+
 	for op, func in pairs(operators) do
 		data = data:gsub("(" .. var .. "+)%s?" .. op .. "%s?(" .. var .. "*)", func)
 	end
