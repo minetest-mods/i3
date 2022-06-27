@@ -39,26 +39,31 @@ local function cache_groups(group, groups)
 
 	for _, item in ipairs(items) do
 		local def = reg_items[item]
-		local tiles = def.tiles or def.tile_images
-		local texture = true_str(def.inventory_image) and def.inventory_image --or tiles[1]
 
-		if is_cube(def.drawtype) then
-			texture = get_cube(tiles)
-		elseif texture then
-			texture = texture:gsub("%^", "\\^"):gsub(":", "\\:") .. "\\^[resize\\:150x150"
-		end
+		if def then
+			local tiles = def.tiles or def.tile_images
+			local texture = true_str(def.inventory_image) and def.inventory_image --or tiles[1]
 
-		if texture then
-			sprite = sprite .. fmt(":0,%u=%s", c * px, texture)
-			c++
-			if c == lim then break end
+			if is_cube(def.drawtype) then
+				texture = get_cube(tiles)
+			elseif texture then
+				texture = texture:gsub("%^", "\\^"):gsub(":", "\\:") .. "\\^[resize\\:150x150"
+			end
+
+			if texture then
+				sprite = sprite .. fmt(":0,%u=%s", c * px, texture)
+				c++
+				if c == lim then break end
+			end
 		end
 	end
 
-	sprite = sprite:gsub("WxH", px .. "x" .. px * c)
+	if c > 1 then
+		sprite = sprite:gsub("WxH", px .. "x" .. px * c)
 
-	i3.groups[group].sprite = sprite
-	i3.groups[group].count = c
+		i3.groups[group].sprite = sprite
+		i3.groups[group].count = c
+	end
 end
 
 local function get_item_usages(item, recipe, added)
