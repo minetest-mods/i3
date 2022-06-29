@@ -309,13 +309,21 @@ end
 local function rcp_fields(player, data, fields)
 	local sb_rcp, sb_usg = fields.scrbar_rcp, fields.scrbar_usg
 
+	if fields.filter and fields.filter == "" then
+		data.enable_search = nil
+	end
+
 	if fields.cancel then
 		reset_data(data)
 
 	elseif fields.exit then
 		data.query_item = nil
 
-	elseif fields.key_enter_field == "filter" or fields.search then
+	elseif fields.enable_search then
+		data.enable_search = true
+		return set_fs(player)
+
+	elseif fields.filter and (fields.key_enter_field == "filter" or fields.search) then
 		if fields.filter == "" then
 			reset_data(data)
 			return set_fs(player)

@@ -610,6 +610,7 @@ local function reset_data(data)
 	data.scrbar_rcp    = 1
 	data.scrbar_usg    = 1
 	data.query_item    = nil
+	data.enable_search = nil
 	data.recipes       = nil
 	data.usages        = nil
 	data.export_rcp    = nil

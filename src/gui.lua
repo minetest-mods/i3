@@ -1325,10 +1325,16 @@ local function get_items_fs(fs, data, player, full_height)
 
 	bg9(data.inv_width + 0.1, 0, 7.9, full_height, PNG.bg_full, 10)
 
-	fs("set_focus[filter]",
-	   "style[filter;font_size=18;textcolor=#ccc]",
-	   fmt("field[%f,0.2;3.35,0.6;filter;;%s]", data.inv_width + 0.85, ESC(data.filter)),
-	   "field_close_on_enter[filter;false]")
+	if data.enable_search then
+		fs("set_focus[filter]",
+		   "style[filter;font_size=18;textcolor=#ccc]",
+		   fmt("field[%f,0.2;3.35,0.6;filter;;%s]", data.inv_width + 0.85, ESC(data.filter)),
+		   "field_close_on_enter[filter;false]")
+	else
+		fs"style_type[label;font=italic;font_size=18]"
+		label(data.inv_width + 0.9, 0.49, clr("#aaa", ES"Search..."))
+		button(data.inv_width + 0.8, 0.2, 4, 1, "enable_search", "")
+	end
 
 	image_button(data.inv_width + 0.35, 0.32, 0.35, 0.35, "", "search", "")
 	image_button(data.inv_width + 5.27, 0.3,  0.35, 0.35, "", "prev_page", "")
