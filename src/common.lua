@@ -77,6 +77,10 @@ local function toupper(str)
 	return str:gsub("%f[%w]%l", upper):gsub("_", " ")
 end
 
+local function utf8_len(str)
+	return #str:gsub("[\128-\191]", "") -- Arguably working duct-tape code
+end
+
 local function get_bag_description(data, stack)
 	local desc = translate(data.lang_code, stack:get_description())
 	      desc = split(desc, "(")[1] or desc
@@ -748,6 +752,7 @@ local _ = {
 	match = string.match,
 	gmatch = string.gmatch,
 	toupper = toupper,
+	utf8_len = utf8_len,
 
 	-- Table
 	maxn = table.maxn,

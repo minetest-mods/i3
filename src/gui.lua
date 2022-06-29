@@ -14,9 +14,9 @@ IMPORT("clr", "ESC", "msg", "check_privs")
 IMPORT("min", "max", "floor", "ceil", "round")
 IMPORT("reg_items", "reg_tools", "reg_entities")
 IMPORT("true_str", "is_fav", "is_num", "str_to_pos")
-IMPORT("S", "ES", "translate", "ItemStack", "toupper")
 IMPORT("get_sorting_idx", "compression_active", "compressible")
 IMPORT("get_bag_description", "get_detached_inv", "get_recipes")
+IMPORT("S", "ES", "translate", "ItemStack", "toupper", "utf8_len")
 IMPORT("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
 IMPORT("extract_groups", "groups_to_items", "is_group", "item_has_groups", "get_group")
 
@@ -1036,7 +1036,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 			local sprite = ESC(group_cache.sprite)
 
 			item_image_button(X, Y, btn_size, btn_size, "", btn_name, "")
-			animated_image(X + 0.01, Y + 0.01, 1.89, 1.89, sprite, group_cache.count, 1000)
+			animated_image(X + 0.01, Y + 0.01, 1.89, 1.89, sprite, group_cache.count, 1500)
 			label(X + 0.45, Y + 0.18, label)
 
 			if _count > 1 then
@@ -1325,15 +1325,22 @@ local function get_items_fs(fs, data, player, full_height)
 
 	bg9(data.inv_width + 0.1, 0, 7.9, full_height, PNG.bg_full, 10)
 
-	fs(fmt("box[%f,0.2;4.05,0.6;#bababa25]", data.inv_width + 0.3),
-	   "set_focus[filter]",
-	   fmt("field[%f,0.2;2.95,0.6;filter;;%s]", data.inv_width + 0.35, ESC(data.filter)),
+	fs("set_focus[filter]",
+	   "style[filter;font_size=18;textcolor=#ccc]",
+	   fmt("field[%f,0.2;3.35,0.6;filter;;%s]", data.inv_width + 0.85, ESC(data.filter)),
 	   "field_close_on_enter[filter;false]")
 
-	image_button(data.inv_width + 3.35, 0.35, 0.3,  0.3,  "", "cancel", "")
-	image_button(data.inv_width + 3.85, 0.32, 0.35, 0.35, "", "search", "")
+	image_button(data.inv_width + 0.35, 0.32, 0.35, 0.35, "", "search", "")
 	image_button(data.inv_width + 5.27, 0.3,  0.35, 0.35, "", "prev_page", "")
 	image_button(data.inv_width + 7.45, 0.3,  0.35, 0.35, "", "next_page", "")
+
+	fs(fmt("tooltip[search;%s]", ES"Search"))
+
+	if true_str(data.filter) then
+		image_button(data.inv_width + 4.3, 0.4, 0.2, 0.2,  "", "cancel", "")
+		fs(fmt("tooltip[cancel;%s]", ES"Clear"))
+		box(data.inv_width + 0.85, 0.75, 3.74, 0.01, "#f9826c")
+	end
 
 	data.pagemax = max(1, ceil(#items / ipp))
 
@@ -1362,7 +1369,7 @@ local function get_items_fs(fs, data, player, full_height)
 			      X -= (X * 0.045) + data.inv_width + 0.28
 
 			local Y = round((i % ipp - X) / rows + 1, 0)
-			      Y -= (Y * 0.085) + 0.95
+			      Y -= (Y * 0.085) + 0.92
 
 			insert(fs, fmt("item_image_button", X, Y, size, size, name, item, ""))
 
@@ -1469,8 +1476,10 @@ local function get_tabs_fs(fs, player, data, full_height)
 
 		if true_str(def.image) then
 			local desc = translate(data.lang_code, def.description)
+			local desc_len = utf8_len(desc)
+
 			fs("style_type[image;noclip=true]")
-			image(X + (tab_len / 2) - ((#desc * 0.1) / 2) - 0.55, Y + 0.05, 0.35, 0.35, def.image)
+			image(X + (tab_len / 2) - ((desc_len * 0.1) / 2) - 0.55, Y + 0.05, 0.35, 0.35, def.image)
 		end
 
 		c++
@@ -1540,11 +1549,11 @@ local function make_fs(player, data)
 		get_items_fs(fs, data, player, full_height)
 	end
 
-	local visible_tabs = 1
+	local visible_tabs = #i3.tabs
 
 	for _, def in ipairs(i3.tabs) do
-		if visible_tabs < 2 and def.access and def.access(player, data) then
-			visible_tabs++
+		if def.access and not def.access(player, data) then
+			visible_tabs -= 1
 		end
 	end
 

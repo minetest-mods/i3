@@ -77,9 +77,9 @@ local styles = string.format([[
 	style[;sound=]
 	style[nofav;sound=i3_cannot]
 	style[pagenum,no_item,no_rcp;font=bold;font_size=18]
+	style[search;fgimg=%s;content_offset=0]
 	style[exit;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[cancel;fgimg=%s;fgimg_hovered=%s;content_offset=0]
-	style[search;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[prev_page,prev_recipe,prev_usage,prev_sort,prev_skin;fgimg=%s;fgimg_hovered=%s]
 	style[next_page,next_recipe,next_usage,next_sort,next_skin;fgimg=%s;fgimg_hovered=%s]
 	style[waypoint_add;fgimg=%s;fgimg_hovered=%s;content_offset=0]
@@ -94,9 +94,9 @@ local styles = string.format([[
 	style[confirm_trash_yes;sound=i3_trash]
 ]],
 PNG.slot,
+PNG.search_hover,
 PNG.exit,     PNG.exit_hover,
 PNG.cancel,   PNG.cancel_hover,
-PNG.search,   PNG.search_hover,
 PNG.prev,     PNG.prev_hover,
 PNG.next,     PNG.next_hover,
 PNG.add,      PNG.add_hover,
