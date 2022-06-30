@@ -1355,14 +1355,15 @@ local function get_items_fs(fs, data, player, full_height)
 
 	if #items == 0 then
 		local lbl = ES"No item to show"
+		local icon, width, offset = PNG.no_result, 4, 2
 
 		if next(i3.recipe_filters) and #i3.init_items > 0 and data.filter == "" then
 			lbl = ES"Collect items to reveal more recipes" -- Progressive mode, etc.
-		else
-			image(data.inv_width + 2, 4.5, 4, 4, "i3_no_result.png")
+			icon, width, offset = PNG.find_more, 2.5, 2.75
 		end
 
-		button(data.inv_width + 0.1, 3, 8, 1, "no_item", lbl)
+		image(data.inv_width + offset, 3.5, width, width, icon)
+		button(data.inv_width + 0.1, 7, 8, 1, "no_item", lbl)
 	else
 		local first_item = (data.pagenum - 1) * ipp
 

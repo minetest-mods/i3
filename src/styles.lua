@@ -42,6 +42,8 @@ local PNG = {
 	home = "i3_home.png",
 	flag = "i3_flag.png",
 	edit = "i3_edit.png",
+	no_result = "i3_no_result.png",
+	find_more = "i3_find_more.png",
 
 	cancel_hover = "i3_cancel.png^\\[brighten",
 	search_hover = "i3_search.png^\\[brighten",
