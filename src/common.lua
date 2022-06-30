@@ -78,7 +78,13 @@ local function toupper(str)
 end
 
 local function utf8_len(str)
-	return #str:gsub("[\128-\191]", "") -- Arguably working duct-tape code
+	local c = 0
+
+	for _ in str:gmatch"([%z\1-\127\194-\244][\128-\191]*)" do -- Arguably working duct-tape code
+		c++
+	end
+
+	return c
 end
 
 local function get_bag_description(data, stack)
