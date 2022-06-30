@@ -1333,7 +1333,7 @@ local function get_items_fs(fs, data, player, full_height)
 	else
 		fs"style_type[label;font=italic;font_size=18]"
 		label(data.inv_width + 0.9, 0.49, clr("#aaa", ES"Search..."))
-		button(data.inv_width + 0.8, 0.2, 4, 1, "enable_search", "")
+		button(data.inv_width + 0.8, 0.1, 4, 0.8, "enable_search", "")
 	end
 
 	image_button(data.inv_width + 0.35, 0.32, 0.35, 0.35, "", "search", "")
