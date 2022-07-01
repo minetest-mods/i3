@@ -95,6 +95,10 @@ local function inv_fields(player, data, fields)
 		data.waypoint_see = nil
 		data.bag_rename = nil
 
+		if data.filter == "" then
+			data.enable_search = nil
+		end
+
 	elseif fields.trash then
 		data.show_settings = nil
 		data.confirm_trash = true
