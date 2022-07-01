@@ -998,7 +998,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 		if is_group(name) then
 			groups = group_cache and group_cache.groups or extract_groups(name)
 			name = group_cache and (group_cache.stereotype or group_cache.items[1]) or
-				groups_to_items(groups)[1]
+				groups_to_items(groups)[1] or ""
 		end
 
 		local label = groups and "\nG" or ""
