@@ -313,7 +313,7 @@ end
 local function rcp_fields(player, data, fields)
 	local sb_rcp, sb_usg = fields.scrbar_rcp, fields.scrbar_usg
 
-	if fields.filter and fields.filter == "" then
+	if data.filter == "" then
 		data.enable_search = nil
 	end
 
