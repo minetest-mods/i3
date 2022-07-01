@@ -1034,9 +1034,10 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 
 		if group_cache and group_cache.sprite and not large_recipe then
 			local sprite = ESC(group_cache.sprite)
+			local size = (i3.settings.sprite_resolution * 1.89) / 256
 
 			item_image_button(X, Y, btn_size, btn_size, "", btn_name, "")
-			animated_image(X + 0.01, Y + 0.01, 1.89, 1.89, sprite, group_cache.count, 1500)
+			animated_image(X + 0.01, Y + 0.01, size, size, sprite, group_cache.count, 1500)
 			label(X + 0.45, Y + 0.18, label)
 
 			if _count > 1 then

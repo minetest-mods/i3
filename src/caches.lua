@@ -34,7 +34,7 @@ local function cache_groups(group, groups)
 	local items = i3.groups[group].items
 	if #items <= 1 then return end
 
-	local c, px, lim = 0, 256, 10
+	local px, c, lim = i3.settings.sprite_resolution, 0, 10
 	local sprite = "[combine:WxH"
 
 	for _, item in ipairs(items) do
@@ -45,7 +45,7 @@ local function cache_groups(group, groups)
 		if def.drawtype and is_cube(def.drawtype) then
 			texture = get_cube(tiles)
 		elseif texture then
-			texture = texture:gsub("%^", "\\^"):gsub(":", "\\:") .. "\\^[resize\\:150x150"
+			texture = texture:gsub("%^", "\\^"):gsub(":", "\\:") .. "\\^[resize\\:146x146"
 		end
 
 		if texture then
