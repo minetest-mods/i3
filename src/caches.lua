@@ -34,7 +34,7 @@ local function cache_groups(group, groups)
 	local items = i3.groups[group].items
 	if #items <= 1 then return end
 
-	local px, c, lim = i3.settings.sprite_resolution, 0, 10
+	local px, lim, c = 64, 10, 0
 	local sprite = "[combine:WxH"
 
 	for _, item in ipairs(items) do
@@ -44,16 +44,10 @@ local function cache_groups(group, groups)
 
 		if def.drawtype and is_cube(def.drawtype) then
 			texture = get_cube(tiles)
-		elseif texture then
-			-- Buggy, it disforms the texture but can handle any sequence
-			texture = texture:gsub("%^", "\\^"):gsub(":", "\\:") .. "\\^[resize\\:146x146"
-
-			--[[ Alternative, it scales a flat texture perfectly but does not
-			     handle correctly mixed sequence like: inv cube -> flat texture -> inv cube ]]
-			-- px = 112
 		end
 
 		if texture then
+			texture = texture:gsub("%^", "\\^"):gsub(":", "\\:") .. fmt("\\^[resize\\:%ux%u", px, px)
 			sprite = sprite .. fmt(":0,%u=%s", c * px, texture)
 			c++
 			if c == lim then break end
