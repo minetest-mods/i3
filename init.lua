@@ -28,7 +28,7 @@ i3 = {
 		max_waypoints = 30,
 		min_fs_version = 4,
 		item_btn_size = 1.1,
-		sprite_resolution = 1024,
+		sprite_resolution = 256,
 		drop_bag_on_die = true,
 		save_interval = 600, -- Player data save interval (in seconds)
 
