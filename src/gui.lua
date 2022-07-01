@@ -38,7 +38,7 @@ local function weird_desc(str)
 end
 
 local function snip(str, limit)
-	return #str > limit and fmt("%s...", sub(str, 1, limit - 3)) or str
+	return fmt("%s...", sub(str, 1, limit - 3))
 end
 
 local function get_desc(item)
@@ -175,11 +175,11 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 		local desc_lim, _desc = 39
 		local icon_size = 1.1
 
-		if #title > title_lim then
+		if utf8_len(title) > title_lim then
 			_title = snip(title, title_lim)
 		end
 
-		if #desc > desc_lim then
+		if utf8_len(desc) > desc_lim then
 			_desc = snip(desc, desc_lim)
 		end
 
@@ -318,7 +318,7 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 
 		local waypoint_name, lim = v.name, 18
 
-		if #v.name > lim then
+		if utf8_len(v.name) > lim then
 			waypoint_name = snip(waypoint_name, lim)
 		end
 
@@ -1189,12 +1189,12 @@ local function get_header(fs, data)
 	local Y1 = data.yoffset + 0.47
 	local Y2 = Y1 + 0.5
 
-	if #desc > desc_lim then
+	if utf8_len(desc) > desc_lim then
 		tooltip(X, Y1 - 0.1, 5.7, 0.24, desc)
 		desc = snip(desc, desc_lim)
 	end
 
-	if #tech_name > name_lim then
+	if utf8_len(tech_name) > name_lim then
 		tooltip(X, Y2 - 0.1, 5.7, 0.24, tech_name)
 		tech_name = snip(tech_name, name_lim)
 	end
