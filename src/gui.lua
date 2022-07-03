@@ -900,10 +900,9 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 	else
 		local size = BTN_SIZE * 1.2
 		slot(X, Y - 0.11, size, size)
-		item_image_button(
-			X + 0.11, Y, BTN_SIZE, BTN_SIZE,
-			fmt("%s %u %u", name, count * (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1), wear),
-			_name, "")
+
+		count *= (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1)
+		item_image_button(X + 0.11, Y, BTN_SIZE, BTN_SIZE, fmt("%s %u %u", name, count, wear), _name, "")
 	end
 
 	local def = reg_items[name]
@@ -1030,7 +1029,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 		end
 
 		local btn_name = groups and fmt("group!%s!%s", groups[1], name) or name
-		local _count = count * (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1)
+		count *= (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1)
 
 		if group_cache and group_cache.sprite and not large_recipe then
 			local sprite = ESC(group_cache.sprite)
@@ -1040,11 +1039,11 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 			animated_image(X + 0.01, Y + 0.025, size, size, sprite, group_cache.count, 1500)
 			label(X + 0.45, Y + 0.18, label)
 
-			if _count > 1 then
-				label(X + 0.8, Y + 0.9, _count)
+			if count > 1 then
+				label(X + 0.8, Y + 0.9, count)
 			end
 		else
-			item_image_button(X, Y, btn_size, btn_size, fmt("%s %u", name, _count), btn_name, label)
+			item_image_button(X, Y, btn_size, btn_size, fmt("%s %u", name, count), btn_name, label)
 		end
 
 		local def = reg_items[name]
