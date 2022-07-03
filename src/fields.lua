@@ -95,6 +95,10 @@ local function inv_fields(player, data, fields)
 		data.waypoint_see = nil
 		data.bag_rename = nil
 
+		if data.filter == "" then
+			data.enable_search = nil
+		end
+
 	elseif fields.trash then
 		data.show_settings = nil
 		data.confirm_trash = true
@@ -309,7 +313,7 @@ end
 local function rcp_fields(player, data, fields)
 	local sb_rcp, sb_usg = fields.scrbar_rcp, fields.scrbar_usg
 
-	if data.filter == "" then
+	if fields.filter and fields.filter == "" then
 		data.enable_search = nil
 	end
 
