@@ -482,15 +482,16 @@ local function get_sorting_idx(name)
 	return idx
 end
 
-local function sorter(inv, reverse, mode)
+local function sorter(inv, data, mode)
 	sort(inv, function(a, b)
 		if mode == 1 then
-			a, b = a:get_name(), b:get_name()
+			a = translate(data.lang_code, a:get_short_description())
+			b = translate(data.lang_code, b:get_short_description())
 		else
 			a, b = a:get_count(), b:get_count()
 		end
 
-		if reverse then
+		if data.reverse_sorting then
 			return a > b
 		end
 

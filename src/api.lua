@@ -344,7 +344,7 @@ end
 i3.add_sorting_method("alphabetical", {
 	description = S"Sort items by name (A-Z)",
 	func = function(list, data)
-		sorter(list, data.reverse_sorting, 1)
+		sorter(list, data, 1)
 		return list
 	end
 })
@@ -352,7 +352,7 @@ i3.add_sorting_method("alphabetical", {
 i3.add_sorting_method("numerical", {
 	description = S"Sort items by number of items per stack",
 	func = function(list, data)
-		sorter(list, data.reverse_sorting, 2)
+		sorter(list, data, 2)
 		return list
 	end,
 })
