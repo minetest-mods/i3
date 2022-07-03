@@ -1396,14 +1396,21 @@ local function get_items_fs(fs, data, player, full_height)
 
 	local _tabs = {"All", "Nodes", "Items"}
 	local tab_len, tab_hgh = 1.8, 0.5
+	local legacy_fs = data.fs_version < 6
 
 	for i, title in ipairs(_tabs) do
 		local selected = i == data.itab
-		fs(fmt([[style_type[image_button;fgimg=%s;fgimg_hovered=%s;noclip=true;
-			font_size=16;textcolor=%s;content_offset=0;sound=i3_tab] ]],
-		selected and PNG.tab_small_hover or PNG.tab_small,
-		PNG.tab_small_hover, selected and "#fff" or "#ddd"))
+		local hover_texture = selected and PNG.tab_small_hover or PNG.tab_small
 
+		if legacy_fs then
+			fs(fmt("style_type[image_button;fgimg=%s;fgimg_hovered=%s]", hover_texture, PNG.tab_small_hover))
+		else
+			fs(fmt([[style_type[image_button;bgimg=%s;bgimg_hovered=%s;
+				bgimg_middle=16,0,-16,-16;padding=-16,0,16,16] ]], hover_texture, PNG.tab_small_hover))
+		end
+
+		fs(fmt("style_type[image_button;noclip=true;font_size=16;textcolor=%s;content_offset=0;sound=i3_tab]",
+			selected and "#fff" or "#ddd"))
 		fs"style_type[image_button:hovered;textcolor=#fff]"
 		image_button((data.inv_width - 0.65) + (i * (tab_len + 0.1)),
 			full_height, tab_len, tab_hgh, "", fmt("itab_%u", i), title)
@@ -1472,11 +1479,23 @@ local function get_tabs_fs(fs, player, data, full_height)
 		end
 
 		local selected = i == data.tab
+		local legacy_fs = data.fs_version < 6
+		local bgimg = selected and (btm and PNG.tab_hover or PNG.tab_hover_top) or
+				(btm and PNG.tab or PNG.tab_top)
+		local bgimg_hover = btm and PNG.tab_hover or PNG.tab_hover_top
 
-		fs(fmt([[style_type[image_button;fgimg=%s;fgimg_hovered=%s;noclip=true;
-			font_size=16;textcolor=%s;content_offset=0;sound=i3_tab] ]],
-		selected and (btm and PNG.tab_hover or PNG.tab_hover_top) or (btm and PNG.tab or PNG.tab_top),
-		btm and PNG.tab_hover or PNG.tab_hover_top, selected and "#fff" or "#ddd"))
+		if legacy_fs then
+			fs(fmt("style_type[image_button;fgimg=%s;fgimg_hovered=%s]", bgimg, bgimg_hover))
+		else
+			local middle = btm and "16,0,-16,-16" or "16,0,-16,0"
+			local padding = btm and "-16,0,16,16" or "-16,-16,16,16"
+
+			fs(fmt([[style_type[image_button;bgimg=%s;bgimg_hovered=%s;bgimg_middle=%s;padding=%s] ]],
+				bgimg, bgimg_hover, middle, padding))
+		end
+
+		fs(fmt("style_type[image_button;noclip=true;font_size=16;textcolor=%s;content_offset=0;sound=i3_tab]",
+			selected and "#fff" or "#ddd"))
 
 		local X = (data.inv_width / 2) + (c * (tab_len + 0.1)) - ((tab_len + 0.05) * (shift / 2))
 		local Y = btm and full_height or -tab_hgh
