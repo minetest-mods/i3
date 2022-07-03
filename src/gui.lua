@@ -41,21 +41,21 @@ local function snip(str, limit)
 	return fmt("%s...", sub(str, 1, limit - 3))
 end
 
-local function get_desc(item)
+local function get_desc(item, lang_code)
 	if sub(item, 1, 1) == "_" then
 		item = sub(item, 2)
 	end
 
 	local def = reg_items[item]
-
 	if not def then
 		return S("Unknown Item (@1)", item)
 	end
 
-	local desc = def.description
+	local desc = ItemStack(item):get_short_description()
+	      desc = translate(lang_code, desc)
 
 	if true_str(desc) then
-		desc = desc:trim():match("[^\n]*"):gsub("_", " ")
+		desc = desc:trim():gsub("_", " ")
 
 		if not find(desc, "%u") then
 			desc = toupper(desc)
@@ -750,7 +750,7 @@ local function get_inventory_fs(player, data, fs)
 	show_popup(fs, data)
 end
 
-local function get_tooltip(item, info, pos)
+local function get_tooltip(item, info, pos, lang_code)
 	local tooltip
 
 	if info.groups then
@@ -768,7 +768,7 @@ local function get_tooltip(item, info, pos)
 			tooltip = S("Any item belonging to the groups: @1", groupstr)
 		end
 	else
-		tooltip = info.meta_desc or get_desc(item)
+		tooltip = info.meta_desc or get_desc(item, lang_code)
 	end
 
 	local function add(str)
@@ -786,7 +786,7 @@ local function get_tooltip(item, info, pos)
 	if info.replace then
 		for i = 1, #info.replace.items do
 			local rpl = ItemStack(info.replace.items[i]):get_name()
-			local desc = clr("#ff0", get_desc(rpl))
+			local desc = clr("#ff0", get_desc(rpl, lang_code))
 
 			if info.replace.type == "cooking" then
 				tooltip = add(S("Replaced by @1 on smelting", desc))
@@ -813,12 +813,13 @@ local function get_tooltip(item, info, pos)
 
 		if several then
 			for i = 1, #info.tools do
-				names = fmt("%s\t\t- %s\n", names, clr("#ff0", get_desc(info.tools[i])))
+				names = fmt("%s\t\t- %s\n", names, clr("#ff0", get_desc(info.tools[i], lang_code)))
 			end
 
 			tooltip = add(S("Only drop if using one of these tools: @1", sub(names, 1, -2)))
 		else
-			tooltip = add(S("Only drop if using this tool: @1", clr("#ff0", get_desc(info.tools[1]))))
+			tooltip = add(S("Only drop if using this tool: @1",
+					clr("#ff0", get_desc(info.tools[1], lang_code))))
 		end
 	end
 
@@ -926,7 +927,7 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 	}
 
 	if next(infos) then
-		fs(get_tooltip(_name, infos, pos))
+		fs(get_tooltip(_name, infos, pos, data.lang_code))
 	end
 end
 
@@ -1068,7 +1069,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 		}
 
 		if next(infos) then
-			fs(get_tooltip(btn_name, infos))
+			fs(get_tooltip(btn_name, infos, nil, data.lang_code))
 		end
 	end
 
@@ -1181,7 +1182,7 @@ local function get_header(fs, data)
 	fs(fmt("tooltip[exit;%s]", ES"Back to item list"))
 
 	local desc_lim, name_lim = 34, 35
-	local desc = translate(data.lang_code, get_desc(data.query_item))
+	local desc = get_desc(data.query_item, data.lang_code)
 	      desc = ESC(desc)
 	local tech_name = data.query_item
 	local X = data.inv_width + 0.95
@@ -1405,7 +1406,7 @@ local function get_items_fs(fs, data, player, full_height)
 			fs(fmt("style_type[image_button;fgimg=%s;fgimg_hovered=%s]", hover_texture, PNG.tab_small_hover))
 		else
 			fs(fmt([[style_type[image_button;bgimg=%s;bgimg_hovered=%s;
-				bgimg_middle=16,0,-16,-16;padding=-16,0,16,16] ]], hover_texture, PNG.tab_small_hover))
+				bgimg_middle=14,0,-14,-14;padding=-14,0,14,14] ]], hover_texture, PNG.tab_small_hover))
 		end
 
 		fs(fmt("style_type[image_button;noclip=true;font_size=16;textcolor=%s;content_offset=0;sound=i3_tab]",
