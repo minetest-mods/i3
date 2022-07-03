@@ -117,6 +117,7 @@ local fs_elements = {
 	scrollbar = "scrollbar[%f,%f;%f,%f;%s;%s;%u]",
 	model = "model[%f,%f;%f,%f;%s;%s;%s;%s;%s;%s;%s]",
 	image_button = "image_button[%f,%f;%f,%f;%s;%s;%s]",
+	slot = "image[%f,%f;%f,%f;i3_slot.png;60,-60,60,-60]",
 	animated_image = "animated_image[%f,%f;%f,%f;;%s;%u;%u]",
 	item_image_button = "item_image_button[%f,%f;%f,%f;%s;%s;%s]",
 }

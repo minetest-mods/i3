@@ -883,7 +883,6 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 	local name  = item:get_name()
 	local count = item:get_count()
 	local wear  = item:get_wear()
-	local bt_s  = BTN_SIZE * 1.2
 	local _name = fmt("_%s", name)
 	local pos
 
@@ -899,7 +898,8 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 		inv:set_stack("main", 1, item)
 		pos = {x = X + 0.11, y = Y}
 	else
-		image(X, Y - 0.11, bt_s, bt_s, PNG.slot)
+		local size = BTN_SIZE * 1.2
+		slot(X, Y - 0.11, size, size)
 		item_image_button(
 			X + 0.11, Y, BTN_SIZE, BTN_SIZE,
 			fmt("%s %u %u", name, count * (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1), wear),
@@ -1026,7 +1026,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 		end
 
 		if not large_recipe then
-			image(X, Y, btn_size, btn_size, PNG.slot)
+			slot(X, Y, btn_size, btn_size)
 		end
 
 		local btn_name = groups and fmt("group!%s!%s", groups[1], name) or name
@@ -1427,7 +1427,7 @@ local function get_favs(fs, data)
 		local Y = data.yoffset + 0.8
 
 		if data.query_item == item then
-			image(X, Y, btn_size, btn_size, PNG.slot)
+			slot(X, Y, btn_size, btn_size)
 		end
 
 		item_image_button(X, Y, btn_size, btn_size, item, name, "")
