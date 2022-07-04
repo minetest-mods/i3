@@ -1,3 +1,5 @@
+local fmt = string.format
+
 local PNG = {
 	blank = "i3_blank.png",
 	bg = "i3_bg.png",
@@ -23,7 +25,7 @@ local PNG = {
 	sign = "i3_sign.png",
 	cancel = "i3_cancel.png",
 	export = "i3_export.png",
-	slot = "i3_slot.png",
+	slot = "i3_slot.png^\\[resize:128x128",
 	tab = "i3_tab.png",
 	tab_small = "i3_tab_small.png",
 	tab_top = "i3_tab.png^\\[transformFY",
@@ -74,7 +76,7 @@ local styles = string.format([[
 	style_type[label,field;font_size=16]
 	style_type[button;border=false;content_offset=0]
 	style_type[image_button,item_image_button,checkbox,dropdown;border=false;sound=i3_click]
-	style_type[item_image_button;bgimg_hovered=%s]
+	style_type[item_image_button;bgimg_hovered=%s;bgimg_middle=9;padding=-9]
 
 	style[;sound=]
 	style[nofav;sound=i3_cannot]
@@ -111,10 +113,10 @@ local fs_elements = {
 	tooltip = "tooltip[%f,%f;%f,%f;%s]",
 	button = "button[%f,%f;%f,%f;%s;%s]",
 	checkbox = "checkbox[%f,%f;%s;%s;%s]",
-	slot = "image[%f,%f;%f,%f;i3_slot.png]",
+	slot = "image[%f,%f;%f,%f;" .. fmt("%s;9]", PNG.slot),
 	item_image = "item_image[%f,%f;%f,%f;%s]",
 	hypertext = "hypertext[%f,%f;%f,%f;%s;%s]",
-	bg9 = "background9[%f,%f;%f,%f;%s;false;%u]",
+	bg9 = "background9[%f,%f;%f,%f;%s;false;12]",
 	scrollbar = "scrollbar[%f,%f;%f,%f;%s;%s;%u]",
 	model = "model[%f,%f;%f,%f;%s;%s;%s;%s;%s;%s;%s]",
 	image_button = "image_button[%f,%f;%f,%f;%s;%s;%s]",

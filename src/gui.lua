@@ -1324,7 +1324,7 @@ local function get_items_fs(fs, data, player, full_height)
 	local ipp = rows * lines
 	local size = 0.85
 
-	bg9(data.inv_width + 0.1, 0, 7.9, full_height, PNG.bg_full, 10)
+	bg9(data.inv_width + 0.1, 0, 7.9, full_height, PNG.bg_full)
 
 	if data.enable_search then
 		fs("set_focus[filter]",
@@ -1447,7 +1447,7 @@ local function get_panels(fs, data, player)
 			data.yoffset += panels[i - 1].height + 0.1
 		end
 
-		bg9(data.inv_width + 0.1, data.yoffset, 7.9, panel.height, PNG.bg_full, 10)
+		bg9(data.inv_width + 0.1, data.yoffset, 7.9, panel.height, PNG.bg_full)
 
 		local is_recipe, is_usage = panel.name == "recipes", panel.name == "usages"
 		panel.func(fs, data, player, panel, is_recipe, is_usage)
@@ -1564,7 +1564,7 @@ local function make_fs(player, data)
 	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
 		i3.settings.min_fs_version, data.inv_width + 8, full_height), styles)
 
-	bg9(0, 0, data.inv_width, full_height, PNG.bg_full, 10)
+	bg9(0, 0, data.inv_width, full_height, PNG.bg_full)
 
 	local tab = i3.tabs[data.tab]
 
