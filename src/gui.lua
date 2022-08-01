@@ -1334,7 +1334,6 @@ local function get_items_fs(fs, data, player, full_height)
 	else
 		fs"style_type[label;font=italic;font_size=18]"
 		label(data.inv_width + 0.9, 0.49, clr("#aaa", ES"Search..."))
-		fs(fmt("style[enable_search:hovered;bgimg=%s]", PNG.search_outline))
 		button(data.inv_width + 0.8, 0.12, 4, 0.8, "enable_search", "")
 	end
 
@@ -1347,7 +1346,7 @@ local function get_items_fs(fs, data, player, full_height)
 	if true_str(data.filter) then
 		image_button(data.inv_width + 4.3, 0.4, 0.2, 0.2,  "", "cancel", "")
 		fs(fmt("tooltip[cancel;%s]", ES"Clear"))
-		image(data.inv_width + 0.8, 0.14, 4, 0.8, PNG.search_outline)
+		image(data.inv_width + 0.8, 0.13, 4, 0.8, PNG.search_outline)
 	end
 
 	data.pagemax = max(1, ceil(#items / ipp))

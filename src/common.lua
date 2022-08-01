@@ -80,7 +80,7 @@ end
 local function utf8_len(str)
 	local c = 0
 
-	for _ in str:gmatch"([%z\1-\127\194-\244][\128-\191]*)" do -- Arguably working duct-tape code
+	for _ in str:gmatch"[%z\1-\127\194-\244][\128-\191]*" do -- Arguably working duct-tape code
 		c++
 	end
 
