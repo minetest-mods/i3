@@ -46,6 +46,7 @@ local PNG = {
 	edit = "i3_edit.png",
 	no_result = "i3_no_result.png",
 	find_more = "i3_find_more.png",
+	search_outline = "i3_search_outline.png",
 
 	cancel_hover = "i3_cancel.png^\\[brighten",
 	search_hover = "i3_search.png^\\[brighten",
