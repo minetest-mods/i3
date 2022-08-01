@@ -1346,7 +1346,7 @@ local function get_items_fs(fs, data, player, full_height)
 	if true_str(data.filter) then
 		image_button(data.inv_width + 4.3, 0.4, 0.2, 0.2,  "", "cancel", "")
 		fs(fmt("tooltip[cancel;%s]", ES"Clear"))
-		image(data.inv_width + 0.8, 0.13, 4, 0.8, PNG.search_outline)
+		box(data.inv_width + 0.85, 0.75, 3.74, 0.01, "#f9826c")
 	end
 
 	data.pagemax = max(1, ceil(#items / ipp))
