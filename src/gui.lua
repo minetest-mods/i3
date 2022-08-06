@@ -576,11 +576,11 @@ local function show_popup(fs, data)
 		local show_sorting = data.show_setting == "sorting"
 		local show_misc = data.show_setting == "misc"
 
-		fs(fmt("style[setting_home;textcolor=%s;font=bold;sound=i3_click]",
+		fs(fmt("style[setting_home;textcolor=%s;font=bold;font_size=16;sound=i3_click]",
 			show_home and colors.yellow or "#fff"),
-		   fmt("style[setting_sorting;textcolor=%s;font=bold;sound=i3_click]",
+		   fmt("style[setting_sorting;textcolor=%s;font=bold;font_size=16;sound=i3_click]",
 			show_sorting and colors.yellow or "#fff"),
-		   fmt("style[setting_misc;textcolor=%s;font=bold;sound=i3_click]",
+		   fmt("style[setting_misc;textcolor=%s;font=bold;font_size=16;sound=i3_click]",
 			show_misc and colors.yellow or "#fff"))
 
 		button(2.2, 9.25, 1.8, 0.55, "setting_home", "Home")
@@ -624,14 +624,10 @@ local function show_popup(fs, data)
 			checkbox(2.4, 10.95, "cb_ignore_hotbar", "Ignore hotbar", tostring(data.ignore_hotbar))
 			checkbox(5.4, 10.05, "cb_auto_sorting", "Automation", tostring(data.auto_sorting))
 
-			for _ = 1, 3 do
-				box(5.4, 10.68, 2.4, 0.45, "#707070")
-			end
-
-			fs("style[drop_items;font_size=15;font=mono;textcolor=#dbeeff]",
-			   fmt("field[5.4,10.68;2.4,0.45;drop_items;Remove items:;%s]",
-				ESC(concat(data.drop_items or {}, ","))),
-			   "field_close_on_enter[drop_items;false]")
+			local sign = (data.font_size > 0 and "+") or (data.font_size > 0 and "-") or ""
+			label(5.4, 10.55, ES"Font size" .. fmt(": %s", sign .. data.font_size))
+			fs"scrollbaroptions[min=-5;max=5;smallstep=1;largestep=1;thumbsize=2]"
+			fs(fmt("scrollbar[5.4,10.8;2.5,0.25;horizontal;sb_font_size;%d]", data.font_size))
 
 			fs(fmt("tooltip[cb_inv_compress;%s;#707070;#fff]",
 				ES"Enable this option to compress your inventory"),
@@ -640,10 +636,7 @@ local function show_popup(fs, data)
 			   fmt("tooltip[cb_ignore_hotbar;%s;#707070;#fff]",
 				ES"Enable this option to sort your inventory except the hotbar slots"),
 			   fmt("tooltip[cb_auto_sorting;%s;#707070;#fff]",
-				ES"Enable this option to sort your inventory automatically"),
-			   fmt("tooltip[drop_items;%s;#707070;#fff]",
-				"Add a comma-separated list of items to remove on inventory sorting.\n" ..
-				"Format: " .. ("mod:item,mod:item, ..."):gsub("(%a+:%a+)", clr("#bddeff", "%1"))))
+				ES"Enable this option to sort your inventory automatically"))
 		end
 	end
 end
@@ -1586,7 +1579,15 @@ local function make_fs(player, data)
 		msg(data.player_name, fmt("#fs elements: %u", #fs))
 	end
 
-	return concat(fs)
+	fs = concat(fs)
+
+	if data.font_size ~= 0 then
+		fs = fs:gsub("([font][global]*)([%s_])size=(%d+)", function(a, b, c)
+			return fmt("%s%ssize=%s", a, b, tostring(tonumber(c) + data.font_size))
+		end)
+	end
+
+	return fs
 end
 
 return make_fs, get_inventory_fs

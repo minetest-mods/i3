@@ -52,9 +52,9 @@ i3 = {
 	saves = { -- Metadata to save
 		bag = true,
 		home = true,
+		font_size = true,
 		waypoints = true,
 		inv_items = true,
-		drop_items = true,
 		known_recipes = true,
 	},
 

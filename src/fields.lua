@@ -19,11 +19,6 @@ local function inv_fields(player, data, fields)
 		return
 	end
 
-	if fields.drop_items then
-		local items = split(fields.drop_items, ",")
-		data.drop_items = items
-	end
-
 	for field in pairs(fields) do
 		if sub(field, 1, 4) == "btn_" then
 			data.subcat = indexof(i3.categories, sub(field, 5))
@@ -157,6 +152,9 @@ local function inv_fields(player, data, fields)
 
 	elseif fields.bag_rename then
 		data.bag_rename = true
+
+	elseif fields.sb_font_size then
+		data.font_size = tonumber(fields.sb_font_size:match"-?%d+$")
 
 	elseif fields.confirm_rename then
 		local bag = get_detached_inv("bag", name)

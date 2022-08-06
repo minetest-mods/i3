@@ -77,7 +77,8 @@ local styles = string.format([[
 	style_type[label,field;font_size=16]
 	style_type[button;border=false;content_offset=0]
 	style_type[image_button,item_image_button,checkbox,dropdown;border=false;sound=i3_click]
-	style_type[item_image_button;bgimg_hovered=%s;bgimg_middle=9;padding=-9]
+	style_type[item_image_button;bgimg_middle=9;padding=-9]
+	style_type[item_image_button:hovered;bgimg=%s]
 
 	style[;sound=]
 	style[nofav;sound=i3_cannot]
