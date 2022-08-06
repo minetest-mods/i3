@@ -43,8 +43,6 @@ local function snip(str, limit, font_size)
 	if utf8_len(str) > limit then
 		return fmt("%s...", sub(str, 1, limit - 3))
 	end
-
-	return str
 end
 
 local function get_desc(item, lang_code)
@@ -177,12 +175,11 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 		title = translate(data.lang_code, title)
 		desc = translate(data.lang_code, desc):gsub("%.$", "")
 
-		local title_lim, _title = 27
-		local desc_lim, _desc = 39
+		local title_lim, desc_lim = 27, 39
 		local icon_size = 1.1
 
-		_title = snip(title, title_lim, data.font_size)
-		_desc = snip(desc, desc_lim, data.font_size)
+		local _title = snip(title, title_lim, data.font_size) or title
+		local _desc = snip(desc, desc_lim, data.font_size) or desc
 
 		if not award.unlocked and def.secret then
 			title = ES"Secret award"
@@ -192,7 +189,7 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 		local icon = def.icon or "awards_unknown.png"
 
 		if not award.unlocked then
-			icon = fmt("%s^\\[colorize:#000:200", icon)
+			icon = fmt("%s^\\[colorize:#000:220", icon)
 		end
 
 		insert(fs, fmt("image", 0, y, icon_size, icon_size, icon))
@@ -317,8 +314,8 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 		fs"style_type[box;colors=#bababa30,#bababa30,#bababa05,#bababa05]"
 		box(0, y, ctn_len, 0.6, "")
 
-		local waypoint_name, lim = v.name, 18
-		waypoint_name = snip(waypoint_name, lim, data.font_size)
+		local waypoint_name, lim = v.name, 22
+		waypoint_name = snip(waypoint_name, lim, data.font_size) or waypoint_name
 
 		local hex = fmt("%02x", v.color)
 
@@ -1180,16 +1177,20 @@ local function get_header(fs, data)
 	local Y1 = data.yoffset + 0.47
 	local Y2 = Y1 + 0.5
 
-	tooltip(X, Y1 - 0.1, 5.7, 0.24, desc)
-	desc = snip(desc, desc_lim, data.font_size)
+	local _desc = snip(desc, desc_lim, data.font_size)
+	if _desc then
+		tooltip(X, Y1 - 0.1, 5.7, 0.24, desc)
+	end
 
-	tooltip(X, Y2 - 0.1, 5.7, 0.24, tech_name)
-	tech_name = snip(tech_name, name_lim, data.font_size)
+	local _tech_name = snip(tech_name, name_lim, data.font_size)
+	if _tech_name then
+		tooltip(X, Y2 - 0.1, 5.7, 0.24, tech_name)
+	end
 
 	fs"style_type[label;font=bold;font_size=20]"
-	label(X, Y1, desc)
+	label(X, Y1, _desc or desc)
 	fs"style_type[label;font=mono;font_size=16]"
-	label(X, Y2, clr(colors.blue, tech_name))
+	label(X, Y2, clr(colors.blue, _tech_name or tech_name))
 	fs"style_type[label;font=normal;font_size=16]"
 
 	local def = reg_items[data.query_item]
