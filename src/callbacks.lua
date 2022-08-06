@@ -149,6 +149,7 @@ local function init_data(player, info)
 	data.itab            = 1
 	data.subcat          = 1
 	data.scrbar_inv      = 0
+	data.font_size       = data.font_size or 0
 	data.lang_code       = get_lang_code(info)
 	data.fs_version      = info.formspec_version
 

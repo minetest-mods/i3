@@ -37,8 +37,14 @@ local function weird_desc(str)
 	return not true_str(str) or find(str, "\n") or not find(str, "%u")
 end
 
-local function snip(str, limit)
-	return fmt("%s...", sub(str, 1, limit - 3))
+local function snip(str, limit, font_size)
+	limit -= (font_size > 3 and font_size + 1 or font_size)
+
+	if utf8_len(str) > limit then
+		return fmt("%s...", sub(str, 1, limit - 3))
+	end
+
+	return str
 end
 
 local function get_desc(item, lang_code)
@@ -175,13 +181,8 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 		local desc_lim, _desc = 39
 		local icon_size = 1.1
 
-		if utf8_len(title) > title_lim then
-			_title = snip(title, title_lim)
-		end
-
-		if utf8_len(desc) > desc_lim then
-			_desc = snip(desc, desc_lim)
-		end
+		_title = snip(title, title_lim, data.font_size)
+		_desc = snip(desc, desc_lim, data.font_size)
 
 		if not award.unlocked and def.secret then
 			title = ES"Secret award"
@@ -317,10 +318,7 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 		box(0, y, ctn_len, 0.6, "")
 
 		local waypoint_name, lim = v.name, 18
-
-		if utf8_len(v.name) > lim then
-			waypoint_name = snip(waypoint_name, lim)
-		end
+		waypoint_name = snip(waypoint_name, lim, data.font_size)
 
 		local hex = fmt("%02x", v.color)
 
@@ -370,9 +368,9 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 
 		if waypoint_preview then
 			image(0.25, y - 3.5, 5, 4, PNG.bg_content)
+			fs"style[area_preview;font_size=16]"
 			button(0.25, y - 3.35, 5, 0.55, "area_preview", v.name)
-			image_button(4.65, y - 3.25, 0.25, 0.25,
-				PNG.cancel_hover .. "^\\[brighten", "close_preview", "")
+			image_button(4.65, y - 3.25, 0.25, 0.25, PNG.cancel_hover .. "^\\[brighten", "close_preview", "")
 
 			local pos = str_to_pos(data.waypoints[i].pos)
 			get_isometric_view(fs, pos, 0.6, y - 2.5)
@@ -1182,15 +1180,11 @@ local function get_header(fs, data)
 	local Y1 = data.yoffset + 0.47
 	local Y2 = Y1 + 0.5
 
-	if utf8_len(desc) > desc_lim then
-		tooltip(X, Y1 - 0.1, 5.7, 0.24, desc)
-		desc = snip(desc, desc_lim)
-	end
+	tooltip(X, Y1 - 0.1, 5.7, 0.24, desc)
+	desc = snip(desc, desc_lim, data.font_size)
 
-	if utf8_len(tech_name) > name_lim then
-		tooltip(X, Y2 - 0.1, 5.7, 0.24, tech_name)
-		tech_name = snip(tech_name, name_lim)
-	end
+	tooltip(X, Y2 - 0.1, 5.7, 0.24, tech_name)
+	tech_name = snip(tech_name, name_lim, data.font_size)
 
 	fs"style_type[label;font=bold;font_size=20]"
 	label(X, Y1, desc)
@@ -1488,7 +1482,7 @@ local function get_tabs_fs(fs, player, data, full_height)
 
 		if true_str(def.image) then
 			local desc = translate(data.lang_code, def.description)
-			local desc_len = utf8_len(desc)
+			local desc_len = utf8_len(desc) + data.font_size
 
 			fs("style_type[image;noclip=true]")
 			image(X + (tab_len / 2) - ((desc_len * 0.1) / 2) - 0.55, Y + 0.05, 0.35, 0.35, def.image)
