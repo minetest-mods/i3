@@ -621,7 +621,9 @@ local function show_popup(fs, data)
 
 			local sign = (data.font_size > 0 and "+") or (data.font_size > 0 and "-") or ""
 			label(5.4, 10.55, ES"Font size" .. fmt(": %s", sign .. data.font_size))
-			fs"scrollbaroptions[min=-5;max=5;smallstep=1;largestep=1;thumbsize=2]"
+
+			local range = 5
+			fs(fmt("scrollbaroptions[min=-%u;max=%u;smallstep=1;largestep=1;thumbsize=2]", range, range))
 			fs(fmt("scrollbar[5.4,10.8;2.5,0.25;horizontal;sb_font_size;%d]", data.font_size))
 
 			fs(fmt("tooltip[cb_inv_compress;%s;#707070;#fff]",
