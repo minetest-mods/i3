@@ -6,7 +6,7 @@ local init_hud = i3.files.hud()
 local set_fs = i3.set_fs
 
 IMPORT("slz", "min", "insert", "copy", "ItemStack")
-IMPORT("spawn_item", "reset_data", "get_detached_inv")
+IMPORT("spawn_item", "reset_data", "get_detached_inv", "play_sound")
 
 core.register_on_player_hpchange(function(player, hpchange)
 	local name = player:get_player_name()
@@ -66,16 +66,88 @@ core.register_on_player_inventory_action(function(player, _, _, info)
 	end
 end)
 
-if core.global_exists("armor") then
+if core.global_exists"armor" then
 	i3.modules.armor = true
-	armor:register_on_update(set_fs)
+
+	local group_indexes = {
+		{"armor_head",   "i3_heavy_helmet"},
+		{"armor_torso",  "i3_heavy_armor"},
+		{"armor_legs",   "i3_heavy_leggings"},
+		{"armor_feet",   "i3_heavy_boots"},
+		{"armor_shield", "i3_heavy_shield"},
+	}
+
+	local function check_group(def, group)
+		return def.groups[group] and def.groups[group] > 0
+	end
+
+	armor:register_on_equip(function(player, idx, stack)
+		local _, armor_inv = armor:get_valid_player(player, "3d_armor")
+		local def = stack:get_definition()
+		local name = player:get_player_name()
+		local data = i3.data[name]
+
+		for i, v in ipairs(group_indexes) do
+			local group, sound = unpack(v)
+			local stackname = stack:get_name()
+
+			if stackname:find"wood" or stackname:find"stone" or stackname:find"cactus" then
+				sound = sound:gsub("heavy", "light")
+			end
+
+			if i == idx and check_group(def, group) then
+				data.armor_allow = sound
+				return armor:register_on_update(set_fs)
+			end
+		end
+
+		data.armor_disallow = true
+		armor_inv:remove_item("armor", stack)
+	end)
+
+	armor:register_on_update(function(player)
+		local _, armor_inv = armor:get_valid_player(player, "3d_armor")
+		if not armor_inv then return end
+
+		for i = 1, 5 do
+			local stack = armor_inv:get_stack("armor", i)
+			local def = stack:get_definition()
+
+			for j, v in ipairs(group_indexes) do
+				local group = v[1]
+
+				if check_group(def, group) and i ~= j then
+					armor_inv:set_stack("armor", i, armor_inv:get_stack("armor", j))
+					armor_inv:set_stack("armor", j, stack)
+					return play_sound(name, "i3_cannot", 0.8)
+				end
+			end
+		end
+	end)
+
+	core.register_on_player_inventory_action(function(player, action, _, info)
+		if action ~= "take" then return end
+		local name = player:get_player_name()
+		local data = i3.data[name]
+
+		if data.armor_disallow then
+			local inv = player:get_inventory()
+			inv:set_stack("main", info.index, info.stack)
+			data.armor_disallow = nil
+			play_sound(name, "i3_cannot", 0.8)
+
+		elseif data.armor_allow then
+			play_sound(name, data.armor_allow, 0.8)
+			data.armor_allow = nil
+		end
+	end)
 end
 
-if core.global_exists("skins") then
+if core.global_exists"skins" then
 	i3.modules.skins = true
 end
 
-if core.global_exists("awards") then
+if core.global_exists"awards" then
 	i3.modules.awards = true
 
 	core.register_on_craft(function(_, player)

@@ -479,9 +479,39 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 		end
 
 		local armor_def = armor.def[name]
-		fs(fmt("list[detached:%s_armor;armor;0,%f;3,2;]", esc_name, yextra + 0.7))
-		label(3.65, yextra + 1.55, fmt("%s: %s", ES"Level", armor_def.level))
-		label(3.65, yextra + 2.05, fmt("%s: %s", ES"Heal", armor_def.heal))
+		fs(fmt("list[detached:%s_armor;armor;0,%f;5,1;]", esc_name, yextra + 0.7))
+
+		for i = 1, 5 do
+			local _, armor_inv = armor:get_valid_player(player, "3d_armor")
+			local stack = armor_inv:get_stack("armor", i)
+
+			if stack:is_empty() then
+				local tips = {ES"Helmet", ES"Chest", ES"Leggings", ES"Boots", ES"Shield"}
+				local x = (i - 1) + ((i - 1) * 0.15)
+				local y = yextra + 0.7
+
+				image(x, y, 1, 1, fmt("i3_armor_%u.png", i))
+				tooltip(x, y, 1, 1, tips[i])
+			end
+		end
+
+		local box_len, max_level, max_heal = 4, 85, 60
+		local bar_lvl = (armor_def.level * box_len) / max_level
+		local bar_heal = (armor_def.heal * box_len) / max_heal
+
+		fs"style_type[label;font_size=15]"
+
+		box(0.8, yextra + 1.95, box_len, 0.4, "#101010")
+		fs"style_type[box;colors=#9dc34c80,#9dc34c,#9dc34c,#9dc34c80]"
+		box(0.8, yextra + 1.95, bar_lvl, 0.4, "")
+		label(1.1, yextra + 2.15, ES"Armor level")
+
+		box(0.8, yextra + 2.55, box_len, 0.4, "#101010")
+		fs"style_type[box;colors=#4466aa80,#4466aa,#4466aa,#4466aa80]"
+		box(0.8, yextra + 2.55, bar_heal, 0.4, "")
+		label(1.1, yextra + 2.75, ES"Armor healing")
+
+		fs"style_type[label;font_size=16]"
 
 	elseif data.subcat == 3 then
 		if not i3.modules.skins then
