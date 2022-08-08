@@ -1351,6 +1351,8 @@ local function get_items_fs(fs, data, player, full_height)
 		   "style[filter;font_size=18;textcolor=#ccc]",
 		   fmt("field[%f,0.2;3.35,0.6;filter;;%s]", data.inv_width + 0.85, ESC(data.filter)),
 		   "field_close_on_enter[filter;false]")
+
+		image(data.inv_width + 0.85, 0.75, 4, 0.01, PNG.search_outline_trim .. "^[opacity:100")
 	else
 		fs"style_type[label;font=italic;font_size=18]"
 		label(data.inv_width + 0.9, 0.49, clr("#aaa", ES"Search..."))

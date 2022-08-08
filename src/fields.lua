@@ -323,7 +323,6 @@ local function rcp_fields(player, data, fields)
 
 	elseif fields.enable_search then
 		data.enable_search = true
-		return set_fs(player)
 
 	elseif fields.filter and (fields.key_enter_field == "filter" or fields.search) then
 		if fields.filter == "" then

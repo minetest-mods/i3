@@ -47,6 +47,7 @@ local PNG = {
 	no_result = "i3_no_result.png",
 	find_more = "i3_find_more.png",
 	search_outline = "i3_search_outline.png",
+	search_outline_trim = "i3_search_outline_trim.png",
 
 	cancel_hover = "i3_cancel.png^\\[brighten",
 	search_hover = "i3_search.png^\\[brighten",
@@ -85,6 +86,7 @@ local styles = string.format([[
 	style[pagenum,no_item,no_rcp;font=bold;font_size=18]
 	style[search;fgimg=%s;content_offset=0]
 	style[enable_search:hovered;bgimg=%s]
+	style[enable_search:pressed;bgimg=%s^[opacity:178]
 	style[exit;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[cancel;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[prev_page,prev_recipe,prev_usage,prev_sort,prev_skin;fgimg=%s;fgimg_hovered=%s]
@@ -102,7 +104,7 @@ local styles = string.format([[
 ]],
 PNG.slot,
 PNG.search_hover,
-PNG.search_outline,
+PNG.search_outline, PNG.search_outline,
 PNG.exit,     PNG.exit_hover,
 PNG.cancel,   PNG.cancel_hover,
 PNG.prev,     PNG.prev_hover,

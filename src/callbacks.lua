@@ -119,7 +119,8 @@ if core.global_exists"armor" then
 				if check_group(def, group) and i ~= j then
 					armor_inv:set_stack("armor", i, armor_inv:get_stack("armor", j))
 					armor_inv:set_stack("armor", j, stack)
-					return play_sound(name, "i3_cannot", 0.8)
+
+					return play_sound(player:get_player_name(), "i3_cannot", 0.8)
 				end
 			end
 		end

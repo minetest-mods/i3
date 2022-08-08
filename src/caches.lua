@@ -56,7 +56,6 @@ local function cache_groups(group, groups)
 
 	if c > 1 then
 		sprite = sprite:gsub("WxH", px .. "x" .. px * c)
-
 		i3.groups[group].sprite = sprite
 		i3.groups[group].count = c
 	end
