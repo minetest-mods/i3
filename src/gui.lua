@@ -1427,7 +1427,7 @@ local function get_items_fs(fs, data, player, full_height)
 			bgimg_middle=14,0,-14,-14;padding=-14,0,14,14] ]], hover_texture, PNG.tab_small_hover))
 
 		fs(fmt("style_type[image_button;noclip=true;font_size=16;textcolor=%s;content_offset=0;sound=i3_tab]",
-			selected and "#fff" or "#ddd"))
+			selected and "#fff" or "#bbb"))
 		fs"style_type[image_button:hovered;textcolor=#fff]"
 		image_button((data.inv_width - 0.65) + (i * (tab_len + 0.1)),
 			full_height, tab_len, tab_hgh, "", fmt("itab_%u", i), title)
