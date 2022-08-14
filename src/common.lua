@@ -408,6 +408,7 @@ end
 local function craft_stack(player, data, craft_rcp)
 	local inv = player:get_inventory()
 	local rcp_usg = craft_rcp and "recipe" or "usage"
+	local rcp_def = rcp_usg == "recipe" and data.recipes[data.rnum] or data.usages[data.unum]
 	local output = craft_rcp and data.recipes[data.rnum].output or data.usages[data.unum].output
 	      output = ItemStack(output)
 	local stackname, stackcount, stackmax = output:get_name(), output:get_count(), output:get_stack_max()
@@ -438,6 +439,14 @@ local function craft_stack(player, data, craft_rcp)
 
 		for k, v in pairs(items) do
 			inv:remove_item("main", fmt("%s %s", k, v * scrbar_val))
+		end
+	end
+
+	if rcp_def.replacements then
+		for _, v in ipairs(rcp_def.replacements) do
+		for _, item2 in ipairs(v) do
+			get_stack(player, ItemStack(item2))
+		end
 		end
 	end
 
