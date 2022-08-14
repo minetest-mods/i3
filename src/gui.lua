@@ -462,7 +462,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 	end
 
 	box(0, yextra + 0.45, ctn_len, 0.045, "#bababa50")
-	box((data.subcat - 1) * 1.18, yextra + 0.45, 1, 0.045, "#f9826c")
+	image((data.subcat - 1) * 1.18, yextra + 0.45, 1, 0.045, PNG.highlight)
 
 	local function not_installed(modname)
 		hypertext(0, yextra + 0.9, ctn_len, 0.6, "not_installed",

@@ -8,6 +8,7 @@ local PNG = {
 	bg_content = "i3_bg_content.png",
 	bar = "i3_bar.png",
 	hotbar = "i3_hotbar.png",
+	highlight = "i3_highlight.png",
 	search = "i3_search.png",
 	heart = "i3_heart.png",
 	heart_half = "i3_heart_half.png",
