@@ -851,7 +851,23 @@ local function get_tooltip(item, info, pos, lang_code)
 	return fmt("tooltip[%s;%s]", item, ESC(tooltip))
 end
 
-local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_size, btn_size2)
+local function get_true_count(data, count, is_recipe, is_usage)
+	local count_mul = 1
+
+	if is_recipe then
+		count_mul = data.scrbar_rcp
+	elseif is_usage then
+		count_mul = data.scrbar_usg
+	end
+
+	if count_mul then
+		count *= count_mul
+	end
+
+	return count
+end
+
+local function get_output_fs(fs, data, rcp, is_recipe, is_usage, shapeless, right, btn_size, btn_size2)
 	local custom_recipe = i3.craft_types[rcp.type]
 	local cooking = rcp.type == "cooking"
 	local fuel = rcp.type == "fuel"
@@ -922,7 +938,7 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 		local size = BTN_SIZE * 1.2
 		slot(X, Y - 0.11, size, size)
 
-		count *= (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1)
+		count = get_true_count(data, count, is_recipe, is_usage)
 		item_image_button(X + 0.11, Y, BTN_SIZE, BTN_SIZE, fmt("%s %u %u", name, count, wear), _name, "")
 	end
 
@@ -951,7 +967,7 @@ local function get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_siz
 	end
 end
 
-local function get_grid_fs(fs, data, rcp, is_recipe)
+local function get_grid_fs(fs, data, rcp, is_recipe, is_usage)
 	local width = rcp.width or 1
 	local right = 0
 	local btn_size, _btn_size = i3.settings.item_btn_size
@@ -1050,7 +1066,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 		end
 
 		local btn_name = groups and fmt("group!%s!%s", groups[1], name) or name
-		count *= (is_recipe and data.scrbar_rcp or data.scrbar_usg or 1)
+		count = get_true_count(data, count, is_recipe, is_usage)
 
 		if group_cache and group_cache.sprite and not large_recipe then
 			local sprite = ESC(group_cache.sprite)
@@ -1097,10 +1113,10 @@ local function get_grid_fs(fs, data, rcp, is_recipe)
 		fs("style_type[item_image_button;border=false]")
 	end
 
-	get_output_fs(fs, data, rcp, is_recipe, shapeless, right, btn_size, _btn_size)
+	get_output_fs(fs, data, rcp, is_recipe, is_usage, shapeless, right, btn_size, _btn_size)
 end
 
-local function get_rcp_lbl(fs, data, panel, rn, is_recipe)
+local function get_rcp_lbl(fs, data, panel, rn, is_recipe, is_usage)
 	local rcp = is_recipe and panel.rcp[data.rnum] or panel.rcp[data.unum]
 
 	if rcp.custom then
@@ -1131,7 +1147,7 @@ local function get_rcp_lbl(fs, data, panel, rn, is_recipe)
 		image_button(data.inv_width + 7.5,  y, size, size, "", next_name, "")
 	end
 
-	get_grid_fs(fs, data, rcp, is_recipe)
+	get_grid_fs(fs, data, rcp, is_recipe, is_usage)
 end
 
 local function get_model_fs(fs, data, def, model_alias)
@@ -1307,7 +1323,7 @@ local function get_rcp_extra(fs, data, player, panel, is_recipe, is_usage)
 			get_crafting_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, max_stacks_usg)
 		end
 
-		get_rcp_lbl(fs, data, panel, rn, is_recipe)
+		get_rcp_lbl(fs, data, panel, rn, is_recipe, is_usage)
 	else
 		local lbl = is_recipe and ES"No recipes" or ES"No usages"
 		button(data.inv_width + 0.1, data.yoffset + (panel.height / 2) - 0.5, 7.8, 1, "no_rcp", lbl)

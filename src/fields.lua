@@ -438,7 +438,8 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 
 	-- No-op buttons
 	if fields.player_name or fields.awards or fields.home_pos or fields.no_item or
-	   fields.no_rcp or fields.select_sorting or fields.sort_method or fields.bg_content then
+	   fields.no_rcp or fields.select_sorting or fields.sort_method or fields.bg_content or
+	   fields.quick_crafting then
 		return false
 	end
 
