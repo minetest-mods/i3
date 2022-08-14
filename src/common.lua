@@ -443,10 +443,8 @@ local function craft_stack(player, data, craft_rcp)
 	end
 
 	if rcp_def.replacements then
-		for _, v in ipairs(rcp_def.replacements) do
-		for _, item2 in ipairs(v) do
-			get_stack(player, ItemStack(item2))
-		end
+		for _, pair in ipairs(rcp_def.replacements) do
+			get_stack(player, ItemStack(pair[2]))
 		end
 	end
 
