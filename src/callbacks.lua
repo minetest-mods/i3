@@ -217,7 +217,7 @@ local function init_data(player, info)
 	data.auto_sorting    = false
 	data.reverse_sorting = false
 	data.inv_compress    = true
-	data.export_counts   = {}
+	data.crafting_counts = {}
 	data.tab             = 1
 	data.itab            = 1
 	data.subcat          = 1

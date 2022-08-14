@@ -413,7 +413,7 @@ local function craft_stack(player, data, craft_rcp)
 	local stackname, stackcount, stackmax = output:get_name(), output:get_count(), output:get_stack_max()
 	local scrbar_val = data[fmt("scrbar_%s", craft_rcp and "rcp" or "usg")] or 1
 
-	for name, count in pairs(data.export_counts[rcp_usg].rcp) do
+	for name, count in pairs(data.crafting_counts[rcp_usg].rcp) do
 		local items = {[name] = count}
 
 		if is_group(name) then
@@ -424,7 +424,7 @@ local function craft_stack(player, data, craft_rcp)
 			local remaining = count
 
 			for _, item in ipairs(item_groups) do
-			for _name, _count in pairs(data.export_counts[rcp_usg].inv) do
+			for _name, _count in pairs(data.crafting_counts[rcp_usg].inv) do
 				if item == _name and remaining > 0 then
 					local c = min(remaining, _count)
 					items[item] = c
@@ -598,8 +598,8 @@ local function reset_data(data)
 	data.goto_page     = nil
 	data.recipes       = nil
 	data.usages        = nil
-	data.export_rcp    = nil
-	data.export_usg    = nil
+	data.crafting_rcp    = nil
+	data.crafting_usg    = nil
 	data.alt_items     = nil
 	data.confirm_trash = nil
 	data.show_settings = nil

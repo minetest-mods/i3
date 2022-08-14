@@ -304,8 +304,8 @@ local function select_item(player, data, fields)
 		data.unum       = 1
 		data.scrbar_rcp = 1
 		data.scrbar_usg = 1
-		data.export_rcp = nil
-		data.export_usg = nil
+		data.crafting_rcp = nil
+		data.crafting_usg = nil
 	end
 end
 
@@ -374,13 +374,13 @@ local function rcp_fields(player, data, fields)
 	elseif fields.prev_recipe or fields.next_recipe then
 		local num = data.rnum + (fields.prev_recipe and -1 or 1)
 		data.rnum = data.recipes[num] and num or (fields.prev_recipe and #data.recipes or 1)
-		data.export_rcp = nil
+		data.crafting_rcp = nil
 		data.scrbar_rcp = 1
 
 	elseif fields.prev_usage or fields.next_usage then
 		local num = data.unum + (fields.prev_usage and -1 or 1)
 		data.unum = data.usages[num] and num or (fields.prev_usage and #data.usages or 1)
-		data.export_usg = nil
+		data.crafting_usg = nil
 		data.scrbar_usg = 1
 
 	elseif fields.fav then
@@ -392,17 +392,17 @@ local function rcp_fields(player, data, fields)
 			remove(data.favs, fav)
 		end
 
-	elseif fields.export_rcp or fields.export_usg then
-		if fields.export_rcp then
-			data.export_rcp = not data.export_rcp
+	elseif fields.crafting_rcp or fields.crafting_usg then
+		if fields.crafting_rcp then
+			data.crafting_rcp = not data.crafting_rcp
 
-			if not data.export_rcp then
+			if not data.crafting_rcp then
 				data.scrbar_rcp = 1
 			end
 		else
-			data.export_usg = not data.export_usg
+			data.crafting_usg = not data.crafting_usg
 
-			if not data.export_usg then
+			if not data.crafting_usg then
 				data.scrbar_usg = 1
 			end
 		end
@@ -415,10 +415,10 @@ local function rcp_fields(player, data, fields)
 		craft_stack(player, data, fields.craft_rcp)
 
 		if fields.craft_rcp then
-			data.export_rcp = nil
+			data.crafting_rcp = nil
 			data.scrbar_rcp = 1
 		else
-			data.export_usg = nil
+			data.crafting_usg = nil
 			data.scrbar_usg = 1
 		end
 	else

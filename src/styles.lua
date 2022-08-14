@@ -26,7 +26,7 @@ local PNG = {
 	book = "i3_book.png",
 	sign = "i3_sign.png",
 	cancel = "i3_cancel.png",
-	export = "i3_export.png",
+	crafting = "i3_crafting.png",
 	slot = "i3_slot.png^\\[resize:128x128",
 	pagenum_hover = "i3_slot.png^\\[resize:128x128^\\[opacity:130",
 	tab = "i3_tab.png",
@@ -54,7 +54,7 @@ local PNG = {
 
 	cancel_hover = "i3_cancel.png^\\[brighten",
 	search_hover = "i3_search.png^\\[brighten",
-	export_hover = "i3_export.png^\\[brighten",
+	crafting_hover = "i3_crafting.png^\\[brighten",
 	trash_hover = "i3_trash.png^\\[brighten^\\[colorize:#f00:100",
 	compress_hover = "i3_compress.png^\\[brighten",
 	sort_hover = "i3_sort.png^\\[brighten",

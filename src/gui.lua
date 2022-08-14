@@ -82,8 +82,8 @@ local function get_stack_max(inv, data, is_recipe, rcp)
 		counts_rcp[it] = (counts_rcp[it] or 0) + 1
 	end
 
-	data.export_counts[rcp_usg] = {}
-	data.export_counts[rcp_usg].rcp = counts_rcp
+	data.crafting_counts[rcp_usg] = {}
+	data.crafting_counts[rcp_usg].rcp = counts_rcp
 
 	for i = 1, size do
 		local stack = list[i]
@@ -111,7 +111,7 @@ local function get_stack_max(inv, data, is_recipe, rcp)
 		end
 	end
 
-	data.export_counts[rcp_usg].inv = counts_inv
+	data.crafting_counts[rcp_usg].inv = counts_inv
 
 	for name in pairs(counts_rcp) do
 		counts[name] = floor((counts_inv[name] or 0) / (counts_rcp[name] or 0))
@@ -365,7 +365,7 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 
 		if waypoint_preview then
 			image(0.25, y - 3.5, 5, 4, PNG.bg_content)
-			fs"style[area_preview;font_size=16]"
+			fs"style[area_preview;font_size=16;textcolor=#ddd]"
 			button(0.25, y - 3.35, 5, 0.55, "area_preview", v.name)
 			image_button(4.65, y - 3.25, 0.25, 0.25, PNG.cancel_hover .. "^\\[brighten", "close_preview", "")
 
@@ -374,7 +374,7 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 		end
 	end
 
-	fs"style_type[label;font=normal;font_size=16]"
+	fs"style_type[label;font=normal;font_size=16;textcolor=#fff]"
 end
 
 local function get_bag_fs(fs, data, name, esc_name, bag_size, yextra)
@@ -1236,16 +1236,16 @@ local function get_header(fs, data)
 	end
 end
 
-local function get_export_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, max_stacks_usg)
+local function get_crafting_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, max_stacks_usg)
 	local name = is_recipe and "rcp" or "usg"
-	local show_export = (is_recipe and data.export_rcp) or (is_usage and data.export_usg)
+	local show_crafting = (is_recipe and data.crafting_rcp) or (is_usage and data.crafting_usg)
 
-	fs(fmt("style[export_%s;fgimg=%s;fgimg_hovered=%s]",
-		name, fmt("%s", show_export and PNG.export_hover or PNG.export), PNG.export_hover))
-	image_button(data.inv_width + 7.35, data.yoffset + 0.2, 0.45, 0.45, "", fmt("export_%s", name), "")
-	fs(fmt("tooltip[export_%s;%s]", name, ES"Quick crafting"))
+	fs(fmt("style[crafting_%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
+		name, fmt("%s", show_crafting and PNG.crafting_hover or PNG.crafting), PNG.crafting_hover))
+	image_button(data.inv_width + 7.35, data.yoffset + 0.2, 0.45, 0.45, "", fmt("crafting_%s", name), "")
+	fs(fmt("tooltip[crafting_%s;%s]", name, ES"Quick crafting"))
 
-	if not show_export then return end
+	if not show_crafting then return end
 
 	local craft_max = is_recipe and max_stacks_rcp or max_stacks_usg
 	local stack_fs = (is_recipe and data.scrbar_rcp) or (is_usage and data.scrbar_usg) or 1
@@ -1260,12 +1260,21 @@ local function get_export_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, max_
 		end
 	end
 
+	local x = data.inv_width + 6.8
+
+	fs"style_type[image,button,image_button;noclip=true]"
+	image(x, data.yoffset + 0.8, 3, 2, PNG.bg_content)
+	fs"style[quick_crafting;font_size=16;textcolor=#ddd]"
+	button(x, data.yoffset + 0.85, 3.05, 0.55, "quick_crafting", ES"Quick Crafting")
+
 	fs(fmt("style[scrbar_%s;noclip=true]", name),
 	   fmt("scrollbaroptions[min=1;max=%u;smallstep=1]", craft_max))
 
-	local x = data.inv_width + 8.1
-	scrollbar(x, data.yoffset, 2.5, 0.35, "horizontal", fmt("scrbar_%s", name), stack_fs)
-	button(x, data.yoffset + 0.4, 2.5, 0.7, fmt("craft_%s", name), ES("Craft (×@1)", stack_fs))
+	scrollbar(x + 0.2, data.yoffset + 1.45, 2.5, 0.35, "horizontal", fmt("scrbar_%s", name), stack_fs)
+	button(x + 0.2, data.yoffset + 1.85, 2.5, 0.7, fmt("craft_%s", name), ES("Craft (×@1)", stack_fs))
+
+	fs"style_type[label;font_size=16;textcolor=#fff]"
+	fs"style_type[image,button,image_button;noclip=false]"
 end
 
 local function get_rcp_extra(fs, data, player, panel, is_recipe, is_usage)
@@ -1287,15 +1296,15 @@ local function get_rcp_extra(fs, data, player, panel, is_recipe, is_usage)
 		end
 
 		if is_recipe and max_stacks_rcp == 0 then
-			data.export_rcp = nil
+			data.crafting_rcp = nil
 			data.scrbar_rcp = 1
 		elseif is_usage and max_stacks_usg == 0 then
-			data.export_usg = nil
+			data.crafting_usg = nil
 			data.scrbar_usg = 1
 		end
 
 		if max_stacks_rcp > 0 or max_stacks_usg > 0 then
-			get_export_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, max_stacks_usg)
+			get_crafting_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, max_stacks_usg)
 		end
 
 		get_rcp_lbl(fs, data, panel, rn, is_recipe)
