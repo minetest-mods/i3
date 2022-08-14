@@ -1104,8 +1104,9 @@ local function get_rcp_lbl(fs, data, panel, rn, is_recipe)
 	local rcp = is_recipe and panel.rcp[data.rnum] or panel.rcp[data.unum]
 
 	if rcp.custom then
-		hypertext(data.inv_width + 4.8, data.yoffset + 0.12, 3, 0.6, "custom_rcp",
-			fmt("<global size=16><right><i>%s</i></right>", ES"Custom recipe"))
+		local desc = i3.craft_types[rcp.type].description
+		hypertext(data.inv_width + 4.8, data.yoffset + 0.12, 3, 1, "custom_rcp",
+			fmt("<right><i><global size=16>%s\n<global size=15>%s</i></right>", ES"Custom recipe", desc))
 	end
 
 	local lbl = ES("Usage @1 of @2", data.unum, rn)
