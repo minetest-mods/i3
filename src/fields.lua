@@ -1,7 +1,7 @@
 local set_fs = i3.set_fs
 
-IMPORT("vec_eq", "vec_round")
 IMPORT("reg_items", "reg_aliases")
+IMPORT("min", "max", "vec_eq", "vec_round")
 IMPORT("S", "random", "translate", "ItemStack")
 IMPORT("sort", "copy", "insert", "remove", "indexof")
 IMPORT("fmt", "find", "match", "sub", "lower", "split", "toupper")
@@ -89,6 +89,7 @@ local function inv_fields(player, data, fields)
 		data.show_settings = nil
 		data.waypoint_see = nil
 		data.bag_rename = nil
+		data.goto_page = nil
 
 		if data.filter == "" then
 			data.enable_search = nil
@@ -342,6 +343,14 @@ local function rcp_fields(player, data, fields)
 			sort_by_category(data)
 		end
 
+	elseif fields.pagenum then
+		data.goto_page = not data.goto_page
+
+	elseif fields.goto_page then
+		local pagenum = tonumber(fields.goto_page)
+		data.pagenum = max(1, min(data.pagemax, pagenum or data.pagenum))
+		data.goto_page = nil
+
 	elseif fields.prev_page or fields.next_page then
 		if data.pagemax == 1 then return end
 		data.pagenum -= (fields.prev_page and 1 or -1)
@@ -428,9 +437,8 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 	end
 
 	-- No-op buttons
-	if fields.player_name or fields.awards or fields.home_pos or fields.pagenum or
-	   fields.no_item or fields.no_rcp or fields.select_sorting or fields.sort_method or
-	   fields.bg_content then
+	if fields.player_name or fields.awards or fields.home_pos or fields.no_item or
+	   fields.no_rcp or fields.select_sorting or fields.sort_method or fields.bg_content then
 		return false
 	end
 

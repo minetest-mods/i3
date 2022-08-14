@@ -1374,7 +1374,11 @@ local function get_items_fs(fs, data, player, full_height)
 
 	data.pagemax = max(1, ceil(#items / ipp))
 
-	button(data.inv_width + 5.6, 0.14, 1.88, 0.7, "pagenum",
+
+	fs(fmt("style[pagenum;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9]",
+		data.goto_page and PNG.pagenum_hover or "", PNG.pagenum_hover))
+
+	button(data.inv_width + 5.8, 0.14, 1.48, 0.7, "pagenum",
 		fmt("%s / %u", clr(colors.yellow, data.pagenum), data.pagemax))
 
 	if #items == 0 then
@@ -1415,6 +1419,19 @@ local function get_items_fs(fs, data, player, full_height)
 				fs"style_type[label;font=normal;font_size=16]"
 			end
 		end
+	end
+
+	if data.goto_page then
+		image(data.inv_width + 4.8, 0.85, 2.9, 0.8, PNG.bg_goto)
+		fs"style_type[label;font_size=16;textcolor=#ddd]"
+		label(data.inv_width + 5, 1.25, ES"Go to page" .. ":")
+		box(data.inv_width + 6.5, 1, 1, 0.45, "#bababa10")
+
+		fs(fmt("style[goto_page;font=mono,bold;font_size=16;textcolor=%s]", colors.yellow),
+		   fmt("field[%f,%f;1,0.45;goto_page;;%s]", data.inv_width + 6.55, 1.05, data.pagenum),
+		   "field_close_on_enter[goto_page;false]")
+
+		fs"style_type[label;font_size=16;textcolor=#fff]"
 	end
 
 	local _tabs = {"All", "Nodes", "Items"}
