@@ -53,6 +53,7 @@ i3 = {
 		bag = true,
 		home = true,
 		font_size = true,
+		hide_tabs = true,
 		waypoints = true,
 		inv_items = true,
 		known_recipes = true,

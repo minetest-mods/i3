@@ -299,7 +299,7 @@ end
 
 local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 	fs(fmt("box[0,%f;4.9,0.6;#bababa25]", yextra + 1.1))
-	label(0, yextra + 0.85, ES"Waypoint name:")
+	label(0, yextra + 0.85, ES"New waypoint" .. ":")
 	fs(fmt("field[0.1,%f;4.8,0.6;waypoint_name;;]", yextra + 1.1))
 	image_button(5.1, yextra + 1.15, 0.5, 0.5, "", "waypoint_add", "")
 	fs(fmt("tooltip[waypoint_add;%s]", ES"Add waypoint"))
@@ -574,10 +574,10 @@ end
 
 local function show_settings(fs, data)
 	if data.confirm_trash then
-		image(2.9, 10.65, 4.6, 0.7, PNG.bg_goto)
-		label(3.12, 11, "Confirm trash?")
-		image_button(5.17, 10.75, 1, 0.5, "", "confirm_trash_yes", "Yes")
-		image_button(6.27, 10.75, 1, 0.5, "", "confirm_trash_no", "No")
+		image(2.8, 10.65, 4.6, 0.7, PNG.bg_goto)
+		label(3.02, 11, "Confirm trash?")
+		image_button(5.07, 10.75, 1, 0.5, "", "confirm_trash_yes", "Yes")
+		image_button(6.17, 10.75, 1, 0.5, "", "confirm_trash_no", "No")
 
 	elseif data.show_settings then
 		image(2.2, 9, 6, 2.35, PNG.bg_content)
@@ -623,18 +623,20 @@ local function show_settings(fs, data)
 			image_button(4.2, 10.4, 1.8, 0.7, "", "set_home", "Set home")
 
 		elseif show_style then
+			checkbox(2.6, 9.95, "cb_hide_tabs", "Hide tabs", tostring(data.hide_tabs))
+
 			local sign = (data.font_size > 0 and "+") or (data.font_size > 0 and "-") or ""
-			label(2.6, 10.05, ES"Font size" .. fmt(": %s", sign .. data.font_size))
+			label(2.6, 10.45, ES"Font size" .. fmt(": %s", sign .. data.font_size))
 
 			local range = 5
 			fs(fmt("scrollbaroptions[min=-%u;max=%u;smallstep=1;largestep=1;thumbsize=2]", range, range))
-			fs(fmt("scrollbar[2.6,10.3;2.5,0.3;horizontal;sb_font_size;%d]", data.font_size))
+			fs(fmt("scrollbar[2.6,10.65;2.5,0.3;horizontal;sb_font_size;%d]", data.font_size))
 
 		elseif show_sorting then
-			checkbox(2.6, 10.05, "cb_inv_compress", "Compression", tostring(data.inv_compress))
-			checkbox(2.6, 10.5,  "cb_reverse_sorting", "Reverse mode", tostring(data.reverse_sorting))
-			checkbox(2.6, 10.95, "cb_ignore_hotbar", "Ignore hotbar", tostring(data.ignore_hotbar))
-			checkbox(5.5, 10.05, "cb_auto_sorting", "Automation", tostring(data.auto_sorting))
+			checkbox(2.6, 9.95, "cb_inv_compress", "Compression", tostring(data.inv_compress))
+			checkbox(2.6, 10.4,  "cb_reverse_sorting", "Reverse mode", tostring(data.reverse_sorting))
+			checkbox(2.6, 10.85, "cb_ignore_hotbar", "Ignore hotbar", tostring(data.ignore_hotbar))
+			checkbox(5.5, 9.95, "cb_auto_sorting", "Automation", tostring(data.auto_sorting))
 
 			local methods = {}
 
@@ -643,11 +645,9 @@ local function show_settings(fs, data)
 				insert(methods, name)
 			end
 
-			fs"style_type[label;font_size=14]"
-			label(5.5, 10.45, ES"Sorting method:")
+			label(5.5, 10.4, ES"Sorting method:")
 			fs(fmt("dropdown[%f,%f;2.3,0.5;dd_sorting_method;%s;%u;true]",
 				5.5, 10.6, concat(methods, ","), data.sort))
-			fs"style_type[label;font_size=16]"
 
 			local desc = i3.sorting_methods[data.sort].description
 			if desc then
@@ -1359,52 +1359,85 @@ local function hide_items(player, data)
 	end
 end
 
-local function get_header_items_fs(fs, data, full_height)
-	if data.enable_search then
-		fs("set_focus[filter]",
-		   "style[filter;font_size=18;textcolor=#ccc]",
-		   fmt("field[%f,0.2;3.35,0.6;filter;;%s]", data.inv_width + 0.85, ESC(data.filter)),
-		   "field_close_on_enter[filter;false]")
+local function get_header_items_fs(fs, data)
+	local X = data.inv_width
+	fs"set_focus[filter;true]"
 
-		image(data.inv_width + 0.85, 0.75, 4, 0.01, PNG.search_outline_trim .. "^[opacity:100")
+	if data.hide_tabs then
+		fs(fmt("style[enable_search;bgimg=%s;bgimg_hovered=%s;bgimg_pressed=%s]",
+			data.enable_search and PNG.search_hover or PNG.search, PNG.search_hover, PNG.search_hover))
+		image_button(X + 0.3, 0.2, 0.5, 0.5, "", "enable_search", "")
+		fs(fmt("tooltip[enable_search;%s]", ES"Search"))
+
+		if data.enable_search then
+			image(X + 0.4, 0.75, 3.4, 0.8, PNG.bg_goto)
+
+			fs("style[filter;font_size=16]",
+			   fmt("field[%f,%f;3,0.45;filter;;%s]", X + 0.6, 0.95, data.filter),
+			   "field_close_on_enter[filter;false]")
+		end
+
+		box(X + 1, 0.2, 0.01, 0.5, "#bababa50")
+		local cat = {{"all", "all items"}, {"node", "nodes only"}, {"item", "items only"}}
+
+		for i, name in ipairs(cat) do
+			local name, desc = unpack(cat[i])
+			local active = PNG[name .. "_hover"]
+
+			fs(fmt("style[itab_%u;bgimg=%s;bgimg_hovered=%s;bgimg_pressed=%s;sound=i3_tab]",
+				i, data.itab == i and active or PNG[name], active, active))
+			image_button(X + 1.25 + ((i - 1) * 0.7), 0.2, 0.5, 0.5, "", fmt("itab_%s", i), "")
+			fs(fmt("tooltip[itab_%u;Show %s]", i, desc))
+		end
 	else
-		fs"style_type[label;font=italic;font_size=18]"
-		label(data.inv_width + 0.9, 0.49, clr("#aaa", ES"Search..."))
-		button(data.inv_width + 0.8, 0.12, 4, 0.8, "enable_search", "")
-		fs"style_type[label;font=normal;font_size=16]"
+		fs(fmt("style[search;bgimg=%s]", PNG.search_hover))
+		image_button(X + 0.35, 0.32, 0.35, 0.35, "", "search", "")
+		fs(fmt("tooltip[search;%s]", ES"Search"))
+
+		if data.enable_search then
+			fs("style[filter;font_size=18]",
+			   fmt("field[%f,0.2;3.35,0.6;filter;;%s]", X + 0.85, ESC(data.filter)),
+			   "field_close_on_enter[filter;false]")
+
+			image(X + 0.85, 0.75, 4, 0.01, PNG.search_outline_trim .. "^[opacity:100")
+		else
+			fs"style_type[label;font=italic;font_size=18]"
+			label(X + 0.9, 0.49, clr("#aaa", ES"Search..."))
+			button(X + 0.8, 0.12, 4, 0.8, "enable_search", "")
+			fs"style_type[label;font=normal;font_size=16]"
+		end
+
+		if true_str(data.filter) then
+			image_button(X + 4.3, 0.4, 0.2, 0.2,  "", "cancel", "")
+			fs(fmt("tooltip[cancel;%s]", ES"Clear"))
+			box(X + 0.85, 0.75, 3.74, 0.01, "#f9826c")
+		end
 	end
 
-	image_button(data.inv_width + 0.35, 0.32, 0.35, 0.35, "", "search", "")
-	image_button(data.inv_width + 5.27, 0.3,  0.35, 0.35, "", "prev_page", "")
-	image_button(data.inv_width + 7.45, 0.3,  0.35, 0.35, "", "next_page", "")
-
-	fs(fmt("tooltip[search;%s]", ES"Search"))
-
-	if true_str(data.filter) then
-		image_button(data.inv_width + 4.3, 0.4, 0.2, 0.2,  "", "cancel", "")
-		fs(fmt("tooltip[cancel;%s]", ES"Clear"))
-		box(data.inv_width + 0.85, 0.75, 3.74, 0.01, "#f9826c")
-	end
+	image_button(X + 5.27, 0.3,  0.35, 0.35, "", "prev_page", "")
+	image_button(X + 7.45, 0.3,  0.35, 0.35, "", "next_page", "")
 
 	fs(fmt("style[pagenum;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;sound=i3_click]",
 		data.goto_page and PNG.pagenum_hover or "", PNG.pagenum_hover))
 
-	button(data.inv_width + 5.8, 0.14, 1.48, 0.7, "pagenum",
+	button(X + 5.8, 0.14, 1.48, 0.7, "pagenum",
 		fmt("%s / %u", clr(colors.yellow, data.pagenum), data.pagemax))
 
 	if data.goto_page then
-		image(data.inv_width + 4.8, 0.85, 2.9, 0.8, PNG.bg_goto)
+		image(X + 4.8, 0.85, 2.9, 0.8, PNG.bg_goto)
 		fs"style_type[label;font_size=16;textcolor=#ddd]"
-		label(data.inv_width + 5, 1.25, ES"Go to page" .. ":")
-		box(data.inv_width + 6.5, 1, 1, 0.45, "#bababa10")
+		label(X + 5, 1.25, ES"Go to page" .. ":")
+		box(X + 6.5, 1, 1, 0.45, "#bababa10")
 
 		fs(fmt("style[goto_page;font=mono,bold;font_size=16;textcolor=%s]", colors.yellow),
-		   fmt("field[%f,%f;1,0.45;goto_page;;%s]", data.inv_width + 6.55, 1.05, data.pagenum),
+		   fmt("field[%f,%f;1,0.45;goto_page;;%s]", X + 6.55, 1.05, data.pagenum),
 		   "field_close_on_enter[goto_page;false]")
 
 		fs"style_type[label;font_size=16;textcolor=#fff]"
 	end
+end
 
+local function get_minitabs(fs, data, full_height)
 	local _tabs = {"All", "Nodes", "Items"}
 	local tab_len, tab_hgh = 1.8, 0.5
 
@@ -1474,7 +1507,7 @@ local function get_items_fs(fs, data, player, full_height)
 		end
 	end
 
-	get_header_items_fs(fs, data, full_height)
+	get_header_items_fs(fs, data)
 end
 
 local function get_favs(fs, data)
@@ -1631,6 +1664,10 @@ local function make_fs(player, data)
 		get_panels(fs, data, player)
 	else
 		get_items_fs(fs, data, player, full_height)
+	end
+
+	if not data.hide_tabs then
+		get_minitabs(fs, data, full_height)
 	end
 
 	local visible_tabs = #i3.tabs

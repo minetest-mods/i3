@@ -51,6 +51,9 @@ local PNG = {
 	find_more = "i3_find_more.png",
 	search_outline = "i3_search_outline.png",
 	search_outline_trim = "i3_search_outline_trim.png",
+	all = "i3_all.png",
+	node = "i3_node.png",
+	item = "i3_item.png",
 
 	cancel_hover = "i3_cancel.png^\\[brighten",
 	search_hover = "i3_search.png^\\[brighten",
@@ -74,6 +77,9 @@ local PNG = {
 	exit_hover = "i3_exit.png^\\[brighten",
 	home_hover = "i3_home.png^\\[brighten",
 	edit_hover = "i3_edit.png^\\[brighten",
+	all_hover = "i3_all_on.png^\\[brighten",
+	node_hover = "i3_node_on.png^\\[brighten",
+	item_hover = "i3_item_on.png^\\[brighten",
 }
 
 local styles = string.format([[
@@ -86,8 +92,8 @@ local styles = string.format([[
 
 	style[;sound=]
 	style[nofav;sound=i3_cannot]
+	style[search;content_offset=0]
 	style[pagenum,no_item,no_rcp;font=bold;font_size=18]
-	style[search;fgimg=%s;content_offset=0]
 	style[enable_search:hovered;bgimg=%s]
 	style[enable_search:pressed;bgimg=%s^[opacity:178]
 	style[exit;fgimg=%s;fgimg_hovered=%s;content_offset=0]
@@ -106,14 +112,13 @@ local styles = string.format([[
 	style[confirm_trash_yes;sound=i3_trash]
 ]],
 PNG.slot,
-PNG.search_hover,
 PNG.search_outline, PNG.search_outline,
-PNG.exit,     PNG.exit_hover,
-PNG.cancel,   PNG.cancel_hover,
-PNG.prev,     PNG.prev_hover,
-PNG.next,     PNG.next_hover,
-PNG.add,      PNG.add_hover,
-PNG.edit,     PNG.edit_hover)
+PNG.exit,           PNG.exit_hover,
+PNG.cancel,         PNG.cancel_hover,
+PNG.prev,           PNG.prev_hover,
+PNG.next,           PNG.next_hover,
+PNG.add,            PNG.add_hover,
+PNG.edit,           PNG.edit_hover)
 
 local fs_elements = {
 	label = "label[%f,%f;%s]",

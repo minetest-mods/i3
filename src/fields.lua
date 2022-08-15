@@ -178,7 +178,7 @@ local function inv_fields(player, data, fields)
 		for _, v in ipairs(data.waypoints) do
 			if vec_eq(vec_round(pos), vec_round(str_to_pos(v.pos))) then
 				play_sound(name, "i3_cannot", 0.8)
-				return msg(name, S"You already set a waypoint at this position")
+				return msg(name, S"You already have set a waypoint at this position")
 			end
 		end
 
@@ -301,7 +301,7 @@ end
 local function rcp_fields(player, data, fields)
 	local sb_rcp, sb_usg = fields.scrbar_rcp, fields.scrbar_usg
 
-	if fields.filter and fields.filter == "" then
+	if not data.hide_tabs and fields.filter and fields.filter == "" then
 		data.enable_search = nil
 	end
 
@@ -312,7 +312,11 @@ local function rcp_fields(player, data, fields)
 		data.query_item = nil
 
 	elseif fields.enable_search then
-		data.enable_search = true
+		if data.hide_tabs then
+			data.enable_search = not data.enable_search
+		else
+			data.enable_search = true
+		end
 
 	elseif fields.filter and (fields.key_enter_field == "filter" or fields.search) then
 		if fields.filter == "" then
