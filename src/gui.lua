@@ -587,16 +587,19 @@ local function show_settings(fs, data)
 		local show_sorting = data.show_setting == "sorting"
 
 		fs"style[setting_home,setting_style,setting_sorting;font=bold;font_size=16;sound=i3_click]"
+		fs(fmt("style[setting_home:hovered;textcolor=%s]", show_home and colors.yellow or "#fff"))
+		fs(fmt("style[setting_style:hovered;textcolor=%s]", show_style and colors.yellow or "#fff"))
+		fs(fmt("style[setting_sorting:hovered;textcolor=%s]", show_sorting and colors.yellow or "#fff"))
 
 		fs(fmt("style[setting_home;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;textcolor=%s]",
 			show_home and PNG.pagenum_hover or "", PNG.pagenum_hover,
-			show_home and colors.yellow or "#fff"),
+			show_home and colors.yellow or "#ddd"),
 		   fmt("style[setting_style;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;textcolor=%s]",
 			show_style and PNG.pagenum_hover or "", PNG.pagenum_hover,
-			show_style and colors.yellow or "#fff"),
+			show_style and colors.yellow or "#ddd"),
 		   fmt("style[setting_sorting;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;textcolor=%s]",
 			show_sorting and PNG.pagenum_hover or "", PNG.pagenum_hover,
-			show_sorting and colors.yellow or "#fff"))
+			show_sorting and colors.yellow or "#ddd"))
 
 		local X = 2.5
 		button(X, 9.1, 1.6, 0.55, "setting_home", "Home")
@@ -1356,16 +1359,7 @@ local function hide_items(player, data)
 	end
 end
 
-local function get_items_fs(fs, data, player, full_height)
-	hide_items(player, data)
-
-	local items = data.alt_items or data.items or {}
-	local rows, lines = 8, 12
-	local ipp = rows * lines
-	local size = 0.85
-
-	bg9(data.inv_width + 0.1, 0, 7.9, full_height, PNG.bg_full)
-
+local function get_header_items_fs(fs, data, full_height)
 	if data.enable_search then
 		fs("set_focus[filter]",
 		   "style[filter;font_size=18;textcolor=#ccc]",
@@ -1377,6 +1371,7 @@ local function get_items_fs(fs, data, player, full_height)
 		fs"style_type[label;font=italic;font_size=18]"
 		label(data.inv_width + 0.9, 0.49, clr("#aaa", ES"Search..."))
 		button(data.inv_width + 0.8, 0.12, 4, 0.8, "enable_search", "")
+		fs"style_type[label;font=normal;font_size=16]"
 	end
 
 	image_button(data.inv_width + 0.35, 0.32, 0.35, 0.35, "", "search", "")
@@ -1391,13 +1386,53 @@ local function get_items_fs(fs, data, player, full_height)
 		box(data.inv_width + 0.85, 0.75, 3.74, 0.01, "#f9826c")
 	end
 
-	data.pagemax = max(1, ceil(#items / ipp))
-
 	fs(fmt("style[pagenum;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;sound=i3_click]",
 		data.goto_page and PNG.pagenum_hover or "", PNG.pagenum_hover))
 
 	button(data.inv_width + 5.8, 0.14, 1.48, 0.7, "pagenum",
 		fmt("%s / %u", clr(colors.yellow, data.pagenum), data.pagemax))
+
+	if data.goto_page then
+		image(data.inv_width + 4.8, 0.85, 2.9, 0.8, PNG.bg_goto)
+		fs"style_type[label;font_size=16;textcolor=#ddd]"
+		label(data.inv_width + 5, 1.25, ES"Go to page" .. ":")
+		box(data.inv_width + 6.5, 1, 1, 0.45, "#bababa10")
+
+		fs(fmt("style[goto_page;font=mono,bold;font_size=16;textcolor=%s]", colors.yellow),
+		   fmt("field[%f,%f;1,0.45;goto_page;;%s]", data.inv_width + 6.55, 1.05, data.pagenum),
+		   "field_close_on_enter[goto_page;false]")
+
+		fs"style_type[label;font_size=16;textcolor=#fff]"
+	end
+
+	local _tabs = {"All", "Nodes", "Items"}
+	local tab_len, tab_hgh = 1.8, 0.5
+
+	for i, title in ipairs(_tabs) do
+		local selected = i == data.itab
+		local hover_texture = selected and PNG.tab_small_hover or PNG.tab_small
+
+		fs(fmt([[style_type[image_button;bgimg=%s;bgimg_hovered=%s;
+			bgimg_middle=14,0,-14,-14;padding=-14,0,14,14] ]], hover_texture, PNG.tab_small_hover))
+
+		fs(fmt([[style_type[image_button;noclip=true;font=bold;font_size=16;
+			textcolor=%s;content_offset=0;sound=i3_tab] ]], selected and "#fff" or "#bbb"))
+		fs"style_type[image_button:hovered;textcolor=#fff]"
+		image_button((data.inv_width - 0.65) + (i * (tab_len + 0.1)),
+			full_height, tab_len, tab_hgh, "", fmt("itab_%u", i), title)
+	end
+end
+
+local function get_items_fs(fs, data, player, full_height)
+	hide_items(player, data)
+	bg9(data.inv_width + 0.1, 0, 7.9, full_height, PNG.bg_full)
+
+	local items = data.alt_items or data.items or {}
+	local rows, lines = 8, 12
+	local ipp = rows * lines
+	local size = 0.85
+
+	data.pagemax = max(1, ceil(#items / ipp))
 
 	if #items == 0 then
 		local lbl = ES"No item to show"
@@ -1439,35 +1474,7 @@ local function get_items_fs(fs, data, player, full_height)
 		end
 	end
 
-	if data.goto_page then
-		image(data.inv_width + 4.8, 0.85, 2.9, 0.8, PNG.bg_goto)
-		fs"style_type[label;font_size=16;textcolor=#ddd]"
-		label(data.inv_width + 5, 1.25, ES"Go to page" .. ":")
-		box(data.inv_width + 6.5, 1, 1, 0.45, "#bababa10")
-
-		fs(fmt("style[goto_page;font=mono,bold;font_size=16;textcolor=%s]", colors.yellow),
-		   fmt("field[%f,%f;1,0.45;goto_page;;%s]", data.inv_width + 6.55, 1.05, data.pagenum),
-		   "field_close_on_enter[goto_page;false]")
-
-		fs"style_type[label;font_size=16;textcolor=#fff]"
-	end
-
-	local _tabs = {"All", "Nodes", "Items"}
-	local tab_len, tab_hgh = 1.8, 0.5
-
-	for i, title in ipairs(_tabs) do
-		local selected = i == data.itab
-		local hover_texture = selected and PNG.tab_small_hover or PNG.tab_small
-
-		fs(fmt([[style_type[image_button;bgimg=%s;bgimg_hovered=%s;
-			bgimg_middle=14,0,-14,-14;padding=-14,0,14,14] ]], hover_texture, PNG.tab_small_hover))
-
-		fs(fmt("style_type[image_button;noclip=true;font_size=16;textcolor=%s;content_offset=0;sound=i3_tab]",
-			selected and "#fff" or "#bbb"))
-		fs"style_type[image_button:hovered;textcolor=#fff]"
-		image_button((data.inv_width - 0.65) + (i * (tab_len + 0.1)),
-			full_height, tab_len, tab_hgh, "", fmt("itab_%u", i), title)
-	end
+	get_header_items_fs(fs, data, full_height)
 end
 
 local function get_favs(fs, data)
