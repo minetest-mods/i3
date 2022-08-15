@@ -11,10 +11,10 @@ local VoxelArea, VoxelManip = VoxelArea, VoxelManip
 IMPORT("find", "match", "sub", "upper")
 IMPORT("vec_new", "vec_sub", "vec_round")
 IMPORT("clr", "ESC", "msg", "check_privs")
+IMPORT("compression_active", "compressible")
 IMPORT("min", "max", "floor", "ceil", "round")
 IMPORT("reg_items", "reg_tools", "reg_entities")
 IMPORT("true_str", "is_fav", "is_num", "str_to_pos")
-IMPORT("get_sorting_idx", "compression_active", "compressible")
 IMPORT("get_bag_description", "get_detached_inv", "get_recipes")
 IMPORT("S", "ES", "translate", "ItemStack", "toupper", "utf8_len")
 IMPORT("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
@@ -572,45 +572,37 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 	end
 end
 
-local function show_popup(fs, data)
+local function show_settings(fs, data)
 	if data.confirm_trash then
-		fs"style_type[box;colors=#999,#999,#808080,#808080]"
-
-		for _ = 1, 3 do
-			box(2.97, 10.75, 4.3, 0.5, "")
-		end
-
+		image(2.9, 10.65, 4.6, 0.7, PNG.bg_goto)
 		label(3.12, 11, "Confirm trash?")
 		image_button(5.17, 10.75, 1, 0.5, "", "confirm_trash_yes", "Yes")
 		image_button(6.27, 10.75, 1, 0.5, "", "confirm_trash_no", "No")
 
 	elseif data.show_settings then
-		fs"style_type[box;colors=#999,#999,#808080,#808080]"
-
-		for _ = 1, 3 do
-			box(2.1, 9.25, 6, 2, "")
-		end
-
-		for _ = 1, 3 do
-			box(2.1, 9.25, 6, 0.5, "#707070")
-		end
-
-		image_button(7.75, 9.35, 0.25, 0.25, PNG.cancel_hover .. "^\\[brighten", "close_settings", "")
+		image(2.2, 9, 6, 2.35, PNG.bg_content)
 
 		local show_home = data.show_setting == "home"
+		local show_style = data.show_setting == "style"
 		local show_sorting = data.show_setting == "sorting"
-		local show_misc = data.show_setting == "misc"
 
-		fs(fmt("style[setting_home;textcolor=%s;font=bold;font_size=16;sound=i3_click]",
+		fs"style[setting_home,setting_style,setting_sorting;font=bold;font_size=16;sound=i3_click]"
+
+		fs(fmt("style[setting_home;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;textcolor=%s]",
+			show_home and PNG.pagenum_hover or "", PNG.pagenum_hover,
 			show_home and colors.yellow or "#fff"),
-		   fmt("style[setting_sorting;textcolor=%s;font=bold;font_size=16;sound=i3_click]",
-			show_sorting and colors.yellow or "#fff"),
-		   fmt("style[setting_misc;textcolor=%s;font=bold;font_size=16;sound=i3_click]",
-			show_misc and colors.yellow or "#fff"))
+		   fmt("style[setting_style;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;textcolor=%s]",
+			show_style and PNG.pagenum_hover or "", PNG.pagenum_hover,
+			show_style and colors.yellow or "#fff"),
+		   fmt("style[setting_sorting;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;textcolor=%s]",
+			show_sorting and PNG.pagenum_hover or "", PNG.pagenum_hover,
+			show_sorting and colors.yellow or "#fff"))
 
-		button(2.2, 9.25, 1.8, 0.55, "setting_home", "Home")
-		button(4,   9.25, 1.8, 0.55, "setting_sorting", "Sorting")
-		button(5.8, 9.25, 1.8, 0.55, "setting_misc", "Misc.")
+		local X = 2.5
+		button(X, 9.1, 1.6, 0.55, "setting_home", "Home")
+		button(X + 1.6, 9.1, 1.6, 0.55, "setting_style", "Style")
+		button(X + 3.2, 9.1, 1.6, 0.55, "setting_sorting", "Sorting")
+		image_button(X + 5, 9.2, 0.25, 0.25, PNG.cancel_hover .. "^\\[brighten", "close_settings", "")
 
 		if show_home then
 			local coords, c, str = {"X", "Y", "Z"}, 0, ES"No home set"
@@ -620,41 +612,44 @@ local function show_popup(fs, data)
 					"(%-?%d+)", function(a)
 						c++
 						return fmt("<b>%s: <style color=%s font=mono>%s</style></b>",
-							coords[c], colors.black, a)
+							coords[c], colors.blue, a)
 					end)
 			end
 
 			hypertext(2.1, 9.9, 6, 0.6, "home_pos", fmt("<global size=16><center>%s</center>", str))
 			image_button(4.2, 10.4, 1.8, 0.7, "", "set_home", "Set home")
 
-		elseif show_sorting then
-			button(2.1, 9.7, 6, 0.8, "select_sorting", ES"Select the inventory sorting method:")
-
-			image_button(2.2, 10.6, 0.35, 0.35, "",  "prev_sort", "")
-			image_button(7.65, 10.6, 0.35, 0.35, "", "next_sort", "")
-
-			fs"style[sort_method;font=bold;font_size=20]"
-			button(2.55, 10.36, 5.1, 0.8, "sort_method", toupper(data.sort))
-
-			local idx = get_sorting_idx(data.sort)
-			local desc = i3.sorting_methods[idx].description
-
-			if desc then
-				fs(fmt("tooltip[%s;%s]", "sort_method", desc))
-			end
-
-		elseif show_misc then
-			checkbox(2.4, 10.05, "cb_inv_compress", "Compression", tostring(data.inv_compress))
-			checkbox(2.4, 10.5,  "cb_reverse_sorting", "Reverse mode", tostring(data.reverse_sorting))
-			checkbox(2.4, 10.95, "cb_ignore_hotbar", "Ignore hotbar", tostring(data.ignore_hotbar))
-			checkbox(5.4, 10.05, "cb_auto_sorting", "Automation", tostring(data.auto_sorting))
-
+		elseif show_style then
 			local sign = (data.font_size > 0 and "+") or (data.font_size > 0 and "-") or ""
-			label(5.4, 10.55, ES"Font size" .. fmt(": %s", sign .. data.font_size))
+			label(2.6, 10.05, ES"Font size" .. fmt(": %s", sign .. data.font_size))
 
 			local range = 5
 			fs(fmt("scrollbaroptions[min=-%u;max=%u;smallstep=1;largestep=1;thumbsize=2]", range, range))
-			fs(fmt("scrollbar[5.4,10.8;2.5,0.25;horizontal;sb_font_size;%d]", data.font_size))
+			fs(fmt("scrollbar[2.6,10.3;2.5,0.3;horizontal;sb_font_size;%d]", data.font_size))
+
+		elseif show_sorting then
+			checkbox(2.6, 10.05, "cb_inv_compress", "Compression", tostring(data.inv_compress))
+			checkbox(2.6, 10.5,  "cb_reverse_sorting", "Reverse mode", tostring(data.reverse_sorting))
+			checkbox(2.6, 10.95, "cb_ignore_hotbar", "Ignore hotbar", tostring(data.ignore_hotbar))
+			checkbox(5.5, 10.05, "cb_auto_sorting", "Automation", tostring(data.auto_sorting))
+
+			local methods = {}
+
+			for _, v in ipairs(i3.sorting_methods) do
+				local name = toupper(v.name)
+				insert(methods, name)
+			end
+
+			fs"style_type[label;font_size=14]"
+			label(5.5, 10.45, ES"Sorting method:")
+			fs(fmt("dropdown[%f,%f;2.3,0.5;dd_sorting_method;%s;%u;true]",
+				5.5, 10.6, concat(methods, ","), data.sort))
+			fs"style_type[label;font_size=16]"
+
+			local desc = i3.sorting_methods[data.sort].description
+			if desc then
+				tooltip(5.5, 10.6, 2.3, 0.5, ESC(desc))
+			end
 
 			fs(fmt("tooltip[cb_inv_compress;%s;#707070;#fff]",
 				ES"Enable this option to compress your inventory"),
@@ -767,7 +762,7 @@ local function get_inventory_fs(player, data, fs)
 		fs(fmt("tooltip[%s;%s]", btn_name, tooltip))
 	end
 
-	show_popup(fs, data)
+	show_settings(fs, data)
 end
 
 local function get_tooltip(item, info, pos, lang_code)
@@ -1397,7 +1392,6 @@ local function get_items_fs(fs, data, player, full_height)
 	end
 
 	data.pagemax = max(1, ceil(#items / ipp))
-
 
 	fs(fmt("style[pagenum;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;sound=i3_click]",
 		data.goto_page and PNG.pagenum_hover or "", PNG.pagenum_hover))

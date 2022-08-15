@@ -477,18 +477,6 @@ local function safe_teleport(player, pos)
 	player:set_pos(p)
 end
 
-local function get_sorting_idx(name)
-	local idx = 1
-
-	for i, def in ipairs(i3.sorting_methods) do
-		if name == def.name then
-			idx = i
-		end
-	end
-
-	return idx
-end
-
 local function sorter(inv, data, mode)
 	sort(inv, function(a, b)
 		if mode == 1 then
@@ -577,8 +565,7 @@ local function sort_inventory(player, data)
 		list = pre_sorting(list, start_i)
 	end
 
-	local idx = get_sorting_idx(data.sort)
-	local new_inv = i3.sorting_methods[idx].func(list, data)
+	local new_inv = i3.sorting_methods[data.sort].func(list, data)
 	if not new_inv then return end
 
 	if not data.ignore_hotbar then
@@ -674,7 +661,6 @@ local _ = {
 	sorter = sorter,
 	get_recipes = get_recipes,
 	sort_inventory = sort_inventory,
-	get_sorting_idx = get_sorting_idx,
 	sort_by_category = sort_by_category,
 	apply_recipe_filters = apply_recipe_filters,
 

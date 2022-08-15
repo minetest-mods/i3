@@ -5,8 +5,8 @@ IMPORT("min", "max", "vec_eq", "vec_round")
 IMPORT("S", "random", "translate", "ItemStack")
 IMPORT("sort", "copy", "insert", "remove", "indexof")
 IMPORT("fmt", "find", "match", "sub", "lower", "split", "toupper")
+IMPORT("search", "sort_inventory", "sort_by_category", "get_recipes", "get_detached_inv")
 IMPORT("msg", "is_fav", "pos_to_str", "str_to_pos", "add_hud_waypoint", "play_sound", "reset_data")
-IMPORT("search", "get_sorting_idx", "sort_inventory", "sort_by_category", "get_recipes", "get_detached_inv")
 IMPORT("valid_item", "get_stack", "craft_stack", "clean_name", "compressible", "check_privs", "safe_teleport")
 
 local function inv_fields(player, data, fields)
@@ -124,19 +124,8 @@ local function inv_fields(player, data, fields)
 	elseif fields.sort then
 		sort_inventory(player, data)
 
-	elseif fields.prev_sort or fields.next_sort then
-		local idx = get_sorting_idx(data.sort)
-		local tot = #i3.sorting_methods
-
-		idx -= (fields.prev_sort and 1 or -1)
-
-		if idx > tot then
-			idx = 1
-		elseif idx == 0 then
-			idx = tot
-		end
-
-		data.sort = i3.sorting_methods[idx].name
+	elseif fields.dd_sorting_method then
+		data.sort = tonumber(fields.dd_sorting_method)
 
 	elseif fields.home then
 		if not data.home then
@@ -436,14 +425,14 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 		return false
 	end
 
-	-- No-op buttons
+--	No-op buttons
 	if fields.player_name or fields.awards or fields.home_pos or fields.no_item or
 	   fields.no_rcp or fields.select_sorting or fields.sort_method or fields.bg_content or
 	   fields.quick_crafting then
 		return false
 	end
 
-	--print(dump(fields))
+--	print(dump(fields))
 	local data = i3.data[name]
 	if not data then return end
 

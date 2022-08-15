@@ -211,13 +211,13 @@ local function init_data(player, info)
 	data.items           = i3.init_items
 	data.items_raw       = i3.init_items
 	data.favs            = {}
-	data.sort            = "alphabetical"
 	data.show_setting    = "home"
 	data.ignore_hotbar   = false
 	data.auto_sorting    = false
 	data.reverse_sorting = false
 	data.inv_compress    = true
 	data.crafting_counts = {}
+	data.sort            = 1
 	data.tab             = 1
 	data.itab            = 1
 	data.subcat          = 1
