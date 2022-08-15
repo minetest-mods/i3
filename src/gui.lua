@@ -305,7 +305,7 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 	fs(fmt("tooltip[waypoint_add;%s]", ES"Add waypoint"))
 
 	if #data.waypoints == 0 then return end
-	fs("style_type[label;font=bold;font_size=17]")
+	fs"style_type[label;font=bold;font_size=17]"
 
 	for i, v in ipairs(data.waypoints) do
 		local y = yextra + 1.35 + (i - (i * 0.3))
@@ -687,7 +687,7 @@ local function get_inventory_fs(player, data, fs)
 
 		local textures = concat(t, ","):gsub("!", ",")
 
-		--fs("style[player_model;bgcolor=black]")
+	--	fs"style[player_model;bgcolor=black]"
 		model(0.2, 0.2, armor_skin and 4 or 3.4, ctn_hgt,
 			"player_model", props.mesh, textures, "0,-150", "false", "false",
 			fmt("%u,%u;30", anim.x, anim.y))
@@ -1110,7 +1110,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe, is_usage)
 	end
 
 	if large_recipe then
-		fs("style_type[item_image_button;border=false]")
+		fs"style_type[item_image_button;border=false]"
 	end
 
 	get_output_fs(fs, data, rcp, is_recipe, is_usage, shapeless, right, btn_size, _btn_size)
@@ -1290,7 +1290,6 @@ local function get_crafting_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, ma
 	button(x + 0.2, data.yoffset + 1.85, 2.5, 0.7, fmt("craft_%s", name), ES("Craft (×@1)", stack_fs))
 
 	fs"style_type[label;font_size=16;textcolor=#fff]"
-	fs"style_type[image,button,image_button;noclip=false]"
 end
 
 local function get_rcp_extra(fs, data, player, panel, is_recipe, is_usage)
@@ -1400,7 +1399,7 @@ local function get_items_fs(fs, data, player, full_height)
 	data.pagemax = max(1, ceil(#items / ipp))
 
 
-	fs(fmt("style[pagenum;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9]",
+	fs(fmt("style[pagenum;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;sound=i3_click]",
 		data.goto_page and PNG.pagenum_hover or "", PNG.pagenum_hover))
 
 	button(data.inv_width + 5.8, 0.14, 1.48, 0.7, "pagenum",
@@ -1543,7 +1542,7 @@ local function get_tabs_fs(fs, player, data, full_height)
 				(btm and PNG.tab or PNG.tab_top)
 		local bgimg_hover = btm and PNG.tab_hover or PNG.tab_hover_top
 
-		local middle = btm and "16,0,-16,-16" or "16,0,-16,0"
+		local middle = btm and "16,0,-16,-16" or "16,16,-16,-16"
 		local padding = btm and "-16,0,16,16" or "-16,-16,16,16"
 
 		fs(fmt([[style_type[image_button;bgimg=%s;bgimg_hovered=%s;bgimg_middle=%s;padding=%s] ]],
@@ -1562,7 +1561,7 @@ local function get_tabs_fs(fs, player, data, full_height)
 			local desc = translate(data.lang_code, def.description)
 			local desc_len = utf8_len(desc) + data.font_size
 
-			fs("style_type[image;noclip=true]")
+			fs"style_type[image;noclip=true]"
 			image(X + (tab_len / 2) - ((desc_len * 0.1) / 2) - 0.55, Y + 0.05, 0.35, 0.35, def.image)
 		end
 
@@ -1575,7 +1574,7 @@ local function get_debug_grid(data, fs, full_height)
 	button(-2, full_height - 1, 2, 1, "hide_debug_grid", "Toggle grid")
 	if data.hide_debug_grid then return end
 
-	fs("style_type[label;font_size=8;noclip=true]")
+	fs"style_type[label;font_size=8;noclip=true]"
 	local spacing, i = 0.2, 1
 
 	for x = 0, data.inv_width + 8, spacing do
