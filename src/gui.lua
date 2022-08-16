@@ -1399,7 +1399,9 @@ local function get_header_items_fs(fs, data)
 			   fmt("field[%f,0.2;3.35,0.6;filter;;%s]", X + 0.85, ESC(data.filter)),
 			   "field_close_on_enter[filter;false]")
 
-			image(X + 0.85, 0.75, 4, 0.01, PNG.search_outline_trim .. "^[opacity:100")
+			if not true_str(data.filter) then
+				image(X + 0.85, 0.75, 4, 0.01, PNG.search_outline_trim .. "^[opacity:100")
+			end
 		else
 			fs"style_type[label;font=italic;font_size=18]"
 			label(X + 0.9, 0.49, clr("#aaa", ES"Search..."))
@@ -1414,8 +1416,8 @@ local function get_header_items_fs(fs, data)
 		end
 	end
 
-	image_button(X + 5.27, 0.3,  0.35, 0.35, "", "prev_page", "")
-	image_button(X + 7.45, 0.3,  0.35, 0.35, "", "next_page", "")
+	image_button(X + 5.27, 0.3, 0.35, 0.35, "", "prev_page", "")
+	image_button(X + 7.45, 0.3, 0.35, 0.35, "", "next_page", "")
 
 	fs(fmt("style[pagenum;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;sound=i3_click]",
 		data.goto_page and PNG.pagenum_hover or "", PNG.pagenum_hover))
