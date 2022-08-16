@@ -1380,7 +1380,7 @@ local function get_header_items_fs(fs, data)
 		box(X + 1, 0.2, 0.01, 0.5, "#bababa50")
 		local cat = {{"all", "all items"}, {"node", "nodes only"}, {"item", "items only"}}
 
-		for i, name in ipairs(cat) do
+		for i in ipairs(cat) do
 			local name, desc = unpack(cat[i])
 			local active = PNG[name .. "_hover"]
 
