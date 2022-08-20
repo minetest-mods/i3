@@ -55,4 +55,4 @@ Report bugs on the [**Bug Tracker**](https://github.com/minetest-mods/i3/issues)
 
 **Video review on YouTube:** https://www.youtube.com/watch?v=Xd14BCdEZ3o
 
-![Preview](https://content.minetest.net/uploads/3abf3755de.png)
+![Preview](https://user-images.githubusercontent.com/7883281/185755315-23c2fffa-203d-4115-9dc3-576c92615733.png)
