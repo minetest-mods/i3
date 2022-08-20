@@ -1666,10 +1666,10 @@ local function make_fs(player, data)
 		get_panels(fs, data, player)
 	else
 		get_items_fs(fs, data, player, full_height)
-	end
 
-	if not data.hide_tabs then
-		get_minitabs(fs, data, full_height)
+		if not data.hide_tabs then
+			get_minitabs(fs, data, full_height)
+		end
 	end
 
 	local visible_tabs = #i3.tabs
