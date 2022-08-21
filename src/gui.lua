@@ -479,10 +479,11 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 		end
 
 		local armor_def = armor.def[name]
+		local _, armor_inv = armor:get_valid_player(player, "3d_armor")
+
 		fs(fmt("list[detached:%s_armor;armor;0,%f;5,1;]", esc_name, yextra + 0.7))
 
 		for i = 1, 5 do
-			local _, armor_inv = armor:get_valid_player(player, "3d_armor")
 			local stack = armor_inv:get_stack("armor", i)
 
 			if stack:is_empty() then
