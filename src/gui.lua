@@ -649,7 +649,7 @@ local function show_settings(fs, data)
 			checkbox(2.6, 9.95, "cb_inv_compress", "Compression", tostring(data.inv_compress))
 			checkbox(2.6, 10.4,  "cb_reverse_sorting", "Reverse mode", tostring(data.reverse_sorting))
 			checkbox(2.6, 10.85, "cb_ignore_hotbar", "Ignore hotbar", tostring(data.ignore_hotbar))
-			checkbox(5.5, 9.95, "cb_auto_sorting", "Automation", tostring(data.auto_sorting))
+			checkbox(5.4, 9.95, "cb_auto_sorting", "Automation", tostring(data.auto_sorting))
 
 			local methods = {}
 
@@ -658,13 +658,13 @@ local function show_settings(fs, data)
 				insert(methods, name)
 			end
 
-			label(5.5, 10.4, ES"Sorting method:")
-			fs(fmt("dropdown[%f,%f;2.3,0.5;dd_sorting_method;%s;%u;true]",
-				5.5, 10.6, concat(methods, ","), data.sort))
+			label(5.4, 10.4, ES"Sorting method:")
+			fs(fmt("dropdown[%f,%f;2.4,0.5;dd_sorting_method;%s;%u;true]",
+				5.4, 10.6, concat(methods, ","), data.sort))
 
 			local desc = i3.sorting_methods[data.sort].description
 			if desc then
-				tooltip(5.5, 10.6, 2.3, 0.5, ESC(desc))
+				tooltip(5.4, 10.6, 2.4, 0.5, ESC(desc))
 			end
 
 			fs(fmt("tooltip[cb_inv_compress;%s;#707070;#fff]",
