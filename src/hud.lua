@@ -116,25 +116,27 @@ core.register_globalstep(function(dt)
 
 		data.timer = (data.timer or 0) + dt
 
-		local wielditem = player:get_wielded_item()
-		local wieldname = wielditem:get_name()
+		local wieldidx = player:get_wield_index()
 
-		if wieldname == data.old_wielditem then
+		if wieldidx == data.old_wieldidx then
 			if data.timer >= i3.settings.wielditem_fade_after then
 				return reset()
 			end
 			return
+		else
+			data.timer = 0
 		end
 
-		data.old_wielditem = wieldname
+		data.old_wieldidx = wieldidx
 
+		local wielditem = player:get_wielded_item()
 		local meta = wielditem:get_meta()
+
 		local meta_desc = meta:get_string"short_description"
 		      meta_desc = meta_desc:gsub("\27", "")
 		      meta_desc = core.strip_colors(meta_desc)
 
 		local desc = meta_desc ~= "" and meta_desc or wielditem:get_short_description()
-
 		player:hud_change(data.hud.wielditem, "text", desc:trim())
 	end
 end)
