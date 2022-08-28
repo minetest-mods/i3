@@ -557,7 +557,7 @@ local function sort_inventory(player, data)
 	local inv = player:get_inventory()
 	local list = inv:get_list"main"
 	local size = inv:get_size"main"
-	local start_i = data.ignore_hotbar and (i3.settings.hotbar_len + 1) or 1
+	local start_i = data.ignore_hotbar and (data.hotbar_len + 1) or 1
 
 	if data.inv_compress then
 		list = compress_items(list, start_i)
@@ -621,6 +621,24 @@ local function get_detached_inv(name, player_name)
 		type = "detached",
 		name = fmt("i3_%s_%s", name, player_name)
 	}
+end
+
+local function update_inv_size(player, data)
+	data.hotbar_len = data.legacy_inventory and 8 or 9
+	data.inv_size = 4 * data.hotbar_len
+
+	local inv = player:get_inventory()
+	inv:set_size("main", data.inv_size)
+
+	player:hud_set_hotbar_itemcount(data.hotbar_len)
+
+	core.after(0, function()
+		if data.legacy_inventory then
+			player:hud_set_hotbar_image"gui_hotbar.png"
+		else
+			player:hud_set_hotbar_image"i3_hotbar.png"
+		end
+	end)
 end
 
 -- Much faster implementation of `unpack`
@@ -704,6 +722,7 @@ local _ = {
 	-- Inventory
 	get_stack = get_stack,
 	craft_stack = craft_stack,
+	update_inv_size = update_inv_size,
 	get_detached_inv = get_detached_inv,
 	get_bag_description = get_bag_description,
 	create_inventory = core.create_detached_inventory,

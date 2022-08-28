@@ -1,5 +1,4 @@
 local damage_enabled = i3.settings.damage_enabled
-local hotbar_len = i3.settings.hotbar_len
 local debug_mode = i3.settings.debug_mode
 
 local model_aliases = i3.files.model_alias()
@@ -128,10 +127,13 @@ local function get_stack_max(inv, data, is_recipe, rcp)
 	return max_stacks
 end
 
-local function get_inv_slots(fs)
-	local inv_x = i3.settings.legacy_inventory and 0.75 or 0.22
-	local inv_y = 6.9
-	local size, spacing = 1, 0.1
+local function get_inv_slots(data, fs)
+	local legacy_inventory = data.legacy_inventory
+	local hotbar_len = data.hotbar_len
+	local inv_x = legacy_inventory and 0.23 or 0.22
+	local inv_y = legacy_inventory and 6.5 or 6.9
+	local spacing = legacy_inventory and 0.25 or 0.1
+	local size = 1
 
 	fs"style_type[box;colors=#77777710,#77777710,#777,#777]"
 
@@ -142,11 +144,12 @@ local function get_inv_slots(fs)
 	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing),
 	   fmt("list[current_player;main;%f,%f;%u,1;]", inv_x, inv_y, hotbar_len))
 
-	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing),
-	   fmt("list[current_player;main;%f,%f;%u,%u;%u]", inv_x, inv_y + 1.15,
-		hotbar_len, i3.settings.inv_size / hotbar_len, hotbar_len),
-	   "style_type[list;size=1;spacing=0.15]")
+	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing))
 
+	fs(fmt("list[current_player;main;%f,%f;%u,%u;%u]", inv_x, inv_y + (legacy_inventory and 1.25 or 1.15),
+		hotbar_len, data.inv_size / hotbar_len, hotbar_len))
+
+	fs"style_type[list;size=1;spacing=0.15]"
 	fs"listring[current_player;craft]listring[current_player;main]"
 end
 
@@ -625,13 +628,14 @@ local function show_settings(fs, data)
 
 		elseif show_style then
 			checkbox(2.6, 9.95, "cb_hide_tabs", "Hide tabs", tostring(data.hide_tabs))
+			checkbox(2.6, 10.4, "cb_legacy_inventory", "Legacy inventory", tostring(data.legacy_inventory))
 
 			local sign = (data.font_size > 0 and "+") or (data.font_size > 0 and "-") or ""
-			label(2.6, 10.45, ES"Font size" .. fmt(": %s", sign .. data.font_size))
+			label(5.3, 9.95, ES"Font size" .. fmt(": %s", sign .. data.font_size))
 
 			local range = 5
 			fs(fmt("scrollbaroptions[min=-%u;max=%u;smallstep=1;largestep=1;thumbsize=2]", range, range))
-			fs(fmt("scrollbar[2.6,10.65;2.5,0.3;horizontal;sb_font_size;%d]", data.font_size))
+			fs(fmt("scrollbar[5.3,10.25;2.45,0.3;horizontal;sb_font_size;%d]", data.font_size))
 
 		elseif show_sorting then
 			checkbox(2.6, 9.95, "cb_inv_compress", "Compression", tostring(data.inv_compress))
@@ -670,10 +674,12 @@ end
 local function get_inventory_fs(player, data, fs)
 	fs"listcolors[#bababa50;#bababa99]"
 
-	get_inv_slots(fs)
+	get_inv_slots(data, fs)
 
 	local props = player:get_properties()
-	local ctn_len, ctn_hgt, yoffset = 5.7, 6.3, 0
+	local ctn_len = 5.7
+	local ctn_hgt = data.legacy_inventory and 6.1 or 6.3
+	local yoffset = 0
 
 	if props.mesh ~= "" then
 		local anim = player:get_local_animation()
@@ -697,6 +703,7 @@ local function get_inventory_fs(player, data, fs)
 
 	local awards_unlocked, award_list, award_list_nb = 0
 	local max_val = damage_enabled and 12 or 7
+	      max_val += (data.legacy_inventory and 2 or 0)
 	local bag_size = get_group(ItemStack(data.bag):get_name(), "bag")
 
 	if data.subcat == 1 and bag_size > 0 then

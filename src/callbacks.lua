@@ -6,7 +6,7 @@ local init_hud = i3.files.hud()
 local set_fs = i3.set_fs
 
 IMPORT("slz", "min", "insert", "copy", "ItemStack")
-IMPORT("spawn_item", "reset_data", "get_detached_inv", "play_sound")
+IMPORT("spawn_item", "reset_data", "get_detached_inv", "play_sound", "update_inv_size")
 
 core.register_on_player_hpchange(function(player, hpchange)
 	local name = player:get_player_name()
@@ -226,8 +226,7 @@ local function init_data(player, info)
 	data.lang_code       = get_lang_code(info)
 	data.fs_version      = info.formspec_version
 
-	local inv = player:get_inventory()
-	inv:set_size("main", i3.settings.inv_size)
+	update_inv_size(player, data)
 
 	core.after(0, set_fs, player)
 end

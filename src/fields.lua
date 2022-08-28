@@ -5,8 +5,8 @@ IMPORT("min", "max", "vec_eq", "vec_round")
 IMPORT("S", "random", "translate", "ItemStack")
 IMPORT("sort", "copy", "insert", "remove", "indexof")
 IMPORT("fmt", "find", "match", "sub", "lower", "split", "toupper")
-IMPORT("search", "sort_inventory", "sort_by_category", "get_recipes", "get_detached_inv")
 IMPORT("msg", "is_fav", "pos_to_str", "str_to_pos", "add_hud_waypoint", "play_sound", "reset_data")
+IMPORT("search", "sort_inventory", "sort_by_category", "get_recipes", "get_detached_inv", "update_inv_size")
 IMPORT("valid_item", "get_stack", "craft_stack", "clean_name", "compressible", "check_privs", "safe_teleport")
 
 local function inv_fields(player, data, fields)
@@ -30,6 +30,10 @@ local function inv_fields(player, data, fields)
 
 			if fields[field] == "true" then
 				data[str] = true
+			end
+
+			if str == "legacy_inventory" then
+				update_inv_size(player, data)
 			end
 
 		elseif sub(field, 1, 8) == "setting_" then

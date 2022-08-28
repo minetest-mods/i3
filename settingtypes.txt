@@ -3,6 +3,3 @@ i3_progressive_mode    (Learn crafting recipes progressively)    bool false
 
 # Regroup the items of the same type in the item list.
 i3_item_compression    (Regroup items of the same type)          bool true
-
-# Set the inventory size to common chests size (8*4).
-i3_legacy_inventory    (Legacy inventory size)                   bool false

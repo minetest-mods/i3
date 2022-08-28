@@ -37,7 +37,6 @@ i3 = {
 
 		damage_enabled   = core.settings:get_bool"enable_damage",
 		progressive_mode = core.settings:get_bool"i3_progressive_mode",
-		legacy_inventory = core.settings:get_bool"i3_legacy_inventory",
 		item_compression = core.settings:get_bool("i3_item_compression", true),
 	},
 
@@ -57,6 +56,7 @@ i3 = {
 		waypoints = true,
 		inv_items = true,
 		known_recipes = true,
+		legacy_inventory = true,
 	},
 
 	files = {
@@ -93,9 +93,6 @@ i3 = {
 	search_filters = {},
 	sorting_methods = {},
 }
-
-i3.settings.hotbar_len = i3.settings.legacy_inventory and 8 or 9
-i3.settings.inv_size   = 4 * i3.settings.hotbar_len
 
 i3.files.common()
 i3.files.api(http)
