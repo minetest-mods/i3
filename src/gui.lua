@@ -629,6 +629,7 @@ local function show_settings(fs, data)
 		elseif show_style then
 			checkbox(2.6, 9.95, "cb_hide_tabs", "Hide tabs", tostring(data.hide_tabs))
 			checkbox(2.6, 10.4, "cb_legacy_inventory", "Legacy inventory", tostring(data.legacy_inventory))
+			checkbox(2.6, 10.85, "cb_wielditem_hud", "HUD description", tostring(data.wielditem_hud))
 
 			local sign = (data.font_size > 0 and "+") or (data.font_size > 0 and "-") or ""
 			label(5.3, 9.95, ES"Font size" .. fmt(": %s", sign .. data.font_size))
@@ -636,6 +637,13 @@ local function show_settings(fs, data)
 			local range = 5
 			fs(fmt("scrollbaroptions[min=-%u;max=%u;smallstep=1;largestep=1;thumbsize=2]", range, range))
 			fs(fmt("scrollbar[5.3,10.25;2.45,0.3;horizontal;sb_font_size;%d]", data.font_size))
+
+			fs(fmt("tooltip[cb_hide_tabs;%s;#707070;#fff]",
+				ES"Enable this option to change the style of the right panel"),
+			   fmt("tooltip[cb_legacy_inventory;%s;#707070;#fff]",
+				ES"Enable this option to set the classic inventory size in Minetest"),
+			   fmt("tooltip[cb_wielditem_hud;%s;#707070;#fff]",
+				ES"Enable this option to show the wielded item description in your HUD"))
 
 		elseif show_sorting then
 			checkbox(2.6, 9.95, "cb_inv_compress", "Compression", tostring(data.inv_compress))

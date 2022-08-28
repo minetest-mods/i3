@@ -1,4 +1,4 @@
-IMPORT("get_connected_players", "str_to_pos", "add_hud_waypoint")
+IMPORT("ceil", "get_connected_players", "str_to_pos", "add_hud_waypoint")
 
 local function init_hud(player)
 	local name = player:get_player_name()
@@ -27,6 +27,17 @@ local function init_hud(player)
 			hud_elem_type = "text",
 			position      = {x = 0.84, y = 1.04},
 			alignment     = {x = 1,    y = 1},
+			number        = 0xffffff,
+			text          = "",
+			z_index       = 0xDEAD,
+			style         = 1,
+		},
+
+		wielditem = player:hud_add {
+			hud_elem_type = "text",
+			position      = {x = 0.5, y = 1},
+			offset        = {x = 0,   y = -65 - (i3.modules.hudbars and (ceil(hb.hudbars_count / 2) * 25) or 25)},
+			alignment     = {x = 0,   y = -1},
 			number        = 0xffffff,
 			text          = "",
 			z_index       = 0xDEAD,
@@ -83,6 +94,50 @@ local function show_hud(player, data)
 		end
 	end
 end
+
+core.register_globalstep(function(dt)
+	local players = get_connected_players()
+	players[0] = #players
+
+	for i = 1, players[0] do
+		local player = players[i]
+		local name = player:get_player_name()
+		local data = i3.data[name]
+		if not data then return end
+
+		local function reset()
+			player:hud_change(data.hud.wielditem, "text", "")
+			data.timer = 0
+		end
+
+		if not data.wielditem_hud then
+			return reset()
+		end
+
+		data.timer = (data.timer or 0) + dt
+
+		local wielditem = player:get_wielded_item()
+		local wieldname = wielditem:get_name()
+
+		if wieldname == data.old_wielditem then
+			if data.timer >= i3.settings.wielditem_fade_after then
+				return reset()
+			end
+			return
+		end
+
+		data.old_wielditem = wieldname
+
+		local meta = wielditem:get_meta()
+		local meta_desc = meta:get_string"short_description"
+		      meta_desc = meta_desc:gsub("\27", "")
+		      meta_desc = core.strip_colors(meta_desc)
+
+		local desc = meta_desc ~= "" and meta_desc or wielditem:get_short_description()
+
+		player:hud_change(data.hud.wielditem, "text", desc:trim())
+	end
+end)
 
 core.register_globalstep(function()
 	local players = get_connected_players()

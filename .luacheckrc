@@ -10,6 +10,7 @@ read_globals = {
 	"armor",
 	"skins",
 	"awards",
+	"hb",
 	"vector",
 	"string",
 	"table",

@@ -30,6 +30,7 @@ i3 = {
 		min_fs_version = 6,
 		item_btn_size = 1.1,
 		drop_bag_on_die = true,
+		wielditem_fade_after = 3,
 		save_interval = 600, -- Player data save interval (in seconds)
 
 		hud_speed = 1,
@@ -56,6 +57,7 @@ i3 = {
 		waypoints = true,
 		inv_items = true,
 		known_recipes = true,
+		wielditem_hud = true,
 		legacy_inventory = true,
 	},
 
