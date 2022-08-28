@@ -10,6 +10,9 @@ local trash = create_inventory("i3_trash", {
 		inv:set_list(listname, {})
 
 		local name = player:get_player_name()
+		local data = i3.data[name]
+		data.armor_allow = nil
+
 		play_sound(name, "i3_trash", 1.0)
 
 		if not core.is_creative_enabled(name) then
