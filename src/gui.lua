@@ -131,7 +131,7 @@ local function get_inv_slots(data, fs)
 	local legacy_inventory = data.legacy_inventory
 	local hotbar_len = data.hotbar_len
 	local inv_x = legacy_inventory and 0.23 or 0.22
-	local inv_y = legacy_inventory and 6.5 or 6.9
+	local inv_y = legacy_inventory and 6.7 or 6.9
 	local spacing = legacy_inventory and 0.25 or 0.1
 	local size = 1
 
@@ -144,7 +144,7 @@ local function get_inv_slots(data, fs)
 	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing),
 	   fmt("list[current_player;main;%f,%f;%u,1;]", inv_x, inv_y, hotbar_len))
 
-	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing))
+	fs(fmt("style_type[list;size=%f;spacing=%f,%f]", size, spacing, legacy_inventory and 0.15 or spacing))
 
 	fs(fmt("list[current_player;main;%f,%f;%u,%u;%u]", inv_x, inv_y + (legacy_inventory and 1.25 or 1.15),
 		hotbar_len, data.inv_size / hotbar_len, hotbar_len))
