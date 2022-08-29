@@ -105,28 +105,22 @@ core.register_globalstep(function(dt)
 		local data = i3.data[name]
 		if not data then return end
 
-		local function reset()
-			player:hud_change(data.hud.wielditem, "text", "")
-			data.timer = 0
-		end
-
 		if not data.wielditem_hud then
-			return reset()
+			player:hud_change(data.hud.wielditem, "text", "")
+			return
 		end
 
 		data.timer = (data.timer or 0) + dt
-
 		local wieldidx = player:get_wield_index()
 
 		if wieldidx == data.old_wieldidx then
 			if data.timer >= i3.settings.wielditem_fade_after then
-				return reset()
+				player:hud_change(data.hud.wielditem, "text", "")
 			end
 			return
-		else
-			data.timer = 0
 		end
 
+		data.timer = 0
 		data.old_wieldidx = wieldidx
 
 		local wielditem = player:get_wielded_item()
