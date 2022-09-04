@@ -2,7 +2,7 @@ local replacements = {fuel = {}}
 local http = ...
 
 IMPORT("maxn", "copy", "insert", "sort", "match", "sub")
-IMPORT("true_str", "is_table", "valid_item", "table_merge", "table_replace", "rcp_eq")
+IMPORT("true_str", "is_table", "valid_item", "table_merge", "table_replace", "table_eq")
 IMPORT("fmt", "reg_items", "reg_aliases", "reg_nodes", "is_cube", "get_cube", "ItemStack")
 IMPORT("is_group", "extract_groups", "item_has_groups", "groups_to_items", "get_group_stereotype")
 
@@ -248,11 +248,7 @@ local old_clear_craft = core.clear_craft
 core.clear_craft = function(def)
 	old_clear_craft(def)
 
-	if true_str(def) then
-		return -- TODO
-	elseif is_table(def) then
-		return -- TODO
-	end
+	-- TODO: hide in crafting guide
 end
 
 local function resolve_aliases(hash)
@@ -274,7 +270,7 @@ local function resolve_aliases(hash)
 					local rcp_new = copy(i3.recipes_cache[newname][j])
 					      rcp_new.output = oldname
 
-					if rcp_eq(rcp_old, rcp_new) then
+					if table_eq(rcp_old, rcp_new) then
 						similar = true
 						break
 					end

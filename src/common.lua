@@ -216,18 +216,22 @@ local function array_diff(t1, t2)
 	return diff
 end
 
-local function rcp_eq(rcp, rcp2)
-	if rcp.type   ~= rcp2.type   then return end
-	if rcp.width  ~= rcp2.width  then return end
-	if #rcp.items ~= #rcp2.items then return end
-	if rcp.output ~= rcp2.output then return end
+local function table_eq(t1, t2)
+	local ty1, ty2 = type(t1), type(t2)
+	if ty1 ~= ty2 then return end
 
-	for i, item in pairs(rcp.items) do
-		if item ~= rcp2.items[i] then return end
+	if ty1 ~= "table" and ty2 ~= "table" then
+		return t1 == t2
 	end
 
-	for i, item in pairs(rcp2.items) do
-		if item ~= rcp.items[i] then return end
+	for k, v in pairs(t1) do
+		local v2 = t2[k]
+		if v2 == nil or not table_eq(v, v2) then return end
+	end
+
+	for k, v in pairs(t2) do
+		local v1 = t1[k]
+		if v1 == nil or not table_eq(v1, v) then return end
 	end
 
 	return true
@@ -764,7 +768,7 @@ local _ = {
 	is_table = is_table,
 	table_merge = table_merge,
 	table_replace = table_replace,
-	rcp_eq = rcp_eq,
+	table_eq = table_eq,
 	array_diff = array_diff,
 
 	-- Math
