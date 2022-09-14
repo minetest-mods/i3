@@ -4,6 +4,14 @@ local function init_hud(player)
 	local name = player:get_player_name()
 	local data = i3.data[name]
 
+	local wdesc_y = -90
+
+	if core.global_exists"hb" then
+		wdesc_y -= ceil(hb.hudbars_count / 2) * 5
+	elseif not i3.settings.damage_enabled then
+		wdesc_y += 15
+	end
+
 	data.hud = {
 		bg = player:hud_add {
 			hud_elem_type = "image",
@@ -36,7 +44,7 @@ local function init_hud(player)
 		wielditem = player:hud_add {
 			hud_elem_type = "text",
 			position      = {x = 0.5, y = 1},
-			offset        = {x = 0,   y = -65 - (i3.modules.hudbars and (ceil(hb.hudbars_count / 2) * 25) or 25)},
+			offset        = {x = 0,   y = wdesc_y},
 			alignment     = {x = 0,   y = -1},
 			number        = 0xffffff,
 			text          = "",

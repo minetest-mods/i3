@@ -148,10 +148,6 @@ if core.global_exists"skins" then
 	i3.modules.skins = true
 end
 
-if core.global_exists"hb" then
-	i3.modules.hudbars = true
-end
-
 if core.global_exists"awards" then
 	i3.modules.awards = true
 
