@@ -21,31 +21,33 @@ i3.new_tab("stuff", {
 	end,
 
 	formspec = function(player, data, fs)
-		fs("label[3,1;This is just a test]")
+		fs"label[3,1;This is just a test]"
 	end,
 
 	-- Events handling happens here
 	fields = function(player, data, fields)
-		
+		if fields.mybutton then
+			do_things()
+		end
 	end,
 })
 ```
 
 - `player` is an `ObjectRef` to the user.
 - `data` are the user data.
-- `fs` is the formspec table which is callable with a metamethod. Each call adds a new entry.
+- `fs` is the formspec table which is callable with a metamethod. Every call adds a new entry.
 
 #### `i3.set_fs(player)`
 
-Updates the current formspec.
+Update the current formspec.
 
 #### `i3.remove_tab(tabname)`
 
-Deletes a tab by name.
+Delete a tab by name.
 
 #### `i3.get_current_tab(player)`
 
-Returns the current player tab. `player` is an `ObjectRef` to the user.
+Return the current player tab. `player` is an `ObjectRef` to the user.
 
 #### `i3.set_tab(player[, tabname])`
 
@@ -54,7 +56,7 @@ Sets the current tab by name. `player` is an `ObjectRef` to the user.
 
 #### `i3.override_tab(tabname, def)`
 
-Overrides a tab by name. `def` is the tab definition like seen in `i3.set_tab`.
+Override a tab by name. `def` is the tab definition like seen in `i3.set_tab`
 
 #### `i3.tabs`
 
@@ -68,9 +70,11 @@ Custom recipes are nonconventional crafts outside the main crafting grid.
 They can be registered in-game dynamically and have a size beyond 3x3 items.
 
 **Note:** the registration format differs from the default registration format in everything.
-The width is automatically calculated depending where you place the commas. Look at the examples attentively.
+The width is automatically calculated depending where you place the commas.
 
-#### Registering a custom crafting type (example)
+Examples:
+
+#### Registering a custom crafting type
 
 ```Lua
 i3.register_craft_type("digging", {
@@ -79,7 +83,7 @@ i3.register_craft_type("digging", {
 })
 ```
 
-#### Registering a custom crafting recipe (examples)
+#### Registering a custom crafting recipe
 
 ```Lua
 i3.register_craft {
@@ -159,7 +163,7 @@ mode is implemented as a recipe filter.
 
 #### `i3.add_recipe_filter(name, function(recipes, player))`
 
-Adds a recipe filter with the given `name`. The filter function returns the
+Add a recipe filter with the given `name`. The filter function returns the
 recipes to be displayed, given the available recipes and an `ObjectRef` to the
 user. Each recipe is a table of the form returned by
 `minetest.get_craft_recipe`.
@@ -181,7 +185,7 @@ end)
 
 #### `i3.set_recipe_filter(name, function(recipe, player))`
 
-Removes all recipe filters and adds a new one.
+Remove all recipe filters and add a new one.
 
 #### `i3.recipe_filters`
 
@@ -207,7 +211,7 @@ Notes:
 
 #### `i3.add_search_filter(name, function(item, values))`
 
-Adds a search filter.
+Add a search filter.
 The search function must return a boolean value (whether the given item should be listed or not).
 
 - `name` is the filter name.
@@ -241,7 +245,7 @@ Sorting methods are used to filter the player's main inventory.
 
 #### `i3.add_sorting_method(name, def)`
 
-Adds a player inventory sorting method.
+Add a player inventory sorting method.
 
 - `name` is the method name.
 - `def` is the method definition.
@@ -276,7 +280,7 @@ A table containing all sorting methods.
 
 #### `i3.compress(item, def)`
 
-Adds a new group of items to compress.
+Add a new group of items to compress.
 
 - `item` is the item which represent the group of compressed items.
 - `def` is a table specifying the substring replace patterns to be used.
@@ -301,7 +305,7 @@ A map of all compressed item groups, indexed by stereotypes.
 
 #### `i3.hud_notif(name, msg[, img])`
 
-Shows a Steam-like HUD notification on the bottom-right corner of the screen (experimental).
+Show a Steam-like HUD notification on the bottom-right corner of the screen (experimental).
 
 - `name` is the player name.
 - `msg` is the HUD message to show.
@@ -309,7 +313,7 @@ Shows a Steam-like HUD notification on the bottom-right corner of the screen (ex
 
 #### `i3.get_recipes(item)`
 
-Returns a table of recipes and usages of `item`.
+Return a table of recipes and usages of `item`.
 
 #### `i3.export_url`
 
