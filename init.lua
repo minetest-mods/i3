@@ -20,7 +20,7 @@ local function lf(path)
 end
 
 i3 = {
-	version = 1114,
+	version = 1115,
 	data = core.deserialize(storage:get_string"data") or {},
 
 	settings = {
