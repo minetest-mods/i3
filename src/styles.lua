@@ -95,7 +95,6 @@ local styles = string.format([[
 	style[search;content_offset=0]
 	style[pagenum,no_item,no_rcp;font=bold;font_size=18]
 	style[enable_search:hovered;bgimg=%s]
-	style[enable_search:pressed;bgimg=%s^[opacity:178]
 	style[exit;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[cancel;fgimg=%s;fgimg_hovered=%s;content_offset=0]
 	style[prev_page,prev_recipe,prev_usage,prev_sort,prev_skin;fgimg=%s;fgimg_hovered=%s]
@@ -112,7 +111,7 @@ local styles = string.format([[
 	style[confirm_trash_yes;sound=i3_trash]
 ]],
 PNG.slot,
-PNG.search_outline, PNG.search_outline,
+PNG.search_outline,
 PNG.exit,           PNG.exit_hover,
 PNG.cancel,         PNG.cancel_hover,
 PNG.prev,           PNG.prev_hover,
