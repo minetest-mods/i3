@@ -81,6 +81,10 @@ local function _load(path, line, data, t)
 	if not l then
 		local err_line = tonumber(err:match(":(%d+):"))
 
+		if t then
+			print("err_line", err_line, t[err_line])
+		end
+
 		if line ~= err_line then
 			return _load(path, err_line, data, t)
 		end

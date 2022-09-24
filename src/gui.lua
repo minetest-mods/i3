@@ -13,7 +13,7 @@ IMPORT("clr", "ESC", "msg", "check_privs")
 IMPORT("compression_active", "compressible")
 IMPORT("min", "max", "floor", "ceil", "round")
 IMPORT("reg_items", "reg_tools", "reg_entities")
-IMPORT("true_str", "is_fav", "is_num", "str_to_pos")
+IMPORT("true_str", "is_fav", "is_num", "is_str", "str_to_pos")
 IMPORT("get_bag_description", "get_detached_inv", "get_recipes")
 IMPORT("S", "ES", "translate", "ItemStack", "toupper", "utf8_len")
 IMPORT("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
@@ -141,20 +141,20 @@ local function get_inv_slots(data, fs)
 		box(i * size + inv_x + (i * spacing), inv_y, size, size, "")
 	end
 
-	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing),
-	   fmt("list[current_player;main;%f,%f;%u,1;]", inv_x, inv_y, hotbar_len))
+	fs("style_type[list;size=%f;spacing=%f]", size, spacing)
+	fs("list[current_player;main;%f,%f;%u,1;]", inv_x, inv_y, hotbar_len)
 
-	fs(fmt("style_type[list;size=%f;spacing=%f,%f]", size, spacing, legacy_inventory and 0.15 or spacing))
+	fs("style_type[list;size=%f;spacing=%f,%f]", size, spacing, legacy_inventory and 0.15 or spacing)
 
-	fs(fmt("list[current_player;main;%f,%f;%u,%u;%u]", inv_x, inv_y + (legacy_inventory and 1.25 or 1.15),
-		hotbar_len, data.inv_size / hotbar_len, hotbar_len))
+	fs("list[current_player;main;%f,%f;%u,%u;%u]", inv_x, inv_y + (legacy_inventory and 1.25 or 1.15),
+		hotbar_len, data.inv_size / hotbar_len, hotbar_len)
 
 	fs"style_type[list;size=1;spacing=0.15]"
 	fs"listring[current_player;craft]listring[current_player;main]"
 end
 
 local function add_subtitle(fs, name, y, ctn_len, font_size, sep, label)
-	fs(fmt("style[%s;font=bold;font_size=%u]", name, font_size))
+	fs("style[%s;font=bold;font_size=%u]", name, font_size)
 	button(0, y, ctn_len, 0.5, name, ESC(label))
 
 	if sep then
@@ -301,11 +301,11 @@ local function get_isometric_view(fs, pos, X, Y, t, cubes, depth, high)
 end
 
 local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
-	fs(fmt("box[0,%f;4.9,0.6;#bababa25]", yextra + 1.1))
+	fs("box[0,%f;4.9,0.6;#bababa25]", yextra + 1.1)
 	label(0, yextra + 0.85, ES"New waypoint" .. ":")
-	fs(fmt("field[0.1,%f;4.8,0.6;waypoint_name;;]", yextra + 1.1))
+	fs("field[0.1,%f;4.8,0.6;waypoint_name;;]", yextra + 1.1)
 	image_button(5.1, yextra + 1.15, 0.5, 0.5, "", "waypoint_add", "")
-	fs(fmt("tooltip[waypoint_add;%s]", ES"Add waypoint"))
+	fs("tooltip[waypoint_add;%s]", ES"Add waypoint")
 
 	if #data.waypoints == 0 then return end
 	fs"style_type[label;font=bold;font_size=17]"
@@ -332,7 +332,7 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 		label(0.15, y + 0.33, clr(fmt("#%s", hex), waypoint_name))
 
 		local tooltip = fmt("Name: %s\nPosition:%s", clr("#dbeeff", v.name),
-				v.pos:sub(2,-2):gsub("(%-*%d*%.?%d+)", clr("#dbeeff", " %1")))
+					v.pos:sub(2,-2):gsub("(%-*%d*%.?%d+)", clr("#dbeeff", " %1")))
 
 		if teleport_priv then
 			tooltip = fmt("%s\n%s", tooltip, clr("#ff0", ES"[Click to teleport]"))
@@ -341,25 +341,25 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 		tooltip(0, y, ctn_len - 2.1, 0.65, tooltip)
 
 		local del = fmt("waypoint_%u_delete", i)
-		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", del, PNG.trash, PNG.trash_hover))
+		fs("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", del, PNG.trash, PNG.trash_hover)
 		image_button(ctn_len - 0.5, yi, icon_size, icon_size, "", del, "")
-		fs(fmt("tooltip[%s;%s]", del, ES"Remove waypoint"))
+		fs("tooltip[%s;%s]", del, ES"Remove waypoint")
 
 		local rfs = fmt("waypoint_%u_refresh", i)
-		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", rfs, PNG.refresh, PNG.refresh_hover))
+		fs("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", rfs, PNG.refresh, PNG.refresh_hover)
 		image_button(ctn_len - 1, yi, icon_size, icon_size, "", rfs, "")
-		fs(fmt("tooltip[%s;%s]", rfs, ES"Change color"))
+		fs("tooltip[%s;%s]", rfs, ES"Change color")
 
 		local see = fmt("waypoint_%u_see", i)
-		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
-			see, waypoint_preview and PNG.search_hover or PNG.search, PNG.search, PNG.search_hover))
+		fs("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
+			see, waypoint_preview and PNG.search_hover or PNG.search, PNG.search, PNG.search_hover)
 		image_button(ctn_len - 1.5, yi, icon_size, icon_size, "", see, "")
-		fs(fmt("tooltip[%s;%s]", see, ES"Preview the waypoint area"))
+		fs("tooltip[%s;%s]", see, ES"Preview the waypoint area")
 
 		local vsb = fmt("waypoint_%u_hide", i)
-		fs(fmt("style[%s;fgimg=%s;content_offset=0]", vsb, v.hide and PNG.nonvisible or PNG.visible))
+		fs("style[%s;fgimg=%s;content_offset=0]", vsb, v.hide and PNG.nonvisible or PNG.visible)
 		image_button(ctn_len - 2, yi, icon_size, icon_size, "", vsb, "")
-		fs(fmt("tooltip[%s;%s]", vsb, v.hide and ES"Show waypoint" or ES"Hide waypoint"))
+		fs("tooltip[%s;%s]", vsb, v.hide and ES"Show waypoint" or ES"Hide waypoint")
 
 		if teleport_priv then
 			local tp = fmt("waypoint_%u_teleport", i)
@@ -381,7 +381,7 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 end
 
 local function get_bag_fs(fs, data, name, esc_name, bag_size, yextra)
-	fs(fmt("list[detached:i3_bag_%s;main;0,%f;1,1;]", esc_name, yextra + 0.7))
+	fs("list[detached:i3_bag_%s;main;0,%f;1,1;]", esc_name, yextra + 0.7)
 	local bag = get_detached_inv("bag", name)
 	if bag:is_empty"main" then return end
 
@@ -392,18 +392,18 @@ local function get_bag_fs(fs, data, name, esc_name, bag_size, yextra)
 	local desc = ESC(get_bag_description(data, bagstack))
 
 	image(0.5, yextra + 1.85, 0.6, 0.6, PNG.arrow_content)
-	fs(fmt("style[bg_content;bgimg=%s;fgimg=i3_blank.png;bgimg_middle=10,%u;sound=]", PNG.bg_content, m))
+	fs("style[bg_content;bgimg=%s;fgimg=i3_blank.png;bgimg_middle=10,%u;sound=]", PNG.bg_content, m)
 	image_button(1.1, yextra + 0.5 + (yy or 0), 4.75, h, "", "bg_content", "")
 
 	if not data.bag_rename then
 		hypertext(1.3, yextra + 0.8, 4.3, 0.6, "content",
 			fmt("<global size=16><center><b>%s</b></center>", desc))
 		image_button(5.22, yextra + 0.835, 0.25, 0.25, "", "bag_rename", "")
-		fs(fmt("tooltip[%s;%s]", "bag_rename", ES"Rename the bag"))
+		fs("tooltip[bag_rename;%s]", ES"Rename the bag")
 	else
 		box(1.7, yextra + 0.82, 2.6, 0.4, "#707070")
-		fs(fmt("field[1.8,%f;2.5,0.4;bag_newname;;%s]", yextra + 0.82, desc),
-		   "field_close_on_enter[bag_newname;false]")
+		fs("field[1.8,%f;2.5,0.4;bag_newname;;%s]", yextra + 0.82, desc)
+		fs"field_close_on_enter[bag_newname;false]"
 		hypertext(4.4, yextra + 0.88, 0.8, 0.6, "confirm_rename",
 			fmt("<global size=16><tag name=action color=#fff hovercolor=%s>" ..
 				"<center><b><action name=ok>OK</action></b></center>", colors.yellow))
@@ -415,8 +415,8 @@ local function get_bag_fs(fs, data, name, esc_name, bag_size, yextra)
 		x, size, spacing = 1.7, 0.8, 0.1
 	end
 
-	fs(fmt("style_type[list;size=%f;spacing=%f]", size, spacing))
-	fs(fmt("list[detached:i3_bag_content_%s;main;%f,%f;4,%u;]", esc_name, x, yextra + 1.3, bag_size))
+	fs("style_type[list;size=%f;spacing=%f]", size, spacing)
+	fs("list[detached:i3_bag_content_%s;main;%f,%f;4,%u;]", esc_name, x, yextra + 1.3, bag_size)
 	fs"style_type[list;size=1;spacing=0.15]"
 end
 
@@ -447,21 +447,21 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 		yoffset -= 0.5
 	end
 
-	fs(fmt("list[current_player;craft;%f,%f;3,3;]", 0, yoffset + 1.45))
+	fs("list[current_player;craft;%f,%f;3,3;]", 0, yoffset + 1.45)
 	image(3.47, yoffset + 2.69, 0.85, 0.85, PNG.arrow)
-	fs(fmt("list[current_player;craftpreview;%f,%f;1,1;]", 4.45, yoffset + 2.6),
-	   fmt("list[detached:i3_trash;main;%f,%f;1,1;]", 4.45, yoffset + 3.75))
+	fs("list[current_player;craftpreview;%f,%f;1,1;]", 4.45, yoffset + 2.6)
+	fs("list[detached:i3_trash;main;%f,%f;1,1;]", 4.45, yoffset + 3.75)
 	image(4.45, yoffset + 3.75, 1, 1, PNG.trash)
 
 	local yextra = damage_enabled and 5.5 or 5
 
 	for i, title in ipairs(i3.categories) do
 		local btn_name = fmt("btn_%s", title)
-		fs(fmt("style[btn_%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", title,
+		fs("style[btn_%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", title,
 			data.subcat == i and PNG[fmt("%s_hover", title)] or PNG[title],
-			PNG[fmt("%s_hover", title)]))
+			PNG[fmt("%s_hover", title)])
 		image_button(0.25 + ((i - 1) * 1.18), yextra - 0.2, 0.5, 0.5, "", btn_name, "")
-		fs(fmt("tooltip[%s;%s]", btn_name, title:gsub("^%l", upper)))
+		fs("tooltip[%s;%s]", btn_name, title:gsub("^%l", upper))
 	end
 
 	box(0, yextra + 0.45, ctn_len, 0.045, "#bababa50")
@@ -484,7 +484,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 		local armor_def = armor.def[name]
 		local _, armor_inv = armor:get_valid_player(player, "3d_armor")
 
-		fs(fmt("list[detached:%s_armor;armor;0,%f;5,1;]", esc_name, yextra + 0.7))
+		fs("list[detached:%s_armor;armor;0,%f;5,1;]", esc_name, yextra + 0.7)
 
 		for i = 1, 5 do
 			local stack = armor_inv:get_stack("armor", i)
@@ -548,11 +548,10 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 			if not skin then break end
 			local btn_name = fmt("skin_btn_%u", i + 1)
 
-			fs(fmt([[ style[%s;padding=10;
-					fgimg=%s;bgimg=%s;bgimg_hovered=i3_btn9_hovered.png;
+			fs([[ style[%s;padding=10;fgimg=%s;bgimg=%s;bgimg_hovered=i3_btn9_hovered.png;
 					bgimg_pressed=i3_btn9_pressed.png;bgimg_middle=4,6] ]],
 				btn_name, skin:get_preview(),
-				skin.name == skin_name and "i3_btn9_hovered.png" or "i3_btn9.png"))
+				skin.name == skin_name and "i3_btn9_hovered.png" or "i3_btn9.png")
 
 			local X = (i % 3) * 1.93
 
@@ -560,7 +559,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 			      Y += (Y * 2.45) + yextra - 2.75 + add_y
 
 			image_button(X, Y, 1.86, 3.4, "", btn_name, "")
-			fs(fmt("tooltip[%s;%s]", btn_name, ESC(skin.name)))
+			fs("tooltip[%s;%s]", btn_name, ESC(skin.name))
 		end
 
 	elseif data.subcat == 4 then
@@ -591,19 +590,19 @@ local function show_settings(fs, data)
 		local show_sorting = data.show_setting == "sorting"
 
 		fs"style[setting_home,setting_style,setting_sorting;font=bold;font_size=16;sound=i3_click]"
-		fs(fmt("style[setting_home:hovered;textcolor=%s]", show_home and colors.yellow or "#fff"))
-		fs(fmt("style[setting_style:hovered;textcolor=%s]", show_style and colors.yellow or "#fff"))
-		fs(fmt("style[setting_sorting:hovered;textcolor=%s]", show_sorting and colors.yellow or "#fff"))
+		fs("style[setting_home:hovered;textcolor=%s]", show_home and colors.yellow or "#fff")
+		fs("style[setting_style:hovered;textcolor=%s]", show_style and colors.yellow or "#fff")
+		fs("style[setting_sorting:hovered;textcolor=%s]", show_sorting and colors.yellow or "#fff")
 
-		fs(fmt("style[setting_home;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;textcolor=%s]",
+		fs("style[setting_home;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;textcolor=%s]",
 			show_home and PNG.pagenum_hover or "", PNG.pagenum_hover,
-			show_home and colors.yellow or "#ddd"),
-		   fmt("style[setting_style;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;textcolor=%s]",
+			show_home and colors.yellow or "#ddd")
+		fs("style[setting_style;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;textcolor=%s]",
 			show_style and PNG.pagenum_hover or "", PNG.pagenum_hover,
-			show_style and colors.yellow or "#ddd"),
-		   fmt("style[setting_sorting;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;textcolor=%s]",
+			show_style and colors.yellow or "#ddd")
+		fs("style[setting_sorting;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;textcolor=%s]",
 			show_sorting and PNG.pagenum_hover or "", PNG.pagenum_hover,
-			show_sorting and colors.yellow or "#ddd"))
+			show_sorting and colors.yellow or "#ddd")
 
 		local X = 2.5
 		button(X, 9.1, 1.6, 0.55, "setting_home", "Home")
@@ -635,15 +634,15 @@ local function show_settings(fs, data)
 			label(5.3, 9.95, ES"Font size" .. fmt(": %s", sign .. data.font_size))
 
 			local range = 5
-			fs(fmt("scrollbaroptions[min=-%u;max=%u;smallstep=1;largestep=1;thumbsize=2]", range, range))
-			fs(fmt("scrollbar[5.3,10.25;2.45,0.3;horizontal;sb_font_size;%d]", data.font_size))
+			fs("scrollbaroptions[min=-%u;max=%u;smallstep=1;largestep=1;thumbsize=2]", range, range)
+			fs("scrollbar[5.3,10.25;2.45,0.3;horizontal;sb_font_size;%d]", data.font_size)
 
-			fs(fmt("tooltip[cb_hide_tabs;%s;#707070;#fff]",
-				ES"Enable this option to change the style of the right panel"),
-			   fmt("tooltip[cb_legacy_inventory;%s;#707070;#fff]",
-				ES"Enable this option to set the classic inventory size in Minetest"),
-			   fmt("tooltip[cb_wielditem_hud;%s;#707070;#fff]",
-				ES"Enable this option to show the wielded item description in your HUD"))
+			fs("tooltip[cb_hide_tabs;%s;#707070;#fff]",
+				ES"Enable this option to change the style of the right panel")
+			fs("tooltip[cb_legacy_inventory;%s;#707070;#fff]",
+				ES"Enable this option to set the classic inventory size in Minetest")
+			fs("tooltip[cb_wielditem_hud;%s;#707070;#fff]",
+				ES"Enable this option to show the wielded item description in your HUD")
 
 		elseif show_sorting then
 			checkbox(2.6, 9.95, "cb_inv_compress", "Compression", tostring(data.inv_compress))
@@ -659,22 +658,22 @@ local function show_settings(fs, data)
 			end
 
 			label(5.4, 10.4, ES"Sorting method:")
-			fs(fmt("dropdown[%f,%f;2.4,0.5;dd_sorting_method;%s;%u;true]",
-				5.4, 10.6, concat(methods, ","), data.sort))
+			fs("dropdown[%f,%f;2.4,0.5;dd_sorting_method;%s;%u;true]",
+				5.4, 10.6, concat(methods, ","), data.sort)
 
 			local desc = i3.sorting_methods[data.sort].description
 			if desc then
 				tooltip(5.4, 10.6, 2.4, 0.5, ESC(desc))
 			end
 
-			fs(fmt("tooltip[cb_inv_compress;%s;#707070;#fff]",
-				ES"Enable this option to compress your inventory"),
-			   fmt("tooltip[cb_reverse_sorting;%s;#707070;#fff]",
-				ES"Enable this option to sort your inventory in reverse order"),
-			   fmt("tooltip[cb_ignore_hotbar;%s;#707070;#fff]",
-				ES"Enable this option to sort your inventory except the hotbar slots"),
-			   fmt("tooltip[cb_auto_sorting;%s;#707070;#fff]",
-				ES"Enable this option to sort your inventory automatically"))
+			fs("tooltip[cb_inv_compress;%s;#707070;#fff]",
+				ES"Enable this option to compress your inventory")
+			fs("tooltip[cb_reverse_sorting;%s;#707070;#fff]",
+				ES"Enable this option to sort your inventory in reverse order")
+			fs("tooltip[cb_ignore_hotbar;%s;#707070;#fff]",
+				ES"Enable this option to sort your inventory except the hotbar slots")
+			fs("tooltip[cb_auto_sorting;%s;#707070;#fff]",
+				ES"Enable this option to sort your inventory automatically")
 		end
 	end
 end
@@ -755,14 +754,12 @@ local function get_inventory_fs(player, data, fs)
 		end
 	end
 
-	fs(fmt([[
-		scrollbaroptions[arrows=hide;thumbsize=%d;max=%d]
+	fs([[   scrollbaroptions[arrows=hide;thumbsize=%d;max=%d]
 		scrollbar[%f,0.2;0.2,%f;vertical;scrbar_inv;%u]
-		scrollbaroptions[arrows=default;thumbsize=0;max=1000]
-	]],
-	(max_val * 4) / 12, max_val, 9.8, ctn_hgt, data.scrbar_inv))
+		scrollbaroptions[arrows=default;thumbsize=0;max=1000]   ]],
+	(max_val * 4) / 12, max_val, 9.8, ctn_hgt, data.scrbar_inv)
 
-	fs(fmt("scroll_container[3.9,0.2;%f,%f;scrbar_inv;vertical]", ctn_len, ctn_hgt))
+	fs("scroll_container[3.9,0.2;%f,%f;scrbar_inv;vertical]", ctn_len, ctn_hgt)
 	get_container(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb, bag_size)
 	fs"scroll_container_end[]"
 
@@ -775,10 +772,10 @@ local function get_inventory_fs(player, data, fs)
 
 	for i, v in ipairs(btn) do
 		local btn_name, tooltip = unpack(v)
-		fs(fmt("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
-			btn_name, PNG[btn_name], PNG[fmt("%s_hover", btn_name)]))
+		fs("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
+			btn_name, PNG[btn_name], PNG[fmt("%s_hover", btn_name)])
 		image_button(i + 3.43 - (i * 0.4), 11.43, 0.35, 0.35, "", btn_name, "")
-		fs(fmt("tooltip[%s;%s]", btn_name, tooltip))
+		fs("tooltip[%s;%s]", btn_name, tooltip)
 	end
 
 	show_settings(fs, data)
@@ -940,9 +937,9 @@ local function get_output_fs(fs, data, rcp, is_recipe, is_usage, shapeless, righ
 	if meta:get_string"color" ~= "" or meta:get_string"palette_index" ~= "" then
 		local rcp_usg = is_recipe and "rcp" or "usg"
 
-		fs(fmt("style_type[list;size=%f]", BTN_SIZE))
+		fs("style_type[list;size=%f]", BTN_SIZE)
 		fs"listcolors[#bababa50;#bababa99]"
-		fs(fmt("list[detached:i3_output_%s_%s;main;%f,%f;1,1;]", rcp_usg, data.player_name, X + 0.11, Y))
+		fs("list[detached:i3_output_%s_%s;main;%f,%f;1,1;]", rcp_usg, data.player_name, X + 0.11, Y)
 		button(X + 0.11, Y, BTN_SIZE, BTN_SIZE, _name, "")
 
 		local inv = get_detached_inv(fmt("output_%s", rcp_usg), data.player_name)
@@ -1218,19 +1215,19 @@ local function get_header(fs, data)
 
 	if nfavs < max_favs or (nfavs == max_favs and fav) then
 		local fav_marked = fmt("i3_fav%s.png", fav and "_off" or "")
-		fs(fmt("style[fav;fgimg=%s;fgimg_hovered=%s;fgimg_pressed=%s]",
-			fmt("i3_fav%s.png", fav and "" or "_off"), fav_marked, fav_marked))
+		fs("style[fav;fgimg=%s;fgimg_hovered=%s;fgimg_pressed=%s]",
+			fmt("i3_fav%s.png", fav and "" or "_off"), fav_marked, fav_marked)
 		image_button(star_x, star_y, size, size, "", "fav", "")
-		fs(fmt("tooltip[fav;%s]", fav and ES"Unmark this item" or ES"Mark this item"))
+		fs("tooltip[fav;%s]", fav and ES"Unmark this item" or ES"Mark this item")
 	else
-		fs(fmt("style[nofav;fgimg=%s;fgimg_hovered=%s;fgimg_pressed=%s]",
-			"i3_fav_off.png", PNG.cancel, PNG.cancel))
+		fs("style[nofav;fgimg=%s;fgimg_hovered=%s;fgimg_pressed=%s]",
+			"i3_fav_off.png", PNG.cancel, PNG.cancel)
 		image_button(star_x, star_y, size, size, "", "nofav", "")
-		fs(fmt("tooltip[nofav;%s]", ES"Cannot mark this item. Bookmark limit reached."))
+		fs("tooltip[nofav;%s]", ES"Cannot mark this item. Bookmark limit reached.")
 	end
 
 	image_button(star_x + 0.05, star_y + 0.6, size, size, "", "exit", "")
-	fs(fmt("tooltip[exit;%s]", ES"Back to item list"))
+	fs("tooltip[exit;%s]", ES"Back to item list")
 
 	local desc_lim, name_lim = 34, 35
 	local desc = get_desc(data.query_item, data.lang_code)
@@ -1270,10 +1267,10 @@ local function get_crafting_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, ma
 	local name = is_recipe and "rcp" or "usg"
 	local show_crafting = (is_recipe and data.crafting_rcp) or (is_usage and data.crafting_usg)
 
-	fs(fmt("style[crafting_%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
-		name, fmt("%s", show_crafting and PNG.crafting_hover or PNG.crafting), PNG.crafting_hover))
+	fs("style[crafting_%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
+		name, fmt("%s", show_crafting and PNG.crafting_hover or PNG.crafting), PNG.crafting_hover)
 	image_button(data.inv_width + 7.35, data.yoffset + 0.2, 0.45, 0.45, "", fmt("crafting_%s", name), "")
-	fs(fmt("tooltip[crafting_%s;%s]", name, ES"Quick crafting"))
+	fs("tooltip[crafting_%s;%s]", name, ES"Quick crafting")
 
 	if not show_crafting then return end
 
@@ -1297,8 +1294,8 @@ local function get_crafting_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, ma
 	fs"style[quick_crafting;font_size=16;textcolor=#ddd]"
 	button(x, data.yoffset + 0.85, 3.05, 0.55, "quick_crafting", ES"Quick Crafting")
 
-	fs(fmt("style[scrbar_%s;noclip=true]", name),
-	   fmt("scrollbaroptions[min=1;max=%u;smallstep=1]", craft_max))
+	fs("style[scrbar_%s;noclip=true]", name)
+	fs("scrollbaroptions[min=1;max=%u;smallstep=1]", craft_max)
 
 	scrollbar(x + 0.2, data.yoffset + 1.45, 2.5, 0.35, "horizontal", fmt("scrbar_%s", name), stack_fs)
 	button(x + 0.2, data.yoffset + 1.85, 2.5, 0.7, fmt("craft_%s", name), ES("Craft (×@1)", stack_fs))
@@ -1380,17 +1377,17 @@ local function get_header_items_fs(fs, data)
 	fs"set_focus[filter;true]"
 
 	if data.hide_tabs then
-		fs(fmt("style[enable_search;bgimg=%s;bgimg_hovered=%s;bgimg_pressed=%s]",
-			data.enable_search and PNG.search_hover or PNG.search, PNG.search_hover, PNG.search_hover))
+		fs("style[enable_search;bgimg=%s;bgimg_hovered=%s;bgimg_pressed=%s]",
+			data.enable_search and PNG.search_hover or PNG.search, PNG.search_hover, PNG.search_hover)
 		image_button(X + 0.3, 0.2, 0.5, 0.5, "", "enable_search", "")
-		fs(fmt("tooltip[enable_search;%s]", ES"Search"))
+		fs("tooltip[enable_search;%s]", ES"Search")
 
 		if data.enable_search then
 			image(X + 0.4, 0.75, 3.4, 0.8, PNG.bg_goto)
 
-			fs("style[filter;font_size=16]",
-			   fmt("field[%f,%f;3,0.45;filter;;%s]", X + 0.6, 0.95, data.filter),
-			   "field_close_on_enter[filter;false]")
+			fs"style[filter;font_size=16]"
+			fs("field[%f,%f;3,0.45;filter;;%s]", X + 0.6, 0.95, data.filter)
+			fs"field_close_on_enter[filter;false]"
 		end
 
 		box(X + 1, 0.2, 0.01, 0.5, "#bababa50")
@@ -1400,20 +1397,20 @@ local function get_header_items_fs(fs, data)
 			local name, desc = unpack(cat[i])
 			local active = PNG[name .. "_hover"]
 
-			fs(fmt("style[itab_%u;bgimg=%s;bgimg_hovered=%s;bgimg_pressed=%s;sound=i3_tab]",
-				i, data.itab == i and active or PNG[name], active, active))
+			fs("style[itab_%u;bgimg=%s;bgimg_hovered=%s;bgimg_pressed=%s;sound=i3_tab]",
+				i, data.itab == i and active or PNG[name], active, active)
 			image_button(X + 1.25 + ((i - 1) * 0.7), 0.2, 0.5, 0.5, "", fmt("itab_%s", i), "")
-			fs(fmt("tooltip[itab_%u;Show %s]", i, desc))
+			fs("tooltip[itab_%u;Show %s]", i, desc)
 		end
 	else
-		fs(fmt("style[search;bgimg=%s]", PNG.search_hover))
+		fs("style[search;bgimg=%s]", PNG.search_hover)
 		image_button(X + 0.35, 0.32, 0.35, 0.35, "", "search", "")
-		fs(fmt("tooltip[search;%s]", ES"Search"))
+		fs("tooltip[search;%s]", ES"Search")
 
 		if data.enable_search then
-			fs("style[filter;font_size=18]",
-			   fmt("field[%f,0.2;3.35,0.6;filter;;%s]", X + 0.85, ESC(data.filter)),
-			   "field_close_on_enter[filter;false]")
+			fs"style[filter;font_size=18]"
+			fs("field[%f,0.2;3.35,0.6;filter;;%s]", X + 0.85, ESC(data.filter))
+			fs"field_close_on_enter[filter;false]"
 
 			if not true_str(data.filter) then
 				image(X + 0.85, 0.75, 4, 0.01, PNG.search_outline_trim .. "^[opacity:100")
@@ -1427,7 +1424,7 @@ local function get_header_items_fs(fs, data)
 
 		if true_str(data.filter) then
 			image_button(X + 4.3, 0.4, 0.2, 0.2,  "", "cancel", "")
-			fs(fmt("tooltip[cancel;%s]", ES"Clear"))
+			fs("tooltip[cancel;%s]", ES"Clear")
 			box(X + 0.85, 0.75, 3.74, 0.01, "#f9826c")
 		end
 	end
@@ -1435,8 +1432,8 @@ local function get_header_items_fs(fs, data)
 	image_button(X + 5.27, 0.3, 0.35, 0.35, "", "prev_page", "")
 	image_button(X + 7.45, 0.3, 0.35, 0.35, "", "next_page", "")
 
-	fs(fmt("style[pagenum;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;sound=i3_click]",
-		data.goto_page and PNG.pagenum_hover or "", PNG.pagenum_hover))
+	fs("style[pagenum;bgimg=%s;bgimg_hovered=%s;bgimg_middle=9;padding=-9;sound=i3_click]",
+		data.goto_page and PNG.pagenum_hover or "", PNG.pagenum_hover)
 
 	button(X + 5.8, 0.14, 1.48, 0.7, "pagenum",
 		fmt("%s / %u", clr(colors.yellow, data.pagenum), data.pagemax))
@@ -1447,9 +1444,9 @@ local function get_header_items_fs(fs, data)
 		label(X + 5, 1.25, ES"Go to page" .. ":")
 		box(X + 6.5, 1, 1, 0.45, "#bababa10")
 
-		fs(fmt("style[goto_page;font=mono,bold;font_size=16;textcolor=%s]", colors.yellow),
-		   fmt("field[%f,%f;1,0.45;goto_page;;%s]", X + 6.55, 1.05, data.pagenum),
-		   "field_close_on_enter[goto_page;false]")
+		fs("style[goto_page;font=mono,bold;font_size=16;textcolor=%s]", colors.yellow)
+		fs("field[%f,%f;1,0.45;goto_page;;%s]", X + 6.55, 1.05, data.pagenum)
+		fs"field_close_on_enter[goto_page;false]"
 
 		fs"style_type[label;font_size=16;textcolor=#fff]"
 	end
@@ -1463,11 +1460,11 @@ local function get_minitabs(fs, data, full_height)
 		local selected = i == data.itab
 		local hover_texture = selected and PNG.tab_small_hover or PNG.tab_small
 
-		fs(fmt([[style_type[image_button;bgimg=%s;bgimg_hovered=%s;
-			bgimg_middle=14,0,-14,-14;padding=-14,0,14,14] ]], hover_texture, PNG.tab_small_hover))
+		fs([[ style_type[image_button;bgimg=%s;bgimg_hovered=%s;
+			bgimg_middle=14,0,-14,-14;padding=-14,0,14,14] ]], hover_texture, PNG.tab_small_hover)
 
-		fs(fmt([[style_type[image_button;noclip=true;font=bold;font_size=16;
-			textcolor=%s;content_offset=0;sound=i3_tab] ]], selected and "#fff" or "#bbb"))
+		fs([[ style_type[image_button;noclip=true;font=bold;font_size=16;
+			textcolor=%s;content_offset=0;sound=i3_tab] ]], selected and "#fff" or "#bbb")
 		fs"style_type[image_button:hovered;textcolor=#fff]"
 		image_button((data.inv_width - 0.65) + (i * (tab_len + 0.1)),
 			full_height, tab_len, tab_hgh, "", fmt("itab_%u", i), title)
@@ -1517,7 +1514,7 @@ local function get_items_fs(fs, data, player, full_height)
 			if compressible(item, data) then
 				local expand = data.expand == name
 
-				fs(fmt("tooltip[%s;%s]", item, expand and ES"Click to hide" or ES"Click to expand"))
+				fs("tooltip[%s;%s]", item, expand and ES"Click to hide" or ES"Click to expand")
 				fs"style_type[label;font=bold;font_size=20]"
 				label(X + 0.65, Y + 0.7, expand and "-" or "+")
 				fs"style_type[label;font=normal;font_size=16]"
@@ -1597,11 +1594,11 @@ local function get_tabs_fs(fs, player, data, full_height)
 		local middle = btm and "16,0,-16,-16" or "16,16,-16,-16"
 		local padding = btm and "-16,0,16,16" or "-16,-16,16,16"
 
-		fs(fmt([[style_type[image_button;bgimg=%s;bgimg_hovered=%s;bgimg_middle=%s;padding=%s] ]],
-			bgimg, bgimg_hover, middle, padding))
+		fs([[ style_type[image_button;bgimg=%s;bgimg_hovered=%s;bgimg_middle=%s;padding=%s] ]],
+			bgimg, bgimg_hover, middle, padding)
 
-		fs(fmt("style_type[image_button;noclip=true;font_size=16;textcolor=%s;content_offset=0;sound=i3_tab]",
-			selected and "#fff" or "#ddd"))
+		fs("style_type[image_button;noclip=true;font_size=16;textcolor=%s;content_offset=0;sound=i3_tab]",
+			selected and "#fff" or "#ddd")
 
 		local X = (data.inv_width / 2) + (c * (tab_len + 0.1)) - ((tab_len + 0.05) * (shift / 2))
 		local Y = btm and full_height or -tab_hgh
@@ -1654,10 +1651,13 @@ local function make_fs(player, data)
 	local fs = setmetatable({}, {
 		__call = function(t, ...)
 			local args = {...}
-			local elem = fs_elements[args[1]]
+			local arg1 = args[1]
+			local elem = fs_elements[arg1]
 
 			if elem then
 				insert(t, fmt(elem, select(2, ...)))
+			elseif is_str(arg1) and select("#", ...) > 1 then
+				insert(t, fmt(arg1, select(2, ...)))
 			else
 				insert(t, concat(args))
 			end
@@ -1667,8 +1667,10 @@ local function make_fs(player, data)
 	data.inv_width = 10.23
 	local full_height = 12
 
-	fs(fmt("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
-		i3.settings.min_fs_version, data.inv_width + 8, full_height), styles)
+	fs("formspec_version[%u]size[%f,%f]no_prepend[]bgcolor[#0000]",
+		i3.settings.min_fs_version, data.inv_width + 8, full_height)
+
+	fs(styles)
 
 	bg9(0, 0, data.inv_width, full_height, PNG.bg_full)
 
