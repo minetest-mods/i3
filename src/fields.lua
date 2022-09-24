@@ -19,6 +19,12 @@ local function inv_fields(player, data, fields)
 		return
 	end
 
+	if fields.dd_sorting_method then
+		data.sort = tonumber(fields.dd_sorting_method)
+	elseif fields.sb_font_size then
+		data.font_size = tonumber(fields.sb_font_size:match"-?%d+$")
+	end
+
 	for field in pairs(fields) do
 		if sub(field, 1, 4) == "btn_" then
 			data.subcat = indexof(i3.categories, sub(field, 5))
@@ -128,9 +134,6 @@ local function inv_fields(player, data, fields)
 	elseif fields.sort then
 		sort_inventory(player, data)
 
-	elseif fields.dd_sorting_method then
-		data.sort = tonumber(fields.dd_sorting_method)
-
 	elseif fields.home then
 		if not data.home then
 			return msg(name, "No home set")
@@ -146,9 +149,6 @@ local function inv_fields(player, data, fields)
 
 	elseif fields.bag_rename then
 		data.bag_rename = true
-
-	elseif fields.sb_font_size then
-		data.font_size = tonumber(fields.sb_font_size:match"-?%d+$")
 
 	elseif fields.confirm_rename then
 		local bag = get_detached_inv("bag", name)
@@ -428,7 +428,7 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 
 	if formname == "i3_outdated" then
 		return false, core.kick_player(name,
-			S"Come back when your Minetest client is up-to-date (www.minetest.net).")
+			S"Your Minetest client needs updating (www.minetest.net)")
 	elseif formname ~= "" then
 		return false
 	end
