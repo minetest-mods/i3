@@ -48,6 +48,8 @@ local function inv_fields(player, data, fields)
 		elseif sub(field, 1, 9) == "skin_btn_" then
 			local id = tonumber(field:match("%d+"))
 			local _skins = skins.get_skinlist_for_player(name)
+
+			play_sound(name, "i3_skin_change", 0.6)
 			skins.set_player_skin(player, _skins[id])
 
 		elseif find(field, "waypoint_%d+") then

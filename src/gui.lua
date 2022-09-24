@@ -13,7 +13,7 @@ IMPORT("clr", "ESC", "msg", "check_privs")
 IMPORT("compression_active", "compressible")
 IMPORT("min", "max", "floor", "ceil", "round")
 IMPORT("reg_items", "reg_tools", "reg_entities")
-IMPORT("true_str", "is_fav", "is_num", "is_str", "str_to_pos")
+IMPORT("true_str", "is_fav", "is_num", "str_to_pos")
 IMPORT("get_bag_description", "get_detached_inv", "get_recipes")
 IMPORT("S", "ES", "translate", "ItemStack", "toupper", "utf8_len")
 IMPORT("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
@@ -549,7 +549,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 			local btn_name = fmt("skin_btn_%u", i + 1)
 
 			fs([[ style[%s;padding=10;fgimg=%s;bgimg=%s;bgimg_hovered=i3_btn9_hovered.png;
-					bgimg_pressed=i3_btn9_pressed.png;bgimg_middle=4,6] ]],
+					bgimg_pressed=i3_btn9_pressed.png;bgimg_middle=4,6;sound=] ]],
 				btn_name, skin:get_preview(),
 				skin.name == skin_name and "i3_btn9_hovered.png" or "i3_btn9.png")
 
@@ -1651,13 +1651,12 @@ local function make_fs(player, data)
 	local fs = setmetatable({}, {
 		__call = function(t, ...)
 			local args = {...}
-			local arg1 = args[1]
-			local elem = fs_elements[arg1]
 
-			if elem then
-				insert(t, fmt(elem, select(2, ...)))
-			elseif is_str(arg1) and select("#", ...) > 1 then
-				insert(t, fmt(arg1, select(2, ...)))
+			if select("#", ...) > 1 then
+				local arg1 = args[1]
+				local elem = fs_elements[arg1]
+
+				insert(t, fmt(elem or arg1, select(2, ...)))
 			else
 				insert(t, concat(args))
 			end
