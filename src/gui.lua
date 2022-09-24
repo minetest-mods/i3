@@ -7,8 +7,8 @@ local PNG, styles, fs_elements, colors = i3.files.styles()
 local sprintf = string.format
 local VoxelArea, VoxelManip = VoxelArea, VoxelManip
 
+IMPORT("vec", "vec_round")
 IMPORT("find", "match", "sub", "upper")
-IMPORT("vec_new", "vec_sub", "vec_round")
 IMPORT("clr", "ESC", "msg", "check_privs")
 IMPORT("compression_active", "compressible")
 IMPORT("min", "max", "floor", "ceil", "round")
@@ -240,8 +240,8 @@ local function get_isometric_view(fs, pos, X, Y, t, cubes, depth, high)
 	local max_depth = -7
 	local height = base_depth and (base_height - 1) or depth
 
-	local pos1 = vec_new(pos.x - width, pos.y + depth, pos.z - width)
-	local pos2 = vec_new(pos.x + width, pos.y + height, pos.z + width)
+	local pos1 = vec(pos.x - width, pos.y + depth, pos.z - width)
+	local pos2 = vec(pos.x + width, pos.y + height, pos.z + width)
 
 	local vm = VoxelManip(pos1, pos2)
 	local emin, emax = vm:get_emerged_area()
@@ -255,7 +255,7 @@ local function get_isometric_view(fs, pos, X, Y, t, cubes, depth, high)
 
 		if img then
 			local p = area:position(idx)
-			      p = vec_sub(p, pos)
+			      p -= pos
 
 			local size = 0.25
 			local x = 2 + (size / 2 * (p.z - p.x))

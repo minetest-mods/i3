@@ -1,7 +1,7 @@
 local set_fs = i3.set_fs
 
+IMPORT("min", "max", "vec_round")
 IMPORT("reg_items", "reg_aliases")
-IMPORT("min", "max", "vec_eq", "vec_round")
 IMPORT("S", "random", "translate", "ItemStack")
 IMPORT("sort", "copy", "insert", "remove", "indexof")
 IMPORT("fmt", "find", "match", "sub", "lower", "split", "toupper")
@@ -180,7 +180,7 @@ local function inv_fields(player, data, fields)
 		local pos = player:get_pos()
 
 		for _, v in ipairs(data.waypoints) do
-			if vec_eq(vec_round(pos), vec_round(str_to_pos(v.pos))) then
+			if vec_round(pos) == vec_round(str_to_pos(v.pos)) then
 				play_sound(name, "i3_cannot", 0.8)
 				return msg(name, S"You already have set a waypoint at this position")
 			end

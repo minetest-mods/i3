@@ -1,8 +1,8 @@
+local vec = vector.new
 local ItemStack = ItemStack
 local loadstring = loadstring
 local reg_items = core.registered_items
 local translate = core.get_translated_string
-local vec_new, vec_add, vec_mul = vector.new, vector.add, vector.multiply
 local sort, concat, insert = table.sort, table.concat, table.insert
 local min, floor, ceil = math.min, math.floor, math.ceil
 local fmt, find, match, gmatch, sub, split, lower, upper =
@@ -376,7 +376,7 @@ local function spawn_item(player, stack)
 	local dir     = player:get_look_dir()
 	local ppos    = player:get_pos()
 	      ppos.y  = ppos.y + player:get_properties().eye_height
-	local look_at = vec_add(ppos, vec_mul(dir, 1))
+	local look_at = ppos + dir
 
 	core.add_item(look_at, stack)
 end
@@ -473,9 +473,9 @@ local function safe_teleport(player, pos)
 	play_sound(name, "i3_teleport", 0.8)
 
 	local vel = player:get_velocity()
-	player:add_velocity(vec_mul(vel, -1))
+	player:add_velocity(-vel)
 
-	local p = vec_new(pos)
+	local p = vec(pos)
 	      p.y += 0.25
 
 	player:set_pos(p)
@@ -780,12 +780,8 @@ local _ = {
 	random = math.random,
 
 	-- Vectors
-	vec_new = vector.new,
-	vec_add = vector.add,
-	vec_sub = vector.subtract,
-	vec_mul = vector.multiply,
+	vec = vector.new,
 	vec_round = vector.round,
-	vec_eq = vector.equals,
 }
 
 function i3.get(...)
