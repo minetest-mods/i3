@@ -3,7 +3,7 @@ local make_fs, get_inventory_fs = i3.files.gui()
 
 IMPORT("gmatch", "split")
 IMPORT("S", "err", "fmt", "reg_items")
-IMPORT("sorter", "sort_inventory")
+IMPORT("sorter", "sort_inventory", "play_sound")
 IMPORT("sort", "concat", "copy", "insert", "remove")
 IMPORT("true_str", "true_table", "is_str", "is_func", "is_table", "clean_name")
 
@@ -323,8 +323,10 @@ function i3.hud_notif(name, msg, img)
 	data.show_hud = true
 	data.hud_msg = msg
 
+	play_sound(name, "i3_achievement", 1.0)
+
 	if img then
-		data.hud_img = fmt("%s^[resize:16x16", img)
+		data.hud_img = fmt("%s^[resize:64x64", img)
 	end
 end
 

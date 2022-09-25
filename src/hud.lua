@@ -26,7 +26,7 @@ local function init_hud(player)
 			hud_elem_type = "image",
 			position      = {x = 0.79, y = 1.02},
 			alignment     = {x = 1,    y = 1},
-			scale         = {x = 4,    y = 4},
+			scale         = {x = 1,    y = 1},
 			text          = "",
 			z_index       = 0xDEAD,
 		},
@@ -59,7 +59,7 @@ local function show_hud(player, data)
 	-- 2 calls for the notification's back and forth.
 
 	local hud_info_bg = player:hud_get(data.hud.bg)
-	local dt = 0.016
+	local dt = 0.025
 
 	if hud_info_bg.position.y <= 0.9 then
 		data.show_hud = false

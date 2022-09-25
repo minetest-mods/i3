@@ -2,11 +2,12 @@ local set_fs = i3.set_fs
 local hud_notif = i3.hud_notif
 local POLL_FREQ = 0.25
 
+IMPORT("reg_items", "reg_nodes")
 IMPORT("fmt", "search", "table_merge", "array_diff")
 IMPORT("is_group", "extract_groups", "item_has_groups", "apply_recipe_filters")
 
 local function get_filtered_items(player, data)
-	local items, known, c = {}, 0, 0
+	local items, known = {}, 0
 
 	for i = 1, #i3.init_items do
 		local item = i3.init_items[i]
@@ -17,8 +18,7 @@ local function get_filtered_items(player, data)
 		usages = #apply_recipe_filters(usages or {}, player)
 
 		if recipes > 0 or usages > 0 then
-			c++
-			items[c] = item
+			items[item] = true
 			known += recipes + usages
 		end
 	end
@@ -133,10 +133,18 @@ local function poll_new_items(player, data, join)
 
 		if data.discovered > 0 then
 			local msg = fmt("%u new recipe%s unlocked!", data.discovered, data.discovered > 1 and "s" or "")
-			hud_notif(data.player_name, msg, "i3_book.png")
+			local last_discovered = diff[1]
+			local img = reg_items[last_discovered].inventory_image
+
+			if reg_nodes[last_discovered] then
+				local id = core.get_content_id(last_discovered)
+				img = i3.cubes[id] or img
+			end
+
+			hud_notif(data.player_name, msg, img)
 		end
 
-		data.items_raw = items
+		data.items_progress = items
 		data.itab = 1
 
 		search(data)

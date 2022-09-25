@@ -328,7 +328,7 @@ local function apply_recipe_filters(recipes, player)
 end
 
 local function compression_active(data)
-	return i3.settings.item_compression and not next(i3.recipe_filters) and data.filter == ""
+	return data.collapse and not next(i3.recipe_filters) and data.filter == ""
 end
 
 local function compressible(item, data)

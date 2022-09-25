@@ -203,6 +203,17 @@ local function init_data(player, info)
 	local name = player:get_player_name()
 	i3.data[name] = i3.data[name] or {}
 	local data = i3.data[name]
+	local default = {}
+
+	for k in pairs(i3.default_enabled) do
+		default[k] = data[k]
+
+		if data[k] == nil then
+			default[k] = true
+		end
+
+		data[k] = default[k]
+	end
 
 	data.player_name     = name
 	data.filter          = ""
@@ -215,7 +226,6 @@ local function init_data(player, info)
 	data.ignore_hotbar   = false
 	data.auto_sorting    = false
 	data.reverse_sorting = false
-	data.inv_compress    = true
 	data.crafting_counts = {}
 	data.sort            = 1
 	data.tab             = 1

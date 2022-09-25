@@ -12,8 +12,8 @@ IMPORT("find", "match", "sub", "upper")
 IMPORT("clr", "ESC", "msg", "check_privs")
 IMPORT("compression_active", "compressible")
 IMPORT("min", "max", "floor", "ceil", "round")
-IMPORT("reg_items", "reg_tools", "reg_entities")
 IMPORT("true_str", "is_fav", "is_num", "str_to_pos")
+IMPORT("reg_items", "reg_nodes", "reg_tools", "reg_entities")
 IMPORT("get_bag_description", "get_detached_inv", "get_recipes")
 IMPORT("S", "ES", "translate", "ItemStack", "toupper", "utf8_len")
 IMPORT("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
@@ -435,7 +435,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 
 		for i = 1, 10 do
 			image(heart_x + ((i - 1) * (heart_size + 0.1)), heart_h,
-				heart_size, heart_size, PNG.heart_grey)
+				heart_size, heart_size, PNG.heart .. "^[colorize:#232428")
 		end
 
 		for i = 1, hearts do
@@ -583,7 +583,8 @@ local function show_settings(fs, data)
 		image_button(6.17, 10.75, 1, 0.5, "", "confirm_trash_no", "No")
 
 	elseif data.show_settings then
-		image(2.2, 9, 6, 2.35, PNG.bg_content)
+		fs"container[-0.06,0]"
+		image(2.2, 9, 6.1, 2.35, PNG.bg_content)
 
 		local show_home = data.show_setting == "home"
 		local show_style = data.show_setting == "style"
@@ -606,9 +607,9 @@ local function show_settings(fs, data)
 
 		local X = 2.5
 		button(X, 9.1, 1.6, 0.55, "setting_home", "Home")
-		button(X + 1.6, 9.1, 1.6, 0.55, "setting_style", "Style")
-		button(X + 3.2, 9.1, 1.6, 0.55, "setting_sorting", "Sorting")
-		image_button(X + 5, 9.2, 0.25, 0.25, PNG.cancel_hover .. "^\\[brighten", "close_settings", "")
+		button(X + 1.7, 9.1, 1.6, 0.55, "setting_style", "Style")
+		button(X + 3.38, 9.1, 1.6, 0.55, "setting_sorting", "Sorting")
+		image_button(X + 5.12, 9.2, 0.25, 0.25, PNG.cancel_hover .. "^\\[brighten", "close_settings", "")
 
 		if show_home then
 			local coords, c, str = {"X", "Y", "Z"}, 0, ES"No home set"
@@ -622,20 +623,24 @@ local function show_settings(fs, data)
 					end)
 			end
 
-			hypertext(2.1, 9.9, 6, 0.6, "home_pos", fmt("<global size=16><center>%s</center>", str))
-			image_button(4.2, 10.4, 1.8, 0.7, "", "set_home", "Set home")
+			hypertext(2.2, 9.9, 6, 0.6, "home_pos", fmt("<global size=16><center>%s</center>", str))
+			image_button(4.3, 10.4, 1.8, 0.7, "", "set_home", "Set home")
 
 		elseif show_style then
 			checkbox(2.6, 9.95, "cb_hide_tabs", "Hide tabs", tostring(data.hide_tabs))
 			checkbox(2.6, 10.4, "cb_legacy_inventory", "Legacy inventory", tostring(data.legacy_inventory))
 			checkbox(2.6, 10.85, "cb_wielditem_hud", "HUD description", tostring(data.wielditem_hud))
 
+			if not next(i3.recipe_filters) then
+				checkbox(5.3, 10.85, "cb_collapse", "Collapse inventory", tostring(data.collapse))
+			end
+
 			local sign = (data.font_size > 0 and "+") or (data.font_size > 0 and "-") or ""
 			label(5.3, 9.95, ES"Font size" .. fmt(": %s", sign .. data.font_size))
 
 			local range = 5
 			fs("scrollbaroptions[min=-%u;max=%u;smallstep=1;largestep=1;thumbsize=2]", range, range)
-			fs("scrollbar[5.3,10.25;2.45,0.3;horizontal;sb_font_size;%d]", data.font_size)
+			fs("scrollbar[5.3,10.2;2.45,0.3;horizontal;sb_font_size;%d]", data.font_size)
 
 			fs("tooltip[cb_hide_tabs;%s;#707070;#fff]",
 				ES"Enable this option to change the style of the right panel")
@@ -643,12 +648,14 @@ local function show_settings(fs, data)
 				ES"Enable this option to set the classic inventory size in Minetest")
 			fs("tooltip[cb_wielditem_hud;%s;#707070;#fff]",
 				ES"Enable this option to show the wielded item description in your HUD")
+			fs("tooltip[cb_collapse;%s;#707070;#fff]",
+				ES"Enable this option to collapse certain items in your inventory")
 
 		elseif show_sorting then
 			checkbox(2.6, 9.95, "cb_inv_compress", "Compression", tostring(data.inv_compress))
 			checkbox(2.6, 10.4,  "cb_reverse_sorting", "Reverse mode", tostring(data.reverse_sorting))
 			checkbox(2.6, 10.85, "cb_ignore_hotbar", "Ignore hotbar", tostring(data.ignore_hotbar))
-			checkbox(5.4, 9.95, "cb_auto_sorting", "Automation", tostring(data.auto_sorting))
+			checkbox(5.3, 9.95, "cb_auto_sorting", "Automation", tostring(data.auto_sorting))
 
 			local methods = {}
 
@@ -657,13 +664,13 @@ local function show_settings(fs, data)
 				insert(methods, name)
 			end
 
-			label(5.4, 10.4, ES"Sorting method:")
-			fs("dropdown[%f,%f;2.4,0.5;dd_sorting_method;%s;%u;true]",
-				5.4, 10.6, concat(methods, ","), data.sort)
+			label(5.3, 10.4, ES"Sorting method:")
+			fs("dropdown[%f,%f;2.6,0.5;dd_sorting_method;%s;%u;true]",
+				5.3, 10.6, concat(methods, ","), data.sort)
 
 			local desc = i3.sorting_methods[data.sort].description
 			if desc then
-				tooltip(5.4, 10.6, 2.4, 0.5, ESC(desc))
+				tooltip(5.3, 10.6, 2.4, 0.5, ESC(desc))
 			end
 
 			fs("tooltip[cb_inv_compress;%s;#707070;#fff]",
@@ -675,6 +682,8 @@ local function show_settings(fs, data)
 			fs("tooltip[cb_auto_sorting;%s;#707070;#fff]",
 				ES"Enable this option to sort your inventory automatically")
 		end
+
+		fs"container_end[]"
 	end
 end
 
@@ -1356,7 +1365,7 @@ local function hide_items(player, data)
 		data.items = new
 	end
 
-	if not core.is_creative_enabled(data.player_name) then
+	if not core.is_creative_enabled(data.player_name) and not next(i3.recipe_filters) then
 		local new = {}
 
 		for i = 1, #data.items do
@@ -1509,7 +1518,24 @@ local function get_items_fs(fs, data, player, full_height)
 			local Y = round((i % ipp - X) / rows + 1, 0)
 			      Y -= (Y * 0.085) + 0.92
 
-			insert(fs, fmt("item_image_button", X, Y, size, size, name, item, ""))
+			local item_btn = fmt("item_image_button", X, Y, size, size, name, item, "")
+
+			if next(i3.recipe_filters) then
+				if data.items_progress[item] then
+					insert(fs, item_btn)
+				else
+					local col = "^\\[colorize:#232428^\\[opacity:245"
+					local img = reg_items[item].inventory_image .. col
+
+					if reg_nodes[item] then
+						img = PNG.cube .. col
+					end
+
+					insert(fs, fmt("image", X, Y, size, size, img))
+				end
+			else
+				insert(fs, item_btn)
+			end
 
 			if compressible(item, data) then
 				local expand = data.expand == name
@@ -1652,10 +1678,9 @@ local function make_fs(player, data)
 		__call = function(t, ...)
 			local args = {...}
 
-			if select("#", ...) > 1 then
+			if #args > 1 then
 				local arg1 = args[1]
 				local elem = fs_elements[arg1]
-
 				insert(t, fmt(elem or arg1, select(2, ...)))
 			else
 				insert(t, concat(args))

@@ -2,12 +2,12 @@ local set_fs = i3.set_fs
 
 IMPORT("min", "max", "vec_round")
 IMPORT("reg_items", "reg_aliases")
-IMPORT("S", "random", "translate", "ItemStack")
 IMPORT("sort", "copy", "insert", "remove", "indexof")
+IMPORT("S", "random", "translate", "compressible", "ItemStack")
 IMPORT("fmt", "find", "match", "sub", "lower", "split", "toupper")
+IMPORT("valid_item", "get_stack", "craft_stack", "clean_name", "check_privs", "safe_teleport")
 IMPORT("msg", "is_fav", "pos_to_str", "str_to_pos", "add_hud_waypoint", "play_sound", "reset_data")
 IMPORT("search", "sort_inventory", "sort_by_category", "get_recipes", "get_detached_inv", "update_inv_size")
-IMPORT("valid_item", "get_stack", "craft_stack", "clean_name", "compressible", "check_privs", "safe_teleport")
 
 local function inv_fields(player, data, fields)
 	local name = data.player_name
@@ -40,6 +40,8 @@ local function inv_fields(player, data, fields)
 
 			if str == "legacy_inventory" then
 				update_inv_size(player, data)
+			elseif str == "collapse" then
+				search(data)
 			end
 
 		elseif sub(field, 1, 8) == "setting_" then

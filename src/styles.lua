@@ -12,7 +12,6 @@ local PNG = {
 	search = "i3_search.png",
 	heart = "i3_heart.png",
 	heart_half = "i3_heart_half.png",
-	heart_grey = "i3_heart_grey.png",
 	prev = "i3_next.png^\\[transformFX",
 	next = "i3_next.png",
 	arrow = "i3_arrow.png",
@@ -54,6 +53,7 @@ local PNG = {
 	all = "i3_all.png",
 	node = "i3_node.png",
 	item = "i3_item.png",
+	cube = "i3_cube.png",
 
 	cancel_hover = "i3_cancel.png^\\[brighten",
 	search_hover = "i3_search.png^\\[brighten",

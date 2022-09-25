@@ -36,9 +36,8 @@ i3 = {
 		hud_speed = 1,
 		hud_timer_max = 1.5,
 
-		damage_enabled   = core.settings:get_bool"enable_damage",
+		damage_enabled = core.settings:get_bool"enable_damage",
 		progressive_mode = core.settings:get_bool"i3_progressive_mode",
-		item_compression = core.settings:get_bool("i3_item_compression", true),
 	},
 
 	categories = {
@@ -52,6 +51,7 @@ i3 = {
 	saves = { -- Metadata to save
 		bag = true,
 		home = true,
+		collapse = true,
 		font_size = true,
 		hide_tabs = true,
 		waypoints = true,
@@ -59,6 +59,11 @@ i3 = {
 		known_recipes = true,
 		wielditem_hud = true,
 		legacy_inventory = true,
+	},
+
+	default_enabled = {
+		collapse = true,
+		inv_compress = true,
 	},
 
 	files = {
