@@ -1530,8 +1530,9 @@ local function get_items_fs(fs, data, player, full_height)
 				else
 					local col = "^\\[colorize:#232428^\\[opacity:245"
 					local img = reg_items[item].inventory_image .. col
+					local nodedef = reg_nodes[item]
 
-					if reg_nodes[item] then
+					if nodedef and not true_str(nodedef.inventory_image) then
 						img = PNG.cube .. col
 					end
 
