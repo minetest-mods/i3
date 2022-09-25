@@ -327,8 +327,12 @@ local function apply_recipe_filters(recipes, player)
 	return recipes
 end
 
+local function recipe_filter_set()
+	return next(i3.recipe_filters)
+end
+
 local function compression_active(data)
-	return data.collapse and not next(i3.recipe_filters) and data.filter == ""
+	return data.collapse and not recipe_filter_set() and data.filter == ""
 end
 
 local function compressible(item, data)
@@ -684,6 +688,7 @@ local _ = {
 	get_recipes = get_recipes,
 	sort_inventory = sort_inventory,
 	sort_by_category = sort_by_category,
+	recipe_filter_set = recipe_filter_set,
 	apply_recipe_filters = apply_recipe_filters,
 
 	-- Type checks

@@ -10,11 +10,11 @@ local VoxelArea, VoxelManip = VoxelArea, VoxelManip
 IMPORT("vec", "vec_round")
 IMPORT("find", "match", "sub", "upper")
 IMPORT("clr", "ESC", "msg", "check_privs")
-IMPORT("compression_active", "compressible")
 IMPORT("min", "max", "floor", "ceil", "round")
 IMPORT("true_str", "is_fav", "is_num", "str_to_pos")
 IMPORT("reg_items", "reg_nodes", "reg_tools", "reg_entities")
 IMPORT("get_bag_description", "get_detached_inv", "get_recipes")
+IMPORT("compression_active", "compressible", "recipe_filter_set")
 IMPORT("S", "ES", "translate", "ItemStack", "toupper", "utf8_len")
 IMPORT("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
 IMPORT("extract_groups", "groups_to_items", "is_group", "item_has_groups", "get_group")
@@ -631,7 +631,7 @@ local function show_settings(fs, data)
 			checkbox(2.6, 10.4, "cb_legacy_inventory", "Legacy inventory", tostring(data.legacy_inventory))
 			checkbox(2.6, 10.85, "cb_wielditem_hud", "HUD description", tostring(data.wielditem_hud))
 
-			if not next(i3.recipe_filters) then
+			if not recipe_filter_set() then
 				checkbox(5.3, 10.85, "cb_collapse", "Collapse inventory", tostring(data.collapse))
 			end
 
@@ -1365,7 +1365,7 @@ local function hide_items(player, data)
 		data.items = new
 	end
 
-	if not core.is_creative_enabled(data.player_name) and not next(i3.recipe_filters) then
+	if not core.is_creative_enabled(data.player_name) and not recipe_filter_set() then
 		local new = {}
 
 		for i = 1, #data.items do
@@ -1499,7 +1499,7 @@ local function get_items_fs(fs, data, player, full_height)
 		local lbl = ES"No item to show"
 		local icon, width, offset = PNG.no_result, 4, 2
 
-		if next(i3.recipe_filters) and #i3.init_items > 0 and data.filter == "" then
+		if recipe_filter_set() and #i3.init_items > 0 and data.filter == "" then
 			lbl = ES"Collect items to reveal more recipes" -- Progressive mode, etc.
 			icon, width, offset = PNG.find_more, 2.5, 2.75
 		end
@@ -1524,7 +1524,7 @@ local function get_items_fs(fs, data, player, full_height)
 
 			local item_btn = fmt("item_image_button", X, Y, size, size, name, item, "")
 
-			if next(i3.recipe_filters) then
+			if recipe_filter_set() then
 				if data.items_progress[item] then
 					insert(fs, item_btn)
 				else
