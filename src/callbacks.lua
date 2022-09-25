@@ -205,11 +205,11 @@ local function init_data(player, info)
 	local data = i3.data[name]
 	local default = {}
 
-	for k in pairs(i3.default_enabled) do
+	for k, v in pairs(i3.default_data) do
 		default[k] = data[k]
 
 		if data[k] == nil then
-			default[k] = true
+			default[k] = v
 		end
 
 		data[k] = default[k]
@@ -223,16 +223,11 @@ local function init_data(player, info)
 	data.items_raw       = i3.init_items
 	data.favs            = {}
 	data.show_setting    = "home"
-	data.ignore_hotbar   = false
-	data.auto_sorting    = false
-	data.reverse_sorting = false
 	data.crafting_counts = {}
-	data.sort            = 1
 	data.tab             = 1
 	data.itab            = 1
 	data.subcat          = 1
 	data.scrbar_inv      = 0
-	data.font_size       = data.font_size or 0
 	data.lang_code       = get_lang_code(info)
 	data.fs_version      = info.formspec_version
 

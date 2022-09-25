@@ -51,17 +51,24 @@ i3 = {
 	saves = { -- Metadata to save
 		bag = true,
 		home = true,
+		sort = true,
 		collapse = true,
 		font_size = true,
 		hide_tabs = true,
 		waypoints = true,
 		inv_items = true,
+		auto_sorting = true,
+		inv_compress = true,
 		known_recipes = true,
 		wielditem_hud = true,
+		ignore_hotbar = true,
+		reverse_sorting = true,
 		legacy_inventory = true,
 	},
 
-	default_enabled = {
+	default_data = {
+		sort = 1,
+		font_size = 0,
 		collapse = true,
 		inv_compress = true,
 	},
