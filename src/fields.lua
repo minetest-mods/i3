@@ -294,13 +294,13 @@ local function select_item(player, data, fields)
 		if item == data.query_item then return end
 		local recipes, usages = get_recipes(player, item)
 
-		data.query_item = item
-		data.recipes    = recipes
-		data.usages     = usages
-		data.rnum       = 1
-		data.unum       = 1
-		data.scrbar_rcp = 1
-		data.scrbar_usg = 1
+		data.query_item   = item
+		data.recipes      = recipes
+		data.usages       = usages
+		data.rnum         = 1
+		data.unum         = 1
+		data.scrbar_rcp   = 1
+		data.scrbar_usg   = 1
 		data.crafting_rcp = nil
 		data.crafting_usg = nil
 	end

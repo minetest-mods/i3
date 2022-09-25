@@ -1491,6 +1491,10 @@ local function get_items_fs(fs, data, player, full_height)
 
 	data.pagemax = max(1, ceil(#items / ipp))
 
+	if data.pagenum > data.pagemax then
+		data.pagenum = data.pagemax
+	end
+
 	if #items == 0 then
 		local lbl = ES"No item to show"
 		local icon, width, offset = PNG.no_result, 4, 2
