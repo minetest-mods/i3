@@ -203,16 +203,14 @@ local function init_data(player, info)
 	local name = player:get_player_name()
 	i3.data[name] = i3.data[name] or {}
 	local data = i3.data[name]
-	local default = {}
 
 	for k, v in pairs(i3.default_data) do
-		default[k] = data[k]
-
-		if data[k] == nil then
-			default[k] = v
+		local val = data[k]
+		if val == nil then
+			val = v
 		end
 
-		data[k] = default[k]
+		data[k] = val
 	end
 
 	data.player_name     = name
