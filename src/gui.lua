@@ -608,7 +608,7 @@ local function show_settings(fs, data)
 		local X = 2.5
 		button(X, 9.1, 1.6, 0.55, "setting_home", "Home")
 		button(X + 1.7, 9.1, 1.6, 0.55, "setting_style", "Style")
-		button(X + 3.38, 9.1, 1.6, 0.55, "setting_sorting", "Sorting")
+		button(X + 3.4, 9.1, 1.6, 0.55, "setting_sorting", "Sorting")
 		image_button(X + 5.12, 9.2, 0.25, 0.25, PNG.cancel_hover .. "^\\[brighten", "close_settings", "")
 
 		if show_home then
@@ -632,7 +632,7 @@ local function show_settings(fs, data)
 			checkbox(2.6, 10.85, "cb_wielditem_hud", "HUD description", tostring(data.wielditem_hud))
 
 			if not recipe_filter_set() then
-				checkbox(5.3, 10.85, "cb_collapse", "Collapse inventory", tostring(data.collapse))
+				checkbox(5.3, 10.85, "cb_collapse", "Collapse list", tostring(data.collapse))
 			end
 
 			local sign = (data.font_size > 0 and "+") or (data.font_size > 0 and "-") or ""
@@ -649,7 +649,7 @@ local function show_settings(fs, data)
 			fs("tooltip[cb_wielditem_hud;%s;#707070;#fff]",
 				ES"Enable this option to show the wielded item description in your HUD")
 			fs("tooltip[cb_collapse;%s;#707070;#fff]",
-				ES"Enable this option to collapse certain items in your inventory")
+				ES"Enable this option to collapse the inventory list by grouping some items")
 
 		elseif show_sorting then
 			checkbox(2.6, 9.95, "cb_inv_compress", "Compression", tostring(data.inv_compress))
