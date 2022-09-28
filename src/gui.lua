@@ -640,7 +640,7 @@ local function show_settings(fs, data)
 
 			local range = 5
 			fs("scrollbaroptions[min=-%u;max=%u;smallstep=1;largestep=1;thumbsize=2]", range, range)
-			fs("scrollbar[5.3,10.2;2.45,0.3;horizontal;sb_font_size;%d]", data.font_size)
+			fs("scrollbar[5.3,10.2;2.55,0.3;horizontal;sb_font_size;%d]", data.font_size)
 
 			fs("tooltip[cb_hide_tabs;%s;#707070;#fff]",
 				ES"Enable this option to change the style of the right panel")
