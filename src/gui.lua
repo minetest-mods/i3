@@ -297,7 +297,7 @@ local function get_isometric_view(fs, pos, X, Y, t, cubes, depth, high)
 	end
 
 	shift += (base_depth and 0.45 or 0.95)
-	image(2.7, Y + shift, 0.3, 0.3, PNG.flag)
+	animated_image(2.75, Y + shift, 3/14, 0.3, "i3_flag_anim.png", 4, 150)
 end
 
 local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
