@@ -111,6 +111,7 @@ i3 = {
 i3.files.common()
 i3.files.api(http)
 i3.files.compress()
+i3.files.detached()
 i3.files.groups()
 i3.files.callbacks(http, storage)
 
@@ -120,7 +121,7 @@ end
 
 if i3.settings.debug_mode then
 	lf("/tests/test_tabs.lua")()
-	lf("/tests/test_operators.lua")()
+--	lf("/tests/test_operators.lua")()
 	lf("/tests/test_compression.lua")()
 	lf("/tests/test_custom_recipes.lua")()
 end

@@ -1,7 +1,6 @@
 local http, storage = ...
 local init_bags = i3.files.bags()
 local fill_caches = i3.files.caches(http)
-local init_detached = i3.files.detached()
 local init_hud = i3.files.hud()
 local set_fs = i3.set_fs
 
@@ -262,7 +261,6 @@ insert(core.registered_on_joinplayers, 1, function(player)
 
 	init_data(player, info)
 	init_bags(player)
-	init_detached(player)
 	init_hud(player)
 end)
 

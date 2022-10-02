@@ -1,5 +1,5 @@
 local set_fs = i3.set_fs
-IMPORT("fmt", "play_sound", "create_inventory")
+IMPORT("play_sound", "create_inventory")
 
 local trash = create_inventory("i3_trash", {
 	allow_put = function(_, _, _, stack)
@@ -22,15 +22,3 @@ local trash = create_inventory("i3_trash", {
 })
 
 trash:set_size("main", 1)
-
-local function init_detached(player)
-	local name = player:get_player_name()
-
-	local output_rcp = create_inventory(fmt("i3_output_rcp_%s", name), {}, name)
-	output_rcp:set_size("main", 1)
-
-	local output_usg = create_inventory(fmt("i3_output_usg_%s", name), {}, name)
-	output_usg:set_size("main", 1)
-end
-
-return init_detached

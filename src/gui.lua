@@ -790,7 +790,7 @@ local function get_inventory_fs(player, data, fs)
 	show_settings(fs, data)
 end
 
-local function get_tooltip(item, info, pos, lang_code)
+local function get_tooltip(item, info, lang_code)
 	local tooltip
 
 	if info.groups then
@@ -861,11 +861,6 @@ local function get_tooltip(item, info, pos, lang_code)
 			tooltip = add(S("Only drop if using this tool: @1",
 					clr("#ff0", get_desc(info.tools[1], lang_code))))
 		end
-	end
-
-	if pos then
-		local btn_size = i3.settings.item_btn_size
-		return fmt("tooltip", pos.x, pos.y, btn_size, btn_size, ESC(tooltip))
 	end
 
 	return fmt("tooltip[%s;%s]", item, ESC(tooltip))
@@ -939,28 +934,16 @@ local function get_output_fs(fs, data, rcp, is_recipe, is_usage, shapeless, righ
 	local meta  = item:get_meta()
 	local name  = item:get_name()
 	local count = item:get_count()
-	local wear  = item:get_wear()
 	local _name = fmt("_%s", name)
-	local pos
 
-	if meta:get_string"color" ~= "" or meta:get_string"palette_index" ~= "" then
-		local rcp_usg = is_recipe and "rcp" or "usg"
+	local size = BTN_SIZE * 1.2
+	slot(X, Y - 0.11, size, size)
 
-		fs("style_type[list;size=%f]", BTN_SIZE)
-		fs"listcolors[#bababa50;#bababa99]"
-		fs("list[detached:i3_output_%s_%s;main;%f,%f;1,1;]", rcp_usg, data.player_name, X + 0.11, Y)
-		button(X + 0.11, Y, BTN_SIZE, BTN_SIZE, _name, "")
+	count = get_true_count(data, count, is_recipe, is_usage)
+	item:set_count(count)
 
-		local inv = get_detached_inv(fmt("output_%s", rcp_usg), data.player_name)
-		inv:set_stack("main", 1, item)
-		pos = {x = X + 0.11, y = Y}
-	else
-		local size = BTN_SIZE * 1.2
-		slot(X, Y - 0.11, size, size)
-
-		count = get_true_count(data, count, is_recipe, is_usage)
-		item_image_button(X + 0.11, Y, BTN_SIZE, BTN_SIZE, fmt("%s %u %u", name, count, wear), _name, "")
-	end
+	local itemstr = ESC(item:to_string())
+	item_image_button(X + 0.11, Y, BTN_SIZE, BTN_SIZE, itemstr, _name, "")
 
 	local def = reg_items[name]
 	local unknown = not def or nil
@@ -983,7 +966,7 @@ local function get_output_fs(fs, data, rcp, is_recipe, is_usage, shapeless, righ
 	}
 
 	if next(infos) then
-		fs(get_tooltip(_name, infos, pos, data.lang_code))
+		fs(get_tooltip(_name, infos, data.lang_code))
 	end
 end
 
@@ -1100,7 +1083,10 @@ local function get_grid_fs(fs, data, rcp, is_recipe, is_usage)
 				label(X + 0.8, Y + 0.9, count)
 			end
 		else
-			item_image_button(X, Y, btn_size, btn_size, fmt("%s %u", name, count), btn_name, label)
+			item:set_name(name)
+			item:set_count(count)
+			local itemstr = ESC(item:to_string())
+			item_image_button(X, Y, btn_size, btn_size, itemstr, btn_name, label)
 		end
 
 		local def = reg_items[name]
@@ -1125,7 +1111,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe, is_usage)
 		}
 
 		if next(infos) then
-			fs(get_tooltip(btn_name, infos, nil, data.lang_code))
+			fs(get_tooltip(btn_name, infos, data.lang_code))
 		end
 	end
 
@@ -1140,9 +1126,13 @@ local function get_rcp_lbl(fs, data, panel, rn, is_recipe, is_usage)
 	local rcp = is_recipe and panel.rcp[data.rnum] or panel.rcp[data.unum]
 
 	if rcp.custom then
-		local desc = i3.craft_types[rcp.type].description
-		hypertext(data.inv_width + 4.8, data.yoffset + 0.12, 3, 1, "custom_rcp",
-			fmt("<right><i><global size=16>%s\n<global size=15>%s</i></right>", ES"Custom recipe", desc))
+		local craft_type = i3.craft_types[rcp.type]
+		if craft_type then
+			local desc = craft_type.description
+			hypertext(data.inv_width + 4.8, data.yoffset + 0.12, 3, 1, "custom_rcp",
+				fmt("<right><i><global size=16>%s\n<global size=15>%s</i></right>",
+					ES"Custom recipe", ESC(desc)))
+		end
 	end
 
 	local lbl = ES("Usage @1 of @2", data.unum, rn)
