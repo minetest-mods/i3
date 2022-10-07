@@ -38,6 +38,8 @@ i3 = {
 
 		damage_enabled = core.settings:get_bool"enable_damage",
 		progressive_mode = core.settings:get_bool"i3_progressive_mode",
+		disable_trash_all = core.settings:get_bool"i3_disable_trash_all",
+
 	},
 
 	categories = {

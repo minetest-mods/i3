@@ -772,12 +772,15 @@ local function get_inventory_fs(player, data, fs)
 	get_container(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb, bag_size)
 	fs"scroll_container_end[]"
 
-	local btn = {
-		{"trash",    ES"Clear inventory"},
-		{"sort",     ES"Sort inventory"},
-		{"settings", ES"Settings"},
-		{"home",     ES"Go home"},
-	}
+	local btn = {}
+
+	if not i3.settings.disable_trash_all then
+		insert(btn, {"trash", ES"Clear inventory"})
+	end
+
+	insert(btn, {"sort",     ES"Sort inventory"})
+	insert(btn, {"settings", ES"Settings"})
+	insert(btn, {"home",     ES"Go home"})
 
 	for i, v in ipairs(btn) do
 		local btn_name, tooltip = unpack(v)
