@@ -1695,7 +1695,7 @@ local function make_fs(player, data)
 
 	local tab = i3.tabs[data.tab]
 
-	if tab then
+	if tab and tab.formspec then
 		tab.formspec(player, data, fs)
 	end
 

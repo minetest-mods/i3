@@ -12,23 +12,31 @@ Custom tabs can be added to the `i3` inventory as follow (example):
 ```Lua
 i3.new_tab("stuff", {
 	description = "Stuff",
-	image = "image.png", -- Optional, adds an image next to the tab description
+	image = "image.png", -- Optional, add an image next to the tab description
 
-	-- Determine if the tab is visible by a player, `false` or `nil` hide the tab
+	--
+	-- The functions below are all optional
+	--
+
+	-- Determine if the tab is visible by a player, return false to hide the tab
 	access = function(player, data)
 		local name = player:get_player_name()
 		return name == "singleplayer"
 	end,
 
 	formspec = function(player, data, fs)
-		fs"label[3,1;This is just a test]"
+		fs("label", 3, 1, "Just a test")
+		fs"label[3,2;Lorem Ipsum]"
+		-- No need to return anything
 	end,
 
 	-- Events handling happens here
 	fields = function(player, data, fields)
 		if fields.mybutton then
-			do_things()
+			-- Do things
 		end
+
+		i3.set_fs(player) -- Update the formspec, mandatory
 	end,
 })
 ```

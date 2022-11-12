@@ -3,7 +3,8 @@ i3.new_tab("test1", {
 	image = "i3_heart.png",
 
 	formspec = function(player, data, fs)
-		fs("label[3,1;Test 1]")
+		fs("label", 3, 1, "Just a test")
+		fs"label[3,2;Lorem Ipsum]"
 	end,
 })
 
