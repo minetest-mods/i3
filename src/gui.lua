@@ -380,9 +380,9 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 	fs"style_type[label;font=normal;font_size=16;textcolor=#fff]"
 end
 
-local function get_bag_fs(fs, data, name, esc_name, bag_size, yextra)
-	fs("list[detached:i3_bag_%s;main;0,%f;1,1;]", esc_name, yextra + 0.7)
-	local bag = get_detached_inv("bag", name)
+local function get_bag_fs(fs, data, bag_size, yextra)
+	fs("list[detached:i3_bag_%s;main;0,%f;1,1;]", data.player_name, yextra + 0.7)
+	local bag = get_detached_inv("bag", data.player_name)
 	if bag:is_empty"main" then return end
 
 	local v = {{1.9, 2, 0.12}, {3.05, 5, 0.06}, {4.2, 10}, {4.75, 10}}
@@ -416,7 +416,7 @@ local function get_bag_fs(fs, data, name, esc_name, bag_size, yextra)
 	end
 
 	fs("style_type[list;size=%f;spacing=%f]", size, spacing)
-	fs("list[detached:i3_bag_content_%s;main;%f,%f;4,%u;]", esc_name, x, yextra + 1.3, bag_size)
+	fs("list[detached:i3_bag_content_%s;main;%f,%f;4,%u;]", data.player_name, x, yextra + 1.3, bag_size)
 	fs"style_type[list;size=1;spacing=0.15]"
 end
 
@@ -475,7 +475,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 	end
 
 	if data.subcat == 1 then
-		get_bag_fs(fs, data, data.player_name, esc_name, bag_size, yextra)
+		get_bag_fs(fs, data, bag_size, yextra)
 
 	elseif data.subcat == 2 then
 		if not i3.modules.armor then
