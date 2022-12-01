@@ -421,7 +421,8 @@ local function get_bag_fs(fs, data, name, esc_name, bag_size, yextra)
 end
 
 local function get_container(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb, bag_size)
-	local name = data.player_name
+	local nametag = player:get_nametag_attributes()
+	local name = true_str(nametag.text) and nametag.text or data.player_name
 	local esc_name = ESC(name)
 
 	add_subtitle(fs, "player_name", 0, ctn_len, 22, true, esc_name)
@@ -474,14 +475,14 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 	end
 
 	if data.subcat == 1 then
-		get_bag_fs(fs, data, name, esc_name, bag_size, yextra)
+		get_bag_fs(fs, data, data.player_name, esc_name, bag_size, yextra)
 
 	elseif data.subcat == 2 then
 		if not i3.modules.armor then
 			return not_installed "3d_armor"
 		end
 
-		local armor_def = armor.def[name]
+		local armor_def = armor.def[data.player_name]
 		local _, armor_inv = armor:get_valid_player(player, "3d_armor")
 
 		fs("list[detached:%s_armor;armor;0,%f;5,1;]", esc_name, yextra + 0.7)
@@ -522,7 +523,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 			return not_installed "skinsdb"
 		end
 
-		local _skins = skins.get_skinlist_for_player(name)
+		local _skins = skins.get_skinlist_for_player(data.player_name)
 		local skin_name = skins.get_player_skin(player).name
 		local spp, add_y = 24, 0
 
