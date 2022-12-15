@@ -1,2 +1,3 @@
 # The progressive mode shows recipes you can craft from items you ever had in your inventory.
 i3_progressive_mode    (Learn crafting recipes progressively)    bool false
+i3_legacy_inv_default  (Use minetest original inventory size)    bool false

@@ -71,6 +71,7 @@ i3 = {
 		font_size = 0,
 		collapse = true,
 		inv_compress = true,
+		legacy_inventory = core.settings:get_bool("i3_legacy_inv_default", false),
 	},
 
 	files = {
