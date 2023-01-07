@@ -600,8 +600,8 @@ local function reset_data(data)
 	data.goto_page     = nil
 	data.recipes       = nil
 	data.usages        = nil
-	data.crafting_rcp    = nil
-	data.crafting_usg    = nil
+	data.crafting_rcp  = nil
+	data.crafting_usg  = nil
 	data.alt_items     = nil
 	data.confirm_trash = nil
 	data.show_settings = nil
@@ -613,13 +613,15 @@ local function reset_data(data)
 	end
 end
 
-local function add_hud_waypoint(player, name, pos, color)
+local function add_hud_waypoint(player, name, pos, color, image)
 	return player:hud_add {
-		hud_elem_type = "waypoint",
+		hud_elem_type = image and "image_waypoint" or "waypoint",
 		name = name,
-		text = "m",
+		text = image or "m",
+		scale = {x = 5, y = 5},
 		world_pos = pos,
 		number = color,
+		image = image,
 		z_index = -300,
 	}
 end

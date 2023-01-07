@@ -309,6 +309,49 @@ A map of all compressed item groups, indexed by stereotypes.
 
 ---
 
+### Waypoints
+
+`i3` allows you to manage the waypoints of a specific player.
+
+#### `i3.add_waypoint(player_name, def)`
+
+Add a waypoint to specific player.
+
+- `player_name` is the player name.
+- `def` is the waypoint definition table.
+
+Example:
+
+```Lua
+i3.add_waypoint("Test", {
+	player = "singleplayer",
+	pos = {x = 0, y = 2, z = 0},
+	color = 0xffff00,
+--	image = "heart.png" (optional)
+})
+```
+
+#### `i3.remove_waypoint(player_name, waypoint_name)`
+
+Remove a waypoint for specific player.
+
+- `player_name` is the player name.
+- `waypoint_name` is the waypoint name.
+
+Example:
+
+```Lua
+i3.remove_waypoint("singleplayer", "Test")
+```
+
+#### `i3.get_waypoints(player_name)`
+
+Return a table of all waypoints of a specific player.
+
+- `player_name` is the player name.
+
+---
+
 ### Miscellaneous
 
 #### `i3.hud_notif(name, msg[, img])`

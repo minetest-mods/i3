@@ -165,7 +165,7 @@ local function init_waypoints(player)
 
 	for _, v in ipairs(data.waypoints) do
 		if not v.hide then
-			local id = add_hud_waypoint(player, v.name, str_to_pos(v.pos), v.color)
+			local id = add_hud_waypoint(player, v.name, str_to_pos(v.pos), v.color, v.image)
 			v.id = id
 		end
 	end

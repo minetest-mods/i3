@@ -1,10 +1,10 @@
 local http = ...
 local make_fs, get_inventory_fs = i3.files.gui()
 
-IMPORT("gmatch", "split")
-IMPORT("S", "err", "fmt", "reg_items")
 IMPORT("sorter", "sort_inventory", "play_sound")
+IMPORT("get_player_by_name", "add_hud_waypoint")
 IMPORT("sort", "concat", "copy", "insert", "remove")
+IMPORT("gmatch", "split", "S", "err", "fmt", "reg_items", "pos_to_str")
 IMPORT("true_str", "true_table", "is_str", "is_func", "is_table", "clean_name")
 
 function i3.register_craft_type(name, def)
@@ -204,10 +204,10 @@ function i3.remove_tab(name)
 		return err "i3.remove_tab: tab name missing"
 	end
 
-	for i, def in ipairs(i3.tabs) do
-		if name == def.name then
+	for i = #i3.tabs, 1, -1 do
+		local def = i3.tabs[i]
+		if def and name == def.name then
 			remove(i3.tabs, i)
-			break
 		end
 	end
 end
@@ -315,7 +315,6 @@ function i3.hud_notif(name, msg, img)
 	end
 
 	local data = i3.data[name]
-
 	if not data then
 		return err "i3.hud_notif: no player data initialized"
 	end
@@ -358,3 +357,76 @@ i3.add_sorting_method("numerical", {
 		return list
 	end,
 })
+
+function i3.add_waypoint(name, def)
+	if not true_str(name) then
+		return err "i3.add_waypoint: name missing"
+	elseif not true_table(def) then
+		return err "i3.add_waypoint: definition missing"
+	elseif not true_str(def.player) then
+		return err "i3.add_waypoint: player name missing"
+	end
+
+	local data = i3.data[def.player]
+	if not data then
+		return err "i3.add_waypoint: no player data initialized"
+	end
+
+	local player = get_player_by_name(def.player)
+	local id = player and add_hud_waypoint(player, name, def.pos, def.color, def.image) or nil
+
+	insert(data.waypoints, {
+		name  = name,
+		pos   = pos_to_str(def.pos, 1),
+		color = def.color,
+		image = def.image,
+		id    = id,
+	})
+
+	if data.subcat == 5 then
+		data.scrbar_inv += 1000
+	end
+
+	i3.set_fs(player)
+end
+
+function i3.remove_waypoint(player_name, name)
+	if not true_str(player_name) then
+		return err "i3.remove_waypoint: player name missing"
+	elseif not true_str(name) then
+		return err "i3.remove_waypoint: waypoint name missing"
+	end
+
+	local data = i3.data[player_name]
+	if not data then
+		return err "i3.remove_waypoint: no player data initialized"
+	end
+
+	local player = get_player_by_name(player_name)
+
+	for i = #data.waypoints, 1, -1 do
+		local waypoint = data.waypoints[i]
+		if waypoint and name == waypoint.name then
+			if player then
+				player:hud_remove(waypoint.id)
+			end
+
+			remove(data.waypoints, i)
+		end
+	end
+
+	i3.set_fs(player)
+end
+
+function i3.get_waypoints(player_name)
+	if not true_str(player_name) then
+		return err "i3.get_waypoints: player name missing"
+	end
+
+	local data = i3.data[player_name]
+	if not data then
+		return err "i3.get_waypoints: no player data initialized"
+	end
+
+	return data.waypoints
+end

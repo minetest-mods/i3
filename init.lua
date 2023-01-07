@@ -20,7 +20,7 @@ local function lf(path)
 end
 
 i3 = {
-	version = 1123,
+	version = 113,
 	data = core.deserialize(storage:get_string"data") or {},
 
 	settings = {
@@ -121,6 +121,7 @@ end
 
 if i3.settings.debug_mode then
 	lf("/tests/test_tabs.lua")()
+	lf("/tests/test_waypoints.lua")()
 --	lf("/tests/test_operators.lua")()
 	lf("/tests/test_compression.lua")()
 	lf("/tests/test_custom_recipes.lua")()
