@@ -361,7 +361,7 @@ local function sort_by_category(data)
 	for i = 1, #items do
 		local item = items[i]
 		local tab = i3.minitabs[data.itab]
-		local to_add = tab.def.sorter(item, data)
+		local to_add = tab.sorter(item, data)
 
 		if to_add then
 			insert(new, item)

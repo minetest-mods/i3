@@ -440,13 +440,14 @@ function i3.new_minitab(name, def)
 		return err "i3.new_minitab: definition missing"
 	end
 
-	insert(i3.minitabs, {name = name, def = def})
+	def.name = name
+	insert(i3.minitabs, def)
 end
 
 function i3.remove_minitab(name)
 	if not true_str(name) then
 		return err "i3.remove_minitab: name missing"
-	elseif name == "All" then
+	elseif name == "all" then
 		return err "i3.remove_minitab: removing the 'All' tab is not allowed"
 	end
 
@@ -458,19 +459,25 @@ function i3.remove_minitab(name)
 	end
 end
 
-i3.new_minitab("All", {
+i3.new_minitab("all", {
+	description = "All",
+
 	sorter = function()
 		return true
 	end
 })
 
-i3.new_minitab("Nodes", {
+i3.new_minitab("nodes", {
+	description = "Nodes",
+
 	sorter = function(item)
 		return core.registered_nodes[item]
 	end
 })
 
-i3.new_minitab("Items", {
+i3.new_minitab("items", {
+	description = "Items",
+
 	sorter = function(item)
 		return core.registered_craftitems[item] or core.registered_tools[item]
 	end

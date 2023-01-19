@@ -1469,10 +1469,10 @@ local function get_minitabs(fs, data, player, full_height)
 	local minitabs = {}
 
 	for i, v in ipairs(i3.minitabs) do
-		local access = v.def.access
+		local access = v.access
 
 		if access == nil or access(player, data) then
-			minitabs[i] = v.name
+			minitabs[i] = v.description
 		end
 	end
 
@@ -1480,10 +1480,10 @@ local function get_minitabs(fs, data, player, full_height)
 
 	for id, title in pairs(minitabs) do
 		i++
-		local X = i > 3 and i - 3 or i
+		local top = i > 3
+		local X = top and i - 3 or i
 		local selected = id == data.itab
 		local hover_texture = selected and PNG.tab_small_hover or PNG.tab_small
-		local top = i > 3
 		local flip = top and "^[transformFY" or ""
 
 		fs([[ style_type[image_button;bgimg=%s%s;bgimg_hovered=%s%s;

@@ -2,14 +2,15 @@ local set_fs = i3.set_fs
 local hud_notif = i3.hud_notif
 local POLL_FREQ = 0.25
 
-IMPORT("reg_items", "reg_nodes")
-IMPORT("fmt", "table_merge", "array_diff")
+IMPORT("reg_items", "reg_nodes", "fmt", "table_merge", "array_diff")
 IMPORT("is_group", "extract_groups", "item_has_groups", "apply_recipe_filters", "sort_by_category")
 
-i3.remove_minitab"Nodes"
-i3.remove_minitab"Items"
+i3.remove_minitab"nodes"
+i3.remove_minitab"items"
 
-i3.new_minitab("Unlocked", {
+i3.new_minitab("unlocked", {
+	description = "Unlocked",
+
 	sorter = function(item, data)
 		return data.items_progress[item]
 	end

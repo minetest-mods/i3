@@ -192,14 +192,16 @@ Add a new minitab (limited to 6).
 Example:
 
 ```Lua
-i3.new_minitab("Test", {
+i3.new_minitab("test", {
+	description = "Test",
+
+	-- Whether this tab is visible or not. Optional.
 	access = function(player, data)
-		-- Whether this tab is visible or not. Optional.
 		return player:get_player_name() == "singleplayer"
 	end,
 
+	-- Whether a specific item is shown in the list or not.
 	sorter = function(item, data)
-		-- Whether a specific item is shown in the list or not.
 		return item:find"wood"
 	end
 })
@@ -212,7 +214,9 @@ i3.new_minitab("Test", {
 
 #### `i3.remove_minitab(name)`
 
-Remove a minitab.
+Remove a minitab by name.
+
+- `name` is the name of the tab to remove.
 
 #### `i3.minimap`
 
