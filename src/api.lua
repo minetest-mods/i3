@@ -446,6 +446,8 @@ end
 function i3.remove_minitab(name)
 	if not true_str(name) then
 		return err "i3.remove_minitab: name missing"
+	elseif name == "All" then
+		return err "i3.remove_minitab: removing the 'All' tab is not allowed"
 	end
 
 	for i = #i3.minitabs, 1, -1 do
