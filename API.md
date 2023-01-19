@@ -1,6 +1,19 @@
-## API
+# :screwdriver: API
 
-### Custom tabs
+## Table of Contents
+1. [**Tabs**](https://github.com/minetest-mods/i3/blob/main/API.md#tabs)
+2. [**Recipes**](https://github.com/minetest-mods/i3/blob/main/API.md#recipes)
+3. [**Minitabs**](https://github.com/minetest-mods/i3/blob/main/API.md#minitabs)
+4. [**Recipe filters**](https://github.com/minetest-mods/i3/blob/main/API.md#recipe-filters)
+5. [**Search filters**](https://github.com/minetest-mods/i3/blob/main/API.md#search-filters)
+6. [**Sorting methods**](https://github.com/minetest-mods/i3/blob/main/API.md#sorting-methods)
+7. [**Item list compression**](https://github.com/minetest-mods/i3/blob/main/API.md#item-list-compression)
+8. [**Waypoints**](https://github.com/minetest-mods/i3/blob/main/API.md#waypoints)
+9. [**Miscellaneous**](https://github.com/minetest-mods/i3/blob/main/API.md#miscellaneous)
+
+---
+
+### Tabs
 
 #### `i3.new_tab(name, def)`
 
@@ -72,7 +85,7 @@ A list of registered tabs.
 
 ---
 
-### Custom recipes
+### Recipes
 
 Custom recipes are nonconventional crafts outside the main crafting grid.
 They can be registered in-game dynamically and have a size beyond 3x3 items.
