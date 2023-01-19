@@ -435,10 +435,41 @@ function i3.new_minitab(name, def)
 	if #i3.minitabs == 6 then
 		return err "i3.new_minitab: limit reached (6)"
 	elseif not true_str(name) then
-		return err "i3.new_minitab: minitab name missing"
+		return err "i3.new_minitab: name missing"
 	elseif not true_table(def) then
 		return err "i3.new_minitab: definition missing"
 	end
 
 	insert(i3.minitabs, {name = name, def = def})
 end
+
+function i3.remove_minitab(name)
+	if not true_str(name) then
+		return err "i3.remove_minitab: name missing"
+	end
+
+	for i = #i3.minitabs, 1, -1 do
+		local v = i3.minitabs[i]
+		if v and v.name == name then
+			remove(i3.minitabs, i)
+		end
+	end
+end
+
+i3.new_minitab("All", {
+	sorter = function()
+		return true
+	end
+})
+
+i3.new_minitab("Nodes", {
+	sorter = function(item)
+		return core.registered_nodes[item]
+	end
+})
+
+i3.new_minitab("Items", {
+	sorter = function(item)
+		return core.registered_craftitems[item] or core.registered_tools[item]
+	end
+})

@@ -360,17 +360,8 @@ local function sort_by_category(data)
 
 	for i = 1, #items do
 		local item = items[i]
-		local to_add = true
-		local top_tap = i3.minitabs[data.itab - 3]
-		local custom_sorter = top_tap and top_tap.def.sorter
-
-		if data.itab == 2 then
-			to_add = core.registered_nodes[item]
-		elseif data.itab == 3 then
-			to_add = core.registered_craftitems[item] or core.registered_tools[item]
-		elseif custom_sorter then
-			to_add = custom_sorter(item, data)
-		end
+		local tab = i3.minitabs[data.itab]
+		local to_add = tab.def.sorter(item, data)
 
 		if to_add then
 			insert(new, item)

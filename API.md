@@ -164,6 +164,49 @@ i3.register_craft {
 
 ---
 
+### Minitabs
+
+Manage the tabs on the right panel of the inventory.
+Allow to make a sensible list sorted by specific groups of items.
+
+#### `i3.new_minitab(name, def)`
+
+Add a new minitab (limited to 6).
+
+- `name` is the tab name.
+- `def` is the definition table.
+
+Example:
+
+```Lua
+i3.new_minitab("Test", {
+	access = function(player, data)
+		-- Whether a player can access this tab or not. Optional.
+		return player:get_player_name() == "singleplayer"
+	end,
+
+	sorter = function(item, data)
+		-- Whether a specific item is shown in the list or not.
+		return item:find"wood"
+	end
+})
+
+```
+
+- `player` is an `ObjectRef` to the user.
+- `data` are the user data.
+- `item` is an item name string.
+
+#### `i3.remove_minitab(name)`
+
+Remove a minitab.
+
+#### `i3.minimap`
+
+A list of registered minitabs.
+
+---
+
 ### Recipe filters
 
 Recipe filters can be used to filter the recipes shown to players. Progressive
@@ -306,44 +349,6 @@ i3.compress("default:diamondblock", {
 #### `i3.compress_groups`
 
 A map of all compressed item groups, indexed by stereotypes.
-
----
-
-### Minitabs
-
-Allow to add a minitab on the right panel to sort your item list.
-
-#### `i3.new_minitab(name, def)`
-
-Add a new minitab (limited to 6).
-
-- `name` is the tab name.
-- `def` is the definition table.
-
-Example:
-
-```Lua
-i3.new_minitab("Test", {
-	access = function(player, data)
-		-- Whether a player can access this tab or not. Optional.
-		return player:get_player_name() == "singleplayer"
-	end,
-
-	sorter = function(item, data)
-		-- Whether a specific item is shown in the list or not.
-		return item:find"wood"
-	end
-})
-
-```
-
-- `player` is an `ObjectRef` to the user.
-- `data` are the user data.
-- `item` is an item name string.
-
-#### `i3.minimap`
-
-A list of registered minitabs.
 
 ---
 

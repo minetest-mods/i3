@@ -1391,7 +1391,8 @@ local function get_header_items_fs(fs, data)
 		end
 
 		box(X + 1, 0.2, 0.01, 0.5, "#bababa50")
-		local cat = {{"all", "all items"}, {"node", "nodes only"}, {"item", "items only"}}
+		local cat = recipe_filter_set() and {{"all", "all items"}} or
+			{{"all", "all items"}, {"node", "nodes only"}, {"item", "items only"}}
 
 		for i in ipairs(cat) do
 			local name, desc = unpack(cat[i])
@@ -1453,13 +1454,13 @@ local function get_header_items_fs(fs, data)
 end
 
 local function get_minitabs(fs, data, player, full_height)
-	local minitabs = {"All", "Nodes", "Items"}
+	local minitabs = {}
 
 	for i, v in ipairs(i3.minitabs) do
 		local access = v.def.access
 
 		if access == nil or access(player, data) then
-			minitabs[i + 3] = v.name
+			minitabs[i] = v.name
 		end
 	end
 
@@ -1530,7 +1531,7 @@ local function get_items_fs(fs, data, player, full_height)
 
 			local item_btn = fmt("item_image_button", X, Y, size, size, name, item, "")
 
-			if recipe_filter_set() and data.itab <= 3 then
+			if recipe_filter_set() and data.itab == 1 then
 				if data.items_progress[item] then
 					insert(fs, item_btn)
 				else

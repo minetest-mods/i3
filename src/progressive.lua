@@ -6,6 +6,9 @@ IMPORT("reg_items", "reg_nodes")
 IMPORT("fmt", "search", "table_merge", "array_diff")
 IMPORT("is_group", "extract_groups", "item_has_groups", "apply_recipe_filters")
 
+i3.remove_minitab"Nodes"
+i3.remove_minitab"Items"
+
 i3.new_minitab("Unlocked", {
 	sorter = function(item, data)
 		return data.items_progress[item]
