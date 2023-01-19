@@ -101,6 +101,7 @@ i3 = {
 	groups = {},
 	plants = {},
 	modules = {},
+	minitabs = {},
 	craft_types = {},
 
 	recipe_filters = {},

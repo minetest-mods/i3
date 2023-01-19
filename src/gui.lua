@@ -1452,22 +1452,37 @@ local function get_header_items_fs(fs, data)
 	end
 end
 
-local function get_minitabs(fs, data, full_height)
-	local _tabs = {"All", "Nodes", "Items"}
-	local tab_len, tab_hgh = 1.8, 0.5
+local function get_minitabs(fs, data, player, full_height)
+	local minitabs = {"All", "Nodes", "Items"}
 
-	for i, title in ipairs(_tabs) do
-		local selected = i == data.itab
+	for i, v in ipairs(i3.minitabs) do
+		local access = v.def.access
+
+		if access == nil or access(player, data) then
+			minitabs[i + 3] = v.name
+		end
+	end
+
+	local tab_len, tab_hgh, i = 1.8, 0.5, 0
+
+	for id, title in pairs(minitabs) do
+		i++
+		local X = i > 3 and i - 3 or i
+		local selected = id == data.itab
 		local hover_texture = selected and PNG.tab_small_hover or PNG.tab_small
+		local top = i > 3
+		local flip = top and "^[transformFY" or ""
 
-		fs([[ style_type[image_button;bgimg=%s;bgimg_hovered=%s;
-			bgimg_middle=14,0,-14,-14;padding=-14,0,14,14] ]], hover_texture, PNG.tab_small_hover)
+		fs([[ style_type[image_button;bgimg=%s%s;bgimg_hovered=%s%s;
+			bgimg_middle=14,0,-14,-14;padding=-14,0,14,14] ]],
+			hover_texture, flip, PNG.tab_small_hover, flip)
 
 		fs([[ style_type[image_button;noclip=true;font=bold;font_size=16;
 			textcolor=%s;content_offset=0;sound=i3_tab] ]], selected and "#fff" or "#bbb")
 		fs"style_type[image_button:hovered;textcolor=#fff]"
-		image_button((data.inv_width - 0.65) + (i * (tab_len + 0.1)),
-			full_height, tab_len, tab_hgh, "", fmt("itab_%u", i), title)
+
+		image_button((data.inv_width - 0.65) + (X * (tab_len + 0.1)),
+			top and -tab_hgh or full_height, tab_len, tab_hgh, "", fmt("itab_%u", id), title)
 	end
 end
 
@@ -1515,7 +1530,7 @@ local function get_items_fs(fs, data, player, full_height)
 
 			local item_btn = fmt("item_image_button", X, Y, size, size, name, item, "")
 
-			if recipe_filter_set() then
+			if recipe_filter_set() and data.itab <= 3 then
 				if data.items_progress[item] then
 					insert(fs, item_btn)
 				else
@@ -1706,7 +1721,7 @@ local function make_fs(player, data)
 		get_items_fs(fs, data, player, full_height)
 
 		if not data.hide_tabs then
-			get_minitabs(fs, data, full_height)
+			get_minitabs(fs, data, player, full_height)
 		end
 	end
 

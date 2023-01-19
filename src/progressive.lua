@@ -6,6 +6,12 @@ IMPORT("reg_items", "reg_nodes")
 IMPORT("fmt", "search", "table_merge", "array_diff")
 IMPORT("is_group", "extract_groups", "item_has_groups", "apply_recipe_filters")
 
+i3.new_minitab("Unlocked", {
+	sorter = function(item, data)
+		return data.items_progress[item]
+	end
+})
+
 local function get_filtered_items(player, data)
 	local items, known = {}, 0
 

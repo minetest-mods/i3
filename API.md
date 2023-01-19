@@ -309,6 +309,44 @@ A map of all compressed item groups, indexed by stereotypes.
 
 ---
 
+### Minitabs
+
+Allow to add a minitab on the right panel to sort your item list.
+
+#### `i3.new_minitab(name, def)`
+
+Add a new minitab (limited to 6).
+
+- `name` is the tab name.
+- `def` is the definition table.
+
+Example:
+
+```Lua
+i3.new_minitab("Test", {
+	access = function(player, data)
+		-- Whether a player can access this tab or not. Optional.
+		return player:get_player_name() == "singleplayer"
+	end,
+
+	sorter = function(item, data)
+		-- Whether a specific item is shown in the list or not.
+		return item:find"wood"
+	end
+})
+
+```
+
+- `player` is an `ObjectRef` to the user.
+- `data` are the user data.
+- `item` is an item name string.
+
+#### `i3.minimap`
+
+A list of registered minitabs.
+
+---
+
 ### Waypoints
 
 `i3` allows you to manage the waypoints of a specific player.
