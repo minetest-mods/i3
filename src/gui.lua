@@ -1391,8 +1391,20 @@ local function get_header_items_fs(fs, data)
 		end
 
 		box(X + 1, 0.2, 0.01, 0.5, "#bababa50")
-		local cat = recipe_filter_set() and {{"all", "all items"}} or
-			{{"all", "all items"}, {"node", "nodes only"}, {"item", "items only"}}
+
+		local cat = {{"all", "all items"}}
+
+		if not recipe_filter_set() then
+			for _, v in ipairs(i3.minitabs) do
+				if v.name == "Nodes" then
+					insert(cat, {"node", "nodes only"})
+				end
+
+				if v.name == "Items" then
+					insert(cat, {"item", "items only"})
+				end
+			end
+		end
 
 		for i in ipairs(cat) do
 			local name, desc = unpack(cat[i])
