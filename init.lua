@@ -34,7 +34,7 @@ i3 = {
 		save_interval = 600, -- Player data save interval (in seconds)
 
 		hud_speed = 1,
-		hud_timer_max = 1.5,
+		hud_timer_max = 3,
 
 		damage_enabled = core.settings:get_bool"enable_damage",
 		progressive_mode = core.settings:get_bool"i3_progressive_mode",

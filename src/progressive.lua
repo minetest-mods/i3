@@ -3,8 +3,8 @@ local hud_notif = i3.hud_notif
 local POLL_FREQ = 0.25
 
 IMPORT("reg_items", "reg_nodes")
-IMPORT("fmt", "search", "table_merge", "array_diff")
-IMPORT("is_group", "extract_groups", "item_has_groups", "apply_recipe_filters")
+IMPORT("fmt", "table_merge", "array_diff")
+IMPORT("is_group", "extract_groups", "item_has_groups", "apply_recipe_filters", "sort_by_category")
 
 i3.remove_minitab"Nodes"
 i3.remove_minitab"Items"
@@ -154,9 +154,8 @@ local function poll_new_items(player, data, join)
 		end
 
 		data.items_progress = items
-		data.itab = 1
 
-		search(data)
+		sort_by_category(data)
 		set_fs(player)
 	end
 

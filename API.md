@@ -1,6 +1,6 @@
-# :screwdriver: API
+# API :screwdriver:
 
-## Table of Contents
+### Table of Contents
 1. [**Tabs**](https://github.com/minetest-mods/i3/blob/main/API.md#tabs)
 2. [**Recipes**](https://github.com/minetest-mods/i3/blob/main/API.md#recipes)
 3. [**Minitabs**](https://github.com/minetest-mods/i3/blob/main/API.md#minitabs)
@@ -49,7 +49,7 @@ i3.new_tab("stuff", {
 			-- Do things
 		end
 
-		i3.set_fs(player) -- Update the formspec, mandatory
+		i3.set_fs(player) -- Update the formspec
 	end,
 })
 ```
@@ -194,7 +194,7 @@ Example:
 ```Lua
 i3.new_minitab("Test", {
 	access = function(player, data)
-		-- Whether a player can access this tab or not. Optional.
+		-- Whether this tab is visible or not. Optional.
 		return player:get_player_name() == "singleplayer"
 	end,
 
