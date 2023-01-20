@@ -444,11 +444,21 @@ local function craft_stack(player, data, craft_rcp)
 			for _ = 1, v * scrbar_val do
 				inv:remove_item("main", item)
 
-				if rcp_def.replacements then
-					for _, pair in ipairs(rcp_def.replacements) do
-						if item == pair[1] then
-							get_stack(player, ItemStack(pair[2]))
+				for _, pair in ipairs(rcp_def.replacements or {}) do
+					local old_name, new_name = unpack(pair)
+
+					if is_group(old_name) then
+						local groups = extract_groups(old_name)
+						local groupname = old_name:sub(7)
+						local item_groups = i3.groups[groupname].items or groups_to_items(groups)
+
+						for _, it in ipairs(item_groups) do
+							if item == it then
+								get_stack(player, ItemStack(new_name))
+							end
 						end
+					elseif item == old_name then
+						get_stack(player, ItemStack(new_name))
 					end
 				end
 			end
