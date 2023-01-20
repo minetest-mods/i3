@@ -408,6 +408,11 @@ local function get_stack(player, stack)
 	end
 end
 
+local function get_group_items(name)
+	local groups = extract_groups(name)
+	return i3.groups[name:sub(7)].items or groups_to_items(groups)
+end
+
 local function craft_stack(player, data, craft_rcp)
 	local inv = player:get_inventory()
 	local rcp_usg = craft_rcp and "recipe" or "usage"
@@ -422,9 +427,7 @@ local function craft_stack(player, data, craft_rcp)
 
 		if is_group(name) then
 			items = {}
-			local groups = extract_groups(name)
-			local groupname = name:sub(7)
-			local item_groups = i3.groups[groupname].items or groups_to_items(groups)
+			local item_groups = get_group_items(name)
 			local remaining = count
 
 			for _, item in ipairs(item_groups) do
@@ -448,9 +451,7 @@ local function craft_stack(player, data, craft_rcp)
 					local old_name, new_name = unpack(pair)
 
 					if is_group(old_name) then
-						local groups = extract_groups(old_name)
-						local groupname = old_name:sub(7)
-						local item_groups = i3.groups[groupname].items or groups_to_items(groups)
+						local item_groups = get_group_items(old_name)
 
 						for _, it in ipairs(item_groups) do
 							if item == it then

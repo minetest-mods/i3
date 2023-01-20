@@ -1061,10 +1061,15 @@ local function get_grid_fs(fs, data, rcp, is_recipe, is_usage)
 				end
 
 				if not added then
-					label = fmt("%s%s\nR", label ~= "" and "\n" or "", label)
+					label = fmt("%s\nR", label)
 					insert(replace.items, replacement[2])
 				end
 			end
+		end
+
+		local _, count_sub = label:gsub("\n", "")
+		if count_sub == 2 then
+			label = label:sub(2)
 		end
 
 		if not large_recipe then
