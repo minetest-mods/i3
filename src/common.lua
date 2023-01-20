@@ -428,26 +428,30 @@ local function craft_stack(player, data, craft_rcp)
 			local remaining = count
 
 			for _, item in ipairs(item_groups) do
-			for _name, _count in pairs(data.crafting_counts[rcp_usg].inv) do
-				if item == _name and remaining > 0 then
-					local c = min(remaining, _count)
-					items[item] = c
-					remaining -= c
+				for _name, _count in pairs(data.crafting_counts[rcp_usg].inv) do
+					if item == _name and remaining > 0 then
+						local c = min(remaining, _count)
+						items[item] = c
+						remaining -= c
+					end
+
+					if remaining == 0 then break end
 				end
-
-				if remaining == 0 then break end
-			end
 			end
 		end
 
-		for k, v in pairs(items) do
-			inv:remove_item("main", fmt("%s %s", k, v * scrbar_val))
-		end
-	end
+		for item, v in pairs(items) do
+			for _ = 1, v * scrbar_val do
+				inv:remove_item("main", item)
 
-	if rcp_def.replacements then
-		for _, pair in ipairs(rcp_def.replacements) do
-			get_stack(player, ItemStack(pair[2]))
+				if rcp_def.replacements then
+					for _, pair in ipairs(rcp_def.replacements) do
+						if item == pair[1] then
+							get_stack(player, ItemStack(pair[2]))
+						end
+					end
+				end
+			end
 		end
 	end
 

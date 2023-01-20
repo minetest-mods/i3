@@ -1044,11 +1044,9 @@ local function get_grid_fs(fs, data, rcp, is_recipe, is_usage)
 		local label = groups and "\nG" or ""
 		local replace
 
-		for j = 1, #(rcp.replacements or {}) do
-			local replacement = rcp.replacements[j]
+		for _, replacement in ipairs(rcp.replacements or {}) do
 			if replacement[1] == name then
 				replace = replace or {type = rcp.type, items = {}}
-
 				local added
 
 				for _, v in ipairs(replace.items) do
@@ -1087,7 +1085,12 @@ local function get_grid_fs(fs, data, rcp, is_recipe, is_usage)
 			item:set_name(name)
 			item:set_count(count)
 			local itemstr = ESC(item:to_string())
+
 			item_image_button(X, Y, btn_size, btn_size, itemstr, btn_name, label)
+
+			if item:get_stack_max() < count then
+				label(X + 0.95, Y + 0.95, count)
+			end
 		end
 
 		local def = reg_items[name]
