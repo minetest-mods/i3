@@ -946,6 +946,10 @@ local function get_output_fs(fs, data, rcp, is_recipe, is_usage, shapeless, righ
 	local itemstr = ESC(item:to_string())
 	item_image_button(X + 0.11, Y, BTN_SIZE, BTN_SIZE, itemstr, _name, "")
 
+	if item:get_stack_max() < count then
+		label(X + 1.05, Y + 1, count)
+	end
+
 	local def = reg_items[name]
 	local unknown = not def or nil
 	local desc = def and def.description
