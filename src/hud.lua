@@ -18,7 +18,7 @@ local function init_hud(player)
 			position      = {x = 1,    y = 1},
 			offset        = {x = -320, y = 0},
 			alignment     = {x = 1,    y = 1},
-			scale         = {x = 300,  y = 100},
+			scale         = {x = 300,  y = 105},
 			text          = "i3_bg.png",
 			z_index       = 0xDEAD,
 		},
