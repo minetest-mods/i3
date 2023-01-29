@@ -118,8 +118,12 @@ core.register_globalstep(function(dt)
 		local data = i3.data[name]
 		if not data then return end
 
+		local has_text = player:hud_get(data.hud.wielditem).text ~= ""
+
 		if not data.wielditem_hud then
-			player:hud_change(data.hud.wielditem, "text", "")
+			if has_text then
+				player:hud_change(data.hud.wielditem, "text", "")
+			end
 			return
 		end
 
@@ -127,7 +131,7 @@ core.register_globalstep(function(dt)
 		local wieldidx = player:get_wield_index()
 
 		if wieldidx == data.old_wieldidx then
-			if data.timer >= i3.settings.wielditem_fade_after then
+			if data.timer >= i3.settings.wielditem_fade_after and has_text then
 				player:hud_change(data.hud.wielditem, "text", "")
 			end
 			return
