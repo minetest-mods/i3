@@ -7,9 +7,9 @@ local function init_hud(player)
 	local wdesc_y = -90
 
 	if core.global_exists"hb" then
-		wdesc_y -= ceil(hb.hudbars_count / 2) * 5
+		wdesc_y = wdesc_y - ceil(hb.hudbars_count / 2) * 5
 	elseif not i3.settings.damage_enabled then
-		wdesc_y += 15
+		wdesc_y = wdesc_y + 15
 	end
 
 	data.hud = {
@@ -68,8 +68,10 @@ local function show_hud(player, data)
 		data.hud_timer = (data.hud_timer or 0) + dt
 	end
 
-	player:hud_change(data.hud.text, "text", data.hud_msg)
-
+	if data.hud_msg then
+		player:hud_change(data.hud.text, "text", data.hud_msg)
+	end
+	
 	if data.hud_img then
 		player:hud_change(data.hud.img, "text", data.hud_img)
 	end
@@ -117,26 +119,39 @@ core.register_globalstep(function(dt)
 		local name = player:get_player_name()
 		local data = i3.data[name]
 		if not data then return end
-
-		local has_text = player:hud_get(data.hud.wielditem).text ~= ""
-
+		
+		if data and data.show_hud ~= nil then
+			show_hud(player, data)
+		end
+		
+		-- If wielditem hud desactivated
 		if not data.wielditem_hud then
-			if has_text then
+			-- If was activated before, reset
+			if data.old_wieldidx then
 				player:hud_change(data.hud.wielditem, "text", "")
+				data.old_wieldidx = nil
 			end
 			return
 		end
 
-		data.timer = (data.timer or 0) + dt
+		data.timer = (data.timer or 0)
 		local wieldidx = player:get_wield_index()
 
+		-- No change, test if fade needed
 		if wieldidx == data.old_wieldidx then
-			if data.timer >= i3.settings.wielditem_fade_after and has_text then
-				player:hud_change(data.hud.wielditem, "text", "")
+			-- Increase timer for fading
+			if data.timer < i3.settings.wielditem_fade_after then
+				data.timer = data.timer + dt
+				
+				-- Reset if timer after
+				if data.timer >= i3.settings.wielditem_fade_after then
+					player:hud_change(data.hud.wielditem, "text", "")
+				end
 			end
 			return
 		end
-
+		
+		-- Wielditem have changed, need update
 		data.timer = 0
 		data.old_wieldidx = wieldidx
 
@@ -152,20 +167,6 @@ core.register_globalstep(function(dt)
 	end
 end)
 
-core.register_globalstep(function()
-	local players = get_connected_players()
-	players[0] = #players
-
-	for i = 1, players[0] do
-		local player = players[i]
-		local name = player:get_player_name()
-		local data = i3.data[name]
-
-		if data and data.show_hud ~= nil then
-			show_hud(player, data)
-		end
-	end
-end)
 
 local function init_waypoints(player)
 	local name = player:get_player_name()
