@@ -205,7 +205,7 @@ function i3.remove_tab(name)
 		return err "i3.remove_tab: tab name missing"
 	end
 
-	for i = #i3.tabs, 1, -1 do
+	for i = #i3.tabs, 2, -1 do
 		local def = i3.tabs[i]
 		if def and name == def.name then
 			remove(i3.tabs, i)
@@ -448,11 +448,9 @@ end
 function i3.remove_minitab(name)
 	if not true_str(name) then
 		return err "i3.remove_minitab: name missing"
-	elseif name == "all" then
-		return err "i3.remove_minitab: removing the 'All' tab is not allowed"
 	end
 
-	for i = #i3.minitabs, 1, -1 do
+	for i = #i3.minitabs, 2, -1 do
 		local v = i3.minitabs[i]
 		if v and v.name == name then
 			remove(i3.minitabs, i)

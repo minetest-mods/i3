@@ -24,7 +24,7 @@ i3 = {
 	data = core.deserialize(storage:get_string"data") or {},
 
 	settings = {
-		debug_mode = true,
+		debug_mode = false,
 		max_favs = 6,
 		max_waypoints = 30,
 		min_fs_version = 6,
