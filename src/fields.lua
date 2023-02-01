@@ -464,7 +464,7 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 	local tab = i3.tabs[data.tab]
 
 	if tab then
-		if tab.slots and data.tab > 1 then
+		if tab.slots then
 			inv_fields(player, data, fields)
 		end
 
@@ -475,5 +475,3 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 
 	return true, set_fs(player)
 end)
-
-return inv_fields

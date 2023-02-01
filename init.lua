@@ -113,6 +113,7 @@ i3.files.common()
 i3.files.api(http)
 i3.files.compress()
 i3.files.detached()
+i3.files.fields()
 i3.files.groups()
 i3.files.callbacks(http, storage)
 
