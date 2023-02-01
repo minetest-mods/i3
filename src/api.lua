@@ -197,6 +197,7 @@ i3.new_tab("inventory", {
 	description = S"Inventory",
 	formspec = get_inventory_fs,
 	fields = i3.files.fields(),
+	slots = true,
 })
 
 function i3.remove_tab(name)

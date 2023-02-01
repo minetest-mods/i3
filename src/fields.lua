@@ -211,8 +211,6 @@ local function inv_fields(player, data, fields)
 	elseif fields.hide_debug_grid then
 		data.hide_debug_grid = not data.hide_debug_grid
 	end
-
-	return set_fs(player)
 end
 
 local function select_item(player, data, fields)
@@ -465,8 +463,14 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 
 	local tab = i3.tabs[data.tab]
 
-	if tab and tab.fields then
-		return true, tab.fields(player, data, fields)
+	if tab then
+		if tab.slots and data.tab > 1 then
+			inv_fields(player, data, fields)
+		end
+
+		if tab.fields then
+			tab.fields(player, data, fields)
+		end
 	end
 
 	return true, set_fs(player)

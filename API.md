@@ -26,6 +26,7 @@ Custom tabs can be added to the `i3` inventory as follow (example):
 i3.new_tab("stuff", {
 	description = "Stuff",
 	image = "image.png", -- Optional, add an image next to the tab description
+	slots = true -- Optional, whether the inventory slots are shown or not. Disabled by default.
 
 	--
 	-- The functions below are all optional
@@ -49,7 +50,7 @@ i3.new_tab("stuff", {
 			-- Do things
 		end
 
-		i3.set_fs(player) -- Update the formspec
+		-- No need to update the formspec, it's automatic
 	end,
 })
 ```

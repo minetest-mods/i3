@@ -127,32 +127,6 @@ local function get_stack_max(inv, data, is_recipe, rcp)
 	return max_stacks
 end
 
-local function get_inv_slots(data, fs)
-	local legacy_inventory = data.legacy_inventory
-	local hotbar_len = data.hotbar_len
-	local inv_x = legacy_inventory and 0.23 or 0.22
-	local inv_y = legacy_inventory and 6.7 or 6.9
-	local spacing = legacy_inventory and 0.25 or 0.1
-	local size = 1
-
-	fs"style_type[box;colors=#77777710,#77777710,#777,#777]"
-
-	for i = 0, hotbar_len - 1 do
-		box(i * size + inv_x + (i * spacing), inv_y, size, size, "")
-	end
-
-	fs("style_type[list;size=%f;spacing=%f]", size, spacing)
-	fs("list[current_player;main;%f,%f;%u,1;]", inv_x, inv_y, hotbar_len)
-
-	fs("style_type[list;size=%f;spacing=%f,%f]", size, spacing, legacy_inventory and 0.15 or spacing)
-
-	fs("list[current_player;main;%f,%f;%u,%u;%u]", inv_x, inv_y + (legacy_inventory and 1.25 or 1.15),
-		hotbar_len, data.inv_size / hotbar_len, hotbar_len)
-
-	fs"style_type[list;size=1;spacing=0.15]"
-	fs"listring[current_player;craft]listring[current_player;main]"
-end
-
 local function add_subtitle(fs, name, y, ctn_len, font_size, sep, label)
 	fs("style[%s;font=bold;font_size=%u]", name, font_size)
 	button(0, y, ctn_len, 0.5, name, ESC(label))
@@ -688,11 +662,53 @@ local function show_settings(fs, data)
 	end
 end
 
+local function get_footer(fs, data)
+	local btn = {
+		{"trash",    ES"Clear inventory"},
+		{"sort",     ES"Sort inventory"},
+		{"settings", ES"Settings"},
+		{"home",     ES"Go home"},
+	}
+
+	for i, v in ipairs(btn) do
+		local btn_name, tooltip = unpack(v)
+		fs("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
+			btn_name, PNG[btn_name], PNG[fmt("%s_hover", btn_name)])
+		image_button(i + 3.43 - (i * 0.4), 11.43, 0.35, 0.35, "", btn_name, "")
+		fs("tooltip[%s;%s]", btn_name, tooltip)
+	end
+
+	show_settings(fs, data)
+end
+
+local function get_slots(fs, data)
+	local legacy_inventory = data.legacy_inventory
+	local hotbar_len = data.hotbar_len
+	local inv_x = legacy_inventory and 0.23 or 0.22
+	local inv_y = legacy_inventory and 6.7 or 6.9
+	local spacing = legacy_inventory and 0.25 or 0.1
+	local size = 1
+
+	fs"style_type[box;colors=#77777710,#77777710,#777,#777]"
+
+	for i = 0, hotbar_len - 1 do
+		box(i * size + inv_x + (i * spacing), inv_y, size, size, "")
+	end
+
+	fs("style_type[list;size=%f;spacing=%f]", size, spacing)
+	fs("list[current_player;main;%f,%f;%u,1;]", inv_x, inv_y, hotbar_len)
+
+	fs("style_type[list;size=%f;spacing=%f,%f]", size, spacing, legacy_inventory and 0.15 or spacing)
+
+	fs("list[current_player;main;%f,%f;%u,%u;%u]", inv_x, inv_y + (legacy_inventory and 1.25 or 1.15),
+		hotbar_len, data.inv_size / hotbar_len, hotbar_len)
+
+	fs"listring[current_player;craft]listring[current_player;main]"
+
+	get_footer(fs, data)
+end
+
 local function get_inventory_fs(player, data, fs)
-	fs"listcolors[#bababa50;#bababa99]"
-
-	get_inv_slots(data, fs)
-
 	local props = player:get_properties()
 	local ctn_len = 5.7
 	local ctn_hgt = data.legacy_inventory and 6.1 or 6.3
@@ -772,23 +788,6 @@ local function get_inventory_fs(player, data, fs)
 	fs("scroll_container[3.9,0.2;%f,%f;scrbar_inv;vertical]", ctn_len, ctn_hgt)
 	get_container(fs, data, player, yoffset, ctn_len, award_list, awards_unlocked, award_list_nb, bag_size)
 	fs"scroll_container_end[]"
-
-	local btn = {
-		{"trash",    ES"Clear inventory"},
-		{"sort",     ES"Sort inventory"},
-		{"settings", ES"Settings"},
-		{"home",     ES"Go home"},
-	}
-
-	for i, v in ipairs(btn) do
-		local btn_name, tooltip = unpack(v)
-		fs("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
-			btn_name, PNG[btn_name], PNG[fmt("%s_hover", btn_name)])
-		image_button(i + 3.43 - (i * 0.4), 11.43, 0.35, 0.35, "", btn_name, "")
-		fs("tooltip[%s;%s]", btn_name, tooltip)
-	end
-
-	show_settings(fs, data)
 end
 
 local function get_tooltip(item, info, lang_code)
@@ -1313,6 +1312,7 @@ local function get_crafting_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, ma
 	button(x + 0.2, data.yoffset + 1.85, 2.5, 0.7, fmt("craft_%s", name), ES("Craft (×@1)", stack_fs))
 
 	fs"style_type[label;font_size=16;textcolor=#fff]"
+	fs"style_type[image,button,image_button;noclip=false]"
 end
 
 local function get_rcp_extra(fs, data, player, panel, is_recipe, is_usage)
@@ -1497,17 +1497,16 @@ local function get_minitabs(fs, data, player, full_height)
 		local selected = id == data.itab
 		local hover_texture = selected and PNG.tab_small_hover or PNG.tab_small
 		local flip = top and "^[transformFY" or ""
+		local tabname = fmt("itab_%u", id)
 
-		fs([[ style_type[image_button;bgimg=%s%s;bgimg_hovered=%s%s;
-			bgimg_middle=14,0,-14,-14;padding=-14,0,14,14] ]],
-			hover_texture, flip, PNG.tab_small_hover, flip)
+		fs([[ style[%s;bgimg=%s%s;bgimg_hovered=%s%s;noclip=true;font=bold;font_size=16;
+			textcolor=%s;content_offset=0;sound=i3_tab;bgimg_middle=14,0,-14,-14;padding=-14,0,14,14] ]],
+			tabname, hover_texture, flip, PNG.tab_small_hover, flip, selected and "#fff" or "#bbb")
 
-		fs([[ style_type[image_button;noclip=true;font=bold;font_size=16;
-			textcolor=%s;content_offset=0;sound=i3_tab] ]], selected and "#fff" or "#bbb")
-		fs"style_type[image_button:hovered;textcolor=#fff]"
+		fs("style[%s:hovered;textcolor=#fff]", tabname)
 
 		image_button((data.inv_width - 0.65) + (X * (tab_len + 0.1)),
-			top and -tab_hgh or full_height, tab_len, tab_hgh, "", fmt("itab_%u", id), title)
+			top and -tab_hgh or full_height, tab_len, tab_hgh, "", tabname, title)
 	end
 end
 
@@ -1656,17 +1655,17 @@ local function get_tabs_fs(fs, player, data, full_height)
 		local middle = btm and "16,0,-16,-16" or "16,16,-16,-16"
 		local padding = btm and "-16,0,16,16" or "-16,-16,16,16"
 
-		fs([[ style_type[image_button;bgimg=%s;bgimg_hovered=%s;bgimg_middle=%s;padding=%s] ]],
-			bgimg, bgimg_hover, middle, padding)
+		local tabname = fmt("tab_%s", def.name)
 
-		fs("style_type[image_button;noclip=true;font_size=16;textcolor=%s;content_offset=0;sound=i3_tab]",
-			selected and "#fff" or "#ddd")
+		fs([[ style[%s;bgimg=%s;bgimg_hovered=%s;bgimg_middle=%s;padding=%s;noclip=true;
+			font=bold;font_size=16;textcolor=%s;content_offset=0;sound=i3_tab] ]],
+				tabname, bgimg, bgimg_hover, middle, padding, selected and "#fff" or "#bbb")
 
 		local X = (data.inv_width / 2) + (c * (tab_len + 0.1)) - ((tab_len + 0.05) * (shift / 2))
 		local Y = btm and full_height or -tab_hgh
 
-		fs"style_type[image_button:hovered;textcolor=#fff]"
-		image_button(X, Y, tab_len, tab_hgh, "", fmt("tab_%s", def.name), ESC(def.description))
+		fs("style[%s:hovered;textcolor=#fff]", tabname)
+		image_button(X, Y, tab_len, tab_hgh, "", tabname, ESC(def.description))
 
 		if true_str(def.image) then
 			local desc = translate(data.lang_code, def.description)
@@ -1674,6 +1673,7 @@ local function get_tabs_fs(fs, player, data, full_height)
 
 			fs"style_type[image;noclip=true]"
 			image(X + (tab_len / 2) - ((desc_len * 0.1) / 2) - 0.55, Y + 0.05, 0.35, 0.35, def.image)
+			fs"style_type[image;noclip=false]"
 		end
 
 		c++
@@ -1736,8 +1736,14 @@ local function make_fs(player, data)
 
 	local tab = i3.tabs[data.tab]
 
-	if tab and tab.formspec then
-		tab.formspec(player, data, fs)
+	if tab then
+		if tab.formspec then
+			tab.formspec(player, data, fs)
+		end
+
+		if tab.slots then
+			get_slots(fs, data)
+		end
 	end
 
 	if data.query_item then

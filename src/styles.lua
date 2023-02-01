@@ -83,6 +83,9 @@ local PNG = {
 }
 
 local styles = string.format([[
+	listcolors[#bababa50;#bababa99]
+
+	style_type[list;size=1;spacing=0.15]
 	style_type[field;border=false;bgcolor=transparent]
 	style_type[label,field;font_size=16]
 	style_type[button;border=false;content_offset=0]
