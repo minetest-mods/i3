@@ -54,6 +54,8 @@ local PNG = {
 	node = "i3_node.png",
 	item = "i3_item.png",
 	cube = "i3_cube.png",
+	home_px = "i3_home_px.png",
+	home_px_hover = "i3_home_px_hover.png",
 
 	cancel_hover = "i3_cancel.png^\\[brighten",
 	search_hover = "i3_search.png^\\[brighten",
