@@ -1408,11 +1408,11 @@ local function get_header_items_fs(fs, data)
 
 		if not recipe_filter_set() then
 			for _, v in ipairs(i3.minitabs) do
-				if v.name == "Nodes" then
+				if v.name == "nodes" then
 					insert(cat, {"node", "nodes only"})
 				end
 
-				if v.name == "Items" then
+				if v.name == "items" then
 					insert(cat, {"item", "items only"})
 				end
 			end
