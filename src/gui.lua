@@ -124,7 +124,13 @@ local function get_stack_max(inv, data, is_recipe, rcp)
 		end
 	end
 
-	return max_stacks
+	local missing = {}
+
+	for item, count in pairs(counts_rcp) do
+		missing[item] = max(0, count - (counts_inv[item] or 0))
+	end
+
+	return max_stacks, missing
 end
 
 local function add_subtitle(fs, name, y, ctn_len, font_size, sep, label)
@@ -306,7 +312,7 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 		label(0.15, y + 0.33, clr(fmt("#%s", hex), waypoint_name))
 
 		local tooltip = fmt("Name: %s\nPosition:%s", clr("#dbeeff", v.name),
-					v.pos:sub(2,-2):gsub("(%-*%d*%.?%d+)", clr("#dbeeff", " %1")))
+			v.pos:sub(2,-2):gsub("(%-*%d*%.?%d+)", clr("#dbeeff", " %1")))
 
 		if teleport_priv then
 			tooltip = fmt("%s\n%s", tooltip, clr("#ff0", ES"[Click to teleport]"))
@@ -947,7 +953,9 @@ local function get_output_fs(fs, data, rcp, is_recipe, is_usage, shapeless, righ
 	local itemstr = ESC(item:to_string())
 	item_image_button(X + 0.11, Y, BTN_SIZE, BTN_SIZE, itemstr, _name, "")
 
-	if item:get_stack_max() < count then
+	local stackmax = item:get_stack_max()
+
+	if stackmax == 1 and count > 1 then
 		label(X + 1.05, Y + 1, count)
 	end
 
@@ -1098,7 +1106,9 @@ local function get_grid_fs(fs, data, rcp, is_recipe, is_usage)
 
 			item_image_button(X, Y, btn_size, btn_size, itemstr, btn_name, label)
 
-			if item:get_stack_max() < count then
+			local stackmax = item:get_stack_max()
+
+			if stackmax == 1 and count > 1 then
 				label(X + 0.95, Y + 0.95, count)
 			end
 		end
@@ -1324,15 +1334,15 @@ local function get_rcp_extra(fs, data, player, panel, is_recipe, is_usage)
 	if rn then
 		local rcp_ok = is_recipe and panel.rcp[data.rnum].type == "normal"
 		local usg_ok = is_usage and panel.rcp[data.unum].type == "normal"
-		local max_stacks_rcp, max_stacks_usg = 0, 0
+		local max_stacks_rcp, max_stacks_usg, missing_rcp, missing_usg = 0, 0
 		local inv = player:get_inventory()
 
 		if rcp_ok then
-			max_stacks_rcp = get_stack_max(inv, data, is_recipe, panel.rcp[data.rnum])
+			max_stacks_rcp, missing_rcp = get_stack_max(inv, data, is_recipe, panel.rcp[data.rnum])
 		end
 
 		if usg_ok then
-			max_stacks_usg = get_stack_max(inv, data, is_recipe, panel.rcp[data.unum])
+			max_stacks_usg, missing_usg = get_stack_max(inv, data, is_recipe, panel.rcp[data.unum])
 		end
 
 		if is_recipe and max_stacks_rcp == 0 then
@@ -1345,6 +1355,21 @@ local function get_rcp_extra(fs, data, player, panel, is_recipe, is_usage)
 
 		if max_stacks_rcp > 0 or max_stacks_usg > 0 then
 			get_crafting_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, max_stacks_usg)
+
+		elseif rcp_ok or usg_ok then
+			local X = data.inv_width + 7.35
+			local Y = data.yoffset + 0.2
+			local missing = is_recipe and missing_rcp or missing_usg
+			local str = ""
+
+			for item, count in pairs(missing) do
+				local name = is_group(item) and (i3.group_names[item:sub(7)] or item) or
+					get_desc(item, data.lang_code)
+				str = fmt("%s\n%s %s", str, clr("#ff0", count .. '×'), name)
+			end
+
+			image(X, Y, 0.45, 0.45, PNG.crafting .. "^\\[opacity:100")
+			tooltip(X, Y, 0.45, 0.45, fmt("%s:%s", ES"Missing materials for crafting", str))
 		end
 
 		get_rcp_lbl(fs, data, panel, rn, is_recipe, is_usage)
