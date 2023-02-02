@@ -1321,7 +1321,7 @@ local function get_crafting_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, ma
 	fs("scrollbaroptions[min=1;max=%u;smallstep=1]", craft_max)
 
 	scrollbar(x + 0.2, data.yoffset + 1.45, 2.5, 0.35, "horizontal", fmt("scrbar_%s", name), stack_fs)
-	button(x + 0.2, data.yoffset + 1.85, 2.5, 0.7, fmt("craft_%s", name), ES("Craft (×@1)", stack_fs))
+	button(x + 0.2, data.yoffset + 1.9, 2.5, 0.7, fmt("craft_%s", name), ES("Craft (×@1)", stack_fs))
 
 	fs"style_type[label;font_size=16;textcolor=#fff]"
 	fs"style_type[image,button,image_button;noclip=false]"
@@ -1363,9 +1363,11 @@ local function get_rcp_extra(fs, data, player, panel, is_recipe, is_usage)
 			local str = ""
 
 			for item, count in pairs(missing) do
-				local name = is_group(item) and (i3.group_names[item:sub(7)] or item) or
-					get_desc(item, data.lang_code)
-				str = fmt("%s\n%s %s", str, clr("#ff0", count .. '×'), name)
+				if count > 0 then
+					local name = is_group(item) and (i3.group_names[item:sub(7)] or item) or
+						get_desc(item, data.lang_code)
+					str = fmt("%s\n%s %s", str, clr("#ff0", count .. '×'), name)
+				end
 			end
 
 			image(X, Y, 0.45, 0.45, PNG.crafting .. "^\\[opacity:100")
