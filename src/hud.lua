@@ -118,6 +118,10 @@ core.register_globalstep(function(dt)
 		local data = i3.data[name]
 		if not data then return end
 
+		if data.show_hud ~= nil then
+			show_hud(player, data)
+		end
+
 		local has_text = player:hud_get(data.hud.wielditem).text ~= ""
 
 		if not data.wielditem_hud then
@@ -149,21 +153,6 @@ core.register_globalstep(function(dt)
 
 		local desc = meta_desc ~= "" and meta_desc or wielditem:get_short_description()
 		player:hud_change(data.hud.wielditem, "text", desc:trim())
-	end
-end)
-
-core.register_globalstep(function()
-	local players = get_connected_players()
-	players[0] = #players
-
-	for i = 1, players[0] do
-		local player = players[i]
-		local name = player:get_player_name()
-		local data = i3.data[name]
-
-		if data and data.show_hud ~= nil then
-			show_hud(player, data)
-		end
 	end
 end)
 
