@@ -35,7 +35,6 @@ To enable it: `i3_progressive_mode = true` in `minetest.conf`.*
 To use this mod in the best conditions:
 
    - Use LuaJIT
-   - Use a HiDPI widescreen display
    - Use the default Freetype font style
 
 #### Troubleshooting
