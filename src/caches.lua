@@ -1,7 +1,7 @@
 local replacements = {fuel = {}}
 local http = ...
 
-IMPORT("maxn", "copy", "insert", "sort", "match", "sub")
+IMPORT("copy", "insert", "sort", "match", "sub")
 IMPORT("true_str", "is_table", "valid_item", "table_merge", "table_replace", "table_eq")
 IMPORT("fmt", "reg_items", "reg_aliases", "reg_nodes", "is_cube", "get_cube", "ItemStack")
 IMPORT("is_group", "extract_groups", "item_has_groups", "groups_to_items", "get_group_stereotype")
@@ -178,13 +178,7 @@ local function cache_recipes(item)
 			_recipes[#recipes + 1 - k] = v
 		end
 
-		local size_rpl = maxn(replacements[item])
-		local size_rcp = #_recipes
-		local shift = size_rcp - size_rpl
-
 		for k, v in pairs(replacements[item]) do
-			k += shift
-
 			if _recipes[k] then
 				_recipes[k].replacements = v
 			end
