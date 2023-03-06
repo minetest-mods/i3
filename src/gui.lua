@@ -11,11 +11,11 @@ IMPORT("vec", "vec_round")
 IMPORT("find", "match", "sub", "upper")
 IMPORT("clr", "ESC", "msg", "check_privs")
 IMPORT("min", "max", "floor", "ceil", "round")
-IMPORT("true_str", "is_fav", "is_num", "str_to_pos")
 IMPORT("reg_items", "reg_nodes", "reg_tools", "reg_entities")
 IMPORT("get_bag_description", "get_detached_inv", "get_recipes")
 IMPORT("compression_active", "compressible", "recipe_filter_set")
 IMPORT("S", "ES", "translate", "ItemStack", "toupper", "utf8_len")
+IMPORT("true_str", "true_table", "is_fav", "is_num", "str_to_pos")
 IMPORT("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
 IMPORT("extract_groups", "groups_to_items", "is_group", "item_has_groups", "get_group")
 
@@ -736,7 +736,7 @@ local function get_inventory_fs(player, data, fs)
 	--	fs"style[player_model;bgcolor=black]"
 		model(0.2, 0.2, armor_skin and 4 or 3.4, ctn_hgt,
 			"player_model", props.mesh, textures, "0,-150", "false", "false",
-			fmt("%u,%u;30", anim.x, anim.y))
+			true_table(anim) and fmt("%u,%u;30", anim.x, anim.y) or "")
 	else
 		local size = 2.5
 		image(0.7, 0.2, size, size * props.visual_size.y, props.textures[1])
