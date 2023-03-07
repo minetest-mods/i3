@@ -739,6 +739,7 @@ local _ = {
 	check_privs = core.check_player_privs,
 	get_player_by_name = core.get_player_by_name,
 	get_connected_players = core.get_connected_players,
+	get_window_info = core.get_player_window_information,
 
 	-- Inventory
 	get_stack = get_stack,

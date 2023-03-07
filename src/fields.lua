@@ -462,7 +462,6 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 	rcp_fields(player, data, fields)
 
 	local tab = i3.tabs[data.tab]
-
 	if tab then
 		if tab.slots then
 			inv_fields(player, data, fields)

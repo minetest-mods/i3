@@ -1,4 +1,4 @@
-IMPORT("ceil", "get_connected_players", "str_to_pos", "add_hud_waypoint")
+IMPORT("ceil", "get_connected_players", "str_to_pos", "add_hud_waypoint", "get_window_info")
 
 local function init_hud(player)
 	local name = player:get_player_name()
@@ -117,6 +117,8 @@ core.register_globalstep(function(dt)
 		local name = player:get_player_name()
 		local data = i3.data[name]
 		if not data then return end
+
+		data.window = get_window_info and get_window_info(name) or nil
 
 		if data.show_hud ~= nil then
 			show_hud(player, data)
