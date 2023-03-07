@@ -12,12 +12,6 @@ IMPORT("search", "sort_inventory", "sort_by_category", "get_recipes", "get_detac
 local function inv_fields(player, data, fields)
 	local name = data.player_name
 	local inv = player:get_inventory()
-	local sb_inv = fields.scrbar_inv
-
-	if sb_inv and sub(sb_inv, 1, 3) == "CHG" then
-		data.scrbar_inv = tonumber(match(sb_inv, "%d+"))
-		return
-	end
 
 	if fields.dd_sorting_method then
 		data.sort = tonumber(fields.dd_sorting_method)
@@ -445,6 +439,12 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 --	print(dump(fields))
 	local data = i3.data[name]
 	if not data then return end
+
+	local sb_inv = fields.scrbar_inv
+	if sb_inv and sub(sb_inv, 1, 3) == "CHG" then
+		data.scrbar_inv = tonumber(match(sb_inv, "%d+"))
+		return
+	end
 
 	for f in pairs(fields) do
 		if sub(f, 1, 4) == "tab_" then
