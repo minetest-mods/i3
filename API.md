@@ -50,7 +50,8 @@ i3.new_tab("stuff", {
 			-- Do things
 		end
 
-		-- No need to update the formspec, it's automatic
+		-- To prevent a formspec update, return false.
+		-- Otherwise, it's automatic.
 	end,
 })
 ```
