@@ -118,7 +118,12 @@ core.register_globalstep(function(dt)
 		local data = i3.data[name]
 		if not data then return end
 
-		data.window = get_window_info and get_window_info(name) or nil
+		data.window_timer = (data.window_timer or 0) + dt
+
+		if data.window_timer > 1 then
+			data.window_timer = 0
+			data.window = get_window_info and get_window_info(name) or nil
+		end
 
 		if data.show_hud ~= nil then
 			show_hud(player, data)

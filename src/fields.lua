@@ -468,7 +468,8 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 		end
 
 		if tab.fields then
-			tab.fields(player, data, fields)
+			local ret = tab.fields(player, data, fields)
+			if ret == false then return end
 		end
 	end
 
