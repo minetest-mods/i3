@@ -636,6 +636,41 @@ local function add_hud_waypoint(player, name, pos, color, image)
 	}
 end
 
+local function init_hud_notif(player)
+	return {
+		bg = player:hud_add {
+			hud_elem_type = "image",
+			position      = {x = 1,    y = 1},
+			offset        = {x = -330, y = 0},
+			alignment     = {x = 1,    y = 1},
+			scale         = {x = 0.6,  y = 0.6},
+			text          = "i3_bg_notif.png",
+			z_index       = 0xDEAD,
+		},
+
+		img = player:hud_add {
+			hud_elem_type = "image",
+			position      = {x = 1,    y = 1},
+			offset        = {x = -320, y = 20},
+			alignment     = {x = 1,    y = 1},
+			scale         = {x = 1,    y = 1},
+			text          = "",
+			z_index       = 0xDEAD,
+		},
+
+		text = player:hud_add {
+			hud_elem_type = "text",
+			position      = {x = 1,    y = 1},
+			offset        = {x = -245, y = 40},
+			alignment     = {x = 1,    y = 1},
+			number        = 0xffffff,
+			text          = "",
+			z_index       = 0xDEAD,
+			style         = 1,
+		}
+	}
+end
+
 local function get_detached_inv(name, player_name)
 	return core.get_inventory {
 		type = "detached",
@@ -725,6 +760,7 @@ local _ = {
 	play_sound = play_sound,
 	reset_data = reset_data,
 	safe_teleport = safe_teleport,
+	init_hud_notif = init_hud_notif,
 	add_hud_waypoint = add_hud_waypoint,
 
 	-- Core functions

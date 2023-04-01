@@ -1,4 +1,5 @@
-IMPORT("ceil", "get_connected_players", "str_to_pos", "add_hud_waypoint")
+IMPORT("ceil", "remove", "str_to_pos")
+IMPORT("get_connected_players", "add_hud_waypoint")
 
 local function init_hud(player)
 	local name = player:get_player_name()
@@ -13,36 +14,7 @@ local function init_hud(player)
 	end
 
 	data.hud = {
-		bg = player:hud_add {
-			hud_elem_type = "image",
-			position      = {x = 1,    y = 1},
-			offset        = {x = -330, y = 0},
-			alignment     = {x = 1,    y = 1},
-			scale         = {x = 0.6,  y = 0.6},
-			text          = "i3_bg_notif.png",
-			z_index       = 0xDEAD,
-		},
-
-		img = player:hud_add {
-			hud_elem_type = "image",
-			position      = {x = 1,    y = 1},
-			offset        = {x = -320, y = 20},
-			alignment     = {x = 1,    y = 1},
-			scale         = {x = 1,    y = 1},
-			text          = "",
-			z_index       = 0xDEAD,
-		},
-
-		text = player:hud_add {
-			hud_elem_type = "text",
-			position      = {x = 1,    y = 1},
-			offset        = {x = -245, y = 40},
-			alignment     = {x = 1,    y = 1},
-			number        = 0xffffff,
-			text          = "",
-			z_index       = 0xDEAD,
-			style         = 1,
-		},
+		notifs = {},
 
 		wielditem = player:hud_add {
 			hud_elem_type = "text",
@@ -53,58 +25,51 @@ local function init_hud(player)
 			text          = "",
 			z_index       = 0xDEAD,
 			style         = 1,
-		},
+		}
 	}
 end
 
-local function show_hud(player, data, dt)
-	local hud_info_bg = player:hud_get(data.hud.bg)
+local function show_hud(player, data, notif, idx, dt)
+	local hud_info_bg = player:hud_get(notif.elems.bg)
 	local offset_y = hud_info_bg.offset.y
 
-	local max_y = -120
-	local progress = offset_y * (1 / (max_y - 5))
+	local progress = offset_y * (1 / (notif.max_y - 5))
 	      progress = 1 - (progress ^ 4)
 	local speed = i3.settings.hud_speed * (100 * progress) * dt
 
-	if offset_y < max_y then
-		data.show_hud = false
-		data.hud_timer = (data.hud_timer or 0) + dt
+	if offset_y < notif.max_y then
+		notif.show = false
+		notif.hud_timer = notif.hud_timer + dt
 	end
 
-	player:hud_change(data.hud.text, "text", data.hud_msg)
+	player:hud_change(notif.elems.text, "text", notif.hud_msg)
 
-	if data.hud_img then
-		player:hud_change(data.hud.img, "text", data.hud_img)
+	if notif.hud_img then
+		player:hud_change(notif.elems.img, "text", notif.hud_img)
 	end
 
-	if data.show_hud then
-		for name, def in pairs(data.hud) do
-			if name ~= "wielditem" then
-				local hud_info = player:hud_get(def)
+	if notif.show then
+		for _, def in pairs(notif.elems) do
+			local hud_info = player:hud_get(def)
 
-				player:hud_change(def, "offset", {
-					x = hud_info.offset.x,
-					y = hud_info.offset.y - speed
-				})
-			end
+			player:hud_change(def, "offset", {
+				x = hud_info.offset.x,
+				y = hud_info.offset.y - speed
+			})
 		end
-	elseif data.show_hud == false and data.hud_timer >= i3.settings.hud_timer_max then
-		for name, def in pairs(data.hud) do
-			if name ~= "wielditem" then
-				local hud_info = player:hud_get(def)
+	elseif notif.show == false and notif.hud_timer >= (i3.settings.hud_timer_max + (idx * 0.25)) then
+		for _, def in pairs(notif.elems) do
+			local hud_info = player:hud_get(def)
 
-				player:hud_change(def, "offset", {
-					x = hud_info.offset.x,
-					y = hud_info.offset.y + speed
-				})
+			player:hud_change(def, "offset", {
+				x = hud_info.offset.x,
+				y = hud_info.offset.y + speed
+			})
+
+			if offset_y > 0 then
+				player:hud_remove(def)
+				remove(data.hud.notifs, idx)
 			end
-		end
-
-		if offset_y > 0 then
-			data.show_hud  = nil
-			data.hud_timer = nil
-			data.hud_msg   = nil
-			data.hud_img   = nil
 		end
 	end
 end
@@ -119,8 +84,10 @@ core.register_globalstep(function(dt)
 		local data = i3.data[name]
 		if not data then return end
 
-		if data.show_hud ~= nil then
-			show_hud(player, data, dt)
+		for idx, notif in ipairs(data.hud.notifs) do
+			if notif.show ~= nil then
+				show_hud(player, data, notif, idx, dt)
+			end
 		end
 
 		local has_text = player:hud_get(data.hud.wielditem).text ~= ""

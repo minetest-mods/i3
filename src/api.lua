@@ -2,8 +2,8 @@ local http = ...
 local make_fs, get_inventory_fs = i3.files.gui()
 
 IMPORT("sorter", "sort_inventory", "play_sound")
-IMPORT("get_player_by_name", "add_hud_waypoint")
 IMPORT("sort", "concat", "copy", "insert", "remove")
+IMPORT("get_player_by_name", "add_hud_waypoint", "init_hud_notif")
 IMPORT("gmatch", "split", "S", "err", "fmt", "reg_items", "pos_to_str")
 IMPORT("true_str", "true_table", "is_str", "is_func", "is_table", "clean_name")
 
@@ -319,13 +319,29 @@ function i3.hud_notif(name, msg, img)
 		return err "i3.hud_notif: no player data initialized"
 	end
 
-	data.show_hud = true
-	data.hud_msg = msg
+	local player = get_player_by_name(name)
+	local max_y = -120
 
+	local def = {
+		show = true,
+		max_y = max_y,
+		hud_msg = msg,
+		hud_img = img and fmt("%s^[resize:64x64", img) or nil,
+		hud_timer = 0,
+		elems = init_hud_notif(player),
+	}
+
+	insert(data.hud.notifs, def)
 	play_sound(name, "i3_achievement", 1.0)
 
-	if img then
-		data.hud_img = fmt("%s^[resize:64x64", img)
+	local nb_notifs = #data.hud.notifs
+	for i = 1, nb_notifs - 1 do
+		local notif = data.hud.notifs[i]
+		if notif then
+			notif.show = true
+			notif.max_y = ((nb_notifs - i) + 1) * max_y
+			notif.hud_timer = 0
+		end
 	end
 end
 
