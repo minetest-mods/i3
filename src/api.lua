@@ -321,7 +321,7 @@ function i3.hud_notif(name, msg, img)
 
 	local player = get_player_by_name(name)
 	if not player then return end
-	local max_y = -120
+	local max_y = -125
 
 	local def = {
 		show = true,
