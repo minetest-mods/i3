@@ -324,7 +324,7 @@ function i3.hud_notif(name, msg, img)
 
 	local def = {
 		show = true,
-		max_y = max_y,
+		max = {x = -330, y = max_y},
 		hud_msg = msg,
 		hud_img = img and fmt("%s^[resize:64x64", img) or nil,
 		hud_timer = 0,
@@ -339,7 +339,7 @@ function i3.hud_notif(name, msg, img)
 		local notif = data.hud.notifs[i]
 		if notif then
 			notif.show = true
-			notif.max_y = ((nb_notifs - i) + 1) * max_y
+			notif.max.y = ((nb_notifs - i) + 1) * max_y
 			notif.hud_timer = 0
 		end
 	end

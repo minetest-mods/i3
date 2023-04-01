@@ -29,15 +29,16 @@ local function init_hud(player)
 	}
 end
 
+local function get_progress(offset, max)
+	local progress = offset * (1 / (max - 5))
+	return 1 - (progress ^ 4)
+end
+
 local function show_hud(player, data, notif, idx, dt)
 	local hud_info_bg = player:hud_get(notif.elems.bg)
-	local offset_y = hud_info_bg.offset.y
+	local offset = hud_info_bg.offset
 
-	local progress = offset_y * (1 / (notif.max_y - 5))
-	      progress = 1 - (progress ^ 4)
-	local speed = i3.settings.hud_speed * (100 * progress) * dt
-
-	if offset_y < notif.max_y then
+	if offset.y < notif.max.y then
 		notif.show = false
 		notif.hud_timer = notif.hud_timer + dt
 	end
@@ -49,6 +50,8 @@ local function show_hud(player, data, notif, idx, dt)
 	end
 
 	if notif.show then
+		local speed = i3.settings.hud_speed * (100 * get_progress(offset.y, notif.max.y)) * dt
+
 		for _, def in pairs(notif.elems) do
 			local hud_info = player:hud_get(def)
 
@@ -57,16 +60,18 @@ local function show_hud(player, data, notif, idx, dt)
 				y = hud_info.offset.y - speed
 			})
 		end
-	elseif notif.show == false and notif.hud_timer >= (i3.settings.hud_timer_max + (idx * 0.25)) then
+	elseif notif.show == false and notif.hud_timer >= i3.settings.hud_timer_max then
+		local speed = (i3.settings.hud_speed * 2.6) * (100 * get_progress(offset.x, notif.max.x)) * dt
+
 		for _, def in pairs(notif.elems) do
 			local hud_info = player:hud_get(def)
 
 			player:hud_change(def, "offset", {
-				x = hud_info.offset.x,
-				y = hud_info.offset.y + speed
+				x = hud_info.offset.x + speed,
+				y = hud_info.offset.y
 			})
 
-			if offset_y > 0 then
+			if offset.x > 0 then
 				player:hud_remove(def)
 				remove(data.hud.notifs, idx)
 			end
