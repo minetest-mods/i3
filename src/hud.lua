@@ -1,4 +1,4 @@
-IMPORT("ceil", "remove", "str_to_pos")
+IMPORT("abs", "max", "ceil", "remove", "str_to_pos")
 IMPORT("get_connected_players", "add_hud_waypoint")
 
 local function init_hud(player)
@@ -29,8 +29,8 @@ local function init_hud(player)
 	}
 end
 
-local function get_progress(offset, max)
-	local progress = offset * (1 / (max - 5))
+local function get_progress(offset, max_val)
+	local progress = offset * (1 / (max_val - 5))
 	return 1 - (progress ^ 4)
 end
 
@@ -40,7 +40,7 @@ local function show_hud(player, data, notif, idx, dt)
 
 	if offset.y < notif.max.y then
 		notif.show = false
-		notif.hud_timer = notif.hud_timer + dt
+		notif.hud_timer += dt
 	end
 
 	player:hud_change(notif.elems.text, "text", notif.hud_msg)
@@ -57,7 +57,7 @@ local function show_hud(player, data, notif, idx, dt)
 
 			player:hud_change(def, "offset", {
 				x = hud_info.offset.x,
-				y = hud_info.offset.y - speed
+				y = hud_info.offset.y - (speed * max(1, (#data.hud.notifs - idx + 1) / 1.4))
 			})
 		end
 	elseif notif.show == false and notif.hud_timer >= i3.settings.hud_timer_max then
@@ -71,7 +71,7 @@ local function show_hud(player, data, notif, idx, dt)
 				y = hud_info.offset.y
 			})
 
-			if offset.x > 0 then
+			if hud_info.offset.x > abs(notif.max.x) then
 				player:hud_remove(def)
 				remove(data.hud.notifs, idx)
 			end

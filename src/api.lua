@@ -341,7 +341,7 @@ function i3.hud_notif(name, msg, img)
 		if notif then
 			notif.show = true
 			notif.max.y = ((nb_notifs - i) + 1) * max_y
-			notif.hud_timer = 0
+			notif.hud_timer = 0.5 * (nb_notifs - i)
 		end
 	end
 end

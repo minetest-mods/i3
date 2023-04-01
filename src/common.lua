@@ -826,6 +826,7 @@ local _ = {
 
 	-- Math
 	round = round,
+	abs = math.abs,
 	min = math.min,
 	max = math.max,
 	ceil = math.ceil,
