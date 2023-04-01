@@ -16,17 +16,17 @@ local function init_hud(player)
 		bg = player:hud_add {
 			hud_elem_type = "image",
 			position      = {x = 1,    y = 1},
-			offset        = {x = -320, y = 0},
+			offset        = {x = -330, y = 0},
 			alignment     = {x = 1,    y = 1},
-			scale         = {x = 300,  y = 105},
-			text          = "i3_bg.png",
+			scale         = {x = 0.6,  y = 0.6},
+			text          = "i3_bg_notif.png",
 			z_index       = 0xDEAD,
 		},
 
 		img = player:hud_add {
 			hud_elem_type = "image",
 			position      = {x = 1,    y = 1},
-			offset        = {x = -310, y = 20},
+			offset        = {x = -320, y = 20},
 			alignment     = {x = 1,    y = 1},
 			scale         = {x = 1,    y = 1},
 			text          = "",
@@ -36,7 +36,7 @@ local function init_hud(player)
 		text = player:hud_add {
 			hud_elem_type = "text",
 			position      = {x = 1,    y = 1},
-			offset        = {x = -235, y = 40},
+			offset        = {x = -245, y = 40},
 			alignment     = {x = 1,    y = 1},
 			number        = 0xffffff,
 			text          = "",
@@ -57,13 +57,16 @@ local function init_hud(player)
 	}
 end
 
-local function show_hud(player, data)
+local function show_hud(player, data, dt)
 	local hud_info_bg = player:hud_get(data.hud.bg)
-	local dt = 0.016
 	local offset_y = hud_info_bg.offset.y
-	local speed = 5 * i3.settings.hud_speed
 
-	if offset_y < -100 then
+	local max_y = -120
+	local progress = offset_y * (1 / (max_y - 5))
+	      progress = 1 - (progress ^ 4)
+	local speed = i3.settings.hud_speed * (100 * progress) * dt
+
+	if offset_y < max_y then
 		data.show_hud = false
 		data.hud_timer = (data.hud_timer or 0) + dt
 	end
@@ -85,25 +88,23 @@ local function show_hud(player, data)
 				})
 			end
 		end
-	elseif data.show_hud == false then
-		if data.hud_timer >= i3.settings.hud_timer_max then
-			for name, def in pairs(data.hud) do
-				if name ~= "wielditem" then
-					local hud_info = player:hud_get(def)
+	elseif data.show_hud == false and data.hud_timer >= i3.settings.hud_timer_max then
+		for name, def in pairs(data.hud) do
+			if name ~= "wielditem" then
+				local hud_info = player:hud_get(def)
 
-					player:hud_change(def, "offset", {
-						x = hud_info.offset.x,
-						y = hud_info.offset.y + speed
-					})
-				end
+				player:hud_change(def, "offset", {
+					x = hud_info.offset.x,
+					y = hud_info.offset.y + speed
+				})
 			end
+		end
 
-			if offset_y > 0 then
-				data.show_hud  = nil
-				data.hud_timer = nil
-				data.hud_msg   = nil
-				data.hud_img   = nil
-			end
+		if offset_y > 0 then
+			data.show_hud  = nil
+			data.hud_timer = nil
+			data.hud_msg   = nil
+			data.hud_img   = nil
 		end
 	end
 end
@@ -119,7 +120,7 @@ core.register_globalstep(function(dt)
 		if not data then return end
 
 		if data.show_hud ~= nil then
-			show_hud(player, data)
+			show_hud(player, data, dt)
 		end
 
 		local has_text = player:hud_get(data.hud.wielditem).text ~= ""
