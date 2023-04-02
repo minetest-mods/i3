@@ -577,11 +577,7 @@ local function sort_inventory(player, data)
 	local size = inv:get_size"main"
 	local start_i = data.ignore_hotbar and (data.hotbar_len + 1) or 1
 
-	if data.inv_compress then
-		list = compress_items(list, start_i)
-	else
-		list = pre_sorting(list, start_i)
-	end
+	list = data.inv_compress and compress_items(list, start_i) or pre_sorting(list, start_i)
 
 	local new_inv = i3.sorting_methods[data.sort].func(list, data)
 	if not new_inv then return end
@@ -688,11 +684,7 @@ local function update_inv_size(player, data)
 	player:hud_set_hotbar_itemcount(data.hotbar_len)
 
 	core.after(0, function()
-		if data.legacy_inventory then
-			player:hud_set_hotbar_image"gui_hotbar.png"
-		else
-			player:hud_set_hotbar_image"i3_hotbar.png"
-		end
+		player:hud_set_hotbar_image(data.legacy_inventory and "gui_hotbar.png" or "i3_hotbar.png")
 	end)
 end
 

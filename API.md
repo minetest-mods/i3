@@ -38,6 +38,7 @@ i3.new_tab("stuff", {
 		return name == "singleplayer"
 	end,
 
+	-- Build the formspec
 	formspec = function(player, data, fs)
 		fs("label", 3, 1, "Just a test")
 		fs"label[3,2;Lorem Ipsum]"
@@ -51,7 +52,7 @@ i3.new_tab("stuff", {
 		end
 
 		-- To prevent a formspec update, return false.
-		-- Otherwise, it's automatic.
+		-- Otherwise: no need to return anything, it's automatic.
 	end,
 })
 ```
@@ -74,7 +75,7 @@ Return the current player tab. `player` is an `ObjectRef` to the user.
 
 #### `i3.set_tab(player[, tabname])`
 
-Sets the current tab by name. `player` is an `ObjectRef` to the user.
+Set the current tab by name. `player` is an `ObjectRef` to the user.
 `tabname` can be omitted to get an empty tab.
 
 #### `i3.override_tab(tabname, def)`
@@ -145,7 +146,7 @@ i3.register_craft {
 }
 ```
 
-Multiples recipes can also be registered:
+Multiple recipes can also be registered at once:
 
 ```Lua
 i3.register_craft {
@@ -220,7 +221,7 @@ Remove a minitab by name.
 
 - `name` is the name of the tab to remove.
 
-#### `i3.minimap`
+#### `i3.minitabs`
 
 A list of registered minitabs.
 
@@ -418,7 +419,7 @@ Return a table of all waypoints of a specific player.
 
 #### `i3.hud_notif(name, msg[, img])`
 
-Show a Steam-like HUD notification on the bottom-right corner of the screen (experimental).
+Show a Steam-like HUD notification on the bottom-left corner of the screen.
 
 - `name` is the player name.
 - `msg` is the HUD message to show.
@@ -440,4 +441,4 @@ given a number between 1 and 4.
 
 ---
 
-**¹** Add `i3` to the `secure.http_mods` or `secure.trusted_mods` setting in `minetest.conf`.
+**[1]** Add `i3` to the `secure.http_mods` or `secure.trusted_mods` setting in `minetest.conf`.

@@ -285,7 +285,7 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 	label(0, yextra + 0.85, ES"New waypoint" .. ":")
 	fs("field[0.1,%f;4.8,0.6;waypoint_name;;]", yextra + 1.1)
 	image_button(5.1, yextra + 1.15, 0.5, 0.5, "", "waypoint_add", "")
-	fs("tooltip[waypoint_add;%s]", ES"Add waypoint")
+	fs("tooltip[waypoint_add;%s;#323338;#fff]", ES"Add waypoint")
 
 	if #data.waypoints == 0 then return end
 	fs"style_type[label;font=bold;font_size=17]"
@@ -323,23 +323,23 @@ local function get_waypoint_fs(fs, data, player, yextra, ctn_len)
 		local del = fmt("waypoint_%u_delete", i)
 		fs("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", del, PNG.trash, PNG.trash_hover)
 		image_button(ctn_len - 0.5, yi, icon_size, icon_size, "", del, "")
-		fs("tooltip[%s;%s]", del, ES"Remove waypoint")
+		fs("tooltip[%s;%s;#323338;#fff]", del, ES"Remove waypoint")
 
 		local rfs = fmt("waypoint_%u_refresh", i)
 		fs("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]", rfs, PNG.refresh, PNG.refresh_hover)
 		image_button(ctn_len - 1, yi, icon_size, icon_size, "", rfs, "")
-		fs("tooltip[%s;%s]", rfs, ES"Change color")
+		fs("tooltip[%s;%s;#323338;#fff]", rfs, ES"Change color")
 
 		local see = fmt("waypoint_%u_see", i)
 		fs("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
 			see, waypoint_preview and PNG.search_hover or PNG.search, PNG.search, PNG.search_hover)
 		image_button(ctn_len - 1.5, yi, icon_size, icon_size, "", see, "")
-		fs("tooltip[%s;%s]", see, ES"Preview the waypoint area")
+		fs("tooltip[%s;%s;#323338;#fff]", see, ES"Preview the waypoint area")
 
 		local vsb = fmt("waypoint_%u_hide", i)
 		fs("style[%s;fgimg=%s;content_offset=0]", vsb, v.hide and PNG.nonvisible or PNG.visible)
 		image_button(ctn_len - 2, yi, icon_size, icon_size, "", vsb, "")
-		fs("tooltip[%s;%s]", vsb, v.hide and ES"Show waypoint" or ES"Hide waypoint")
+		fs("tooltip[%s;%s;#323338;#fff]", vsb, v.hide and ES"Show waypoint" or ES"Hide waypoint")
 
 		if teleport_priv then
 			local tp = fmt("waypoint_%u_teleport", i)
@@ -379,7 +379,7 @@ local function get_bag_fs(fs, data, bag_size, yextra)
 		hypertext(1.3, yextra + 0.8, 4.3, 0.6, "content",
 			fmt("<global size=16><center><b>%s</b></center>", desc))
 		image_button(5.22, yextra + 0.835, 0.25, 0.25, "", "bag_rename", "")
-		fs("tooltip[bag_rename;%s]", ES"Rename the bag")
+		fs("tooltip[bag_rename;%s;#323338;#fff]", ES"Rename the bag")
 	else
 		box(1.7, yextra + 0.82, 2.6, 0.4, "#707070")
 		fs("field[1.8,%f;2.5,0.4;bag_newname;;%s]", yextra + 0.82, desc)
@@ -442,7 +442,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 			data.subcat == i and PNG[fmt("%s_hover", title)] or PNG[title],
 			PNG[fmt("%s_hover", title)])
 		image_button(0.25 + ((i - 1) * 1.18), yextra - 0.2, 0.5, 0.5, "", btn_name, "")
-		fs("tooltip[%s;%s]", btn_name, title:gsub("^%l", upper))
+		fs("tooltip[%s;%s;#323338;#fff]", btn_name, title:gsub("^%l", upper))
 	end
 
 	box(0, yextra + 0.45, ctn_len, 0.045, "#bababa50")
@@ -540,7 +540,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 			      Y += (Y * 2.45) + yextra - 2.75 + add_y
 
 			image_button(X, Y, 1.86, 3.4, "", btn_name, "")
-			fs("tooltip[%s;%s]", btn_name, ESC(skin.name))
+			fs("tooltip[%s;%s;#323338;#fff]", btn_name, ESC(skin.name))
 		end
 
 	elseif data.subcat == 4 then
@@ -621,17 +621,17 @@ local function show_settings(fs, data)
 			local sign = (data.font_size > 0 and "+") or (data.font_size > 0 and "-") or ""
 			label(5.3, 9.95, ES"Font size" .. fmt(": %s", sign .. data.font_size))
 
-			local range = 5
+			local range = 8
 			fs("scrollbaroptions[min=-%u;max=%u;smallstep=1;largestep=1;thumbsize=2]", range, range)
-			fs("scrollbar[5.3,10.2;2.55,0.3;horizontal;sb_font_size;%d]", data.font_size)
+			fs("scrollbar[5.3,10.2;2.55,0.3;horizontal;sb_font_size;%d+]", data.font_size)
 
-			fs("tooltip[cb_hide_tabs;%s;#707070;#fff]",
+			fs("tooltip[cb_hide_tabs;%s;#323338;#fff]",
 				ES"Enable this option to change the style of the right panel")
-			fs("tooltip[cb_legacy_inventory;%s;#707070;#fff]",
+			fs("tooltip[cb_legacy_inventory;%s;#323338;#fff]",
 				ES"Enable this option to set the classic inventory size in Minetest")
-			fs("tooltip[cb_wielditem_hud;%s;#707070;#fff]",
+			fs("tooltip[cb_wielditem_hud;%s;#323338;#fff]",
 				ES"Enable this option to show the wielded item description in your HUD")
-			fs("tooltip[cb_collapse;%s;#707070;#fff]",
+			fs("tooltip[cb_collapse;%s;#323338;#fff]",
 				ES"Enable this option to collapse the inventory list by grouping some items")
 
 		elseif show_sorting then
@@ -648,21 +648,20 @@ local function show_settings(fs, data)
 			end
 
 			label(5.3, 10.4, ES"Sorting method:")
-			fs("dropdown[%f,%f;2.6,0.5;dd_sorting_method;%s;%u;true]",
-				5.3, 10.6, concat(methods, ","), data.sort)
+			fs("dropdown[%f,%f;2.6,0.5;dd_sorting_method;%s;%u;true]", 5.3, 10.6, concat(methods, ","), data.sort)
 
 			local desc = i3.sorting_methods[data.sort].description
 			if desc then
 				tooltip(5.3, 10.6, 2.4, 0.5, ESC(desc))
 			end
 
-			fs("tooltip[cb_inv_compress;%s;#707070;#fff]",
+			fs("tooltip[cb_inv_compress;%s;#323338;#fff]",
 				ES"Enable this option to compress your inventory")
-			fs("tooltip[cb_reverse_sorting;%s;#707070;#fff]",
+			fs("tooltip[cb_reverse_sorting;%s;#323338;#fff]",
 				ES"Enable this option to sort your inventory in reverse order")
-			fs("tooltip[cb_ignore_hotbar;%s;#707070;#fff]",
+			fs("tooltip[cb_ignore_hotbar;%s;#323338;#fff]",
 				ES"Enable this option to sort your inventory except the hotbar slots")
-			fs("tooltip[cb_auto_sorting;%s;#707070;#fff]",
+			fs("tooltip[cb_auto_sorting;%s;#323338;#fff]",
 				ES"Enable this option to sort your inventory automatically")
 		end
 
@@ -683,7 +682,7 @@ local function get_footer(fs, data)
 		fs("style[%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
 			btn_name, PNG[btn_name], PNG[fmt("%s_hover", btn_name)])
 		image_button(i + 3.43 - (i * 0.4), 11.43, 0.35, 0.35, "", btn_name, "")
-		fs("tooltip[%s;%s]", btn_name, tooltip)
+		fs("tooltip[%s;%s;#323338;#fff]", btn_name, tooltip)
 	end
 
 	show_settings(fs, data)
@@ -771,7 +770,6 @@ local function get_inventory_fs(player, data, fs)
 
 		for i = 1, award_list_nb do
 			local award = award_list[i]
-
 			if award.unlocked then
 				awards_unlocked++
 			end
@@ -781,7 +779,6 @@ local function get_inventory_fs(player, data, fs)
 
 	elseif data.subcat == 5 then
 		local wp = #data.waypoints
-
 		if wp > 0 then
 			local mul = (wp > 8 and 7) or (wp > 4 and 6) or 5
 			max_val += 11 + (wp * mul)
@@ -871,7 +868,7 @@ local function get_tooltip(item, info, lang_code)
 		end
 	end
 
-	return fmt("tooltip[%s;%s]", item, ESC(tooltip))
+	return fmt("tooltip[%s;%s;#323338;#fff]", item, ESC(tooltip))
 end
 
 local function get_true_count(data, count, is_recipe, is_usage)
@@ -1107,7 +1104,6 @@ local function get_grid_fs(fs, data, rcp, is_recipe, is_usage)
 			item_image_button(X, Y, btn_size, btn_size, itemstr, btn_name, label)
 
 			local stackmax = item:get_stack_max()
-
 			if stackmax == 1 and count > 1 then
 				label(X + 0.95, Y + 0.95, count)
 			end
@@ -1134,9 +1130,7 @@ local function get_grid_fs(fs, data, rcp, is_recipe, is_usage)
 			meta_desc = meta_desc,
 		}
 
-		if next(infos) then
-			fs(get_tooltip(btn_name, infos, data.lang_code))
-		end
+		fs(get_tooltip(btn_name, infos, data.lang_code))
 	end
 
 	if large_recipe then
@@ -1237,20 +1231,18 @@ local function get_header(fs, data)
 	local star_x, star_y, size = data.inv_width + 0.3, data.yoffset + 0.2, 0.4
 
 	if nfavs < max_favs or (nfavs == max_favs and fav) then
-		local fav_marked = fmt("i3_fav%s.png", fav and "_off" or "")
-		fs("style[fav;fgimg=%s;fgimg_hovered=%s;fgimg_pressed=%s]",
-			fmt("i3_fav%s.png", fav and "" or "_off"), fav_marked, fav_marked)
+		fs("style[fav;fgimg=i3_fav%s.png;fgimg_hovered=i3_fav%s.png]", fav and "" or "_off", fav and "" or "_off")
 		image_button(star_x, star_y, size, size, "", "fav", "")
-		fs("tooltip[fav;%s]", fav and ES"Unmark this item" or ES"Mark this item")
+		fs("tooltip[fav;%s;#323338;#fff]", fav and ES"Unbookmark this item" or ES"Bookmark this item")
 	else
 		fs("style[nofav;fgimg=%s;fgimg_hovered=%s;fgimg_pressed=%s]",
 			"i3_fav_off.png", PNG.cancel, PNG.cancel)
 		image_button(star_x, star_y, size, size, "", "nofav", "")
-		fs("tooltip[nofav;%s]", ES"Cannot mark this item. Bookmark limit reached.")
+		fs("tooltip[nofav;%s;#323338;#fff]", ES"Unable to bookmark this item, limit reached")
 	end
 
 	image_button(star_x + 0.05, star_y + 0.6, size, size, "", "exit", "")
-	fs("tooltip[exit;%s]", ES"Back to item list")
+	fs("tooltip[exit;%s;#323338;#fff]", ES"Back to item list")
 
 	local desc_lim, name_lim = 34, 35
 	local desc = get_desc(data.query_item, data.lang_code)
@@ -1293,7 +1285,7 @@ local function get_crafting_fs(fs, data, is_recipe, is_usage, max_stacks_rcp, ma
 	fs("style[crafting_%s;fgimg=%s;fgimg_hovered=%s;content_offset=0]",
 		name, fmt("%s", show_crafting and PNG.crafting_hover or PNG.crafting), PNG.crafting_hover)
 	image_button(data.inv_width + 7.35, data.yoffset + 0.2, 0.45, 0.45, "", fmt("crafting_%s", name), "")
-	fs("tooltip[crafting_%s;%s]", name, ES"Quick crafting")
+	fs("tooltip[crafting_%s;%s;#323338;#fff]", name, ES"Quick crafting")
 
 	if not show_crafting then return end
 
@@ -1421,7 +1413,7 @@ local function get_header_items_fs(fs, data)
 		fs("style[enable_search;bgimg=%s;bgimg_hovered=%s;bgimg_pressed=%s]",
 			data.enable_search and PNG.search_hover or PNG.search, PNG.search_hover, PNG.search_hover)
 		image_button(X + 0.3, 0.2, 0.5, 0.5, "", "enable_search", "")
-		fs("tooltip[enable_search;%s]", ES"Search")
+		fs("tooltip[enable_search;%s;#323338;#fff]", ES"Search")
 
 		if data.enable_search then
 			image(X + 0.4, 0.75, 3.4, 0.8, PNG.bg_goto)
@@ -1454,12 +1446,12 @@ local function get_header_items_fs(fs, data)
 			fs("style[itab_%u;bgimg=%s;bgimg_hovered=%s;bgimg_pressed=%s;sound=i3_tab]",
 				i, data.itab == i and active or PNG[name], active, active)
 			image_button(X + 1.25 + ((i - 1) * 0.7), 0.2, 0.5, 0.5, "", fmt("itab_%s", i), "")
-			fs("tooltip[itab_%u;Show %s]", i, desc)
+			fs("tooltip[itab_%u;Show %s;#323338;#fff]", i, desc)
 		end
 	else
 		fs("style[search;bgimg=%s]", PNG.search_hover)
 		image_button(X + 0.35, 0.32, 0.35, 0.35, "", "search", "")
-		fs("tooltip[search;%s]", ES"Search")
+		fs("tooltip[search;%s;#323338;#fff]", ES"Search")
 
 		if data.enable_search then
 			fs"style[filter;font_size=18]"
@@ -1478,7 +1470,7 @@ local function get_header_items_fs(fs, data)
 
 		if true_str(data.filter) then
 			image_button(X + 4.3, 0.4, 0.2, 0.2,  "", "cancel", "")
-			fs("tooltip[cancel;%s]", ES"Clear")
+			fs("tooltip[cancel;%s;#323338;#fff]", ES"Clear")
 			box(X + 0.85, 0.75, 3.74, 0.01, "#f9826c")
 		end
 	end
@@ -1511,7 +1503,6 @@ local function get_minitabs(fs, data, player, full_height)
 
 	for i, v in ipairs(i3.minitabs) do
 		local access = v.access
-
 		if access == nil or access(player, data) then
 			minitabs[i] = v.description
 		end
@@ -1604,10 +1595,12 @@ local function get_items_fs(fs, data, player, full_height)
 			if compressible(item, data) then
 				local expand = data.expand == name
 
-				fs("tooltip[%s;%s]", item, expand and ES"Click to hide" or ES"Click to expand")
+				fs("tooltip[%s;%s;#323338;#fff]", item, expand and ES"Click to hide" or ES"Click to expand")
 				fs"style_type[label;font=bold;font_size=20]"
 				label(X + 0.65, Y + 0.7, expand and "-" or "+")
 				fs"style_type[label;font=normal;font_size=16]"
+			else
+				fs(get_tooltip(name, {}, data.lang_code))
 			end
 		end
 	end

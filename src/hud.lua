@@ -4,7 +4,6 @@ IMPORT("get_connected_players", "add_hud_waypoint")
 local function init_hud(player)
 	local name = player:get_player_name()
 	local data = i3.data[name]
-
 	local wdesc_y = -90
 
 	if core.global_exists"hb" then
