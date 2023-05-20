@@ -4,6 +4,9 @@
 
 #### **`i3`** is a next-generation inventory for Minetest.
 
+> **Warning**
+> Not currently maintained.
+
 This mod features a modern, powerful inventory menu with a good user experience.
 **`i3`** provides a rich [**API**](https://github.com/minetest-mods/i3/blob/master/API.md) for mod developers who want to extend it.
 
